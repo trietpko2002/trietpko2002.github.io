@@ -18,6 +18,12 @@
     <script>
         alert('Lưu ý : Đây là trang web việt hoá bởi trietpko2002, không phải của trang chính thức của Android x86, xin đừng hiểu nhầm                     Note: This is a localized website by trietpko2002, not the official Android x86 site, please dont misunderstand');
       </script>
+       <script>
+        function showAlert() {
+            var message = "Trang web đang phát triển";
+           alert(message); 
+        }
+      </script>
     <!-- Page Navigation -->
     <nav class="navbar custom-navbar navbar-expand-lg navbar-dark" data-spy="affix" data-offset-top="20">
         <div class="container">
@@ -43,19 +49,19 @@
                         <a class="nav-link" href="donate.html">Ủng hộ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#team">Cách cài đặt</a>
+                        <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Cách cài đặt</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#testimonial">Mã nguồn và có gì mới</a>
+                        <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Mã nguồn và có gì mới</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#blog">Ảnh chụp màn hình</a>
+                        <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Ảnh chụp màn hình</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#contact">Liên hệ</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="#contact">Github</a>
+                      <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Github</a>
                     </li>
                 </ul>
             </div>
@@ -69,8 +75,8 @@
             <h6 class="subtitle">Biến máy tính của bạn thành hệ điều hành Android</h6>
             <h1 class="title">Android x86</h1>
             <div class="buttons text-center">
-                <a href="#service" class="btn btn-primary rounded w-lg btn-lg my-1">Tải xuống</a>
-                <a href="#contact" class="btn btn-outline-light rounded w-lg btn-lg my-1">Cấu hình tối thiểu</a>
+                <a class="btn btn-primary rounded w-lg btn-lg my-1" href="#" value="Click me!" onclick="showAlert();">Tải xuống</a>
+                <a class="btn btn-outline-light rounded w-lg btn-lg my-1" href="#" value="Click me!" onclick="showAlert();">Cấu hình tối thiểu</a>
             </div>              
         </div>      
     </header>
@@ -221,7 +227,7 @@
                         <div class="form-group">
                             <textarea name="contact-message" id="" cols="30" rows="7" class="form-control form-control-lg" placeholder="Message"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-3">Send Message</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-3" value="Click me!" onclick="showAlert();">Send Message</button>
                     </form>
                 </div>
             </div>
