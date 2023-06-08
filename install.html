@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Start your development with Creative Studio landing page.">
+    <meta name="author" content="Devcrud">
+    <title>Installation Howto | Android-x86</title>
+
+    <!-- font icons -->
+    <link rel="stylesheet" href="assets/vendors/themify-icons/css/themify-icons.css">
+
+    <!-- Bootstrap + Creative Studio main styles -->
+	<link rel="stylesheet" href="assets/css/creative-studio.css">
+    <!--Fav icon-->
+    <link rel="shortcut icon" type="image/png" href="/assets/imgs/mobile.png">
+
+</head>
+<body data-spy="scroll" data-target=".navbar" data-offset="40" id="home"> 
+    <!-- Page Navigation -->
+    <nav class="navbar custom-navbar navbar-expand-lg navbar-dark" data-spy="affix" data-offset-top="20">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="assets/imgs/logo.png" alt="Download free bootstrap 4 landing page, free boootstrap 4 templates, Download free bootstrap 4.1 landing page, free boootstrap 4.1.1 templates, Creative studio Landing page">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span></span>
+            </button>
+            <script>
+                function showAlert() {
+                    var message = "Trang web đang phát triển";
+                   alert(message); 
+                }
+              </script>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">Về Android x86</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="credits.html">Người đóng góp</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="donate.html">Ủng hộ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="install.html"">Cách cài đặt</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Mã nguồn và có gì mới</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Ảnh chụp màn hình</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Liên hệ</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#" value="Click me!" onclick="showAlert();">Github</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End Of Page Navigation -->
+    <div class="wrapper">
+        <section>
+            <h1 id="top" class="heading">Android-x86</h1>
+            <h2 class="subheading">Chạy hệ điều hành Android lên PC</h2>
+    
+          <!--Bộ chuyển đổi kiểu-->
+          
+          <h1>Cài đặt</h1>
+          <br><h2 class="subheading">Giới thiệu</h2>
+          Chúng tôi đã triển khai trình cài đặt dễ dàng dựa trên văn bản để giúp cài đặt Android-x86 vào ổ cứng. Các hệ thống tập tin này được hỗ trợ:
+          <ul>
+            <li>ext4</li>
+            <li>ntfs</li>
+            <li>fat32</li></ul>
+            <p>Đặc biệt, bạn có thể cài đặt Android-x86 vào hệ thống tệp NTFS để cùng tồn tại với Windows. Xem <a href="#Advanced">Phần Nâng cao</a> để biết thêm chi tiết.</p>
+   
+          <br><h2 class="subheading">Từng bước</h2>
+            <ul>
+              <li>Tải xuống hình ảnh iso từ <a href="download.html">trang web nhân bản</a>. Thông thường, bạn chỉ nên sử dụng hình ảnh mới nhất.</li>
+              <li>Ghi hình ảnh iso vào đĩa cdrom hoặc tạo đĩa USB có thể khởi động (được khuyến nghị). Xem <a href="#Advanced">Phần Nâng cao</a> để biết chi tiết.</li>
+              <li>Khởi động từ CD/USB cài đặt Android-x86, chọn mục 'Cài đặt Android-x86 vào ổ cứng', như minh họa bên dưới:
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallBootSelect.png"></blockquote></li>
+              <li>Sau vài giây khởi động, bạn sẽ thấy hộp thoại lựa chọn phân vùng. Bạn có thể chọn một phân vùng hiện có để cài đặt Android-x86 hoặc bạn có thể tạo hoặc sửa đổi phân vùng bằng cách chọn 'Tạo/Sửa đổi phân vùng'. Lưu ý rằng bạn có thể cài đặt Android-x86 vào ổ đĩa ngoài như ổ USB. Nếu ổ đích không được hiển thị, hãy thử 'Phát hiện thiết bị'.
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallChoosePartition.png"></blockquote></li>
+              <li>Android-x86 có thể cùng tồn tại với hệ điều hành hoặc dữ liệu khác trong phân vùng đã chọn. Nếu phân vùng được định dạng, bạn có thể chọn 'Không định dạng lại' để giữ dữ liệu hiện có. Nếu không, hãy chọn loại hệ thống tệp để định dạng. Lưu ý loại bạn chọn phải khớp với id phân vùng, nếu không bộ tải khởi động sẽ không khởi động được.
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallChooseFilesystem.png"></blockquote></li>
+              <li>Nếu chọn định dạng phân vùng, bạn sẽ thấy cảnh báo như bên dưới. Chọn 'Có' để xác nhận hoặc chọn 'Không' để giữ hệ thống tệp gốc.
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallFormatConfirm.png"></blockquote></li>
+          <li>Câu hỏi tiếp theo là có nên cài đặt bộ nạp khởi động Grub hay không. Thông thường, bạn nên trả lời 'Có', trừ khi bạn muốn tự mình cài đặt bộ nạp khởi động.
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallGrubConfirm.png"></blockquote></li>
+          <li>Sau đó, trình cài đặt sẽ hỏi bạn có muốn cài đặt thư mục <tt>/system</tt> dưới dạng đọc-ghi hay không. Nếu bạn muốn sửa đổi hệ thống cho một số mục đích (ví dụ: gỡ lỗi), hãy chọn 'Có'.
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallSelectSystemRW.png"></blockquote></li>
+              <li>Nếu bạn may mắn, quá trình cài đặt sẽ bắt đầu và bạn sẽ thấy thanh tiến trình.
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallProgress.png"></blockquote></li>
+              <li>Nếu bạn thấy màn hình sau, quá trình cài đặt đã hoàn tất. Chúc mừng! Bây giờ bạn có thể chạy trực tiếp Andrond-x86 hoặc bạn có thể khởi động lại và chạy nó:
+                <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/InstallComplete.png"></blockquote>
+            </ul>
+            <br><h2 class="subheading">Nâng cấp</h2>
+            <p>Bạn có thể nâng cấp bản cài đặt Android-x86 cũ hơn bằng trình cài đặt. Chỉ cần chọn phân vùng chứa cài đặt cũ hơn. Trình cài đặt sẽ nhắc nếu bạn muốn nâng cấp nó:
+                  <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/UpgradeSingleVersion.png"></blockquote>
+            Chọn 'Có' để nâng cấp nó. Chọn 'Không' để cài đặt phiên bản mới vào một thư mục mới và giữ nguyên bản cài đặt cũ hơn.</p>
+     
+            <p>Nếu có nhiều phiên bản cũ hơn trong cùng một phân vùng, trình cài đặt sẽ hỏi nâng cấp phiên bản nào:
+                  <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/UpgradeMultipleVersions.png"></blockquote>
+            Chọn cái bạn muốn nâng cấp hoặc chọn cài đặt vào một thư mục mới.</p>
+     
+            <br><h2 class="subheading">Cài đặt tự động</h2>
+            <p>Nếu bạn muốn sử dụng Android-x86 làm hệ điều hành duy nhất trong thiết bị của mình, bạn có thể chọn "Cài đặt tự động" trong "Tùy chọn nâng cao".
+                  <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/AutoInstallation.png"></blockquote>
+            </p><p>Trình cài đặt sẽ nhắc bạn xác nhận:
+                  <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/AutoInstallConfirm.png"></blockquote>
+            </p><p>Sau khi bạn chọn 'Có', trình cài đặt sẽ xóa toàn bộ nội dung của đĩa cứng, phân vùng và cài đặt Android-x86 vào đó.
+            </p><p>Nếu bạn có nhiều ổ đĩa cứng, trình cài đặt sẽ cho phép bạn chọn sử dụng ổ cứng nào. Hãy cẩn thận để chọn đúng.
+                  <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/AutoInstallMultiDrives.png"></blockquote>
+            </p>
+            <br><h2 class="subheading">Tự động cập nhật</h2>
+            <p>Bằng cách chọn "Cập nhật tự động" trong "Tùy chọn nâng cao", trình cài đặt có thể tự động cập nhật bản cài đặt cũ hơn.
+                  <br><blockquote><img class="coffee" src="/assets/imgs/screenshots/AutoUpdate.png"></blockquote>
+            </p><p>Trong chế độ này, trình cài đặt tìm kiếm phân vùng có tên "Android-x86" hoặc phân vùng ext4 đầu tiên và tự động cập nhật cài đặt cũ hơn trong đó. Nếu không tìm thấy phân vùng như vậy, chế độ cập nhật tự động sẽ bị hủy.
+            </p>
+            <h2 class="subheading">Các tùy chọn khởi động khác</h2>
+            <ul>
+              <li>Live CD - Chạy Android-x86 không cần cài đặt</li>
+          <p>Mục này có nghĩa là khởi động trực tiếp Android-x86. Điều này rất hữu ích để nhanh chóng kiểm tra xem phần cứng của bạn có tương thích với Android-x86 hay không. Tất cả dữ liệu được lưu trữ trong RAM (tmpfs) và sẽ mất sau khi tắt nguồn.</p>
+              <li>Live CD - Chế độ gỡ lỗi</li>
+          <p>Xem <a href="documentation/debug.html">cách gỡ lỗi</a> để biết thêm chi tiết.</p>
+              <li>CD trực tiếp - Hỗ trợ Vulkan (thử nghiệm)</li>
+          <p>Bật hỗ trợ <a href="https://en.wikipedia.org/wiki/Vulkan_(API)">Vulkan</a> thử nghiệm. Không phải tất cả <a href="https://en.wikipedia.org/wiki/Graphics_processing_unit">GPU</a> đều hỗ trợ nó.</p>
+              <li>Live CD - Không có Trình hướng dẫn Cài đặt</li>
+          <p>Bỏ qua Trình hướng dẫn Cài đặt. Tính năng này hữu ích nếu bạn muốn thử nghiệm nhanh một số ứng dụng ở chế độ trực tiếp.</p>
+              <li>Chế độ Live CD VESA - Không tăng tốc phần cứng GPU</li>
+          <p>Tắt tăng tốc phần cứng GPU. Nếu bạn gặp màn hình đen sau khi khởi động, bạn có thể thử chế độ này để xem có khởi động được không.</p>
+            </ul>
+     
+            <br><h1 id="Advanced">Nâng cao</h1>
+            <h2 class="subheading">Tạo thanh USB có thể khởi động cho Android-x86</h2>
+            <p>Có một số công cụ có thể được sử dụng để tạo thanh USB có thể khởi động cho Android-x86. Các công cụ sau đây có sẵn cho người dùng Windows:
+            <ul>
+              <li><a href="https://sourceforge.net/projects/win32diskimager/">Win32 Disk Imager</a> - xem <a href="https://www.youtube.com/watch?v= nvwqmzhj0cU">video giới thiệu</a>.</li>
+              <li><a href="https://unetbootin.github.io">UNetbootin</a> - xem <a href="https://www.youtube.com/watch?v=FPjCJexkqKg">video giới thiệu </a>.</li>
+              <li><a href="https://rufus.ie">Rufus</a> - xem <a href="https://www.youtube.com/watch?v=RQBWpgxlZxc">video giới thiệu</ a>.</li>
+              <li><a href="https://www.linuxliveusb.com">Linux Live USB Creator (LiLi)</a> - Phần mềm lỗi thời nhưng <a href="https://www.linuxliveusb.com/ vi/component/search/?searchword=android+x86&ordering=new&searchphrase=all&limit=0">được sử dụng</a> để hỗ trợ chính thức cho Android-x86 <a href="https://www.linuxliveusb.com/en/release- ghi chú">cho đến v4.4</a>.</li>
+            </ul>
+            </p><p>Đối với người dùng Linux, chỉ cần sử dụng lệnh <tt>dd</tt> tiêu chuẩn như:
+            <div class="code-snippet"><span style="color:#d1d1d1">
+              <code class="code-shell">dd if=android-x86_64-9.0-rc1.iso of=/dev/sdX</code>
+            </span></div>
+            trong đó /dev/sdX là tên thiết bị của đĩa USB đích.
+            </p>
+                        <h2 class="subheading">Khởi động đa năng</h2>
+                        <p>Để khởi động các hệ điều hành khác, bạn phải thêm các mục cho chúng vào /grub/menu.lst. Ví dụ: để khởi động Windows, hãy thêm phần sau:</p>
+                        <div class="code-snippet"><span style="color:#d1d1d1">title Windows<br>rootnoverify (hd0,0)<br>chainloader +1</span></div>
+                        <p>Điều này giả định rằng Windows đã được cài đặt vào phân vùng đầu tiên của đĩa cứng đầu tiên. Ngoài ra, bạn cần thay đổi rootnoverify thành giá trị phù hợp. Xem <a href="https://www.gnu.org/software/grub/manual/grub/grub.html">Hướng dẫn sử dụng Grub</a> để biết chi tiết.</p>
+                        <h3 class="subheading">Đã cập nhật (2010)</h3>Kể từ <a href="https://en.wikipedia.org/wiki/Android_Froyo">froyo</a>-x86, nếu có NTFS phân vùng trong đĩa đã cài đặt, trình cài đặt sẽ hỏi bạn có muốn tạo một mục khởi động cho Windows hay không, như hình bên dưới.
+                        <br /><blockquote><img class="coffee" src="/assets/imgs/screenshots/Dialog-for-creating-Windows-item.png"></blockquote>
+                        <br /><br />
+                        <h1 class="subheading">Sự cố</h1>
+                        <h3 class="subheading">VMware</h3>
+                        <p>Bạn phải thay đổi loại đĩa ảo của mình thành IDE vì loại mặc định trong VMware là SCSI và nhân Android-x86 không được định cấu hình để hỗ trợ SCSI. Bạn có thể làm theo các bước sau:<br>
+                        </p>
+                        <ol>
+                          <li>Tạo máy ảo.</li>
+                          <li>Chỉnh sửa cài đặt máy ảo sau khi tạo máy ảo.</li>
+                          <li>Chọn đĩa cứng và tháo nó ra.</li>
+                          <li>Thêm ổ cứng để tạo ổ đĩa ảo mới, sau đó bạn có thể chọn IDE làm loại ổ đĩa ảo của mình.</li>
+                          <li>Khi hoàn tất, bạn có thể cài đặt android-x86 bình thường.</li>
+                        </ol>
+                        <br>
+                        <!--Hết nội dung-->
+                    </section>
+    
+                    <div w3-include-html="footer.html"></div>
+                  </div>
+    
+
+    <!--JAVASCRIPT CODE-->
+
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script>
+    includeHTML();
+    $(".openNav").click(function() {
+      $("body").toggleClass("navOpen");
+      $("nav").toggleClass("open");
+      $(".wrapper").toggleClass("open");
+      $(this).toggleClass("open");
+    });
+    </script>
+    </div>
+</section>
+<!-- End of Service Section -->
+
+    <!-- core  -->
+    <script src="assets/vendors/jquery/jquery-3.4.1.js"></script>
+    <script src="assets/vendors/bootstrap/bootstrap.bundle.js"></script>
+
+    <!-- bootstrap affix -->
+    <script src="assets/vendors/bootstrap/bootstrap.affix.js"></script>
+
+    <!-- Creative Studio js -->
+    <script src="assets/js/creative-studio.js"></script>
+
+</body>
+</html>
