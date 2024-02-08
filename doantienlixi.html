@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trò chơi đoán tiền lì xì</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+}
+
+h1 {
+  color: wheat ;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#result {
+  font-weight: bold;
+}
+video {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -1000;
+        transform: translateX(-50%) translateY(-50%);
+        filter: brightness(70%);
+    }
+    p{
+        color: white;
+    }
+/* Style tab navigation */
+.navbar {
+  overflow: hidden;
+  /*background-color: #333;*/
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+}
+
+
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+}
+
+
+.navbar a.active {
+  background-color: red;
+  color: white;
+}
+
+</style>
+<body>
+
+  <div class="navbar">
+    <a href="index.html" class="active">Trang chủ</a>
+
+      
+    <a href="#"></a>
+    <a href="#"></a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
+  </div>
+  <video autoplay loop muted>
+    <source src="fireworks loop.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+    <audio autoplay loop>
+      <source src="music_bg.MP3" type="audio/mp3">
+      Your browser does not support the audio tag.
+  </audio>
+<div class="container">
+  <h1>Đoán Tiền Lì Xì</h1>
+  <button onclick="checkGuess()">Kiểm tra</button>
+  <p id="result"></p>
+</div>
+<script>
+function checkGuess() {
+  var randomAmount = Math.floor(Math.random() * 5000000); // Tính số tiền lì xì ngẫu nhiên từ 0 đến 999
+  var resultElement = document.getElementById("result");
+  if (Math.random() < 0.7) {
+    resultElement.innerHTML = "Chúc mừng! Số tiền lì xì của bạn là " + randomAmount + " VNĐ.";
+  } else {
+    resultElement.innerHTML = "Rất tiếc! Không có tiền lì xì cho bạn năm nay.";
+  }
+}
+
+
+</script>
+</body>
+</html>

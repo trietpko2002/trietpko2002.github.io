@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chúc mừng năm mới Giáp Thìn 2024!</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-BQbeA5gHC8tfsCkYukk9M1Kcq4zC+7ECn7gbPxG8HwblYIE6TwqVhqo5Oub1T9qD" crossorigin="anonymous">
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .container {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+    color: #fff;
+  }
+  h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  #countdown {
+    font-size: 28px;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  #logo {
+    width: 200px;
+    height: auto;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  video {
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    opacity: 1; /* Giảm độ opacity của video */
+  }
+
+  /* Reset CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Style tab navigation */
+.navbar {
+  overflow: hidden;
+  /*background-color: #333;*/
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+}
+
+
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+}
+
+
+.navbar a.active {
+  background-color: red;
+  color: white;
+}
+
+/* Style content */
+.content {
+  padding: 20px;
+}
+
+h3 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .footer-buttons {
+    
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.footer-buttons button {
+    background-color: #d93838;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.footer-buttons button:hover {
+    background-color: #c72e2e;
+}
+
+.text1 {
+    font-size: 25px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .button {
+  background-color: red; /* Màu nền */
+  border: none;
+  color: white; /* Màu chữ */
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px; /* Bo tròn viền */
+  }
+
+
+.button {
+  font-size: 1em;
+  padding: 10px;
+  color: #fff;
+  border: 2px solid #06D85F;
+  border-radius: 20px/50px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease-out;
+}
+.button:hover {
+  background: #06D85F;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+}
+.overlay:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup {
+  margin: 70px auto;
+  padding: 20px;
+  background: red;
+  border-radius: 5px;
+  width: 30%;
+  position: relative;
+  transition: all 5s ease-in-out;
+}
+
+.popup h2 {
+  margin-top: 0;
+  color: white;
+  font-family: Tahoma, Arial, sans-serif;
+}
+.popup .close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  transition: all 200ms;
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+.popup .close:hover {
+  color: #06D85F;
+}
+.popup .content {
+  max-height: 30%;
+  overflow: auto;
+}
+
+@media screen and (max-width: 700px){
+  .box{
+    width: 70%;
+  }
+  .popup{
+    width: 70%;
+  }
+}
+</style>
+</head>
+<div class="navbar">
+    <a href="#" class="active">Trang chủ</a>
+
+      
+    <a href="#"></a>
+    <a href="#"></a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#"> </a>
+    <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
+  </div>
+<body>
+  <video autoplay muted loop>
+    <source src="fireworks loop.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <audio autoplay loop>
+    <source src="music_bg.MP3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <div class="container">
+    <h1>Chúc mừng năm mới Giáp Thìn 2024!</h1>
+    <a class="text1">Chúc mừng năm mới! Mong rằng năm mới sẽ mang lại nhiều niềm vui, thành công và hạnh phúc cho bạn và gia đình.</a>
+    <br>
+    <br>
+    <a class="text1">Có trò chơi nè, chơi đi :</a>
+    <div class="footer-buttons">
+      <a href="chuctet.html" class="button">Chúc Tết</a>
+      <a href="doantienlixi.html" class="button">Đoán Tiền Lì Xì</a>
+      <a href="nhanbaolixi.html" class="button">Nhận Bao Lì Xì</a>
+  </div>
+  <br>
+  <a class="button" href="#popup1">Thông tin trang web</a>
+    
+    <div id="popup1" class="overlay">
+      <div class="popup">
+        <h2>Thông tin trang web </h2>
+        <a class="close" href="#">&times;</a>
+        <div class="content">
+          Trang web được code bởi Triết Võ a.k.a 
+          <br>
+          Hổ Ngáo Lai Mèo.
+          <br>
+          Trang web được làm nhân dịp 
+          <br>
+          tết nguyên đán giáp thìn 2024,
+          <br>
+          code làm nhanh nên còn chút sai sót ạ.
+          <br>
+          <br>
+          Trong đây có các trò chơi vui ngày tết như random các câu chúc tết, dự đoán tiền lì xì và nhận tiền lì xì.
+          <br>
+          <br>
+          Trang web được pushlish lên Github và Soucre Code trên Github.
+          <br>
+          <br>
+          <a class="button">Soucre Github</a>
+          <a class="button" href="demo.html">Demo</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+<script>
+// Set the date we're counting down to
+var countDownDate = new Date("Feb 10, 2024 00:00:00").getTime();
+
+// Update the countdown every 1 second
+var x = setInterval(function() {
+
+  // Get the current date and time
+  var now = new Date().getTime();
+
+  // Calculate the distance between now and the countdown date
+  var distance = countDownDate - now;
+
+  // Calculate days, hours, minutes, and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  // Display the countdown
+  document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
+  + minutes + "m " + seconds + "s ";
+
+  // If the countdown is over, display a message
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("countdown").innerHTML = "Chúc mừng năm mới!";
+  }
+}, 1000);
+
+// Lấy thẻ a và popup
+var openButton = document.getElementById('openPopup');
+var popup = document.getElementById('myPopup');
+var closeButton = document.getElementById('closePopup');
+
+// Xử lý sự kiện khi click vào thẻ a
+openButton.addEventListener('click', function() {
+    // Hiển thị popup
+    popup.style.display = 'block';
+});
+
+// Xử lý sự kiện khi click vào nút đóng
+closeButton.addEventListener('click', function() {
+    // Đóng popup
+    popup.style.display = 'none';
+});
+
+</script>
+</body>
+</html>

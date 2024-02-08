@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trò chơi nhận bao lì xì</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+    text-align: center;
+    margin-top: 100px;
+}
+
+h2 {
+    color: white;
+}
+
+button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#ketQua {
+    font-size: 18px;
+    color: white;
+    margin-top: 20px;
+}
+
+.bao-lix {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background-color: #ffd700;
+    border-radius: 50%;
+    margin: 10px;
+    position: relative;
+    animation: moBaoLiXi 0.5s ease;
+}
+
+@keyframes moBaoLiXi {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+video {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -1000;
+        transform: translateX(-50%) translateY(-50%);
+        filter: brightness(70%);
+    }
+    .navbar {
+  overflow: hidden;
+  /*background-color: #333;*/
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+}
+
+
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+}
+
+
+.navbar a.active {
+  background-color: red;
+  color: white;
+}
+</style>
+<body>
+    <div class="navbar">
+        <a href="index.html" class="active">Trang chủ</a>
+    
+          
+        <a href="#"></a>
+        <a href="#"></a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
+      </div>
+<div>
+    <video autoplay loop muted>
+        <source src="fireworks loop.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <audio autoplay loop>
+        <source src="music_bg.MP3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+</div>
+<div class="container">
+    <h2>Trò chơi nhận bao lì xì</h2>
+    <button onclick="moBaoLiXi()">Mở</button>
+    <p id="ketQua"></p>
+</div>
+
+<script>
+function moBaoLiXi() {
+    var tyLeTrung = 0.3; // Tỉ lệ trúng, có thể thay đổi
+    var soBaoLiXi = 10; // Số lượng bao lì xì
+    var giaTriBaoLiXi = 100000; // Giá trị của mỗi bao lì xì (ví dụ: 100,000 VND)
+
+    var soNgauNhien = Math.random(); // Số ngẫu nhiên từ 0 đến 1
+    var coTrung = soNgauNhien < tyLeTrung; // Kiểm tra xem có trúng không
+
+    if (coTrung) {
+        var baoLiXiTrung = Math.floor(Math.random() * soBaoLiXi) + 1; // Chọn một số ngẫu nhiên từ 1 đến số bao lì xì
+        var tienThuong = giaTriBaoLiXi * baoLiXiTrung;
+        document.getElementById("ketQua").innerHTML = "Chúc mừng! Bạn đã trúng bao lì xì số " + baoLiXiTrung + " và nhận được " + tienThuong.toLocaleString() + " VND.";
+    } else {
+        document.getElementById("ketQua").innerHTML = "Rất tiếc! Bạn không trúng bao lì xì lần này.";
+    }
+}
+function moBaoLiXi() {
+    var tyLeTrung = 0.8; // Tỉ lệ trúng, có thể thay đổi
+    var soBaoLiXi = 10; // Số lượng bao lì xì
+    var giaTriBaoLiXi = 100000; // Giá trị của mỗi bao lì xì (ví dụ: 100,000 VND)
+
+    var soNgauNhien = Math.random(); // Số ngẫu nhiên từ 0 đến 1
+    var coTrung = soNgauNhien < tyLeTrung; // Kiểm tra xem có trúng không
+
+    if (coTrung) {
+        var baoLiXiTrung = Math.floor(Math.random() * soBaoLiXi) + 2; // Chọn một số ngẫu nhiên từ 1 đến số bao lì xì
+        var tienThuong = giaTriBaoLiXi * baoLiXiTrung;
+        document.getElementById("ketQua").innerHTML = "Chúc mừng! Bạn đã trúng bao lì xì số " + baoLiXiTrung + " và nhận được " + tienThuong.toLocaleString() + " VND.";
+    } else {
+        document.getElementById("ketQua").innerHTML = "Rất tiếc! Bạn không trúng bao lì xì lần này.";
+    }
+}
+function hienBaoLiXi(soBaoLiXi) {
+    var baoLiXiElement = document.createElement("div");
+    baoLiXiElement.className = "bao-lix";
+    baoLiXiElement.innerHTML = soBaoLiXi;
+    document.body.appendChild(baoLiXiElement);
+}
+</script>
+
+</body>
+</html>

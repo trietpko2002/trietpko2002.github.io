@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chúc Tết</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    video {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -1000;
+        transform: translateX(-50%) translateY(-50%);
+        filter: brightness(70%);
+    }
+    
+    .container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+    }
+    
+    h1 {
+        color: #fff;
+        font-size: 48px;
+        margin-top: 0;
+    }
+    
+    p {
+        font-size: 24px;
+        margin-top: 20px;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+    
+    p.show {
+        opacity: 1;
+    }
+    
+    button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    button:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+
+    /* Style tab navigation */
+.navbar {
+  overflow: hidden;
+  /*background-color: #333;*/
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+}
+
+
+.navbar a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+}
+
+
+.navbar a.active {
+  background-color: red;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="index.html" class="active">Trang chủ</a>
+    
+          
+        <a href="#"></a>
+        <a href="#"></a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#"> </a>
+        <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
+    </div>
+    <video autoplay loop muted>
+        <source src="fireworks loop.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>>
+<audio autoplay loop>
+    <source src="music_bg.MP3" type="audio/mp3">
+    Your browser does not support the audio tag.
+</audio>
+<div class="container">
+    <h1>Chúc Tết</h1>
+    <p id="tet-wish"></p>
+    <button id="show-wish-btn">Hiển thị Chúc Tết ngẫu nhiên</button>
+</div>
+<script>
+    window.onload = function() {
+        var tetWishes = [
+        "Chúc mừng năm mới, an khang thịnh vượng!",
+            "Chúc bạn và gia đình có một năm mới hạnh phúc!",
+            "Năm mới, công việc mới, thành công mới!",
+            "Chúc bạn có một năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Chúc mừng năm mới, ăn chơi vui vẻ!",
+            "Năm mới, phát tài, phát lộc!",
+            "Năm mới, sức khỏe dồi dào!",
+            "Chúc bạn sức khỏe dồi dào, tài lộc đầy nhà!",
+            "Năm mới, gặp nhiều may mắn!",
+            "Năm mới, phát triển mạnh mẽ!",
+            "Chúc bạn và gia đình năm mới vui vẻ!",
+            "Chúc bạn luôn thành công trong công việc!",
+            "Chúc bạn thành công rực rỡ trong năm mới!",
+            "Năm mới, đón nhận nhiều cơ hội mới!",
+            "Chúc bạn thành công trong mọi lĩnh vực!",
+            "Năm mới, hạnh phúc đong đầy!",
+            "Chúc bạn có một năm mới tràn ngập niềm vui!",
+            "Năm mới, vạn sự như ý!",
+            "Chúc bạn có một năm mới tràn đầy may mắn!",
+            "Năm mới, thăng tiến phát triển!",
+            "Chúc bạn luôn may mắn và thành công!",
+            "Năm mới, phấn đấu hết mình!",
+            "Chúc bạn và gia đình năm mới an khang thịnh vượng!",
+            "Năm mới, hạnh phúc tràn ngập!",
+            "Chúc bạn và gia đình năm mới phát tài phát lộc!",
+            "Năm mới, gặp nhiều may mắn trong cuộc sống!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, tiến xa hơn trong sự nghiệp!",
+            "Chúc bạn và gia đình có một năm mới bình an!",
+            "Năm mới, thành công mới!",
+            "Chúc bạn thành công rực rỡ trong năm mới!",
+            "Năm mới, đón nhận nhiều điều tốt lành!",
+            "Chúc bạn luôn vui vẻ và hạnh phúc!",
+            "Năm mới, may mắn mỉm cười!",
+            "Chúc bạn và gia đình có một năm mới tốt lành!",
+            "Năm mới, tất cả những gì tốt đẹp nhất sẽ đến với bạn!",
+            "Chúc bạn luôn luôn thành công!",
+            "Năm mới, tràn đầy năng lượng tích cực!",
+            "Chúc bạn và gia đình năm mới hạnh phúc!",
+            "Năm mới, mọi điều tốt lành đến với bạn!",
+            "Chúc bạn thành công và may mắn!",
+            "Năm mới, một khởi đầu mới!",
+            "Chúc bạn và gia đình năm mới an lành và hạnh phúc!",
+            "Năm mới, thăng hoa sự nghiệp!",
+            "Chúc bạn và gia đình có một năm mới tràn đầy niềm vui!",
+            "Năm mới, luôn tràn đầy năng lượng và sức khỏe!",
+            "Chúc bạn và gia đình năm mới an khang thịnh vượng!",
+            "Năm mới, thịnh vượng vượt bậc!",
+            "Chúc bạn năm mới hạnh phúc và thành công!",
+            "Năm mới, mọi điều tốt lành sẽ đến với bạn!",
+            "Chúc bạn thành công trong mọi nỗ lực!",
+            "Năm mới, mở ra nhiều cơ hội mới!",
+            "Chúc bạn và gia đình có một năm mới vui vẻ!",
+            "Năm mới, hạnh phúc bao la!",
+            "Chúc bạn năm mới tràn đầy niềm vui và may mắn!",
+            "Năm mới, nhiều thành công mới!",
+            "Chúc bạn và gia đình một năm mới thịnh vượng!",
+            "Năm mới, đầy đủ sức khỏe!",
+            "Chúc bạn và gia đình năm mới bình an và hạnh phúc!",
+            "Năm mới, thắng lợi trên mọi mặt trận!",
+            "Chúc bạn thành công trong mọi dự định!",
+            "Năm mới, nhiều niềm vui mới!",
+            "Chúc bạn và gia đình có một năm mới an khang thịnh vượng!",
+            "Năm mới, hạnh phúc không ngừng!",
+            "Chúc bạn năm mới thành công và may mắn!",
+            "Năm mới, đón nhận nhiều điều mới mẻ!",
+            "Chúc bạn và gia đình năm mới tràn đầy sức khỏe!",
+            "Năm mới, một bước nhảy vọt!",
+            "Chúc bạn và gia đình có một năm mới đáng nhớ!",
+            "Năm mới, gặp nhiều may mắn và thành công!",
+            "Chúc bạn và gia đình năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, tất cả những điều tốt lành sẽ đến với bạn!",
+            "Chúc bạn một năm mới thành công trọn vẹn!",
+            "Năm mới, nhiều niềm vui mới!",
+            "Chúc bạn và gia đình năm mới hạnh phúc và an khang!",
+            "Năm mới, mọi điều tốt lành đến với bạn!",
+            "Chúc bạn thành công trong mọi kế hoạch!",
+            "Năm mới, mở ra những cánh cửa mới!",
+            "Chúc bạn và gia đình có một năm mới bình an!",
+            "Năm mới, đón nhận nhiều điều mới mẻ!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, luôn may mắn và thành công!",
+            "Chúc bạn và gia đình một năm mới thịnh vượng!",
+            "Năm mới, sức khỏe dồi dào!",
+            "Chúc bạn và gia đình năm mới hạnh phúc!",
+            "Năm mới, thành công không ngừng!",
+            "Chúc bạn và gia đình năm mới an khang!",
+            "Năm mới, gặp nhiều may mắn và thành công!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, tất cả những gì tốt đẹp nhất sẽ đến với bạn!",
+            "Chúc bạn có một năm mới thành công trọn vẹn!",
+            "Năm mới, nhiều niềm vui mới!",
+            "Chúc bạn và gia đình năm mới hạnh phúc và an khang!",
+            "Năm mới, mọi điều tốt lành đến với bạn!",
+            "Chúc bạn thành công trong mọi kế hoạch!",
+            "Năm mới, mở ra những cánh cửa mới!",
+            "Chúc bạn và gia đình có một năm mới bình an!",
+            "Năm mới, đón nhận nhiều điều mới mẻ!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, luôn may mắn và thành công!",
+            "Chúc bạn và gia đình một năm mới thịnh vượng!",
+            "Năm mới, sức khỏe dồi dào!",
+            "Chúc bạn và gia đình năm mới hạnh phúc!",
+            "Năm mới, thành công không ngừng!",
+            "Chúc bạn và gia đình năm mới an khang!",
+            "Năm mới, gặp nhiều may mắn và thành công!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, tất cả những gì tốt đẹp nhất sẽ đến với bạn!",
+            "Chúc bạn có một năm mới thành công trọn vẹn!",
+            "Năm mới, nhiều niềm vui mới!",
+            "Chúc bạn và gia đình năm mới hạnh phúc và an khang!",
+            "Năm mới, mọi điều tốt lành đến với bạn!",
+            "Chúc bạn thành công trong mọi kế hoạch!",
+            "Năm mới, mở ra những cánh cửa mới!",
+            "Chúc bạn và gia đình có một năm mới bình an!",
+            "Năm mới, đón nhận nhiều điều mới mẻ!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, luôn may mắn và thành công!",
+            "Chúc bạn và gia đình một năm mới thịnh vượng!",
+            "Năm mới, sức khỏe dồi dào!",
+            "Chúc bạn và gia đình năm mới hạnh phúc!",
+            "Năm mới, thành công không ngừng!",
+            "Chúc bạn và gia đình năm mới an khang!",
+            "Năm mới, gặp nhiều may mắn và thành công!",
+            "Chúc bạn năm mới tràn đầy niềm vui và hạnh phúc!",
+            "Năm mới, tất cả những gì tốt đẹp nhất sẽ đến với bạn!"
+
+
+        ];
+        
+        var displayWish = function() {
+            var randomIndex = Math.floor(Math.random() * tetWishes.length);
+            var randomWish = tetWishes[randomIndex];
+            var wishElement = document.getElementById("tet-wish");
+            wishElement.innerHTML = randomWish;
+            wishElement.classList.add("show");
+            setTimeout(function() {
+                wishElement.classList.remove("show");
+            }, 3000);
+        };
+        
+        // Hiển thị chúc Tết ngẫu nhiên lần đầu tiên khi trang được tải
+        displayWish();
+        
+        // Gán sự kiện click cho nút bấm để hiển thị chúc Tết ngẫu nhiên
+        document.getElementById("show-wish-btn").addEventListener("click", function() {
+            displayWish();
+            document.getElementById("show-wish-btn").classList.add("clicked");
+            setTimeout(function() {
+                document.getElementById("show-wish-btn").classList.remove("clicked");
+            }, 200);
+        });
+    };
+</script>
+</body>
+</html>
