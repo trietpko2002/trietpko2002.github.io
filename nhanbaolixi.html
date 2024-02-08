@@ -28,7 +28,7 @@ h2 {
 }
 
 button {
-    background-color: #4caf50;
+    background-color: red;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -43,7 +43,7 @@ button {
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: red;
 }
 
 #ketQua {
@@ -87,12 +87,11 @@ video {
     }
     .navbar {
   overflow: hidden;
-  /*background-color: #333;*/
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+  z-index: 1000;
 }
 
 
@@ -110,84 +109,119 @@ video {
   background-color: red;
   color: white;
 }
+
+header {
+  position: fixed; /* Đặt phần tử ở vị trí cố định */
+  top: 0; /* Đặt phần tử ở đỉnh trang */
+  left: 0;
+  width: 100%;
+  background-color: red;
+  color: #fff;
+  padding: 10px 0;
+}
+
+.running-text-container {
+  overflow: hidden; /* Ẩn phần chữ vượt ra khỏi phần tử cha */
+}
+
+.running-text {
+  display: inline-block;
+  margin: 0;
+  animation: running-text 30s linear infinite;
+}
+
+@keyframes running-text {
+  0% {
+    transform: translateX(100%); /* Di chuyển chữ từ phải sang trái */
+  }
+  100% {
+    transform: translateX(-100%); /* Di chuyển chữ qua lại từ trái sang phải */
+  }
+}
+
+.footer-buttons {
+    
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+.footer-buttons button {
+    background-color: #d93838;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.footer-buttons button:hover {
+    background-color: #c72e2e;
+}
+
+.button {
+  background-color: red; 
+  border: none;
+  color: white; 
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px; 
+  }
+.button {
+  font-size: 1em;
+  padding: 10px;
+  color: #fff;
+  border: 2px solid yellow;
+  border-radius: 20px/50px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease-out;
+}
+.button:hover {
+  background: #FFCC00;
+}
 </style>
 <body>
-    <div class="navbar">
-        <a href="index.html" class="active">Trang chủ</a>
-    
-          
-        <a href="#"></a>
-        <a href="#"></a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#"> </a>
-        <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
-      </div>
 <div>
     <video autoplay loop muted>
         <source src="fireworks loop.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     <audio autoplay loop>
-        <source src="music_bg.MP3" type="audio/mp3">
+        <source src="Thần Tài Đến Remix - TLong x H2O (Nhạc Xuân 2024)  Thần Tài Đến Thần Tài Đến Hãy Giang Tay Đón Mời.mp3" type="audio/mp3">
         Your browser does not support the audio tag.
     </audio>
 </div>
+<header>
+    <div class="running-text-container">
+      <p class="running-text">Chúc mừng năm mới - Xuân Giáp Thìn 2024! - Mọi người đi chơi tết an toàn nhé! - Tuân thủ luật lệ giao thông và đã uống rượu bia, không lái xe! Có uống bia thì hãy bắt Grab hoặc xe Taxi nhé!</p>
+    </div>
+</header>
 <div class="container">
     <h2>Trò chơi nhận bao lì xì</h2>
-    <button onclick="moBaoLiXi()">Mở</button>
+    <button onclick="moBaoLiXi()" class="button">Mở</button>
     <p id="ketQua"></p>
+    <a href="index.html" class="button"><i class="fa fa-reply" aria-hidden="true"></i>Trở về</a>
 </div>
-
 <script>
 function moBaoLiXi() {
-    var tyLeTrung = 0.3; // Tỉ lệ trúng, có thể thay đổi
-    var soBaoLiXi = 10; // Số lượng bao lì xì
-    var giaTriBaoLiXi = 100000; // Giá trị của mỗi bao lì xì (ví dụ: 100,000 VND)
+    var tyLeTrung = 0.8; 
+    var soBaoLiXi = 10; 
+    var giaTriBaoLiXi = 100000; 
 
-    var soNgauNhien = Math.random(); // Số ngẫu nhiên từ 0 đến 1
-    var coTrung = soNgauNhien < tyLeTrung; // Kiểm tra xem có trúng không
+    var soNgauNhien = Math.random(); 
+    var coTrung = soNgauNhien < tyLeTrung; 
 
     if (coTrung) {
-        var baoLiXiTrung = Math.floor(Math.random() * soBaoLiXi) + 1; // Chọn một số ngẫu nhiên từ 1 đến số bao lì xì
+        var baoLiXiTrung = Math.floor(Math.random() * soBaoLiXi) + 2; 
         var tienThuong = giaTriBaoLiXi * baoLiXiTrung;
         document.getElementById("ketQua").innerHTML = "Chúc mừng! Bạn đã trúng bao lì xì số " + baoLiXiTrung + " và nhận được " + tienThuong.toLocaleString() + " VND.";
     } else {
-        document.getElementById("ketQua").innerHTML = "Rất tiếc! Bạn không trúng bao lì xì lần này.";
-    }
-}
-function moBaoLiXi() {
-    var tyLeTrung = 0.8; // Tỉ lệ trúng, có thể thay đổi
-    var soBaoLiXi = 10; // Số lượng bao lì xì
-    var giaTriBaoLiXi = 100000; // Giá trị của mỗi bao lì xì (ví dụ: 100,000 VND)
-
-    var soNgauNhien = Math.random(); // Số ngẫu nhiên từ 0 đến 1
-    var coTrung = soNgauNhien < tyLeTrung; // Kiểm tra xem có trúng không
-
-    if (coTrung) {
-        var baoLiXiTrung = Math.floor(Math.random() * soBaoLiXi) + 2; // Chọn một số ngẫu nhiên từ 1 đến số bao lì xì
-        var tienThuong = giaTriBaoLiXi * baoLiXiTrung;
-        document.getElementById("ketQua").innerHTML = "Chúc mừng! Bạn đã trúng bao lì xì số " + baoLiXiTrung + " và nhận được " + tienThuong.toLocaleString() + " VND.";
-    } else {
-        document.getElementById("ketQua").innerHTML = "Rất tiếc! Bạn không trúng bao lì xì lần này.";
+        document.getElementById("ketQua").innerHTML = "Rất tiếc! Bạn không trúng bao lì xì và nhận 1 cái nịt :)).";
     }
 }
 function hienBaoLiXi(soBaoLiXi) {

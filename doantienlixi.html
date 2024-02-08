@@ -28,7 +28,7 @@ h1 {
 
 button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: red;
   color: #fff;
   border: none;
   cursor: pointer;
@@ -56,15 +56,14 @@ video {
     p{
         color: white;
     }
-/* Style tab navigation */
+
 .navbar {
   overflow: hidden;
-  /*background-color: #333;*/
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+  z-index: 1000; 
 }
 
 
@@ -82,64 +81,91 @@ video {
   background-color: red;
   color: white;
 }
+header {
+  position: fixed; /* Đặt phần tử ở vị trí cố định */
+  top: 0; /* Đặt phần tử ở đỉnh trang */
+  left: 0;
+  width: 100%;
+  background-color: red;
+  color: #fff;
+  padding: 10px 0;
+}
 
+.running-text-container {
+  overflow: hidden; /* Ẩn phần chữ vượt ra khỏi phần tử cha */
+}
+
+.running-text {
+  display: inline-block;
+  margin: 0;
+  animation: running-text 30s linear infinite;
+}
+
+@keyframes running-text {
+  0% {
+    transform: translateX(100%); /* Di chuyển chữ từ phải sang trái */
+  }
+  100% {
+    transform: translateX(-100%); /* Di chuyển chữ qua lại từ trái sang phải */
+  }
+}
+.button {
+  background-color: red; 
+  border: none;
+  color: white; 
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 10px; 
+  }
+.button {
+  font-size: 1em;
+  padding: 10px;
+  color: #fff;
+  border: 2px solid yellow;
+  border-radius: 20px/50px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease-out;
+}
+.button:hover {
+  background: #FFCC00;
+}
 </style>
 <body>
-
-  <div class="navbar">
-    <a href="index.html" class="active">Trang chủ</a>
-
-      
-    <a href="#"></a>
-    <a href="#"></a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
-  </div>
+  <header>
+    <div class="running-text-container">
+      <p class="running-text">Chúc mừng năm mới - Xuân Giáp Thìn 2024! - Mọi người đi chơi tết an toàn nhé! - Tuân thủ luật lệ giao thông và đã uống rượu bia, không lái xe! Có uống bia thì hãy bắt Grab hoặc xe Taxi nhé!</p>
+    </div>
+  </header>
   <video autoplay loop muted>
     <source src="fireworks loop.mp4" type="video/mp4">
     Your browser does not support the video tag.
 </video>
-    <audio autoplay loop>
-      <source src="music_bg.MP3" type="audio/mp3">
-      Your browser does not support the audio tag.
-  </audio>
+<audio autoplay loop>
+  <source src="Thần Tài Đến Remix - TLong x H2O (Nhạc Xuân 2024)  Thần Tài Đến Thần Tài Đến Hãy Giang Tay Đón Mời.mp3" type="audio/mp3">
+  Your browser does not support the audio tag.
+</audio>
 <div class="container">
   <h1>Đoán Tiền Lì Xì</h1>
-  <button onclick="checkGuess()">Kiểm tra</button>
+  <button onclick="checkGuess()" class="button">Kiểm tra</button>
   <p id="result"></p>
+  <a href="index.html" class="button">Trở về</a>
 </div>
 <script>
 function checkGuess() {
-  var randomAmount = Math.floor(Math.random() * 5000000); // Tính số tiền lì xì ngẫu nhiên từ 0 đến 999
+  var randomAmount = Math.floor(Math.random() * 5000000); 
   var resultElement = document.getElementById("result");
   if (Math.random() < 0.7) {
     resultElement.innerHTML = "Chúc mừng! Số tiền lì xì của bạn là " + randomAmount + " VNĐ.";
   } else {
-    resultElement.innerHTML = "Rất tiếc! Không có tiền lì xì cho bạn năm nay.";
+    resultElement.innerHTML = "Rất tiếc! Năm nay bạn có cái nịt :))).";
   }
 }
-
-
 </script>
 </body>
 </html>

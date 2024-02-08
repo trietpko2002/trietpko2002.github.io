@@ -28,6 +28,12 @@
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
+
+  h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
   #countdown {
     font-size: 28px;
     margin-bottom: 40px;
@@ -49,25 +55,24 @@
     height: auto;
     transform: translate(-50%, -50%);
     z-index: -1;
-    opacity: 1; /* Giảm độ opacity của video */
+    opacity: 1; 
   }
 
-  /* Reset CSS */
+ 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Style tab navigation */
+
 .navbar {
   overflow: hidden;
-  /*background-color: #333;*/
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* Đảm bảo tab navigation hiển thị trên tất cả các phần tử khác */
+  z-index: 1000;
 }
 
 
@@ -86,7 +91,6 @@
   color: white;
 }
 
-/* Style content */
 .content {
   padding: 20px;
 }
@@ -103,7 +107,6 @@ h3 {
     padding: 20px;
     text-align: center;
 }
-
 .footer-buttons button {
     background-color: #d93838;
     color: #fff;
@@ -113,21 +116,18 @@ h3 {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
 .footer-buttons button:hover {
     background-color: #c72e2e;
 }
-
 .text1 {
     font-size: 25px;
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
-
   .button {
-  background-color: red; /* Màu nền */
+  background-color: red; 
   border: none;
-  color: white; /* Màu chữ */
+  color: white; 
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
@@ -135,24 +135,21 @@ h3 {
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
-  border-radius: 10px; /* Bo tròn viền */
+  border-radius: 10px; 
   }
-
-
 .button {
   font-size: 1em;
   padding: 10px;
   color: #fff;
-  border: 2px solid #06D85F;
+  border: 2px solid yellow;
   border-radius: 20px/50px;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease-out;
 }
 .button:hover {
-  background: #06D85F;
+  background: #FFCC00;
 }
-
 .overlay {
   position: fixed;
   top: 0;
@@ -210,38 +207,43 @@ h3 {
     width: 70%;
   }
 }
+
+header {
+  position: fixed; /* Đặt phần tử ở vị trí cố định */
+  top: 0; /* Đặt phần tử ở đỉnh trang */
+  left: 0;
+  width: 100%;
+  background-color: red;
+  color: #fff;
+  padding: 10px 0;
+}
+
+.running-text-container {
+  overflow: hidden; /* Ẩn phần chữ vượt ra khỏi phần tử cha */
+}
+
+.running-text {
+  display: inline-block;
+  margin: 0;
+  animation: running-text 30s linear infinite;
+}
+
+@keyframes running-text {
+  0% {
+    transform: translateX(100%); /* Di chuyển chữ từ phải sang trái */
+  }
+  100% {
+    transform: translateX(-100%); /* Di chuyển chữ qua lại từ trái sang phải */
+  }
+}
 </style>
 </head>
-<div class="navbar">
-    <a href="#" class="active">Trang chủ</a>
-
-      
-    <a href="#"></a>
-    <a href="#"></a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#"> </a>
-    <a href="#">Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</a>
-  </div>
 <body>
+  <header>
+    <div class="running-text-container">
+      <p class="running-text">Chúc mừng năm mới - Xuân Giáp Thìn 2024! - Mọi người đi chơi tết an toàn nhé! - Tuân thủ luật lệ giao thông và đã uống rượu bia, không lái xe! Có uống bia thì hãy bắt Grab hoặc xe Taxi nhé!</p>
+    </div>
+  </header>
   <video autoplay muted loop>
     <source src="fireworks loop.mp4" type="video/mp4">
     Your browser does not support the video tag.
@@ -250,12 +252,21 @@ h3 {
     <source src="music_bg.MP3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
+ 
   <div class="container">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h1>Chúc mừng năm mới Giáp Thìn 2024!</h1>
     <a class="text1">Chúc mừng năm mới! Mong rằng năm mới sẽ mang lại nhiều niềm vui, thành công và hạnh phúc cho bạn và gia đình.</a>
     <br>
     <br>
-    <a class="text1">Có trò chơi nè, chơi đi :</a>
+    <a class="text1">Trò chơi tết nè, chơi thử đi mấy chế</a>
     <div class="footer-buttons">
       <a href="chuctet.html" class="button">Chúc Tết</a>
       <a href="doantienlixi.html" class="button">Đoán Tiền Lì Xì</a>
@@ -263,7 +274,16 @@ h3 {
   </div>
   <br>
   <a class="button" href="#popup1">Thông tin trang web</a>
-    
+  <a class="button" href="#popup2">Lì xì cho chủ code đi ạ!</a>
+  
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+
+  <h2>Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</h2>
     <div id="popup1" class="overlay">
       <div class="popup">
         <h2>Thông tin trang web </h2>
@@ -291,58 +311,28 @@ h3 {
         </div>
       </div>
     </div>
+    <div id="popup2" class="overlay">
+      <div class="popup">
+        <h2>Lì xì chủ web </h2>
+        <a class="close" href="#">&times;</a>
+        <div class="content">
+          <img src="1707395232776.png" style="width: 85%;">
+        </div>
+      </div>
+    </div>
   </div>
-
-  
-  
-  
 <script>
-// Set the date we're counting down to
-var countDownDate = new Date("Feb 10, 2024 00:00:00").getTime();
 
-// Update the countdown every 1 second
-var x = setInterval(function() {
+  var openButton = document.getElementById('openPopup');
+  var popup = document.getElementById('myPopup');
+  var closeButton = document.getElementById('closePopup');
 
-  // Get the current date and time
-  var now = new Date().getTime();
-
-  // Calculate the distance between now and the countdown date
-  var distance = countDownDate - now;
-
-  // Calculate days, hours, minutes, and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  // Display the countdown
-  document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
-  + minutes + "m " + seconds + "s ";
-
-  // If the countdown is over, display a message
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("countdown").innerHTML = "Chúc mừng năm mới!";
-  }
-}, 1000);
-
-// Lấy thẻ a và popup
-var openButton = document.getElementById('openPopup');
-var popup = document.getElementById('myPopup');
-var closeButton = document.getElementById('closePopup');
-
-// Xử lý sự kiện khi click vào thẻ a
-openButton.addEventListener('click', function() {
-    // Hiển thị popup
-    popup.style.display = 'block';
-});
-
-// Xử lý sự kiện khi click vào nút đóng
-closeButton.addEventListener('click', function() {
-    // Đóng popup
-    popup.style.display = 'none';
-});
-
+  openButton.addEventListener('click', function() {
+      popup.style.display = 'block';
+  });
+  closeButton.addEventListener('click', function() {
+      popup.style.display = 'none';
+  });
 </script>
 </body>
 </html>
