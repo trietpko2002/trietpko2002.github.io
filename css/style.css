@@ -1,0 +1,56 @@
+body {
+    font-family: Open Sans, sans-serif;
+    text-align: center; background-image: url('/bg.png');
+    background-size:cover;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+}
+
+.countdown {
+    display: flex;
+    color: blue;
+    justify-content: center;
+    align-items: center;
+    border: 60px solid white;
+    background-color: white;
+    opacity: 0.5;
+    width: 180px;
+    position: absolute;
+    top: 65%;
+    left: 34%;
+    height: 6px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3)
+}
+.countdown div {
+    margin: 0 10px;
+    font-size: 24px;
+}
+.countdown span {
+    font-size: 28px;
+    font-weight: bold;
+}
+.logo {
+    display: block;
+    margin: 0 auto;
+    max-width: 100px;
+}
+
+.footer {
+    text-align: center;
+    margin-top:12%;
+    color: black;
+}
+.btn-add-link {
+    background-color: blue;
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    cursor: pointer;
+}

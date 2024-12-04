@@ -4,63 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Countdown Đại hội</title>
-    <style>
-        body {
-            font-family: Open Sans, sans-serif;
-            text-align: center; background-image: url('/bg.png');
-            background-size:cover;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin: 0;
-        }
-    
-        .countdown {
-            display: flex;
-            color: blue;
-            justify-content: center;
-            align-items: center;
-            border: 60px solid white;
-            background-color: white;
-            opacity: 0.5;
-            width: 180px;
-            position: absolute;
-            top: 60%;
-            left: 34%;
-            height: 4px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Tạo bóng đổ */
-        }
-        .countdown div {
-            margin: 0 10px;
-            font-size: 24px;
-        }
-        .countdown span {
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .logo {
-            display: block;
-            margin: 0 auto;
-            max-width: 110px;
-        }
-        .logo {
-            object-fit: cover;
-            width: 300px;
-            height: 200px;
-        }
-        .footer {
-            text-align: center;
-            margin-top:20%;
-            color: black;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="img/logo_chinh_thuc.ico">
+   
 </head>
 <body>
+    <audio autoplay loop>
+        <source src="nhac_nen.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      
     <div class="countdown-container">
         <p style="color: blue; text-shadow: 2px 2px 4px white;"><strong>CHÀO MỪNG ĐẠI HỘI ĐẠI BIỂU ĐOÀN TNCS HỒ CHÍ MINH<br>TRƯỜNG CAO ĐẲNG NGHỀ NINH THUẬN LẦN THỨ X, NHIỆM KỲ 2024 - 2027</strong></p>
         <img src="img/logo_chinh_thuc.png" alt="Logo trường" class="logo">
-        <h3 style="color: blue; text-shadow: 2px 2px 4px white;"><strong>Thời gian đếm ngược đại hội</strong></h3>
+        <a href="https://khunghinh.net/p/khungchaomungdaihoi" class="btn-add-link">Link Khung Ảnh Đại Hội</a>
+        <p style="color: blue; text-shadow: 2px 2px 4px white;"><strong>Thời gian đếm ngược đại hội</strong></p>
         <div class="countdown">
             <div>
                 <span id="days"></span>
@@ -103,6 +61,11 @@
                 document.getElementById("demo").innerHTML = "EXPIRED";
             }
         }, 1000);
+        window.onload = function() {
+    document.documentElement.requestFullscreen();
+  };
+  alert("Để trải nghiệm tốt nhất, vui lòng không để chế độ fullscreen, vì fullscreen nó bị lệch khung!");
+
     </script>
     <footer class="footer">
         <p>Code bởi: Võ Nguyễn Nhật Triết - Cựu sinh viên Cao đẳng QTMMT K20<br>
