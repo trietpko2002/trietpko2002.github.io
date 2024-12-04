@@ -18,8 +18,8 @@ body {
     opacity: 0.5;
     width: 180px;
     position: absolute;
-    top: 65%;
-    left: 34%;
+    top: 60%;
+    left: 39%;
     height: 6px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3)
@@ -35,7 +35,7 @@ body {
 .logo {
     display: block;
     margin: 0 auto;
-    max-width: 100px;
+    max-width: 160px;
 }
 
 .footer {
