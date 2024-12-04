@@ -1,27 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Countdown Đại hội</title>
+    <style>
+        body {
+            font-family: Open Sans, sans-serif;
+            text-align: center; background-image: url('/bg.png');
+            background-size:cover;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            margin: 0;
+        }
+    
+        .countdown {
+            display: flex;
+            color: blue;
+            justify-content: center;
+            align-items: center;
+            border: 60px solid white;
+            background-color: white;
+            opacity: 0.5;
+            width: 180px;
+            position: absolute;
+            top: 60%;
+            left: 34%;
+            height: 4px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Tạo bóng đổ */
+        }
+        .countdown div {
+            margin: 0 10px;
+            font-size: 24px;
+        }
+        .countdown span {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 110px;
+        }
+        .logo {
+            object-fit: cover;
+            width: 300px;
+            height: 200px;
+        }
+        .footer {
+            text-align: center;
+            margin-top:20%;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>YouTube Downloader</h1>
-        <input type="text" id="videoURL" placeholder="Paste YouTube URL here" />
-        <button id="getVideoBtn">Get Video Links</button>
-        
-        <div id="results" class="hidden">
-            <h2>Select Quality</h2>
-            <div id="qualityOptions"></div>
-        </div>
-
-        <div id="mp3Download" class="hidden">
-            <button id="downloadMP3Btn">Download MP3</button>
+    <div class="countdown-container">
+        <p style="color: blue; text-shadow: 2px 2px 4px white;"><strong>CHÀO MỪNG ĐẠI HỘI ĐẠI BIỂU ĐOÀN TNCS HỒ CHÍ MINH<br>TRƯỜNG CAO ĐẲNG NGHỀ NINH THUẬN LẦN THỨ X, NHIỆM KỲ 2024 - 2027</strong></p>
+        <img src="img/logo_chinh_thuc.png" alt="Logo trường" class="logo">
+        <h3 style="color: blue; text-shadow: 2px 2px 4px white;"><strong>Thời gian đếm ngược đại hội</strong></h3>
+        <div class="countdown">
+            <div>
+                <span id="days"></span>
+                <p>Ngày</p>
+            </div>
+            <div>
+                <span id="hours"></span>
+                <p>Giờ</p>
+            </div>
+            <div>
+                <span id="minutes"></span>
+                <p>Phút</p>
+            </div>
+            <div>
+                <span id="seconds"></span>
+                <p>Giây</p>
+            </div>
         </div>
     </div>
+    <script>
+        const countDownDate = new Date("December 13, 2024 14:00:00").getTime();
+        const x = setInterval(function() {
 
-    <script src="js/script.js"></script>
+            const now = new Date().getTime();
+
+            const distance = countDownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerHTML = days;
+            document.getElementById("hours").innerHTML = hours;
+            document.getElementById("minutes").innerHTML = minutes;
+            document.getElementById("seconds").innerHTML = seconds;
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("demo").innerHTML = "EXPIRED";
+            }
+        }, 1000);
+    </script>
+    <footer class="footer">
+        <p>Code bởi: Võ Nguyễn Nhật Triết - Cựu sinh viên Cao đẳng QTMMT K20<br>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUXbmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXA%3D">Soucre code tải tại đây</a></p>
+      </footer>
 </body>
 </html>
