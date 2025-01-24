@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông tin trang web</title>
+  <style>
+    /* CSS cho giao diện thông tin trang web */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Video nền */
+    .background-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1; /* Đảm bảo video ở dưới các phần tử khác */
+    }
+
+    .info-container {
+      padding: 10px;
+      border-radius: 8px;
+      width: 200%;
+      max-width: 700px;
+      text-align: left;
+      background-color: rgba(255, 255, 255, 0.8); /* Nền trong suốt */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-container h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .info-container p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .button, .back-button {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+
+    .button:hover, .back-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+
+  <div class="info-container">
+    <h2>Thông tin trang web</h2>
+    <p>Trang web được code bởi Triết Võ</p>
+    <p>Nhân dịp tết xuân Ất Tỵ 2025 nên mình làm trang web này giải trí trong tết</p>
+    <p><strong>Cập nhật V.2.1 24/01/2025:</strong></p>
+    <ul>
+      <li>Cập nhật bộ đếm ngược tết</li>
+    </ul>
+    <strong>Cập nhật V.2.0 23/01/2025:</strong></p>
+    <ul>
+      <li>Thêm trò chơi mới: Gieo quẻ, Thử thách lì xì</li>
+      <li>Thay đổi giao diện cùng không khí tết</li>
+      <li>Cập nhật lại giao diện các trò chơi cũ và đổi lại cơ chế.</li>
+    </ul>
+    <strong>Cập nhật V.1.5 01/02/2024:</strong></p>
+    <ul>
+      <li>Thêm trò chơi mới: Nhận bao lì xì</li>
+      <li>Đổi lại cơ chế trò nhận bao lì xì.</li>
+    </ul>
+    <strong>V.1.0.beta 28/01/2024:</strong></p>
+    <ul>
+      <li>Trò chơi: Chúc tết, đoán lì xì</li>
+      <li>Web sơ khai</li>
+    </ul>
+    <a class="button" href="https://github.com/trietpko2002/trietpko2002.github.io">Soucre Github</a>
+    <a class="back-button" href="index.html">Trở về trang chủ</a>
+  </div>
+
+</body>
+</html>

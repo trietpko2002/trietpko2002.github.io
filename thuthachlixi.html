@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thử Thách Lì Xì</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        h1 {
+            color: yellow;
+        }
+        input[type="text"] {
+            padding: 10px;
+            margin: 10px;
+            width: 80%;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #ff6347;
+            color: white;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #ff4500;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: yellow;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #008CBA;
+            color: white;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .back-button:hover {
+            background-color: #005f7f;
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+
+    <video id="background-video" autoplay loop muted>
+        <source src="fireworks loop.mp4" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ video nền.
+    </video>
+
+    <div class="container">
+        <h1>Thử Thách Lì Xì</h1>
+        <p style="color:yellow">Nhập các danh sách người lì xì, người nhận và số tiền bạn muốn lì xì vào dưới đây:</p>
+        <h2 style="color:yellow">Lưu ý: Nghiêm cấm lạm dụng web này để cá cược, cờ bạc chỉ để chơi vui cùng bạn bè và gia đình!!!</h2>
+
+        <input type="text" id="giverListInput" placeholder="Danh sách người lì xì..." />
+        <input type="text" id="receiverListInput" placeholder="Danh sách người nhận lì xì..." />
+        <input type="text" id="minAmount" placeholder="Số tiền nhỏ nhất (VND)" />
+        <input type="text" id="maxAmount" placeholder="Số tiền lớn nhất (VND)" />
+        
+        <button onclick="startGame()">Bắt đầu chơi</button>
+
+        <div id="result" class="result"></div>
+
+        <button class="back-button" onclick="window.history.back()">Trở về</button>
+    </div>
+
+    <script>
+        function startGame() {
+            const giverInput = document.getElementById('giverListInput').value.trim();
+            const receiverInput = document.getElementById('receiverListInput').value.trim();
+            const minAmountInput = document.getElementById('minAmount').value.trim();
+            const maxAmountInput = document.getElementById('maxAmount').value.trim();
+            const resultElement = document.getElementById('result');
+
+            // Tách các tên thành mảng từ chuỗi nhập vào, loại bỏ khoảng trắng thừa
+            const giverList = giverInput.split(',').map(name => name.trim()).filter(name => name !== "");
+            const receiverList = receiverInput.split(',').map(name => name.trim()).filter(name => name !== "");
+
+            // Kiểm tra xem có đủ danh sách người lì xì và người nhận không
+            if (giverList.length === 0 || receiverList.length === 0 || minAmountInput === "" || maxAmountInput === "") {
+                alert("Vui lòng nhập đầy đủ danh sách người lì xì, người nhận và số tiền!");
+                return;
+            }
+
+            // Kiểm tra và chuyển đổi số tiền nhập vào thành số, và kiểm tra tính hợp lệ
+            const minAmount = parseInt(minAmountInput);
+            const maxAmount = parseInt(maxAmountInput);
+
+            if (isNaN(minAmount) || isNaN(maxAmount)) {
+                alert("Vui lòng nhập số tiền hợp lệ!");
+                return;
+            }
+
+            if (minAmount >= maxAmount) {
+                alert("Số tiền nhỏ nhất phải nhỏ hơn số tiền lớn nhất!");
+                return;
+            }
+
+            // Chọn ngẫu nhiên người lì xì và người nhận
+            const randomGiver = giverList[Math.floor(Math.random() * giverList.length)];
+            const randomReceiver = receiverList[Math.floor(Math.random() * receiverList.length)];
+
+            // Tạo số tiền random trong phạm vi từ minAmount đến maxAmount
+            const randomAmount = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount;
+
+            // Hiển thị người lì xì, người nhận và số tiền
+            resultElement.innerHTML = `${randomGiver} lì xì cho ${randomReceiver}: <strong>${randomAmount.toLocaleString()} VND</strong>`;
+
+            // Thêm hiệu ứng random
+            resultElement.style.transition = "all 1s ease-in-out";
+            resultElement.style.opacity = 0;
+            setTimeout(() => {
+                resultElement.style.opacity = 1;
+                resultElement.style.transform = "scale(1.2)";
+            }, 100);
+            setTimeout(() => {
+                resultElement.style.transform = "scale(1)";
+            }, 500);
+        }
+    </script>
+
+</body>
+</html>

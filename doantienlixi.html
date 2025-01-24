@@ -1,171 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trò chơi đoán tiền lì xì</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đoán Tiền Lì Xì</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Video nền */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* Container nội dung */
+        .container {
+            position: relative;
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        button {
+            background-color: #ff5733;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+            display: block;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        button:hover {
+            background-color: #c70039;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.8);
+            min-width: 150px;
+            color: #34495e;
+        }
+    </style>
 </head>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.container {
-  text-align: center;
-}
-
-h1 {
-  color: wheat ;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: red;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-#result {
-  font-weight: bold;
-}
-video {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        z-index: -1000;
-        transform: translateX(-50%) translateY(-50%);
-        filter: brightness(70%);
-    }
-    p{
-        color: white;
-    }
-
-.navbar {
-  overflow: hidden;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000; 
-}
-
-
-.navbar a {
-  float: left;
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 20px;
-  text-decoration: none;
-}
-
-
-.navbar a.active {
-  background-color: red;
-  color: white;
-}
-header {
-  position: fixed; /* Đặt phần tử ở vị trí cố định */
-  top: 0; /* Đặt phần tử ở đỉnh trang */
-  left: 0;
-  width: 100%;
-  background-color: red;
-  color: #fff;
-  padding: 10px 0;
-}
-
-.running-text-container {
-  overflow: hidden; /* Ẩn phần chữ vượt ra khỏi phần tử cha */
-}
-
-.running-text {
-  display: inline-block;
-  margin: 0;
-  animation: running-text 30s linear infinite;
-}
-
-@keyframes running-text {
-  0% {
-    transform: translateX(100%); /* Di chuyển chữ từ phải sang trái */
-  }
-  100% {
-    transform: translateX(-100%); /* Di chuyển chữ qua lại từ trái sang phải */
-  }
-}
-.button {
-  background-color: red; 
-  border: none;
-  color: white; 
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 10px; 
-  }
-.button {
-  font-size: 1em;
-  padding: 10px;
-  color: #fff;
-  border: 2px solid yellow;
-  border-radius: 20px/50px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease-out;
-}
-.button:hover {
-  background: #FFCC00;
-}
-</style>
 <body>
-  <header>
-    <div class="running-text-container">
-      <p class="running-text">Chúc mừng năm mới - Xuân Giáp Thìn 2024! - Mọi người đi chơi tết an toàn nhé! - Tuân thủ luật lệ giao thông và đã uống rượu bia, không lái xe! Có uống bia thì hãy bắt Grab hoặc xe Taxi nhé!</p>
+    <!-- Video nền -->
+    <video class="background-video" autoplay loop muted>
+        <source src="fireworks loop.mp4" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ video.
+    </video>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <!-- Nội dung -->
+    <div class="container">
+        <h1>Đoán Tiền Lì Xì</h1>
+        
+        <div class="result-box" id="result">...</div>
+        <button id="guessButton">Đoán</button>
+          <a href="index.html">Trở về Trang Chủ</a>
     </div>
-  </header>
-  <video autoplay loop muted>
-    <source src="fireworks loop.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
-<audio autoplay loop>
-  <source src="Thần Tài Đến Remix - TLong x H2O (Nhạc Xuân 2024)  Thần Tài Đến Thần Tài Đến Hãy Giang Tay Đón Mời.mp3" type="audio/mp3">
-  Your browser does not support the audio tag.
-</audio>
-<div class="container">
-  <h1>Đoán Tiền Lì Xì</h1>
-  <button onclick="checkGuess()" class="button">Kiểm tra</button>
-  <p id="result"></p>
-  <a href="index.html" class="button">Trở về</a>
-</div>
-<script>
-function checkGuess() {
-  var randomAmount = Math.floor(Math.random() * 5000000); 
-  var resultElement = document.getElementById("result");
-  if (Math.random() < 0.7) {
-    resultElement.innerHTML = "Chúc mừng! Số tiền lì xì của bạn là " + randomAmount + " VNĐ.";
-  } else {
-    resultElement.innerHTML = "Rất tiếc! Năm nay bạn có cái nịt :))).";
-  }
-}
-</script>
+
+    <script>
+        const guessButton = document.getElementById('guessButton');
+        const resetButton = document.getElementById('resetButton');
+        const resultBox = document.getElementById('result');
+
+        // Danh sách các số tiền lì xì đẹp
+        const luckyAmounts = [5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000];
+
+        // Xử lý khi bấm nút "Đoán"
+        guessButton.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * luckyAmounts.length);
+            const luckyAmount = luckyAmounts[randomIndex];
+            resultBox.textContent = `${luckyAmount} VNĐ`;
+        });
+
+        // Xử lý khi bấm nút "Trở về Index"
+        resetButton.addEventListener('click', () => {
+            resultBox.textContent = '...';
+        });
+    </script>
 </body>
 </html>

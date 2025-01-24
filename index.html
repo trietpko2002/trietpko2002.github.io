@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +16,7 @@
     align-items: center;
     height: 100vh;
     overflow: hidden;
+    background-color: #000;
   }
   .container {
     position: relative;
@@ -28,14 +29,15 @@
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
-
   h2 {
     font-size: 16px;
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
   #countdown {
-    font-size: 28px;
+    font-size: 40px;
+    font-weight: bold;
+    color: #ffcc00;
     margin-bottom: 40px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
@@ -55,59 +57,15 @@
     height: auto;
     transform: translate(-50%, -50%);
     z-index: -1;
-    opacity: 1; 
-  }
-
- 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-
-.navbar {
-  overflow: hidden;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-}
-
-
-.navbar a {
-  float: left;
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 20px;
-  text-decoration: none;
-}
-
-
-.navbar a.active {
-  background-color: red;
-  color: white;
-}
-
-.content {
-  padding: 20px;
-}
-
-h3 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0.5;
   }
 
   .footer-buttons {
-    
     color: #fff;
     padding: 20px;
     text-align: center;
-}
-.footer-buttons button {
+  }
+  .footer-buttons button {
     background-color: #d93838;
     color: #fff;
     border: none;
@@ -115,133 +73,116 @@ h3 {
     margin: 0 10px;
     cursor: pointer;
     transition: background-color 0.3s;
-}
-.footer-buttons button:hover {
+  }
+  .footer-buttons button:hover {
     background-color: #c72e2e;
-}
-.text1 {
+  }
+  .text1 {
     font-size: 25px;
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
   .button {
-  background-color: red; 
-  border: none;
-  color: white; 
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 10px; 
+    background-image: linear-gradient(to bottom, #ff4d4d, #ffa64d);
+    border: 2px solid #e69900;
+    transition: background-image 0.3s ease, border-color 0.3s ease;
   }
-.button {
-  font-size: 1em;
-  padding: 10px;
-  color: #fff;
-  border: 2px solid yellow;
-  border-radius: 20px/50px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease-out;
-}
-.button:hover {
-  background: #FFCC00;
-}
-.overlay {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.7);
-  transition: opacity 500ms;
-  visibility: hidden;
-  opacity: 0;
-}
-.overlay:target {
-  visibility: visible;
-  opacity: 1;
-}
-
-.popup {
-  margin: 70px auto;
-  padding: 20px;
-  background: red;
-  border-radius: 5px;
-  width: 30%;
-  position: relative;
-  transition: all 5s ease-in-out;
-}
-
-.popup h2 {
-  margin-top: 0;
-  color: white;
-  font-family: Tahoma, Arial, sans-serif;
-}
-.popup .close {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  transition: all 200ms;
-  font-size: 30px;
-  font-weight: bold;
-  text-decoration: none;
-  color: #333;
-}
-.popup .close:hover {
-  color: #06D85F;
-}
-.popup .content {
-  max-height: 30%;
-  overflow: auto;
-}
-
-@media screen and (max-width: 700px){
-  .box{
-    width: 70%;
+  .button {
+    font-size: 1em;
+    padding: 10px;
+    color: #fff;
+    border: 2px solid yellow;
+    border-radius: 20px/50px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease-out;
   }
-  .popup{
-    width: 70%;
+  .button:hover {
+    background: #FFCC00;
   }
-}
-
-header {
-  position: fixed; /* Đặt phần tử ở vị trí cố định */
-  top: 0; /* Đặt phần tử ở đỉnh trang */
-  left: 0;
-  width: 100%;
-  background-color: red;
-  color: #fff;
-  padding: 10px 0;
-}
-
-.running-text-container {
-  overflow: hidden; /* Ẩn phần chữ vượt ra khỏi phần tử cha */
-}
-
-.running-text {
-  display: inline-block;
-  margin: 0;
-  animation: running-text 30s linear infinite;
-}
-
-@keyframes running-text {
-  0% {
-    transform: translateX(100%); /* Di chuyển chữ từ phải sang trái */
+  .overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
   }
-  100% {
-    transform: translateX(-100%); /* Di chuyển chữ qua lại từ trái sang phải */
+  .overlay:target {
+    visibility: visible;
+    opacity: 1;
   }
-}
+
+  @media screen and (max-width: 700px) {
+    .box {
+      width: 70%;
+    }
+    .popup {
+      width: 70%;
+    }
+  }
+
+  header {
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    width: 100%;
+    background-color: red;
+    color: #fff;
+    padding: 10px 0;
+  }
+
+  .running-text-container {
+    overflow: hidden;
+  }
+
+  .running-text {
+    display: inline-block;
+    margin: 0;
+    animation: running-text 30s linear infinite;
+  }
+
+  .donate-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #0096a1;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        /* Hiệu ứng khi di chuột vào */
+        .donate-btn:hover {
+            background-color: #007f88;
+            transform: scale(1.05);
+        }
+
+        /* Hiệu ứng khi nhấn nút */
+        .donate-btn:active {
+            transform: scale(1.02);
+        }
+
+  @keyframes running-text {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
 </style>
 </head>
 <body>
   <header>
     <div class="running-text-container">
-      <p class="running-text">Chúc mừng năm mới - Xuân Ất Tỵ 2025! - Mọi người tuân thủ đèn giao thông, luật lệ giao thông và ĐÃ UỐNG RƯỢU BIA KHÔNG LÁI XE! </p>
+      <p class="running-text">Chúc mừng năm mới - Xuân Ất Tỵ 2025! - Mọi người đi chơi an toàn nhé! - Mọi người tuân thủ đèn giao thông, luật lệ giao thông và ĐÃ UỐNG RƯỢU BIA KHÔNG LÁI XE! </p>
     </div>
   </header>
   <video autoplay muted loop>
@@ -249,89 +190,62 @@ header {
     Your browser does not support the video tag.
   </video>
   <audio autoplay loop>
-    <source src="music_bg.MP3" type="audio/mpeg">
+    <source src="bg.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
- 
+
   <div class="container">
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
+    <br> <br> <br> <br>
     <h1>Chúc mừng năm mới Ất Tỵ 2025!</h1>
-    <a class="text1">Chúc bạn 12 tháng phú quý, 365 ngày phát tài, 8.760 giờ sung túc, 525.600 phút thành công và 31.536.000 giây mã đáo.</a>
+    <p class="text1">Chúc bạn 12 tháng phú quý, 365 ngày phát tài, 8.760 giờ sung túc, 525.600 phút thành công và 31.536.000 giây mã đáo.</p>
+    <p class="text1">Trò chơi tết nè, tui mới cập nhật thêm :))))</p>
     <br>
-    <br>
-    <a class="text1">Trò chơi tết nè, tui mới cập nhật thêm :))))</a>
+    <h3>Đếm ngược ngày tết</h3>
+    <!-- Đếm ngược -->
+    <div id="countdown">
+      
+    </div>
+
+   
     <div class="footer-buttons">
       <a href="chuctet.html" class="button">Chúc Tết</a>
       <a href="doantienlixi.html" class="button">Đoán Tiền Lì Xì</a>
       <a href="nhanbaolixi.html" class="button">Nhận Bao Lì Xì</a>
-  </div>
-  <br>
-  <a class="button" href="#popup1">Thông tin trang web</a>
-  <a class="button" href="#popup2">Lì xì cho chủ code đi ạ!</a>
-  
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
+      <a href="gieoque.html" class="button">Gieo quẻ</a>
+      <a href="thuthachlixi.html" class="button">Trò chơi thử thách lì xì - DÀNH CHO NHÓM BẠN</a>
+    </div>
+    <br>
+    <a class="button" href="#popup1">Thông tin trang web</a>
+    
+    <a href="https://www.youtube.com/watch?v=p5nIvq8TWD0&list=RDp5nIvq8TWD0&start_radio=1" class="button">List nhạc Tết ngẫu nhiên</a>
 
-  <h2>Code bởi Triết Võ a.k.a Hổ Ngáo Lai Mèo</h2>
-    <div id="popup1" class="overlay">
-      <div class="popup">
-        <h2>Thông tin trang web </h2>
-        <a class="close" href="#">&times;</a>
-        <div class="content">
-          Trang web được code bởi Triết Võ
-          <br>
-          <br>
-          Trang web được làm nhân dịp 
-          <br>
-          tết nguyên đán giáp thìn 2024,
-          <br>
-          code làm nhanh nên còn chút sai sót ạ.
-          <br>
-          <br>
-          Trong đây có các trò chơi vui ngày tết như random các câu chúc tết, dự đoán tiền lì xì và nhận tiền lì xì.
-          <br>
-          <br>
-          Trang web được pushlish lên Github và Soucre Code trên Github.
-          <br>
-          <br>
-          <a class="button" href="https://github.com/trietpko2002/trietpko2002.github.io">Soucre Github</a>
-          <a class="button" href="demo.html">Demo</a>
-        </div>
-      </div>
-    </div>
-    <div id="popup2" class="overlay">
-      <div class="popup">
-        <h2>Lì xì chủ web </h2>
-        <a class="close" href="#">&times;</a>
-        <div class="content">
-          <img src="1707395232776.png" style="width: 85%;">
-        </div>
-      </div>
-    </div>
-  </div>
+    <br><br><br> 
+    <a href="z6260783526373_0096a1ae92a8516cf94a871c8578b64b.jpg" class="donate-btn">Donate chủ code</a>
+    <a href="thongtin.html" class="donate-btn">Thông Tin Trang Web</a>
+    <h2>Code bởi Triết Võ - 2025</h2>
+    
 <script>
+  // Đếm ngược
+  const countdownElement = document.getElementById('countdown');
+  const newYearDate = new Date("2025-01-29T00:00:00").getTime();
 
-  var openButton = document.getElementById('openPopup');
-  var popup = document.getElementById('myPopup');
-  var closeButton = document.getElementById('closePopup');
+  const interval = setInterval(function() {
+    const now = new Date().getTime();
+    const timeLeft = newYearDate - now;
 
-  openButton.addEventListener('click', function() {
-      popup.style.display = 'block';
-  });
-  closeButton.addEventListener('click', function() {
-      popup.style.display = 'none';
-  });
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+    countdownElement.innerHTML = `${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`;
+
+    if (timeLeft < 0) {
+      clearInterval(interval);
+      countdownElement.innerHTML = "Chúc mừng năm mới Ất Tỵ 2025!";
+    }
+  }, 1000);
 </script>
+
 </body>
 </html>
