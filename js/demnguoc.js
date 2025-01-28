@@ -1,6 +1,6 @@
  // Đếm ngược
  const countdownElement = document.getElementById('countdown');
- const newYearDate = new Date("2025-01-29T00:00:00").getTime();
+ const newYearDate = new Date("2025-02-03T08:00:00").getTime();
 
  const interval = setInterval(function() {
    const now = new Date().getTime();
