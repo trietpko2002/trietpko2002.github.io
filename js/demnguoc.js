@@ -15,6 +15,6 @@
 
    if (timeLeft < 0) {
      clearInterval(interval);
-     countdownElement.innerHTML = "Chúc mừng năm mới Ất Tỵ 2025!";
+     countdownElement.innerHTML = "Hết tết rồi, đi làm đê :))))";
    }
  }, 1000);
