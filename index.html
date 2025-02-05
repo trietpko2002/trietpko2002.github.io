@@ -1,57 +1,72 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chúc mừng năm mới Ất Tỵ 2025!</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-BQbeA5gHC8tfsCkYukk9M1Kcq4zC+7ECn7gbPxG8HwblYIE6TwqVhqo5Oub1T9qD" crossorigin="anonymous">
-<link rel="stylesheet" type="text/css" href="css/index.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang web tạm ngừng hoạt động</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .button, .back-button {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 14px;
+      margin-top: 15px;
+      margin-right: 10px;
+      text-align: center;
+    }
+
+    .button:hover, .back-button:hover {
+      background-color: #0056b3;
+    }
+    video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+    </style>
+     <video id="background-video" autoplay loop muted>
+        <source src="123.mp4" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ video nền.
+    </video>
 </head>
-
 <body>
-  <header>
-    <div class="running-text-container">
-      <p class="running-text">Chúc mừng năm mới - Xuân Ất Tỵ 2025! - Mọi người đi chơi an toàn nhé! - Mọi người tuân thủ đèn giao thông, luật lệ giao thông và ĐÃ UỐNG RƯỢU BIA KHÔNG LÁI XE! </p>
-    </div>
-  </header>
-  <video autoplay muted loop>
-    <source src="img_vd_ms/fireworks loop.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-
-
-  <div class="container">
-    <br> <br> <br> <br><br><br> <br><br><br>
-    <h1>Chúc mừng năm mới Ất Tỵ 2025!</h1>
-    <p class="text1">Chúc bạn 12 tháng phú quý, 365 ngày phát tài, 8.760 giờ sung túc, 525.600 phút thành công và 31.536.000 giây mã đáo.</p>
-    <p class="text1">Trò chơi tết nè, tui mới cập nhật thêm :))))</p>
-    <br>
-    <h3>Đếm ngược hết tết</h3>
-    <!-- Đếm ngược -->
-
-    <div id="countdown">
-    </div>
-    <div class="footer-buttons">
-      <a href="chuctet.html" class="button">Chúc Tết</a>
-      <a href="doantienlixi.html" class="button">Đoán Tiền Lì Xì</a>
-      <a href="nhanbaolixi.html" class="button">Nhận Bao Lì Xì</a>
-      <a href="gieoque.html" class="button">Gieo quẻ</a>
-      <a href="thuthachlixi.html" class="button">Trò chơi thử thách lì xì - DÀNH CHO NHÓM BẠN</a>
-    </div>
-    <iframe width="40%" height="100" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1973268771&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe><div style="font-size: 10px; color: #cccccc;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;font-weight: 100;"><a href="https://soundcloud.com/hhh-heng-xin-music" title="Quoc Khanh" target="_blank" style="color: #cccccc; text-decoration: none;">Quoc Khanh</a> · <a href="https://soundcloud.com/hhh-heng-xin-music/nhac-tet-2025-remix-lk-sieu-hay-nghe-la-muon-ve-que-quoc-khanh-music" title="Nhạc Tết 2025 Remix LK Siêu Hay |Nghe là muốn về quê  - Quoc Khanh Music" target="_blank" style="color: #cccccc; text-decoration: none;">Nhạc Tết 2025 Remix LK Siêu Hay |Nghe là muốn về quê  - Quoc Khanh Music</a></div>
-    <br>
-    <a href="img_vd_ms/z6260783526373_0096a1ae92a8516cf94a871c8578b64b.jpg" class="donate-btn">Donate chủ code</a>
-    <a href="thongtin.html" class="donate-btn">Thông Tin Trang Web</a>
-    <h2>Code bởi Triết Võ - 2025</h2>
-    <script src="js/demnguoc.js"></script>
-    <script>
-      // Kiểm tra thiết bị di động
-      if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        // Chuyển hướng đến trang web dành cho điện thoại
-        window.location.href = "https://trietpko2002.github.io/phone/index_phone.html"; // Thay bằng URL phiên bản di động của bạn
-      }
-    </script>
-      
-    
+    <div class="container">
+        <h1 style="
+        color: white;
+        -webkit-text-stroke: 1px black;
+    ">Trang web đã gỡ xuống vì đã hết Tết Nguyên Đán</h1>
+        <h3 style="
+        color: white;
+    ">Mình xin lỗi vì sự bất tiện này. Nếu các bạn muốn trải nghiệm web giải trí Tết vui lòng tải soucre về chạy local hoặc là server giúp mình nhé. Do mình phải cần gỡ vì cũng sẽ có dự án mới nhất.</h3>
+        <a class="button" href="https://github.com/trietpko2002/web_giai_tri_tet_at_ty_2025">Source Github</a>
+        <br><br>
+        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1988956059&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe><div style="font-size: 10px; color: #cccccc;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;font-weight: 100;"><a href="https://soundcloud.com/thengg-minh" title="👻" target="_blank" style="color: #cccccc; text-decoration: none;">👻</a> · <a href="https://soundcloud.com/thengg-minh/m-t-k-t-n-i-d-ng-domic-1" title="Mất Kết Nối - Dương Domic" target="_blank" style="color: #cccccc; text-decoration: none;">Mất Kết Nối - Dương Domic</a></div>
+      </div>
 </body>
 </html>
