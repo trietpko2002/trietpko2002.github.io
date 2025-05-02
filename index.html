@@ -1,72 +1,295 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang web tạm ngừng hoạt động</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+  <meta charset="UTF-8">
+  <title>Tool Lọc Ảnh</title>
+  <style>
+    :root {
+      --primary: #4A90E2;
+      --danger: #e74c3c;
+      --bg: #f9f9fb;
+      --text: #333;
+    }
 
-        .button, .back-button {
-      display: inline-block;
-      background-color: #007bff;
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Open Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      height: 100%;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      color: var(--primary);
+    }
+
+    .marquee-container {
+      width: 100%;
+      overflow: hidden;
+      background-color: #4A90E2;
       color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      text-decoration: none;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 10px 0;
+    }
+
+    .marquee-content {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 15s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      align-items: center;
+    }
+
+    .toolbar .left, .toolbar .right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      padding: 10px 16px;
       font-size: 14px;
-      margin-top: 15px;
-      margin-right: 10px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    .folder-label {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .main {
+      display: flex;
+      height: calc(100% - 200px);
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .panel {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: var(--primary);
       text-align: center;
     }
 
-    .button:hover, .back-button:hover {
-      background-color: #0056b3;
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+      flex: 1;
+      border-top: 1px solid #eee;
+      margin-top: 10px;
     }
-    video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -1;
-}
 
-    </style>
-     <video id="background-video" autoplay loop muted>
-        <source src="123.mp4" type="video/mp4">
-        Trình duyệt của bạn không hỗ trợ video nền.
-    </video>
+    li {
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+      color: var(--primary);
+    }
+
+    li:hover {
+      background: #f0f0f0;
+    }
+
+    .preview {
+      text-align: center;
+    }
+
+    #preview {
+      max-width: 100%;
+      max-height: 300px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .donate-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .donate-container img {
+      width: 200px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 style="
-        color: white;
-        -webkit-text-stroke: 1px black;
-    ">Trang web đã gỡ xuống vì đã hết Tết Nguyên Đán</h1>
-        <h3 style="
-        color: white;
-    ">Mình xin lỗi vì sự bất tiện này. Nếu các bạn muốn trải nghiệm web giải trí Tết vui lòng tải soucre về chạy local hoặc là server giúp mình nhé. Do mình phải cần gỡ vì cũng sẽ có dự án mới nhất.</h3>
-        <a class="button" href="https://github.com/trietpko2002/web_giai_tri_tet_at_ty_2025">Source Github</a>
-        <br><br>
-        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1988956059&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe><div style="font-size: 10px; color: #cccccc;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;font-weight: 100;"><a href="https://soundcloud.com/thengg-minh" title="👻" target="_blank" style="color: #cccccc; text-decoration: none;">👻</a> · <a href="https://soundcloud.com/thengg-minh/m-t-k-t-n-i-d-ng-domic-1" title="Mất Kết Nối - Dương Domic" target="_blank" style="color: #cccccc; text-decoration: none;">Mất Kết Nối - Dương Domic</a></div>
-      </div>
+  <div class="marquee-container">
+    <div class="marquee-content">
+      🇻🇳 Kỷ niệm 50 năm Giải phóng miền Nam – Thống nhất đất nước (1975–2025) 🇻🇳
+    </div>
+  </div>
+<header>
+  <h1>📷 Tool lọc ảnh</h1>
+</header>
+
+
+
+<div class="toolbar">
+  <div class="left">
+    <button id="select-source">📂 Chọn thư mục gốc</button>
+    <button onclick="window.open('https://github.com/your-username/your-repo', '_blank')">🌐 GitHub Project</button>
+  </div>
+  <div class="right">
+    <button id="select-target">📁 Chọn thư mục đã lọc</button>
+    <span class="folder-label" id="target-folder-name">Chưa chọn</span>
+    <button onclick="document.getElementById('qr-donate').style.display='block'">💖 Donate</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <h2>Ảnh gốc</h2>
+    <ul id="source-list"></ul>
+  </div>
+  <div class="panel">
+    <h2>Xem trước</h2>
+    <div class="preview">
+      <img id="preview" src="" alt="Preview">
+    </div>
+    <div class="actions">
+      <button id="copy-button">📋 Copy</button>
+      <button id="cut-button">✂️ Cut</button>
+    </div>
+    <div class="donate-container" id="qr-donate" style="display:none;">
+      <p><strong>Ủng hộ tác giả qua ngân hàng:</strong></p>
+      <img src="donate_qr.png" alt="Donate QR Code">
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Đã lọc</h2>
+    <ul id="filtered-list"></ul>
+  </div>
+</div>
+
+<script>
+  let sourceHandle = null;
+  let targetHandle = null;
+  let selectedFile = null;
+
+  document.getElementById('select-source').onclick = async () => {
+    sourceHandle = await window.showDirectoryPicker();
+    await loadSourceFiles();
+  };
+
+  document.getElementById('select-target').onclick = async () => {
+    targetHandle = await window.showDirectoryPicker();
+    document.getElementById('target-folder-name').textContent = `Đã chọn: ${targetHandle.name}`;
+    await loadTargetFiles();
+  };
+
+  async function loadSourceFiles() {
+    const sourceList = document.getElementById('source-list');
+    sourceList.innerHTML = '';
+    for await (const [name, handle] of sourceHandle.entries()) {
+      if (handle.kind === 'file' && /\.(png|jpe?g)$/i.test(name)) {
+        const li = document.createElement('li');
+        li.textContent = name;
+        li.onclick = async () => {
+          selectedFile = { name, handle };
+          const file = await handle.getFile();
+          document.getElementById('preview').src = URL.createObjectURL(file);
+        };
+        sourceList.appendChild(li);
+      }
+    }
+  }
+
+  async function loadTargetFiles() {
+    const list = document.getElementById('filtered-list');
+    list.innerHTML = '';
+    for await (const [name, handle] of targetHandle.entries()) {
+      if (handle.kind === 'file') {
+        const li = document.createElement('li');
+        li.textContent = name;
+        list.appendChild(li);
+      }
+    }
+  }
+
+  async function copyImage() {
+    if (!selectedFile || !targetHandle) {
+      alert('Chọn ảnh và thư mục đã lọc!');
+      return;
+    }
+
+    const file = await selectedFile.handle.getFile();
+    const targetFileHandle = await targetHandle.getFileHandle(selectedFile.name, { create: true });
+    const writable = await targetFileHandle.createWritable();
+    await writable.write(await file.arrayBuffer());
+    await writable.close();
+    await loadTargetFiles();
+  }
+
+  async function cutImage() {
+    await copyImage();
+    await sourceHandle.removeEntry(selectedFile.name);
+    selectedFile = null;
+    document.getElementById('preview').src = "";
+    await loadSourceFiles();
+  }
+
+  document.getElementById('cut-button').onclick = cutImage;
+  document.getElementById('copy-button').onclick = copyImage;
+</script>
+
 </body>
 </html>
