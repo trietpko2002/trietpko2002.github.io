@@ -111,50 +111,28 @@
             font-weight: bold;
         }
 
-        /* Container cho video intro */
-        #intro-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            z-index: 9999;
-            transition: opacity 1s ease-out;
-            opacity: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #intro-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         /* Video nền luôn giữ nguyên vị trí và full màn hình */
         #video-background {
-             position: fixed;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    transform: translate(-70%, -75%); /* Phương pháp tốt nhất để căn giữa */
-    z-index: -1;
-    object-fit: cover;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%); /* Đã sửa lỗi tại đây */
+            z-index: -1;
+            object-fit: cover;
         }
 
         /* Container cho trang chính có thể cuộn */
         #main-content {
             min-height: 100vh;
             z-index: 1;
-            opacity: 0;
-            transform: translateY(50px);
+            opacity: 1;
+            transform: translateY(0);
             transition: opacity 1s ease-in, transform 1s cubic-bezier(0.19, 1, 0.22, 1);
-            visibility: hidden;
+            visibility: visible;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -162,13 +140,6 @@
             color: #ffffff;
             text-align: center;
             overflow-y: auto;
-        }
-
-        /* Hiệu ứng mờ dần và bay vào */
-        .show-content {
-            opacity: 1 !important;
-            visibility: visible !important;
-            transform: translateY(0) !important;
         }
 
         .running-banner {
@@ -488,13 +459,6 @@
         </div>
     </div>
 
-    <div id="intro-container">
-        <video id="intro-video" autoplay muted playsinline>
-            <source src="INTRO.mp4" type="video/mp4">
-            Trình duyệt của bạn không hỗ trợ video này.
-        </video>
-    </div>
-
     <div id="main-content">
         <video autoplay muted loop playsinline id="video-background">
             <source src="BG.mp4" type="video/mp4">
@@ -553,30 +517,6 @@
     </div>
 
     <script>
-        const introVideo = document.getElementById('intro-video');
-        const introContainer = document.getElementById('intro-container');
-        const mainContent = document.getElementById('main-content');
-
-        // Hàm xử lý chuyển cảnh mượt mà
-        const smoothTransition = () => {
-            introContainer.style.opacity = '0';
-            mainContent.classList.add('show-content');
-            introContainer.addEventListener('transitionend', () => {
-                introContainer.style.display = 'none';
-            }, { once: true });
-        };
-
-        // Khi video giới thiệu kết thúc
-        introVideo.onended = smoothTransition;
-
-        // Xử lý khi trang được tải
-        document.addEventListener('DOMContentLoaded', () => {
-            introVideo.play().catch(error => {
-                // Fallback nếu trình duyệt chặn autoplay, chạy hiệu ứng chuyển cảnh ngay lập tức
-                smoothTransition();
-            });
-        });
-
         // Định nghĩa thời gian bắt đầu và kết thúc đại hội
         const congressStart = new Date("October 12, 2025 07:30:00").getTime();
         const congressEnd = new Date("October 12, 2025 12:00:00").getTime();
@@ -671,4 +611,3 @@
     </script>
 </body>
 </html>
-
