@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="logo.ico">
     <title>Đại hội Đoàn TNCS Hồ Chí Minh Phường Phan Rang</title>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
 
@@ -119,7 +120,7 @@
             font-weight: bold;
             text-transform: uppercase;
         }
-
+        
         #countdown {
             display: flex;
             justify-content: center;
@@ -162,6 +163,7 @@
             flex-direction: column;
             gap: 20px;
             margin-top: 30px;
+            align-items: center;
         }
 
         /* Định dạng nút rực cháy */
@@ -181,6 +183,9 @@
             overflow: hidden;
             transition: all 0.4s ease;
             z-index: 1;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
         }
 
         .action-button::before {
@@ -216,6 +221,11 @@
             border: 2px solid #fff;
         }
         
+        .document-button {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            border: 2px solid #fff;
+        }
+
         /* Hiệu ứng nhấp nháy */
         @keyframes glowing {
             0% { box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00, 0 0 15px #ffcc00, 0 0 20px #ffcc00; }
@@ -261,6 +271,10 @@
                 padding: 10px 20px;
             }
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -280,10 +294,9 @@
             <div class="logo">
                 <img src="https://trietpko2002.github.io/logo%20(11).png" alt="Logo Đoàn Thanh niên">
             </div>
-          
-        
-            <p class="countdown-heading">THỜI GIAN CÒN LẠI:</p>
-            <div id="countdown">
+            
+            <p class="countdown-heading" id="dynamic-heading">THỜI GIAN CÒN LẠI:</p>
+            <div id="countdown" class="countdown-section">
                 <div class="countdown-item">
                     <div class="countdown-value" id="days">00</div>
                     <div class="countdown-label">Ngày</div>
@@ -302,45 +315,72 @@
                 </div>
             </div>
 
-            <div class="button-group">
-                <a href="https://example.com/" class="action-button avatar-button">TÀI LIỆU ĐẠI HỘI</a>
+            <div class="button-group" id="button-group">
+                <a href="https://example.com/" class="action-button document-button">TÀI LIỆU ĐẠI HỘI</a>
                 <a href="https://khaosat.me/survey/loi-yeu-thuong-den-dai-hoi-inhiem-ky-2025-2030-6488f76" class="action-button love-button">GỬI LỜI YÊU THƯƠNG TỚI ĐẠI HỘI</a>
                 <a href="https://khunghinh.net/p/daihoidoantncshochiminhphuongphanrang" class="action-button avatar-button">TẠO KHUNG HÌNH ĐẠI DIỆN</a>
-                
             </div>
         </div>
         <footer>
-  <p>©2025 - Sản phẩm của tổ công nghệ <br>Đoàn phường Phan Rang</p>
-  
-  
-</footer>
+            <p>©2025 - Sản phẩm của tổ công nghệ <br>Đoàn phường Phan Rang</p>
+        </footer>
     </div>
 
     <script>
-        const targetDate = new Date("October 12, 2025 07:00:00").getTime();
+        // Định nghĩa thời gian bắt đầu và kết thúc đại hội
+        const congressStart = new Date("October 12, 2025 07:30:00").getTime();
+        const congressEnd = new Date("October 12, 2025 12:00:00").getTime();
+        
+        const heading = document.getElementById("dynamic-heading");
+        const countdownSection = document.getElementById("countdown");
+        const buttonGroup = document.getElementById("button-group");
 
-        const x = setInterval(function() {
+        const updatePage = () => {
             const now = new Date().getTime();
-            const distance = targetDate - now;
 
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById("days").innerHTML = String(days).padStart(2, '0');
-            document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
-            document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
-            document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
-
-            if (distance < 0) {
-                clearInterval(x);
-                document.querySelector('.main-title').innerHTML = "ĐẠI HỘI ĐOÀN TNCS HỒ CHÍ MINH ĐÃ BẮT ĐẦU!";
-                document.querySelector('.sub-title').style.display = 'none';
-                document.querySelector('.countdown-heading').innerHTML = "ĐẠI HỘI ĐANG DIỄN RA!";
-                document.getElementById("countdown").innerHTML = "";
+            // Trường hợp 1: Đại hội đã kết thúc, chuyển hướng ngay lập tức
+            if (now >= congressEnd) {
+                window.location.href = "404.html";
+                return; // Ngừng thực thi hàm
             }
-        }, 1000);
+
+            // Trường hợp 2: Trong thời gian đại hội (7h30 - 12h ngày 12/10/2025)
+            if (now >= congressStart) {
+                heading.innerHTML = "ĐẠI HỘI ĐANG DIỄN RA!";
+                countdownSection.classList.add("hidden");
+                
+                // Hiển thị nút tài liệu và ẩn các nút khác
+                const allButtons = buttonGroup.querySelectorAll('.action-button');
+                allButtons.forEach(button => button.classList.add("hidden"));
+                buttonGroup.querySelector('.document-button').classList.remove("hidden");
+            } 
+            // Trường hợp 3: Trước khi đại hội bắt đầu, hiển thị đếm ngược
+            else {
+                const distance = congressStart - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerHTML = String(days).padStart(2, '0');
+                document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
+                document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
+                document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
+
+                heading.innerHTML = "THỜI GIAN CÒN LẠI:";
+                countdownSection.classList.remove("hidden");
+                
+                // Hiển thị lại tất cả các nút
+                const allButtons = buttonGroup.querySelectorAll('.action-button');
+                allButtons.forEach(button => button.classList.remove("hidden"));
+            }
+        };
+
+        // Cập nhật hiển thị ngay lập tức khi trang tải
+        updatePage();
+        
+        // Cập nhật mỗi giây
+        const x = setInterval(updatePage, 1000);
     </script>
 </body>
 </html>
