@@ -8,20 +8,132 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body, html {
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            min-height: 100vh;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
         }
 
+        /* PC Blocker */
+        #pc-blocker {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            z-index: 10000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            line-height: 1.5;
+            overflow-y: auto;
+        }
+
+        #pc-blocker h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+
+        #pc-blocker h2 {
+            font-size: 1.5em;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+
+        #pc-blocker p {
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+        
+        #pc-blocker .qr-code-container {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #pc-blocker .qr-code-container img {
+            width: 150px;
+            height: 150px;
+        }
+        
+        #pc-blocker .qr-code-container p {
+            color: #000;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        .guide-section {
+            width: 90%;
+            max-width: 600px;
+            text-align: left;
+            margin-top: 2em;
+        }
+
+        .guide-section h3 {
+            font-size: 1.2em;
+            margin-bottom: 0.5em;
+            color: #ffcc00;
+            text-align: center;
+        }
+
+        .guide-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .guide-section ul li {
+            margin-bottom: 1em;
+            position: relative;
+            padding-left: 25px;
+            font-size: 1.1em;
+        }
+
+        .guide-section ul li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        
+        /* Container cho video intro */
+        #intro-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+            opacity: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #intro-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Video nền luôn giữ nguyên vị trí và full màn hình */
         #video-background {
             position: fixed;
             top: 50%;
@@ -31,9 +143,38 @@
             width: auto;
             height: auto;
             transform: translateX(-50%) translateY(-50%);
-            z-index: 1;
+            z-index: -1;
+            object-fit: cover;
         }
 
+        /* Container cho trang chính có thể cuộn */
+        #main-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease-in, transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+            visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            color: #ffffff;
+            text-align: center;
+            overflow-y: auto;
+        }
+        
+        /* Hiệu ứng mờ dần và bay vào */
+        .show-content {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+        
         .running-banner {
             position: fixed;
             top: 0;
@@ -60,6 +201,32 @@
             100% { transform: translateX(-100%); }
         }
 
+        /* Nút chia sẻ */
+        #share-button-container {
+            position: fixed;
+            top: 60px; /* Dưới thanh chạy chữ */
+            right: 10px;
+            z-index: 11;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #share-button-container:hover {
+            transform: scale(1.1);
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #share-button-container svg {
+            width: 30px;
+            height: 30px;
+            fill: #fff;
+        }
+
         .content-wrapper {
             position: relative;
             z-index: 2;
@@ -67,8 +234,6 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            color: #ffffff;
-            text-align: center;
             min-height: 100vh;
             padding: 10px;
             box-sizing: border-box;
@@ -226,6 +391,12 @@
             border: 2px solid #fff;
         }
 
+        /* Nút xem video */
+        .video-button {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+            border: 2px solid #fff;
+        }
+
         /* Hiệu ứng nhấp nháy */
         @keyframes glowing {
             0% { box-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00, 0 0 15px #ffcc00, 0 0 20px #ffcc00; }
@@ -275,58 +446,140 @@
         .hidden {
             display: none !important;
         }
+
+        /* Thêm padding dưới cùng để nội dung có thể cuộn và hiển thị footer */
+        footer {
+            margin-top: 50px;
+            padding-bottom: 20px;
+        }
+
+        /* Chặn giao diện PC */
+        @media (min-width: 769px) {
+            #intro-container, #main-content {
+                display: none !important;
+            }
+            #pc-blocker {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
-    <video autoplay muted loop playsinline id="video-background">
-        <source src="BG.mp4" type="video/mp4">
-        Trình duyệt của bạn không hỗ trợ video này.
-    </video>
+    <div id="pc-blocker">
+        <h1>Giao diện này chỉ hỗ trợ trên điện thoại</h1>
+        <p>Vui lòng truy cập trang web bằng điện thoại di động để có trải nghiệm tốt nhất.</p>
+        <div class="qr-code-container">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://doantncshcm-doanphuongphanrang.vercel.app/" alt="Mã QR">
+            <p>Quét mã QR này để truy cập trang web.</p>
+        </div>
 
-    <div class="running-banner">
-        <span class="running-text">
-            CHÀO MỪNG ĐẠI HỘI ĐẠI BIỂU ĐOÀN TNCS HỒ CHÍ MINH PHƯỜNG PHAN RANG LẦN THỨ I, NHIỆM KỲ 2025 - 2030! ĐẠI HỘI SẼ DIỄN RA VÀO NGÀY 12 THÁNG 10 NĂM 2025 - HỘI TRƯỜNG A
-        </span>
+        <div class="guide-section">
+            <h2>Hướng dẫn quét mã QR:</h2>
+            <ul>
+                <li><strong>Với ứng dụng Zalo:</strong>
+                    <br>
+                    - Mở ứng dụng Zalo, chọn <strong>tab Tin nhắn</strong>.
+                    <br>
+                    - Nhấn vào biểu tượng <strong>QR Code</strong> ở góc trên cùng bên phải.
+                    <br>
+                    - Hướng camera vào mã QR và chọn <strong>"Mở link"</strong> khi có thông báo.
+                </li>
+                <li><strong>Với Camera iPhone:</strong>
+                    <br>Mở ứng dụng <strong>Camera</strong>, hướng vào mã QR. Một thông báo sẽ hiện lên ở góc trên cùng, bạn chỉ cần chạm vào đó.
+                </li>
+               
+            </ul>
+        </div>
     </div>
 
-    <div class="content-wrapper">
-        <div class="container">
-            <div class="logo">
-                <img src="https://trietpko2002.github.io/logo%20(11).png" alt="Logo Đoàn Thanh niên">
-            </div>
-            
-            <p class="countdown-heading" id="dynamic-heading">THỜI GIAN CÒN LẠI:</p>
-            <div id="countdown" class="countdown-section">
-                <div class="countdown-item">
-                    <div class="countdown-value" id="days">00</div>
-                    <div class="countdown-label">Ngày</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-value" id="hours">00</div>
-                    <div class="countdown-label">Giờ</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-value" id="minutes">00</div>
-                    <div class="countdown-label">Phút</div>
-                </div>
-                <div class="countdown-item">
-                    <div class="countdown-value" id="seconds">00</div>
-                    <div class="countdown-label">Giây</div>
-                </div>
-            </div>
+    <div id="intro-container">
+        <video id="intro-video" autoplay muted playsinline>
+            <source src="INTRO.mp4" type="video/mp4">
+            Trình duyệt của bạn không hỗ trợ video này.
+        </video>
+    </div>
 
-            <div class="button-group" id="button-group">
-                <a href="https://example.com/" class="action-button document-button">TÀI LIỆU ĐẠI HỘI</a>
-                <a href="https://khaosat.me/survey/loi-yeu-thuong-den-dai-hoi-inhiem-ky-2025-2030-6488f76" class="action-button love-button">GỬI LỜI YÊU THƯƠNG TỚI ĐẠI HỘI</a>
-                <a href="https://khunghinh.net/p/daihoidoantncshochiminhphuongphanrang" class="action-button avatar-button">TẠO KHUNG HÌNH ĐẠI DIỆN</a>
-            </div>
+    <div id="main-content">
+        <video autoplay muted loop playsinline id="video-background">
+            <source src="BG.mp4" type="video/mp4">
+            Trình duyệt của bạn không hỗ trợ video này.
+        </video>
+
+        <div class="running-banner">
+            <span class="running-text">
+                CHÀO MỪNG ĐẠI HỘI ĐẠI BIỂU ĐOÀN TNCS HỒ CHÍ MINH PHƯỜNG PHAN RANG LẦN THỨ I, NHIỆM KỲ 2025 - 2030! ĐẠI HỘI SẼ DIỄN RA VÀO NGÀY 12 THÁNG 10 NĂM 2025 - HỘI TRƯỜNG A
+            </span>
         </div>
-        <footer>
-            <p>©2025 - Sản phẩm của tổ công nghệ <br>Đoàn phường Phan Rang</p>
-        </footer>
+
+        <div id="share-button-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.45 1.21.76 1.96.76 1.38 0 2.5-1.12 2.5-2.5S19.38 3 18 3s-2.5 1.12-2.5 2.5c0 .24.04.47.09.7L8.56 10.82c-.52-.47-1.2-.77-1.96-.77-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5c.76 0 1.44-.3 1.96-.77l7.05 4.11c-.05.23-.09.46-.09.7 0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5-1.12-2.5-2.5-2.5z"/>
+            </svg>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="container">
+                <div class="logo">
+                    <img src="https://trietpko2002.github.io/logo%20(11).png" alt="Logo Đoàn Thanh niên">
+                </div>
+                
+                <p class="countdown-heading" id="dynamic-heading">THỜI GIAN CÒN LẠI:</p>
+                <div id="countdown" class="countdown-section">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="days">00</div>
+                        <div class="countdown-label">Ngày</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="hours">00</div>
+                        <div class="countdown-label">Giờ</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="minutes">00</div>
+                        <div class="countdown-label">Phút</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="seconds">00</div>
+                        <div class="countdown-label">Giây</div>
+                    </div>
+                </div>
+
+                <div class="button-group" id="button-group">
+                    <a href="https://youtu.be/fmmP9VXgQtw" target="_blank" class="action-button video-button">XEM VIDEO GIỚI THIỆU</a>
+                    <a href="https://example.com/" class="action-button document-button">TÀI LIỆU ĐẠI HỘI</a>
+                    <a href="https://khaosat.me/survey/loi-yeu-thuong-den-dai-hoi-inhiem-ky-2025-2030-6488f76" class="action-button love-button">GỬI LỜI YÊU THƯƠNG TỚI ĐẠI HỘI</a>
+                    <a href="https://khunghinh.net/p/daihoidoantncshochiminhphuongphanrang" class="action-button avatar-button">TẠO KHUNG HÌNH ĐẠI DIỆN</a>
+                </div>
+            </div>
+            <footer>
+                <p>©2025 - Sản phẩm của tổ công nghệ <br>Đoàn phường Phan Rang</p>
+            </footer>
+        </div>
     </div>
 
     <script>
+        const introVideo = document.getElementById('intro-video');
+        const introContainer = document.getElementById('intro-container');
+        const mainContent = document.getElementById('main-content');
+        
+        introVideo.onended = () => {
+            introContainer.style.opacity = '0';
+            mainContent.classList.add('show-content');
+
+            setTimeout(() => {
+                introContainer.style.display = 'none';
+            }, 1000);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            introVideo.play().catch(error => {
+                introContainer.style.opacity = '0';
+                mainContent.classList.add('show-content');
+                setTimeout(() => {
+                    introContainer.style.display = 'none';
+                }, 1000);
+            });
+        });
+
         // Định nghĩa thời gian bắt đầu và kết thúc đại hội
         const congressStart = new Date("October 12, 2025 07:30:00").getTime();
         const congressEnd = new Date("October 12, 2025 12:00:00").getTime();
@@ -334,6 +587,7 @@
         const heading = document.getElementById("dynamic-heading");
         const countdownSection = document.getElementById("countdown");
         const buttonGroup = document.getElementById("button-group");
+        const shareButton = document.getElementById('share-button-container');
 
         const updatePage = () => {
             const now = new Date().getTime();
@@ -341,15 +595,25 @@
             // Trường hợp 1: Đại hội đã kết thúc, chuyển hướng ngay lập tức
             if (now >= congressEnd) {
                 window.location.href = "404.html";
-                return; // Ngừng thực thi hàm
+                return;
             }
 
             // Trường hợp 2: Trong thời gian đại hội (7h30 - 12h ngày 12/10/2025)
             if (now >= congressStart) {
-                heading.innerHTML = "ĐẠI HỘI ĐANG DIỄN RA!";
-                countdownSection.classList.add("hidden");
+                heading.innerHTML = "ĐẠI HỘI ĐANG DIỄN RA! (Sẽ kết thúc sau:)";
                 
-                // Hiển thị nút tài liệu và ẩn các nút khác
+                const distance = congressEnd - now;
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerHTML = "00";
+                document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
+                document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
+                document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
+
+                countdownSection.classList.remove("hidden");
+                
                 const allButtons = buttonGroup.querySelectorAll('.action-button');
                 allButtons.forEach(button => button.classList.add("hidden"));
                 buttonGroup.querySelector('.document-button').classList.remove("hidden");
@@ -370,11 +634,37 @@
                 heading.innerHTML = "THỜI GIAN CÒN LẠI:";
                 countdownSection.classList.remove("hidden");
                 
-                // Hiển thị lại tất cả các nút
                 const allButtons = buttonGroup.querySelectorAll('.action-button');
                 allButtons.forEach(button => button.classList.remove("hidden"));
             }
         };
+
+        // Hàm xử lý chia sẻ
+        const handleShare = async () => {
+            const shareData = {
+                title: 'Đại hội Đoàn Phường Phan Rang',
+                text: 'Chào mừng Đại hội Đại biểu Đoàn TNCS Hồ Chí Minh Phường Phan Rang lần thứ I, nhiệm kỳ 2025 - 2030!',
+                url: 'https://doantncshcm-doanphuongphanrang.vercel.app/'
+            };
+            
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    // Fallback cho PC hoặc trình duyệt không hỗ trợ
+                    await navigator.clipboard.writeText(shareData.url);
+                    alert('Đã sao chép liên kết vào bộ nhớ tạm!');
+                }
+            } catch (err) {
+                console.error('Lỗi khi chia sẻ:', err);
+                alert('Có lỗi xảy ra khi chia sẻ.');
+            }
+        };
+
+        // Lắng nghe sự kiện click nút chia sẻ
+        if (shareButton) {
+            shareButton.addEventListener('click', handleShare);
+        }
 
         // Cập nhật hiển thị ngay lập tức khi trang tải
         updatePage();
