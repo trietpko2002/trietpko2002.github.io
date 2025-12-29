@@ -3,114 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KARAOKE SMART TOUCH</title>
+    <title>KARAOKE PRO - LIST VIEW MODE</title>
     <style>
-        :root { --accent: #ff0055; --bg: #0a0a0a; --panel: #1a1a1a; --card-bg: #252525; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; overflow: hidden; user-select: none; }
-        
-        .admin-layout { display: grid; grid-template-rows: 70px auto 230px; height: 100vh; }
+        :root { 
+            --accent: #ff0055; 
+            --bg: #0a0a0a; 
+            --panel: #161616; 
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-sub: #b0b0b0;
+        }
 
-        /* Header */
-        .top-bar { background: var(--panel); display: flex; align-items: center; padding: 0 20px; gap: 15px; border-bottom: 2px solid #333; }
-        .btn-main { padding: 12px 25px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; color: white; background: #333; cursor: pointer; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.95); }
-        .btn-main.primary { background: #2196f3; box-shadow: 0 4px 10px rgba(33,150,243,0.3); }
-        .btn-main.next { background: #4caf50; }
-        .btn-main.stop { background: #f44336; }
-
-        /* Main Content */
-        .content { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 10px; padding: 10px; overflow: hidden; }
-        .box { background: var(--panel); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #333; }
-        h3 { padding: 12px; margin: 0; background: #222; font-size: 12px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
-
-        /* Song Grid with Thumbnails */
-        .grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 15px; align-content: start; }
-        .card { background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid #333; transition: 0.1s; display: flex; flex-direction: column; }
-        .card:active { transform: scale(0.97); background: #333; }
+        body { 
+            margin: 0; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            overflow: hidden; 
+            user-select: none; 
+        }
         
-        .thumb-container { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
-        .thumb-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        
-        .card-info { padding: 10px; flex: 1; display: flex; flex-direction: column; }
-        .card-info p { margin: 0 0 10px 0; font-size: 14px; font-weight: 500; height: 34px; overflow: hidden; line-height: 1.2; color: #ddd; }
-        
-        .btn-group { display: flex; gap: 8px; margin-top: auto; }
-        .btn-group button { flex: 1; padding: 10px; border: none; border-radius: 6px; color: white; font-weight: bold; font-size: 11px; cursor: pointer; }
+        .admin-layout { 
+            display: grid; 
+            grid-template-rows: 70px auto 240px; 
+            height: 100vh; 
+        }
 
-        /* Queue List */
+        /* --- TOP BAR --- */
+        .top-bar { 
+            background: var(--panel); 
+            display: flex; 
+            align-items: center; 
+            padding: 0 20px; 
+            gap: 15px; 
+            border-bottom: 1px solid #333; 
+        }
+        .btn-main { 
+            padding: 12px 20px; 
+            font-size: 15px; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 8px; 
+            color: white; 
+            background: #333; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .btn-main:active { transform: scale(0.95); opacity: 0.8; }
+        .btn-main.primary { background: #007bff; box-shadow: 0 4px 15px rgba(0,123,255,0.3); }
+        .btn-main.stop { background: #dc3545; }
+        .btn-main.next { background: #28a745; }
+
+        /* --- MAIN CONTENT --- */
+        .content { 
+            display: grid; 
+            grid-template-columns: 1.4fr 0.6fr; 
+            gap: 10px; 
+            padding: 10px; 
+            overflow: hidden; 
+        }
+        .box { 
+            background: var(--panel); 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            border: 1px solid #222; 
+        }
+        h3 { 
+            padding: 12px 15px; 
+            margin: 0; 
+            background: #222; 
+            font-size: 13px; 
+            color: var(--text-sub); 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        /* --- LIST VIEW RESULTS (Lướt danh sách) --- */
+        #results { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+        }
+        .card { 
+            display: flex; 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #333;
+            min-height: 120px;
+        }
+        .thumb-container { 
+            width: 210px; 
+            min-width: 210px; 
+            height: 120px; 
+            background: #000;
+        }
+        .thumb-container img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        .card-info { 
+            flex: 1; 
+            padding: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+        }
+        .card-info p { 
+            margin: 0; 
+            font-size: 16px; 
+            font-weight: 600; 
+            line-height: 1.4; 
+            color: #fff;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .btn-group { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 10px; 
+        }
+        .btn-group button { 
+            flex: 1; 
+            padding: 10px; 
+            border: none; 
+            border-radius: 6px; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 12px; 
+            cursor: pointer; 
+        }
+
+        /* --- QUEUE LIST --- */
         #queue { flex: 1; overflow-y: auto; padding: 10px; }
-        .q-item { padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; font-size: 14px; }
-        .q-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #4caf50; color: white; font-weight: bold; }
+        .q-item { 
+            padding: 12px; 
+            background: #222; 
+            margin-bottom: 8px; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            border: 1px solid #333; 
+            font-size: 14px; 
+        }
 
-        /* Keyboard Section */
-        .input-section { background: #000; padding: 10px; border-top: 1px solid #333; }
-        .search-bar { display: flex; gap: 10px; margin-bottom: 10px; }
-        #searchInput { flex: 1; padding: 12px; font-size: 24px; background: #111; color: #0f0; border: 2px solid #333; border-radius: 8px; outline: none; font-weight: bold; }
-        
-        .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
-        .key { width: calc(100% / 13 - 6px); height: 48px; background: #333; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        /* --- KEYBOARD SECTION --- */
+        .input-section { 
+            background: #000; 
+            padding: 10px; 
+            border-top: 1px solid #333; 
+        }
+        .search-bar { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 10px; 
+        }
+        #searchInput { 
+            flex: 1; 
+            padding: 12px; 
+            font-size: 24px; 
+            background: #111; 
+            color: #0f0; 
+            border: 1px solid var(--accent); 
+            border-radius: 8px; 
+            outline: none; 
+        }
+        .keyboard { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 5px; 
+        }
+        .key { 
+            width: calc(100% / 13 - 6px); 
+            height: 50px; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 18px; 
+            font-weight: bold; 
+        }
         .key:active { background: var(--accent); }
         .key.wide { width: calc(100% / 7); background: #444; }
 
-        /* Error Overlay */
-        #errorOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body>
-
-<div id="errorOverlay">
-    <h2 style="color: var(--accent)">LỖI KẾT NỐI</h2>
-    <p id="errorMsg" style="max-width: 80%; line-height: 1.5; color: #ccc;"></p>
-    <button class="btn-main primary" onclick="location.reload()">THỬ LẠI</button>
-</div>
 
 <div class="admin-layout">
     <div class="top-bar">
         <button id="btnConnect" class="btn-main primary" onclick="openDisplay()">🖥️ KẾT NỐI TIVI</button>
         <button class="btn-main stop" onclick="stopCurrent()">⏹️ DỪNG</button>
         <button class="btn-main next" onclick="playNext()">⏭️ QUA BÀI</button>
-        <div id="status" style="margin-left: auto; color: #666; font-size: 14px;">Chưa kết nối tivi</div>
+        <div id="status" style="margin-left: auto; color: #888;">Trạng thái: Chưa kết nối</div>
     </div>
 
     <div class="content">
         <div class="box">
-            <h3>BÀI HÁT TÌM THẤY</h3>
-            <div id="results" class="grid"></div>
+            <h3>DANH SÁCH BÀI HÁT TÌM THẤY</h3>
+            <div id="results">
+                <div style="padding: 20px; color: #555; text-align: center;">Vui lòng nhập tên bài hát để tìm kiếm...</div>
+            </div>
         </div>
         <div class="box">
-            <h3>DANH SÁCH CHỜ (<span id="count">0</span>)</h3>
+            <h3>BÀI ĐÃ CHỌN (<span id="count">0</span>)</h3>
             <div id="queue"></div>
         </div>
     </div>
 
     <div class="input-section">
         <div class="search-bar">
-            <input type="text" id="searchInput" readonly placeholder="Tìm tên bài hát hoặc ca sĩ...">
-            <button class="btn-main primary" onclick="searchVideo()" style="width: 150px;">TÌM KIẾM</button>
+            <input type="text" id="searchInput" readonly placeholder="Gõ tên bài hát...">
+            <button class="btn-main primary" onclick="searchVideo()" style="width: 150px;">TÌM BÀI</button>
         </div>
         <div class="keyboard" id="keyboard"></div>
     </div>
 </div>
 
 <script>
-    // --- THAY API KEY CỦA BẠN VÀO ĐÂY ---
+    // --- CẤU HÌNH API ---
     const API_KEY = 'AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8'; 
     let displayWindow = null;
     let playlist = [];
 
-    // 1. Kết nối màn hình Tivi
+    // 1. Mở màn hình Tivi
     function openDisplay() {
-        const w = 1280, h = 720;
-        const left = (window.screen.width / 2) - (w / 2);
-        displayWindow = window.open('', 'KaraokePlayer', `width=${w},height=${h},left=${left},top=100`);
-
+        const features = 'width=1280,height=720,menubar=no,toolbar=no';
+        displayWindow = window.open('', 'KaraokePlayer', features);
+        
         if (!displayWindow) {
-            alert("BỊ CHẶN POP-UP! Hãy bật 'Luôn cho phép cửa sổ bật lên' trên thanh địa chỉ trình duyệt.");
+            alert("Vui lòng cho phép Pop-up trên trình duyệt!");
             return;
         }
 
         displayWindow.document.write(`
-            <html><head><title>KARAOKE PLAYER</title><style>body{margin:0;background:#000;overflow:hidden;}</style></head>
+            <html><head><title>KARAOKE TIVI</title><style>body{margin:0;background:#000;overflow:hidden;}</style></head>
             <body><div id="player"></div>
             <script src="https://www.youtube.com/iframe_api"><\/script>
             <script>
@@ -118,7 +254,7 @@
                 function onYouTubeIframeAPIReady() {
                     player = new YT.Player('player', {
                         height: '100%', width: '100%',
-                        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'modestbranding': 1 },
+                        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0 },
                         events: { 'onStateChange': (e) => { if(e.data === 0) window.opener.playNext(); } }
                     });
                 }
@@ -127,44 +263,43 @@
             <\/script></body></html>
         `);
         
-        document.getElementById('status').innerText = "Tivi: Đã kết nối ✅";
-        document.getElementById('status').style.color = "#4caf50";
-        document.getElementById('btnConnect').style.display = "none";
+        document.getElementById('status').innerText = "Trạng thái: Đang kết nối ✅";
+        document.getElementById('status').style.color = "#28a745";
     }
 
-    // 2. Bàn phím ảo cảm ứng
-    const keys = "1234567890QWERTYUIOPASDFGHJKLZXCVBNM".split("");
+    // 2. Bàn phím ảo
+    const layout = "1234567890QWERTYUIOPASDFGHJKLZXCVBNM".split("");
     const kb = document.getElementById('keyboard');
-    keys.forEach(k => {
-        const btn = document.createElement('button');
-        btn.className = 'key'; btn.innerText = k;
-        btn.onclick = () => { document.getElementById('searchInput').value += k; };
-        kb.appendChild(btn);
+    layout.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'key'; b.innerText = c;
+        b.onclick = () => document.getElementById('searchInput').value += c;
+        kb.appendChild(b);
     });
     
-    function addSpecialKey(txt, fn) {
-        const btn = document.createElement('button');
-        btn.className = 'key wide'; btn.innerText = txt; btn.onclick = fn;
-        kb.appendChild(btn);
-    }
-    addSpecialKey('CÁCH', () => document.getElementById('searchInput').value += ' ');
-    addSpecialKey('XÓA', () => { let v = document.getElementById('searchInput').value; document.getElementById('searchInput').value = v.slice(0,-1); });
-    addSpecialKey('XÓA HẾT', () => document.getElementById('searchInput').value = '');
+    const addFnKey = (txt, fn) => {
+        const b = document.createElement('button');
+        b.className = 'key wide'; b.innerText = txt; b.onclick = fn;
+        kb.appendChild(b);
+    };
+    addFnKey('CÁCH', () => document.getElementById('searchInput').value += ' ');
+    addFnKey('XÓA', () => { let v = document.getElementById('searchInput').value; document.getElementById('searchInput').value = v.slice(0,-1); });
+    addFnKey('XÓA HẾT', () => document.getElementById('searchInput').value = '');
 
-    // 3. Tìm kiếm với Thumbnail
+    // 3. Tìm kiếm và Hiển thị List View
     async function searchVideo() {
-        const q = document.getElementById('searchInput').value;
-        if(!q) return;
+        const query = document.getElementById('searchInput').value;
+        if(!query) return;
         const resDiv = document.getElementById('results');
-        resDiv.innerHTML = "<p style='padding:20px'>Đang tìm bài hát...</p>";
+        resDiv.innerHTML = "<div style='padding:20px; text-align:center;'>Đang tìm bài hát...</div>";
         
         try {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q + " karaoke")}&type=video&videoEmbeddable=true&maxResults=15&key=${API_KEY}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " karaoke")}&type=video&videoEmbeddable=true&maxResults=15&key=${API_KEY}`;
             const res = await fetch(url);
             const data = await res.json();
             
-            if(data.error) {
-                showError(data.error.message);
+            if(data.items.length === 0) {
+                resDiv.innerHTML = "<div style='padding:20px; text-align:center;'>Không tìm thấy kết quả.</div>";
                 return;
             }
 
@@ -176,35 +311,34 @@
                     <div class="card-info">
                         <p>${item.snippet.title}</p>
                         <div class="btn-group">
-                            <button style="background:#444" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', false)">CHỌN</button>
-                            <button style="background:var(--accent)" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', true)">ƯU TIÊN</button>
+                            <button style="background:#444;" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', false)">CHỌN BÀI</button>
+                            <button style="background:var(--accent);" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', true)">ƯU TIÊN</button>
                         </div>
                     </div>
                 </div>
             `).join('');
         } catch(e) { 
-            showError("Không thể kết nối tới Google API. Hãy kiểm tra mạng hoặc API Key.");
+            resDiv.innerHTML = "<div style='padding:20px; color:red; text-align:center;'>Lỗi API! Vui lòng kiểm tra lại Key hoặc hạn ngạch.</div>"; 
         }
     }
 
-    // 4. Quản lý danh sách nhạc
+    // 4. Quản lý phát nhạc
     function addToQueue(id, title, priority) {
         const song = {id, title};
         if(priority) playlist.unshift(song); else playlist.push(song);
         updateUI();
-        if(playlist.length === 1 && !priority) playNext(); 
-        // Sau khi chọn, xóa ô tìm kiếm cho người sau dùng
+        if(playlist.length === 1 && !priority) playNext();
+        // Xóa ô tìm kiếm sau khi chọn để người khác gõ
         document.getElementById('searchInput').value = '';
     }
 
     function playNext() {
         if(!displayWindow || displayWindow.closed) {
-            alert("Vui lòng bấm 'KẾT NỐI TIVI' trước khi phát nhạc!");
-            return;
+            alert("Chưa kết nối màn hình Tivi!"); return;
         }
         if(playlist.length > 0) {
-            const song = playlist.shift();
-            displayWindow.load(song.id);
+            const nextSong = playlist.shift();
+            displayWindow.load(nextSong.id);
             updateUI();
         }
     }
@@ -216,16 +350,9 @@
         document.getElementById('queue').innerHTML = playlist.map((s, i) => `
             <div class="q-item">
                 <span><b>${i+1}.</b> ${s.title}</span>
-                ${i===0 ? '<span class="q-tag">TIẾP THEO</span>' : ''}
+                ${i===0 ? '<span style="color:#28a745; font-weight:bold; font-size:10px;">ĐANG CHỜ PHÁT</span>' : ''}
             </div>
         `).join('');
-    }
-
-    function showError(msg) {
-        const overlay = document.getElementById('errorOverlay');
-        const msgP = document.getElementById('errorMsg');
-        msgP.innerText = msg;
-        overlay.style.display = 'flex';
     }
 </script>
 </body>
