@@ -2,71 +2,202 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách Đáp Án Câu Hỏi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KARAOKE TOUCH CONTROL</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            font-size: 24px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            margin: 10px 0;
-        }
-        a {
-            display: block;
-            text-decoration: none;
-            color: #2c3e50;
-            background: #ecf0f1;
-            padding: 15px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            border-left: 5px solid #3498db;
-        }
-        a:hover {
-            background: #3498db;
-            color: white;
-            transform: translateX(10px);
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #888;
-        }
+        :root { --accent: #ff0055; --bg: #0a0a0a; --panel: #1a1a1a; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; overflow: hidden; user-select: none; }
+        
+        .admin-layout { display: grid; grid-template-rows: 70px auto 230px; height: 100vh; }
+
+        /* Top Bar */
+        .top-bar { background: var(--panel); display: flex; align-items: center; padding: 0 20px; gap: 15px; border-bottom: 2px solid #333; }
+        .btn-main { padding: 12px 25px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; color: white; background: #333; cursor: pointer; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.9); background: var(--accent); }
+        .btn-main.primary { background: #2196f3; box-shadow: 0 0 10px rgba(33,150,243,0.3); }
+        .btn-main.next { background: #4caf50; }
+        .btn-main.stop { background: #f44336; }
+
+        /* Main Content */
+        .content { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 10px; padding: 10px; overflow: hidden; }
+        .box { background: var(--panel); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #333; }
+        h3 { padding: 12px; margin: 0; background: #222; font-size: 13px; color: #888; letter-spacing: 1px; }
+
+        /* Song Grid */
+        .grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; padding: 10px; }
+        .card { background: #252525; padding: 12px; border-radius: 10px; border-left: 4px solid var(--accent); }
+        .card p { margin: 0 0 10px 0; font-size: 14px; font-weight: 500; height: 38px; overflow: hidden; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn-group button { flex: 1; padding: 10px; border: none; border-radius: 6px; color: white; font-weight: bold; font-size: 12px; }
+
+        /* Queue */
+        #queue { flex: 1; overflow-y: auto; padding: 10px; }
+        .q-item { padding: 15px; background: #222; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+
+        /* Bottom Section & Keyboard */
+        .input-section { background: #000; padding: 10px; border-top: 1px solid #333; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 10px; }
+        #searchInput { flex: 1; padding: 12px; font-size: 22px; background: #111; color: #0f0; border: 2px solid #333; border-radius: 8px; outline: none; }
+        #searchInput:focus { border-color: var(--accent); }
+        
+        .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+        .key { width: calc(100% / 13 - 6px); height: 46px; background: #333; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; }
+        .key:active { background: var(--accent); }
+        .key.wide { width: calc(100% / 7); background: #444; }
+
+        /* Popup Hint */
+        #popupHint { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 999; display: none; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Mục Lục Đáp Án</h1>
-    <ul>
-        <li><a href="1.html">Câu hỏi số 1</a></li>
-        <li><a href="2.html">Câu hỏi số 2</a></li>
-        <li><a href="3.html">Câu hỏi số 3</a></li>
-    </ul>
-    <div class="footer">Chọn một câu hỏi để xem chi tiết</div>
+<div id="popupHint">
+    <div>
+        <h2 style="color: var(--accent)">CỬA SỔ BỊ CHẶN!</h2>
+        <p>Vui lòng nhìn lên thanh địa chỉ trình duyệt,<br>chọn <b>"Luôn cho phép cửa sổ bật lên"</b> và bấm nút thử lại.</p>
+        <button class="btn-main primary" onclick="location.reload()">ĐÃ HIỂU - TẢI LẠI TRANG</button>
+    </div>
 </div>
 
+<div class="admin-layout">
+    <div class="top-bar">
+        <button id="btnConnect" class="btn-main primary" onclick="openDisplay()">🖥️ KẾT NỐI TIVI</button>
+        <button class="btn-main stop" onclick="stopCurrent()">⏹️ DỪNG BÀI</button>
+        <button class="btn-main next" onclick="playNext()">⏭️ QUA BÀI</button>
+        <div id="status" style="margin-left: auto; color: #666;">Chưa kết nối</div>
+    </div>
+
+    <div class="content">
+        <div class="box">
+            <h3>KẾT QUẢ TÌM KIẾM</h3>
+            <div id="results" class="grid"></div>
+        </div>
+        <div class="box">
+            <h3>DANH SÁCH CHỜ (<span id="count">0</span>)</h3>
+            <div id="queue"></div>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <div class="search-bar">
+            <input type="text" id="searchInput" readonly placeholder="Gõ tên bài hát...">
+            <button class="btn-main primary" onclick="searchVideo()" style="width: 150px;">TÌM BÀI</button>
+        </div>
+        <div class="keyboard" id="keyboard"></div>
+    </div>
+</div>
+
+<script>
+    const API_KEY = 'AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8'; 
+    let displayWindow = null;
+    let playlist = [];
+
+    // 1. Mở cửa sổ Tivi
+    function openDisplay() {
+        const w = 1280, h = 720;
+        const left = (window.screen.width / 2) - (w / 2);
+        displayWindow = window.open('', 'KaraokePlayer', `width=${w},height=${h},left=${left},top=100`);
+
+        if (!displayWindow) {
+            document.getElementById('popupHint').style.display = 'flex';
+            return;
+        }
+
+        displayWindow.document.write(`
+            <html><head><title>Màn hình Tivi</title><style>body{margin:0;background:#000;overflow:hidden;}</style></head>
+            <body><div id="player"></div>
+            <script src="https://www.youtube.com/iframe_api"><\/script>
+            <script>
+                let player;
+                function onYouTubeIframeAPIReady() {
+                    player = new YT.Player('player', {
+                        height: '100%', width: '100%',
+                        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0 },
+                        events: { 'onStateChange': (e) => { if(e.data === 0) window.opener.playNext(); } }
+                    });
+                }
+                function load(id) { if(player && player.loadVideoById) player.loadVideoById(id); }
+                function stop() { if(player && player.stopVideo) player.stopVideo(); }
+            <\/script></body></html>
+        `);
+        
+        document.getElementById('status').innerText = "Đã kết nối Tivi ✅";
+        document.getElementById('status').style.color = "#4caf50";
+        document.getElementById('btnConnect').style.display = "none";
+    }
+
+    // 2. Bàn phím ảo
+    const layout = "1234567890QWERTYUIOPASDFGHJKLZXCVBNM".split("");
+    const kb = document.getElementById('keyboard');
+    layout.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'key'; b.innerText = c;
+        b.onclick = () => document.getElementById('searchInput').value += c;
+        kb.appendChild(b);
+    });
+    
+    // Nút chức năng bàn phím
+    const addKey = (txt, fn) => {
+        const b = document.createElement('button');
+        b.className = 'key wide'; b.innerText = txt; b.onclick = fn;
+        kb.appendChild(b);
+    };
+    addKey('CÁCH', () => document.getElementById('searchInput').value += ' ');
+    addKey('XÓA', () => { let v = document.getElementById('searchInput').value; document.getElementById('searchInput').value = v.slice(0,-1); });
+    addKey('XÓA HẾT', () => document.getElementById('searchInput').value = '');
+
+    // 3. API YouTube
+    async function searchVideo() {
+        const q = document.getElementById('searchInput').value;
+        if(!q) return;
+        const resDiv = document.getElementById('results');
+        resDiv.innerHTML = "<p style='padding:20px'>Đang tìm kiếm...</p>";
+        
+        try {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q + " karaoke beat")}&type=video&videoEmbeddable=true&maxResults=15&key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            resDiv.innerHTML = data.items.map(item => `
+                <div class="card">
+                    <p>${item.snippet.title}</p>
+                    <div class="btn-group">
+                        <button style="background:#444" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', false)">CHỌN</button>
+                        <button style="background:var(--accent)" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', true)">ƯU TIÊN</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) { resDiv.innerHTML = "Lỗi API! Kiểm tra Key."; }
+    }
+
+    // 4. Điều khiển
+    function addToQueue(id, title, priority) {
+        const song = {id, title};
+        if(priority) playlist.unshift(song); else playlist.push(song);
+        updateUI();
+        if(playlist.length === 1 && !priority) playNext(); 
+    }
+
+    function playNext() {
+        if(!displayWindow || displayWindow.closed) { alert("Hãy kết nối Tivi!"); return; }
+        if(playlist.length > 0) {
+            const song = playlist.shift();
+            displayWindow.load(song.id);
+            updateUI();
+        }
+    }
+
+    function stopCurrent() { if(displayWindow) displayWindow.stop(); }
+
+    function updateUI() {
+        document.getElementById('count').innerText = playlist.length;
+        document.getElementById('queue').innerHTML = playlist.map((s, i) => `
+            <div class="q-item">
+                <span>${i+1}. ${s.title}</span>
+                <span style="color: #4caf50; font-size: 10px">${i===0?'TIẾP THEO':''}</span>
+            </div>
+        `).join('');
+    }
+</script>
 </body>
 </html>
