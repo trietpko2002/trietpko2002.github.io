@@ -2,148 +2,213 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Gemini AI Music Assistant Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KARAOKE PRO - DUAL SCREEN</title>
     <style>
-        body { background: #121212; color: white; font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .player-box { background: #1e1e1e; padding: 40px; border-radius: 25px; width: 400px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #visualizer { width: 100%; height: 60px; background: #282828; margin: 20px 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .bar { width: 6px; height: 15px; background: #1DB954; margin: 2px; border-radius: 5px; transition: 0.3s; }
-        .btn-mic { background: #1DB954; border: none; padding: 20px; border-radius: 50%; cursor: pointer; font-size: 28px; color: white; transition: 0.3s; box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3); }
-        .btn-mic:hover { transform: scale(1.1); background: #1ed760; }
-        .btn-mic:disabled { background: #555; cursor: not-allowed; }
-        #song-info { margin: 15px 0; font-weight: bold; font-size: 1.1em; color: #1DB954; min-height: 1.5em; }
-        #hidden-player { position: absolute; visibility: hidden; width: 0; height: 0; }
-        .hint { color: #888; font-size: 0.85em; margin-top: 15px; line-height: 1.6; }
+        :root { --primary: #ff2e63; --bg: #0b0e14; --panel: #1a1d23; --accent: #00fff2; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; display: grid; grid-template-columns: 1fr 400px; height: 100vh; overflow: hidden; }
+        
+        /* BÊN TRÁI: SEARCH & RESULTS */
+        #left-side { padding: 15px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #222; overflow: hidden; }
+        
+        .search-container { display: flex; flex-direction: column; gap: 10px; background: var(--panel); padding: 15px; border-radius: 12px; }
+        #search-display { width: 100%; height: 50px; background: #000; border: 2px solid var(--accent); color: var(--accent); font-size: 1.8rem; padding: 0 15px; border-radius: 8px; outline: none; box-sizing: border-box; }
+        
+        .filter-bar { display: flex; gap: 10px; }
+        .filter-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: #333; color: #888; transition: 0.3s; }
+        .filter-btn.active { background: var(--accent); color: #000; }
+
+        #results-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; overflow-y: auto; padding: 5px; }
+        .song-card { background: #252a33; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
+        .song-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+        .song-card p { padding: 8px; font-size: 0.85rem; margin: 0; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .song-card:active { border-color: var(--primary); transform: scale(0.96); }
+
+        /* BÀN PHÍM */
+        #keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; padding: 10px; background: #111; border-radius: 12px; }
+        #keyboard button { height: 45px; border: none; border-radius: 6px; background: #3d4450; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #keyboard button:active { background: var(--primary); }
+        .btn-wide { grid-column: span 2; background: #5a6372 !important; }
+
+        /* BÊN PHẢI: QUEUE & CONTROLS */
+        #right-side { background: var(--panel); padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .btn-open-tv { background: #27ae60; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+        
+        #queue-list { flex-grow: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        .queue-item { background: #2d343e; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--accent); }
+        .q-btns { display: flex; gap: 5px; margin-top: 8px; }
+        .q-btns button { flex: 1; padding: 6px; border: none; border-radius: 4px; color: #fff; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+
+        .vol-box { background: #000; padding: 12px; border-radius: 10px; }
+        #vol-slider { width: 100%; height: 25px; accent-color: var(--accent); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="player-box">
-        <h2>Gemini Music</h2>
-        <div id="visualizer">
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div id="left-side">
+        <div class="search-container">
+            <input type="text" id="search-display" placeholder="NHẬP TÊN BÀI HÁT..." readonly>
+            <div class="filter-bar">
+                <button id="btn-kara" class="filter-btn active" onclick="setMode(true)">CHẾ ĐỘ KARAOKE</button>
+                <button id="btn-music" class="filter-btn" onclick="setMode(false)">NHẠC THƯỜNG</button>
+            </div>
         </div>
-        <div id="song-info">Sẵn sàng...</div>
-        <button class="btn-mic" id="micBtn" onclick="startVoice()">🎤</button>
-        <div class="hint">
-            Nói: "Bật bài [Tên bài hát]"<br>
-            Hoặc: "Dừng nhạc", "Tiếp tục"
+        <div id="results-grid"></div>
+        <div id="keyboard"></div>
+    </div>
+
+    <div id="right-side">
+        <button class="btn-open-tv" onclick="openPlayer()">1. MỞ MÀN HÌNH TIVI (VIDEO)</button>
+        <h3 style="margin:0; color: var(--accent); font-size: 1rem;">DANH SÁCH CHỜ</h3>
+        <ul id="queue-list"></ul>
+        
+        <div class="vol-box">
+            <div style="display:flex; justify-content: space-between; margin-bottom:5px; font-size: 0.8rem;">
+                <span>ÂM LƯỢNG</span> <span id="vol-num" style="color:var(--accent)">50%</span>
+            </div>
+            <input type="range" id="vol-slider" min="0" max="100" value="50">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <button onclick="cmd('toggle')" style="padding:15px; background:#444; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">DỪNG/PHÁT</button>
+            <button onclick="skip()" style="padding:15px; background:var(--primary); border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">BỎ QUA</button>
         </div>
     </div>
 
-    <div id="hidden-player"></div>
+<script>
+    let tvWin = null;
+    let queue = [];
+    let isKaraokeMode = true;
+    const API_KEY = 'AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8'; // Key của bạn
 
-    <script>
-        const GEMINI_KEY = "AIzaSyA64SQxPU_c3RPTnxC7hLFVoSPl26UV-G8";
-        const YOUTUBE_KEY = "AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8";
-        let player;
-
-        // Load YouTube API
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('hidden-player', {
-                height: '0', width: '0',
-                events: { 'onStateChange': onPlayerStateChange }
-            });
-        }
-
-        function onPlayerStateChange(e) {
-            animateBars(e.data === YT.PlayerState.PLAYING);
-        }
-
-        async function startVoice() {
-            const micBtn = document.getElementById('micBtn');
-            const info = document.getElementById('song-info');
-            
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.");
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'vi-VN';
-            
-            recognition.onstart = () => {
-                micBtn.disabled = true;
-                info.innerText = "Đang nghe...";
-            };
-
-            recognition.onresult = async (event) => {
-                const text = event.results[0][0].transcript;
-                info.innerText = `Đang xử lý: "${text}"`;
-                
-                try {
-                    // 1. Dùng Gemini để phân tích hành động
-                    const aiResponse = await askGemini(text);
-                    console.log("AI Response:", aiResponse);
-
-                    if (aiResponse.includes("ACTION_STOP")) {
-                        player.pauseVideo();
-                        info.innerText = "Đã dừng nhạc.";
-                    } else if (aiResponse.includes("ACTION_RESUME")) {
-                        player.playVideo();
-                        info.innerText = "Tiếp tục phát.";
-                    } else if (aiResponse !== "None") {
-                        // 2. Tìm và phát nhạc
-                        const videoId = await searchYouTube(aiResponse);
-                        if (videoId) {
-                            player.loadVideoById(videoId);
-                            info.innerText = "Đang phát: " + aiResponse;
-                        } else {
-                            info.innerText = "Không tìm thấy bài hát này.";
-                        }
-                    } else {
-                        info.innerText = "Không hiểu yêu cầu.";
-                    }
-                } catch (err) {
-                    info.innerText = "Lỗi kết nối API.";
-                    console.error(err);
+    // MỞ CỬA SỔ BẰNG BLOB ĐỂ TRÁNH LỖI BẢO MẬT
+    function openPlayer() {
+        const playerHtml = `
+            <!DOCTYPE html><html><head><title>KARAOKE VIDEO</title><style>
+            body{margin:0;background:#000;color:#fff;font-family:sans-serif;overflow:hidden;}
+            #player{width:100vw;height:100vh;}
+            #msg{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#000;z-index:9;}
+            #toast{position:absolute;top:40px;right:40px;font-size:5rem;color:#0f0;display:none;z-index:99;text-shadow:3px 3px #000;}
+            </style></head><body>
+            <div id="toast">VOL: 50%</div>
+            <div id="msg"><h1>KARAOKE SMART</h1><p>Vui lòng chọn bài hát từ màn hình điều khiển...</p></div>
+            <div id="player"></div>
+            <script src="https://www.youtube.com/iframe_api"></` + `script>
+            <script>
+                let p;
+                function onYouTubeIframeAPIReady(){
+                    p = new YT.Player('player', {
+                        height: '100%', width: '100%',
+                        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'modestbranding': 1 },
+                        events: { 'onStateChange': (e) => { if(e.data === 0) window.opener.skip(); } }
+                    });
                 }
-            };
+                window.addEventListener('message', (e) => {
+                    const d = e.data;
+                    if(d.t === 'load') { document.getElementById('msg').style.display='none'; p.loadVideoById(d.id); }
+                    if(d.t === 'stop') { document.getElementById('msg').style.display='flex'; p.stopVideo(); }
+                    if(d.t === 'vol') { p.setVolume(d.v); const t=document.getElementById('toast'); t.innerText="VOL: "+d.v+"%"; t.style.display="block"; clearTimeout(window.vt); window.vt=setTimeout(()=>t.style.display="none",2000); }
+                    if(d.t === 'toggle') { p.getPlayerState() === 1 ? p.pauseVideo() : p.playVideo(); }
+                });
+            </` + `script></body></html>`;
 
-            recognition.onend = () => { micBtn.disabled = false; };
-            recognition.start();
-        }
+        const blob = new Blob([playerHtml], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        tvWin = window.open(url, "KaraokeTV", "width=1280,height=720");
+    }
 
-        async function askGemini(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
-            const instruction = `Bạn là trợ lý điều khiển nhạc. Hãy phân tích câu: "${prompt}".
-                - Nếu là yêu cầu phát nhạc: Trả về duy nhất "Tên bài hát - Ca sĩ".
-                - Nếu yêu cầu dừng/ngừng: Trả về "ACTION_STOP".
-                - Nếu yêu cầu tiếp tục/phát lại: Trả về "ACTION_RESUME".
-                - Khác: Trả về "None".
-                Chỉ trả về text ngắn gọn, không giải thích.`;
+    function setMode(val) {
+        isKaraokeMode = val;
+        document.getElementById('btn-kara').className = val ? 'filter-btn active' : 'filter-btn';
+        document.getElementById('btn-music').className = val ? 'filter-btn' : 'filter-btn active';
+        search(document.getElementById('search-display').value);
+    }
 
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: instruction }] }] })
-            });
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text.trim();
-        }
+    async function search(q) {
+        if(!q) return;
+        const query = isKaraokeMode ? q + ' karaoke' : q;
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
+        
+        try {
+            const r = await fetch(url);
+            const d = await r.json();
+            const grid = document.getElementById('results-grid');
+            grid.innerHTML = "";
+            if(d.items) {
+                d.items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'song-card';
+                    div.onclick = () => add({id: item.id.videoId, title: item.snippet.title});
+                    div.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}"><p>${item.snippet.title}</p>`;
+                    grid.appendChild(div);
+                });
+            }
+        } catch(e) { console.error("Lỗi tìm kiếm:", e); }
+    }
 
-        async function searchYouTube(query) {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=1&key=${YOUTUBE_KEY}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            return data.items?.[0]?.id?.videoId || null;
-        }
+    function add(s) {
+        queue.push(s);
+        render();
+        if(queue.length === 1) send('load', s.id);
+        document.getElementById('search-display').value = "";
+    }
 
-        function animateBars(play) {
-            const bars = document.querySelectorAll('.bar');
-            bars.forEach(bar => {
-                bar.style.animation = play ? `wave ${0.4 + Math.random()}s infinite alternate` : 'none';
-            });
-        }
-    </script>
+    function skip() {
+        queue.shift();
+        if(queue.length > 0) send('load', queue[0].id);
+        else send('stop');
+        render();
+    }
 
-    <style>
-        @keyframes wave { from { height: 10px; } to { height: 50px; } }
-    </style>
+    function send(t, id=null) { if(tvWin) tvWin.postMessage({t, id}, "*"); }
+    function cmd(t) { if(tvWin) tvWin.postMessage({t}, "*"); }
+
+    // Bàn phím ảo
+    const input = document.getElementById('search-display');
+    "1234567890QWERTYUIOPASDFGHJKLZXCVBNM ".split("").forEach(k => {
+        const b = document.createElement('button');
+        b.innerText = k === " " ? "SPACE" : k;
+        if(k === " ") b.className = "btn-wide";
+        b.onclick = () => { input.value += k; clearTimeout(window.st); window.st = setTimeout(()=>search(input.value), 500); };
+        document.getElementById('keyboard').appendChild(b);
+    });
+
+    const del = document.createElement('button');
+    del.innerText = "XÓA"; del.className = "btn-wide"; del.style.background = "#e74c3c";
+    del.onclick = () => { input.value = input.value.slice(0, -1); search(input.value); };
+    document.getElementById('keyboard').appendChild(del);
+
+    document.getElementById('vol-slider').oninput = function() {
+        document.getElementById('vol-num').innerText = this.value + "%";
+        if(tvWin) tvWin.postMessage({t:'vol', v:this.value}, "*");
+    };
+
+    function render() {
+        const l = document.getElementById('queue-list');
+        l.innerHTML = "";
+        queue.forEach((s, i) => {
+            const li = document.createElement('li');
+            li.className = 'queue-item';
+            li.innerHTML = `<div style="font-size:0.9rem; font-weight:bold">${i+1}. ${s.title}</div>
+                <div class="q-btns">
+                    <button style="background:#f39c12" onclick="pri(${i})">ƯU TIÊN</button>
+                    <button style="background:#e74c3c" onclick="rem(${i})">XÓA</button>
+                </div>`;
+            l.appendChild(li);
+        });
+    }
+
+    function pri(i) {
+        if(i === 0) return;
+        const s = queue.splice(i, 1)[0];
+        queue.splice(1, 0, s);
+        render();
+    }
+
+    function rem(i) {
+        if(i === 0) skip();
+        else { queue.splice(i, 1); render(); }
+    }
+</script>
 </body>
 </html>
