@@ -2,237 +2,148 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KARAOKE ULTIMATE - FIXED VOLUME</title>
+    <title>Gemini AI Music Assistant Pro</title>
     <style>
-        :root { --accent: #ff0055; --bg: #0a0a0a; --panel: #161616; --card-bg: #1e1e1e; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; overflow: hidden; user-select: none; }
-        .admin-layout { display: grid; grid-template-rows: 70px auto 240px; height: 100vh; }
-
-        /* Top Bar & Volume */
-        .top-bar { background: var(--panel); display: flex; align-items: center; padding: 0 20px; gap: 15px; border-bottom: 1px solid #333; }
-        .btn-main { padding: 12px 18px; font-size: 14px; font-weight: bold; border: none; border-radius: 8px; color: white; background: #333; cursor: pointer; }
-        .btn-main.primary { background: #007bff; }
-        
-        .volume-box { display: flex; align-items: center; gap: 10px; margin-left: auto; background: #222; padding: 10px 20px; border-radius: 30px; border: 1px solid #444; }
-        #volRange { cursor: pointer; accent-color: #0f0; width: 150px; height: 10px; }
-        #volNum { font-family: monospace; font-size: 18px; color: #0f0; min-width: 35px; }
-
-        /* Content Layout */
-        .content { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 10px; padding: 10px; overflow: hidden; }
-        .box { background: var(--panel); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #222; }
-        h3 { padding: 12px; margin: 0; background: #222; font-size: 12px; color: #888; display: flex; justify-content: space-between; align-items: center; }
-
-        /* Song List */
-        #results { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .card { display: flex; background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid #333; min-height: 110px; }
-        .thumb-container { width: 180px; min-width: 180px; }
-        .thumb-container img { width: 100%; height: 100%; object-fit: cover; }
-        .card-info { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-info p { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4; }
-
-        /* Queue List */
-        #queue { flex: 1; overflow-y: auto; padding: 10px; }
-        .q-item { padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .btn-del { background: #333; color: #ff4d4d; border: 1px solid #555; border-radius: 6px; padding: 5px 10px; font-weight: bold; cursor: pointer; }
-
-        /* Keyboard */
-        .input-section { background: #000; padding: 10px; border-top: 1px solid #333; }
-        .search-bar { display: flex; gap: 10px; margin-bottom: 8px; }
-        #searchInput { flex: 1; padding: 10px; font-size: 22px; background: #111; color: #0f0; border: 1px solid #333; border-radius: 8px; }
-        .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
-        .key { width: calc(100% / 13 - 5px); height: 45px; background: #333; color: white; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; }
-        .key:active { background: var(--accent); }
-        .key.wide { width: calc(100% / 7); background: #444; }
+        body { background: #121212; color: white; font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .player-box { background: #1e1e1e; padding: 40px; border-radius: 25px; width: 400px; text-align: center; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #visualizer { width: 100%; height: 60px; background: #282828; margin: 20px 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .bar { width: 6px; height: 15px; background: #1DB954; margin: 2px; border-radius: 5px; transition: 0.3s; }
+        .btn-mic { background: #1DB954; border: none; padding: 20px; border-radius: 50%; cursor: pointer; font-size: 28px; color: white; transition: 0.3s; box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3); }
+        .btn-mic:hover { transform: scale(1.1); background: #1ed760; }
+        .btn-mic:disabled { background: #555; cursor: not-allowed; }
+        #song-info { margin: 15px 0; font-weight: bold; font-size: 1.1em; color: #1DB954; min-height: 1.5em; }
+        #hidden-player { position: absolute; visibility: hidden; width: 0; height: 0; }
+        .hint { color: #888; font-size: 0.85em; margin-top: 15px; line-height: 1.6; }
     </style>
 </head>
 <body>
 
-<div class="admin-layout">
-    <div class="top-bar">
-        <button class="btn-main primary" onclick="openDisplay()">🖥️ KẾT NỐI TV</button>
-        <button class="btn-main" style="background:#dc3545" onclick="stopCurrent()">⏹️ DỪNG</button>
-        <button class="btn-main" style="background:#28a745" onclick="playNext()">⏭️ QUA BÀI</button>
-        
-        <div class="volume-box">
-            <span style="font-size:20px">🔈</span>
-            <input type="range" id="volRange" min="0" max="100" value="100" oninput="changeVolume(this.value)">
-            <span id="volNum">100</span>
+    <div class="player-box">
+        <h2>Gemini Music</h2>
+        <div id="visualizer">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div id="song-info">Sẵn sàng...</div>
+        <button class="btn-mic" id="micBtn" onclick="startVoice()">🎤</button>
+        <div class="hint">
+            Nói: "Bật bài [Tên bài hát]"<br>
+            Hoặc: "Dừng nhạc", "Tiếp tục"
         </div>
     </div>
 
-    <div class="content">
-        <div class="box">
-            <h3>KẾT QUẢ TÌM KIẾM</h3>
-            <div id="results"></div>
-        </div>
-        <div class="box">
-            <h3>BÀI ĐANG ĐỢI (<span id="count">0</span>) <button onclick="resetQueue()" style="color:red; background:none; border:none; cursor:pointer;">[XÓA HẾT]</button></h3>
-            <div id="queue"></div>
-        </div>
-    </div>
+    <div id="hidden-player"></div>
 
-    <div class="input-section">
-        <div class="search-bar">
-            <input type="text" id="searchInput" readonly placeholder="Gõ tên bài hát...">
-            <button class="btn-main primary" onclick="searchVideo()" style="width: 120px;">TÌM BÀI</button>
-        </div>
-        <div class="keyboard" id="keyboard"></div>
-    </div>
-</div>
+    <script>
+        const GEMINI_KEY = "AIzaSyA64SQxPU_c3RPTnxC7hLFVoSPl26UV-G8";
+        const YOUTUBE_KEY = "AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8";
+        let player;
 
-<script>
-    const API_KEY = 'AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8'; 
-    let displayWindow = null;
-    let playlist = [];
-    let isPlaying = false;
-    let currentVolume = 100;
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
 
-    // 1. Mở TV
-    async function openDisplay() {
-        displayWindow = window.open('', 'KaraokePlayer', 'width=1280,height=720');
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&videoCategoryId=10&maxResults=10&regionCode=VN&key=${API_KEY}`);
-        const data = await res.json();
-        const thumbs = JSON.stringify(data.items.map(i => i.snippet.thumbnails.high.url));
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('hidden-player', {
+                height: '0', width: '0',
+                events: { 'onStateChange': onPlayerStateChange }
+            });
+        }
 
-        displayWindow.document.write(`
-            <html><head><style>
-                body { margin:0; background:#000; overflow:hidden; font-family:sans-serif; }
-                #welcome { position:absolute; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10; background:rgba(0,0,0,0.6); }
-                #slideshow { width:100%; height:100%; object-fit:cover; opacity:0.6; }
+        function onPlayerStateChange(e) {
+            animateBars(e.data === YT.PlayerState.PLAYING);
+        }
+
+        async function startVoice() {
+            const micBtn = document.getElementById('micBtn');
+            const info = document.getElementById('song-info');
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'vi-VN';
+            
+            recognition.onstart = () => {
+                micBtn.disabled = true;
+                info.innerText = "Đang nghe...";
+            };
+
+            recognition.onresult = async (event) => {
+                const text = event.results[0][0].transcript;
+                info.innerText = `Đang xử lý: "${text}"`;
                 
-                /* Giao diện Volume trên TV */
-                #volContainer { 
-                    position:absolute; bottom:50px; left:50%; transform:translateX(-50%); 
-                    width:400px; background:rgba(0,0,0,0.8); padding:15px; border-radius:15px; 
-                    display:none; z-index:100; border:2px solid #0f0; text-align:center;
+                try {
+                    // 1. Dùng Gemini để phân tích hành động
+                    const aiResponse = await askGemini(text);
+                    console.log("AI Response:", aiResponse);
+
+                    if (aiResponse.includes("ACTION_STOP")) {
+                        player.pauseVideo();
+                        info.innerText = "Đã dừng nhạc.";
+                    } else if (aiResponse.includes("ACTION_RESUME")) {
+                        player.playVideo();
+                        info.innerText = "Tiếp tục phát.";
+                    } else if (aiResponse !== "None") {
+                        // 2. Tìm và phát nhạc
+                        const videoId = await searchYouTube(aiResponse);
+                        if (videoId) {
+                            player.loadVideoById(videoId);
+                            info.innerText = "Đang phát: " + aiResponse;
+                        } else {
+                            info.innerText = "Không tìm thấy bài hát này.";
+                        }
+                    } else {
+                        info.innerText = "Không hiểu yêu cầu.";
+                    }
+                } catch (err) {
+                    info.innerText = "Lỗi kết nối API.";
+                    console.error(err);
                 }
-                #volBar { width:100%; height:15px; background:#333; border-radius:10px; overflow:hidden; margin-top:10px; }
-                #volFill { height:100%; background:#0f0; width:100%; transition: width 0.1s; }
-                #volText { color:#0f0; font-weight:bold; font-size:20px; }
-            </style></head>
-            <body>
-                <div id="volContainer">
-                    <div id="volText">ÂM LƯỢNG: 100%</div>
-                    <div id="volBar"><div id="volFill"></div></div>
-                </div>
-                <div id="welcome"><h1 style="color:white; font-size:50px; text-shadow:0 0 20px #ff0055;">KARAOKE SMART</h1></div>
-                <img id="slideshow" src=""><div id="player"></div>
-                
-                <script src="https://www.youtube.com/iframe_api"><\/script>
-                <script>
-                    let player; const thumbs = ${thumbs}; let idx = 0; let volTimer;
-                    
-                    function updateVolUI(v) { 
-                        const container = document.getElementById('volContainer');
-                        document.getElementById('volFill').style.width = v + '%';
-                        document.getElementById('volText').innerText = "ÂM LƯỢNG: " + v + "%";
-                        container.style.display = 'block';
-                        clearTimeout(volTimer);
-                        volTimer = setTimeout(() => container.style.display = 'none', 2000);
-                        if(player && player.setVolume) player.setVolume(v);
-                    }
+            };
 
-                    setInterval(() => { 
-                        if(document.getElementById('slideshow').style.display != 'none') { 
-                            document.getElementById('slideshow').src = thumbs[idx]; idx = (idx+1)%thumbs.length; 
-                        } 
-                    }, 3000);
-
-                    function onYouTubeIframeAPIReady() {
-                        player = new YT.Player('player', { height:'100%', width:'100%', 
-                            playerVars:{'controls':0, 'modestbranding':1},
-                            events: {
-                                'onReady': (e) => { e.target.setVolume(window.opener.currentVolume); },
-                                'onStateChange': (e) => { if(e.data === 0) window.opener.playNext(); }
-                            }
-                        });
-                    }
-                    function load(id) { 
-                        document.getElementById('welcome').style.display = 'none';
-                        document.getElementById('slideshow').style.display = 'none';
-                        player.loadVideoById(id);
-                        player.setVolume(window.opener.currentVolume);
-                    }
-                <\/script></body></html>
-        `);
-    }
-
-    // 2. Chỉnh Volume (Gửi sang TV)
-    function changeVolume(v) {
-        currentVolume = v;
-        document.getElementById('volNum').innerText = v;
-        if(displayWindow && displayWindow.updateVolUI) {
-            displayWindow.updateVolUI(v);
+            recognition.onend = () => { micBtn.disabled = false; };
+            recognition.start();
         }
-    }
 
-    // 3. Quản lý bài hát
-    async function searchVideo() {
-        const q = document.getElementById('searchInput').value;
-        if(!q) return;
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q + " karaoke")}&type=video&maxResults=15&key=${API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        document.getElementById('results').innerHTML = data.items.map(item => `
-            <div class="card">
-                <div class="thumb-container"><img src="${item.snippet.thumbnails.medium.url}"></div>
-                <div class="card-info">
-                    <p>${item.snippet.title}</p>
-                    <div class="btn-group" style="display:flex; gap:5px;">
-                        <button style="flex:1; background:#444; color:white; border:none; border-radius:5px; padding:10px;" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', false)">CHỌN BÀI</button>
-                        <button style="flex:1; background:var(--accent); color:white; border:none; border-radius:5px;" onclick="addToQueue('${item.id.videoId}', '${item.snippet.title.replace(/'/g,"")}', true)">ƯU TIÊN</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
+        async function askGemini(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+            const instruction = `Bạn là trợ lý điều khiển nhạc. Hãy phân tích câu: "${prompt}".
+                - Nếu là yêu cầu phát nhạc: Trả về duy nhất "Tên bài hát - Ca sĩ".
+                - Nếu yêu cầu dừng/ngừng: Trả về "ACTION_STOP".
+                - Nếu yêu cầu tiếp tục/phát lại: Trả về "ACTION_RESUME".
+                - Khác: Trả về "None".
+                Chỉ trả về text ngắn gọn, không giải thích.`;
 
-    function addToQueue(id, title, priority) {
-        if(priority) playlist.unshift({id, title}); else playlist.push({id, title});
-        updateUI();
-        if(!isPlaying) playNext();
-        document.getElementById('searchInput').value = '';
-    }
-
-    function playNext() {
-        if(playlist.length > 0) {
-            isPlaying = true;
-            const song = playlist.shift();
-            if(displayWindow) displayWindow.load(song.id);
-            updateUI();
-        } else {
-            isPlaying = false;
-            if(displayWindow) displayWindow.document.location.reload();
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: instruction }] }] })
+            });
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text.trim();
         }
-    }
 
-    function removeSong(i) { playlist.splice(i, 1); updateUI(); }
-    function resetQueue() { playlist = []; updateUI(); if(displayWindow) displayWindow.document.location.reload(); isPlaying = false; }
-    function stopCurrent() { if(displayWindow && displayWindow.player) displayWindow.player.stopVideo(); isPlaying = false; }
+        async function searchYouTube(query) {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=1&key=${YOUTUBE_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            return data.items?.[0]?.id?.videoId || null;
+        }
 
-    function updateUI() {
-        document.getElementById('count').innerText = playlist.length;
-        document.getElementById('queue').innerHTML = playlist.map((s, i) => `
-            <div class="q-item">
-                <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i+1}. ${s.title}</span>
-                <button class="btn-del" onclick="removeSong(${i})">Xóa</button>
-            </div>
-        `).join('');
-    }
+        function animateBars(play) {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                bar.style.animation = play ? `wave ${0.4 + Math.random()}s infinite alternate` : 'none';
+            });
+        }
+    </script>
 
-    // Bàn phím ảo
-    const keys = "1234567890QWERTYUIOPASDFGHJKLZXCVBNM".split("");
-    const kb = document.getElementById('keyboard');
-    keys.forEach(k => {
-        const b = document.createElement('button'); b.className='key'; b.innerText=k;
-        b.onclick = () => document.getElementById('searchInput').value += k;
-        kb.appendChild(b);
-    });
-    const addKey = (t, f) => { const b=document.createElement('button'); b.className='key wide'; b.innerText=t; b.onclick=f; kb.appendChild(b); };
-    addKey('CÁCH', () => document.getElementById('searchInput').value += ' ');
-    addKey('XÓA', () => { let v=document.getElementById('searchInput').value; document.getElementById('searchInput').value=v.slice(0,-1); });
-    addKey('XÓA HẾT', () => document.getElementById('searchInput').value='');
-</script>
+    <style>
+        @keyframes wave { from { height: 10px; } to { height: 50px; } }
+    </style>
 </body>
 </html>
