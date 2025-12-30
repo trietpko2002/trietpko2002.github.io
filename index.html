@@ -3,54 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KARAOKE PRO - DUAL SCREEN</title>
+    <title>KARAOKE SMART KIOSK</title>
     <style>
         :root { --primary: #ff2e63; --bg: #0b0e14; --panel: #1a1d23; --accent: #00fff2; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; display: grid; grid-template-columns: 1fr 400px; height: 100vh; overflow: hidden; }
         
-        /* BÊN TRÁI: SEARCH & RESULTS */
-        #left-side { padding: 15px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #222; overflow: hidden; }
+        /* CỘT TRÁI: TÌM KIẾM & BÀN PHÍM */
+        #left-side { padding: 15px; display: flex; flex-direction: column; gap: 10px; border-right: 2px solid #222; }
+        .search-box { background: var(--panel); padding: 15px; border-radius: 12px; }
+        #search-display { width: 100%; height: 55px; background: #000; border: 2px solid var(--accent); color: var(--accent); font-size: 1.8rem; padding: 0 15px; border-radius: 8px; outline: none; margin-bottom: 10px; box-sizing: border-box; }
         
-        .search-container { display: flex; flex-direction: column; gap: 10px; background: var(--panel); padding: 15px; border-radius: 12px; }
-        #search-display { width: 100%; height: 50px; background: #000; border: 2px solid var(--accent); color: var(--accent); font-size: 1.8rem; padding: 0 15px; border-radius: 8px; outline: none; box-sizing: border-box; }
-        
-        .filter-bar { display: flex; gap: 10px; }
-        .filter-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: #333; color: #888; transition: 0.3s; }
-        .filter-btn.active { background: var(--accent); color: #000; }
+        .filter-btns { display: flex; gap: 10px; }
+        .filter-btns button { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: #333; color: #aaa; }
+        .filter-btns button.active { background: var(--accent); color: #000; }
 
         #results-grid { flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; overflow-y: auto; padding: 5px; }
-        .song-card { background: #252a33; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
+        .song-card { background: #252a33; border-radius: 8px; overflow: hidden; cursor: pointer; border: 1px solid #333; }
         .song-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
-        .song-card p { padding: 8px; font-size: 0.85rem; margin: 0; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .song-card:active { border-color: var(--primary); transform: scale(0.96); }
+        .song-card p { padding: 8px; font-size: 0.85rem; margin: 0; height: 35px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        /* BÀN PHÍM */
         #keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; padding: 10px; background: #111; border-radius: 12px; }
         #keyboard button { height: 45px; border: none; border-radius: 6px; background: #3d4450; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         #keyboard button:active { background: var(--primary); }
-        .btn-wide { grid-column: span 2; background: #5a6372 !important; }
 
-        /* BÊN PHẢI: QUEUE & CONTROLS */
+        /* CỘT PHẢI: DANH SÁCH CHỜ */
         #right-side { background: var(--panel); padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .btn-open-tv { background: #27ae60; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
-        
+        .btn-tv { background: #27ae60; color: white; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         #queue-list { flex-grow: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
         .queue-item { background: #2d343e; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--accent); }
-        .q-btns { display: flex; gap: 5px; margin-top: 8px; }
-        .q-btns button { flex: 1; padding: 6px; border: none; border-radius: 4px; color: #fff; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
-
         .vol-box { background: #000; padding: 12px; border-radius: 10px; }
-        #vol-slider { width: 100%; height: 25px; accent-color: var(--accent); cursor: pointer; }
+        #vol-slider { width: 100%; height: 25px; accent-color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div id="left-side">
-        <div class="search-container">
-            <input type="text" id="search-display" placeholder="NHẬP TÊN BÀI HÁT..." readonly>
-            <div class="filter-bar">
-                <button id="btn-kara" class="filter-btn active" onclick="setMode(true)">CHẾ ĐỘ KARAOKE</button>
-                <button id="btn-music" class="filter-btn" onclick="setMode(false)">NHẠC THƯỜNG</button>
+        <div class="search-box">
+            <input type="text" id="search-display" placeholder="CHẠM ĐỂ NHẬP BÀI..." readonly>
+            <div class="filter-btns">
+                <button id="mode-k" class="active" onclick="setMode(true)">KARAOKE</button>
+                <button id="mode-m" onclick="setMode(false)">NHẠC THƯỜNG</button>
             </div>
         </div>
         <div id="results-grid"></div>
@@ -58,75 +50,70 @@
     </div>
 
     <div id="right-side">
-        <button class="btn-open-tv" onclick="openPlayer()">1. MỞ MÀN HÌNH TIVI (VIDEO)</button>
-        <h3 style="margin:0; color: var(--accent); font-size: 1rem;">DANH SÁCH CHỜ</h3>
+        <button class="btn-tv" onclick="openPlayer()">MỞ MÀN HÌNH TIVI (VIDEO)</button>
+        <h3 style="margin:0; font-size: 1rem; color: var(--accent);">DANH SÁCH CHỜ</h3>
         <ul id="queue-list"></ul>
         
         <div class="vol-box">
-            <div style="display:flex; justify-content: space-between; margin-bottom:5px; font-size: 0.8rem;">
+            <div style="display:flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
                 <span>ÂM LƯỢNG</span> <span id="vol-num" style="color:var(--accent)">50%</span>
             </div>
             <input type="range" id="vol-slider" min="0" max="100" value="50">
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button onclick="cmd('toggle')" style="padding:15px; background:#444; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">DỪNG/PHÁT</button>
-            <button onclick="skip()" style="padding:15px; background:var(--primary); border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">BỎ QUA</button>
+            <button onclick="cmd('toggle')" style="padding:15px; background:#444; border:none; color:white; border-radius:8px; font-weight:bold;">TẠM DỪNG</button>
+            <button onclick="skip()" style="padding:15px; background:var(--primary); border:none; color:white; border-radius:8px; font-weight:bold;">BỎ QUA</button>
         </div>
     </div>
 
 <script>
     let tvWin = null;
     let queue = [];
-    let isKaraokeMode = true;
-    const API_KEY = 'AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8'; // Key của bạn
+    let isKaraoke = true;
+    const API_KEY = 'AIzaSyC4vRYZrUOC3mFZUVSSsIJxGZNxY1E0JY8'; 
 
-    // MỞ CỬA SỔ BẰNG BLOB ĐỂ TRÁNH LỖI BẢO MẬT
     function openPlayer() {
-        const playerHtml = `
-            <!DOCTYPE html><html><head><title>KARAOKE VIDEO</title><style>
-            body{margin:0;background:#000;color:#fff;font-family:sans-serif;overflow:hidden;}
-            #player{width:100vw;height:100vh;}
-            #msg{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#000;z-index:9;}
-            #toast{position:absolute;top:40px;right:40px;font-size:5rem;color:#0f0;display:none;z-index:99;text-shadow:3px 3px #000;}
-            </style></head><body>
-            <div id="toast">VOL: 50%</div>
-            <div id="msg"><h1>KARAOKE SMART</h1><p>Vui lòng chọn bài hát từ màn hình điều khiển...</p></div>
-            <div id="player"></div>
+        tvWin = window.open("", "KaraokeTV", "width=1280,height=720");
+        const code = `
+            <!DOCTYPE html><html><head><title>TIVI</title><style>
+            body{margin:0;background:#000;overflow:hidden;} #player{width:100vw;height:100vh;}
+            </style></head><body><div id="player"></div>
             <script src="https://www.youtube.com/iframe_api"></` + `script>
             <script>
                 let p;
                 function onYouTubeIframeAPIReady(){
                     p = new YT.Player('player', {
-                        height: '100%', width: '100%',
-                        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'modestbranding': 1 },
-                        events: { 'onStateChange': (e) => { if(e.data === 0) window.opener.skip(); } }
+                        height:'100%', width:'100%',
+                        playerVars: { 'autoplay': 1, 'controls': 0, 'rel': 0, 'origin': window.location.origin },
+                        events: { 'onStateChange': (e) => { if(e.data === 0) window.opener.postMessage('next', '*'); } }
                     });
                 }
-                window.addEventListener('message', (e) => {
+                window.onmessage = (e) => {
                     const d = e.data;
-                    if(d.t === 'load') { document.getElementById('msg').style.display='none'; p.loadVideoById(d.id); }
-                    if(d.t === 'stop') { document.getElementById('msg').style.display='flex'; p.stopVideo(); }
-                    if(d.t === 'vol') { p.setVolume(d.v); const t=document.getElementById('toast'); t.innerText="VOL: "+d.v+"%"; t.style.display="block"; clearTimeout(window.vt); window.vt=setTimeout(()=>t.style.display="none",2000); }
-                    if(d.t === 'toggle') { p.getPlayerState() === 1 ? p.pauseVideo() : p.playVideo(); }
-                });
+                    if(d.t === 'load') p.loadVideoById(d.id);
+                    if(d.t === 'vol') p.setVolume(d.v);
+                    if(d.t === 'toggle') p.getPlayerState() === 1 ? p.pauseVideo() : p.playVideo();
+                };
             </` + `script></body></html>`;
-
-        const blob = new Blob([playerHtml], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        tvWin = window.open(url, "KaraokeTV", "width=1280,height=720");
+        
+        tvWin.document.write(code);
+        tvWin.document.close();
     }
 
+    // Nhận tín hiệu chuyển bài từ cửa sổ Tivi
+    window.onmessage = (e) => { if(e.data === 'next') skip(); };
+
     function setMode(val) {
-        isKaraokeMode = val;
-        document.getElementById('btn-kara').className = val ? 'filter-btn active' : 'filter-btn';
-        document.getElementById('btn-music').className = val ? 'filter-btn' : 'filter-btn active';
-        search(document.getElementById('search-display').value);
+        isKaraoke = val;
+        document.getElementById('mode-k').className = val ? 'active' : '';
+        document.getElementById('mode-m').className = val ? '' : 'active';
+        if(document.getElementById('search-display').value) search(document.getElementById('search-display').value);
     }
 
     async function search(q) {
         if(!q) return;
-        const query = isKaraokeMode ? q + ' karaoke' : q;
+        const query = isKaraoke ? q + ' karaoke' : q;
         const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
         
         try {
@@ -134,16 +121,14 @@
             const d = await r.json();
             const grid = document.getElementById('results-grid');
             grid.innerHTML = "";
-            if(d.items) {
-                d.items.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'song-card';
-                    div.onclick = () => add({id: item.id.videoId, title: item.snippet.title});
-                    div.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}"><p>${item.snippet.title}</p>`;
-                    grid.appendChild(div);
-                });
-            }
-        } catch(e) { console.error("Lỗi tìm kiếm:", e); }
+            d.items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'song-card';
+                div.onclick = () => add({id: item.id.videoId, title: item.snippet.title});
+                div.innerHTML = `<img src="${item.snippet.thumbnails.medium.url}"><p>${item.snippet.title}</p>`;
+                grid.appendChild(div);
+            });
+        } catch(e) { console.error("Lỗi tìm kiếm"); }
     }
 
     function add(s) {
@@ -156,7 +141,6 @@
     function skip() {
         queue.shift();
         if(queue.length > 0) send('load', queue[0].id);
-        else send('stop');
         render();
     }
 
@@ -168,19 +152,19 @@
     "1234567890QWERTYUIOPASDFGHJKLZXCVBNM ".split("").forEach(k => {
         const b = document.createElement('button');
         b.innerText = k === " " ? "SPACE" : k;
-        if(k === " ") b.className = "btn-wide";
+        if(k === " ") b.style.gridColumn = "span 2";
         b.onclick = () => { input.value += k; clearTimeout(window.st); window.st = setTimeout(()=>search(input.value), 500); };
         document.getElementById('keyboard').appendChild(b);
     });
 
     const del = document.createElement('button');
-    del.innerText = "XÓA"; del.className = "btn-wide"; del.style.background = "#e74c3c";
+    del.innerText = "XÓA"; del.style.gridColumn = "span 2"; del.style.background = "#e74c3c";
     del.onclick = () => { input.value = input.value.slice(0, -1); search(input.value); };
     document.getElementById('keyboard').appendChild(del);
 
     document.getElementById('vol-slider').oninput = function() {
         document.getElementById('vol-num').innerText = this.value + "%";
-        if(tvWin) tvWin.postMessage({t:'vol', v:this.value}, "*");
+        send('vol', this.value);
     };
 
     function render() {
@@ -189,10 +173,10 @@
         queue.forEach((s, i) => {
             const li = document.createElement('li');
             li.className = 'queue-item';
-            li.innerHTML = `<div style="font-size:0.9rem; font-weight:bold">${i+1}. ${s.title}</div>
-                <div class="q-btns">
-                    <button style="background:#f39c12" onclick="pri(${i})">ƯU TIÊN</button>
-                    <button style="background:#e74c3c" onclick="rem(${i})">XÓA</button>
+            li.innerHTML = `<div style="font-size:0.9rem;font-weight:bold">${i+1}. ${s.title}</div>
+                <div style="display:flex;gap:5px;margin-top:5px">
+                    <button style="flex:1;background:#f39c12;border:none;color:#fff;border-radius:4px;padding:5px" onclick="pri(${i})">ƯU TIÊN</button>
+                    <button style="flex:1;background:#e74c3c;border:none;color:#fff;border-radius:4px;padding:5px" onclick="rem(${i})">XÓA</button>
                 </div>`;
             l.appendChild(li);
         });
