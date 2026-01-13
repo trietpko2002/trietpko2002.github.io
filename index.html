@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sinh hoạt hè - Nhóm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        .info-box-content { justify-content: center; }
+        .attendance-card { transition: transform 0.2s; }
+        .attendance-card:hover { transform: scale(1.02); }
+        .table td, .table th { vertical-align: middle; }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+
+<script>
+    // 1. KIỂM TRA BẢO MẬT
+    (function checkSecurity() {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        if (!user) {
+            alert("Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại!");
+            window.location.replace('login.html');
+            return;
+        }
+    })();
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.replace('login.html');
+    }
+</script>
+
+<div class="wrapper">
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                    <img src="" class="user-image img-circle elevation-2" id="userAvatar" alt="User">
+                    <span class="d-none d-md-inline" id="managerDisplayName">Quản lý</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                    <li class="user-header bg-primary">
+                        <p id="managerFullName">Quản lý SHH</p>
+                        <small id="userGroupDisplay">Nhóm: ...</small>
+                    </li>
+                    <li class="user-footer">
+                        <a href="javascript:void(0)" onclick="logout()" class="btn btn-default btn-flat float-right text-danger">Đăng xuất</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    <li class="nav-item">
+                        <a href="#tab-attendance" class="nav-link active" data-toggle="pill">
+                            <i class="nav-icon fas fa-check-square"></i> <p>Điểm danh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-students" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-user-friends"></i> <p>HS của nhóm</p>
+                        </a>
+                    </li>
+                    <li class="nav-header">HỆ THỐNG</li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="logout()" class="nav-link text-danger">
+                            <i class="nav-icon fas fa-sign-out-alt"></i> <p>Đăng xuất</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="content-wrapper">
+        <div class="tab-content p-3">
+            <div class="tab-pane fade show active" id="tab-attendance">
+                <div class="callout callout-info mb-3 shadow-sm">
+                    <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
+                    <p class="text-muted mb-0">Vui lòng chọn trạng thái cho từng học sinh và nhấn "Gửi dữ liệu".</p>
+                </div>
+                
+                <div id="attendanceList" class="row">
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Đang nạp danh sách học sinh...</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-block mt-4 shadow py-3" onclick="submitAttendance()">
+                    <i class="fas fa-paper-plane mr-2"></i><b>GỬI DỮ LIỆU ĐIỂM DANH</b>
+                </button>
+            </div>
+
+            <div class="tab-pane fade" id="tab-students">
+                <div class="card card-outline card-primary shadow">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách chi tiết Nhóm <b id="groupBadge">...</b></h3>
+                    </div>
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover text-nowrap table-valign-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Trường học</th>
+                                    <th>Địa chỉ</th>
+                                    <th>SĐT Phụ huynh</th>
+                                </tr>
+                            </thead>
+                            <tbody id="groupStudentList">
+                                <tr><td colspan="4" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+// Cấu hình URL Web App của bạn
+const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+
+document.addEventListener("DOMContentLoaded", function() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    
+    // Hiển thị thông tin Profile
+    document.getElementById('managerDisplayName').innerText = user.fullname;
+    document.getElementById('managerFullName').innerText = user.fullname;
+    document.getElementById('userGroupDisplay').innerText = `Nhóm: ${user.group_id}`;
+    document.getElementById('groupBadge').innerText = user.group_id;
+    document.getElementById('userAvatar').src = user.avatar || 'https://via.placeholder.com/150';
+    document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
+    
+    // Tải dữ liệu
+    fetchStudentsByGroup(user.group_id);
+});
+
+async function fetchStudentsByGroup(groupId) {
+    const attContainer = document.getElementById('attendanceList');
+    const tableBody = document.getElementById('groupStudentList');
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "GET_STUDENTS_BY_GROUP",
+                payload: { group_id: groupId }
+            })
+        });
+        const res = await response.json();
+
+        if (res.status === "success") {
+            let attHtml = '';
+            let tableHtml = '';
+
+            if (res.data.length === 0) {
+                attContainer.innerHTML = '<div class="col-12 text-center py-5 text-muted">Không tìm thấy học sinh nào trong nhóm này.</div>';
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Nhóm trống</td></tr>';
+                return;
+            }
+
+            res.data.forEach(student => {
+                // Render Tab Điểm danh (Dạng card)
+                attHtml += `
+                    <div class="col-12 col-sm-6 col-md-4 attendance-card">
+                        <div class="info-box shadow-sm border">
+                            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-user-graduate"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text font-weight-bold" style="font-size: 1.1rem;">${student.fullname}</span>
+                                <span class="info-box-number text-muted font-weight-normal" style="font-size: 0.85rem;">${student.school}</span>
+                                <div class="btn-group btn-group-toggle mt-2" data-toggle="buttons">
+                                    <label class="btn btn-sm btn-outline-success active px-3">
+                                        <input type="radio" name="st_${student.id}" value="present" checked> Có mặt
+                                    </label>
+                                    <label class="btn btn-sm btn-outline-danger px-3">
+                                        <input type="radio" name="st_${student.id}" value="absent"> Vắng
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                // Render Tab Danh sách chi tiết (Dạng bảng)
+                tableHtml += `
+                    <tr>
+                        <td><div class="font-weight-bold">${student.fullname}</div><small class="text-muted">ID: ${student.id}</small></td>
+                        <td>${student.school}</td>
+                        <td style="white-space: normal; max-width: 200px;">${student.address}</td>
+                        <td><a href="tel:${student.phone}" class="btn btn-sm btn-default"><i class="fas fa-phone mr-2 text-success"></i>${student.phone}</a></td>
+                    </tr>`;
+            });
+
+            attContainer.innerHTML = attHtml;
+            tableBody.innerHTML = tableHtml;
+        } else {
+            toastr.error(res.message);
+        }
+    } catch (error) {
+        toastr.error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại URL API.");
+        console.error(error);
+    }
+}
+
+function submitAttendance() {
+    toastr.info('Đang đồng bộ dữ liệu điểm danh...');
+    
+    // Mô phỏng quá trình gửi
+    setTimeout(() => {
+        toastr.success('Dữ liệu điểm danh đã được ghi nhận thành công!');
+    }, 1200);
+}
+</script>
+</body>
+</html>

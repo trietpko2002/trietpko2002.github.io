@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Quản lý Sinh hoạt hè</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+</head>
+
+<body class="hold-transition sidebar-mini">
+<script>
+    (function checkSecurity() {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        if (!user) {
+            alert("Phiên làm việc hết hạn!");
+            window.location.replace('login.html');
+            return;
+        }
+        if (user.role.toLowerCase() !== 'admin') {
+            alert("Bạn không có quyền truy cập vùng Admin!");
+            window.location.replace('index.html');
+        }
+    })();
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.replace('login.html');
+    }
+</script>
+
+<div class="wrapper">
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><span class="nav-link">Chào, <b id="adminNameDisplay">Admin</b>!</span></li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="javascript:void(0)" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Thoát
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <div class="brand-link text-center">
+            <span class="brand-text font-weight-light">HỆ THỐNG QUẢN TRỊ</span>
+        </div>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    <li class="nav-item">
+                        <a href="#tab-dashboard" class="nav-link active" data-toggle="pill">
+                            <i class="nav-icon fas fa-tachometer-alt"></i> <p>Tổng quan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-students-list" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-users"></i> <p>Danh sách học sinh</p>
+                        </a>
+                    </li>
+                    <li class="nav-header">TIỆN ÍCH</li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="exportExcel()" class="nav-link text-success">
+                            <i class="nav-icon fas fa-file-excel"></i> <p>Xuất Excel</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="content-wrapper">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-dashboard">
+                <section class="content-header">
+                    <div class="container-fluid"><h1>Bảng điều khiển</h1></div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-lg-3 col-6">
+                                <div class="small-box bg-info shadow">
+                                    <div class="inner"><h3 id="countHS">0</h3><p>Tổng số Học sinh</p></div>
+                                    <div class="icon"><i class="fas fa-user-graduate"></i></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-6">
+                                <div class="small-box bg-success shadow">
+                                    <div class="inner"><h3 id="countQL">0</h3><p>Quản lý & Admin</p></div>
+                                    <div class="icon"><i class="fas fa-user-tie"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card card-primary card-outline">
+                                    <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Biến động điểm danh toàn phường</h3></div>
+                                    <div class="card-body"><canvas id="attendanceChart" style="height: 300px;"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" id="tab-students-list">
+                <section class="content-header">
+                    <div class="container-fluid"><h1>Quản lý Học sinh</h1></div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card card-dark">
+                            <div class="card-header border-0">
+                                <h3 class="card-title">Dữ liệu học sinh toàn hệ thống</h3>
+                                <div class="card-tools">
+                                    <button class="btn btn-tool" onclick="loadDataFromSheet()"><i class="fas fa-sync"></i> Làm mới</button>
+                                </div>
+                            </div>
+                            <div class="card-body table-responsive">
+                                <table id="studentTable" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Họ tên</th>
+                                            <th>Nhóm</th>
+                                            <th>Trường học</th>
+                                            <th>Địa chỉ</th>
+                                            <th>SĐT </th>
+                                            <th width="50px">Sửa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="studentData">
+                                        <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+
+document.addEventListener("DOMContentLoaded", function() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    document.getElementById('adminNameDisplay').innerText = user.fullname;
+    
+    loadDataFromSheet();
+    initChart();
+});
+
+async function loadDataFromSheet() {
+    const tableBody = document.getElementById('studentData');
+    
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "GET_USERS" }) // Hàm này cần trả về đầy đủ students object (fullname, group, school, address, phone)
+        });
+        const res = await response.json();
+
+        if (res.status === "success") {
+            document.getElementById('countHS').innerText = res.data.totalStudents;
+            document.getElementById('countQL').innerText = res.data.totalAdmins;
+
+            let html = '';
+            res.data.students.forEach(st => {
+                html += `
+                <tr>
+                    <td><b>${st.fullname}</b></td>
+                    <td><span class="badge badge-info">${st.group}</span></td>
+                    <td>${st.school}</td>
+                    <td style="white-space:normal">${st.address || ''}</td>
+                    <td>${st.phone || ''}</td>
+                    <td>
+                        <button class="btn btn-xs btn-warning" onclick="toastr.warning('Chức năng sửa đang bảo trì')"><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>`;
+            });
+            tableBody.innerHTML = html;
+
+            // Re-initialize DataTable
+            if ($.fn.DataTable.isDataTable('#studentTable')) {
+                $('#studentTable').DataTable().destroy();
+            }
+            $('#studentTable').DataTable({
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
+                "pageLength": 10,
+                "responsive": true
+            });
+        }
+    } catch (error) {
+        toastr.error("Lỗi đồng bộ dữ liệu!");
+        console.error(error);
+    }
+}
+
+function exportExcel() {
+    const table = document.getElementById('studentTable');
+    const wb = XLSX.utils.table_to_book(table, { sheet: "ToanPhuong" });
+    XLSX.writeFile(wb, `BaoCao_ToanPhuong_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function initChart() {
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['10/01', '11/01', '12/01', '13/01'],
+            datasets: [{ 
+                label: 'Học sinh tham gia (%)', 
+                data: [80, 85, 75, 90], 
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+}
+</script>
+</body>
+</html>
