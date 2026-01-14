@@ -16,14 +16,14 @@
         .small-box:hover { transform: translateY(-5px); }
         #attendanceChart { max-height: 280px !important; }
         .text-dob { color: #007bff; font-weight: bold; }
-        .badge-group { font-size: 0.9rem; padding: 5px 10px; }
+        .badge-group { font-size: 0.85rem; padding: 4px 8px; }
         .table-history { font-size: 0.9rem; }
+        .history-card-body { max-height: 600px; overflow-y: auto; }
     </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
 <script>
-    // 1. KIỂM TRA QUYỀN TRUY CẬP
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         if (!user || user.role.toLowerCase() !== 'admin') {
@@ -56,14 +56,14 @@
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <div class="brand-link text-center">
-            <span class="brand-text font-weight-bold">HỆ THỐNG QUẢN TRỊ</span>
+            <span class="brand-text font-weight-bold">QUẢN TRỊ SINH HOẠT HÈ</span>
         </div>
         <div class="sidebar">
             <nav class="mt-3">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
                     <li class="nav-item">
                         <a href="#tab-dashboard" class="nav-link active" data-toggle="pill">
-                            <i class="nav-icon fas fa-chart-pie"></i> <p>Tổng quan</p>
+                            <i class="nav-icon fas fa-chart-pie"></i> <p>Tổng quan & Lịch sử</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -71,10 +71,15 @@
                             <i class="nav-icon fas fa-id-card"></i> <p>Dữ liệu học sinh</p>
                         </a>
                     </li>
-                    <li class="nav-header">DỮ LIỆU</li>
+                    <li class="nav-header">XUẤT BÁO CÁO</li>
                     <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="exportExcel()" class="nav-link text-success">
-                            <i class="nav-icon fas fa-file-download"></i> <p>Xuất Excel báo cáo</p>
+                        <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
+                            <i class="nav-icon fas fa-file-excel"></i> <p>Xuất Lịch Sử (.xlsx)</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
+                            <i class="nav-icon fas fa-file-download"></i> <p>Xuất DS Học Sinh (.xlsx)</p>
                         </a>
                     </li>
                 </ul>
@@ -84,13 +89,12 @@
 
     <div class="content-wrapper">
         <div class="tab-content">
-            
             <div class="tab-pane fade show active" id="tab-dashboard">
                 <section class="content-header">
                     <div class="container-fluid">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h1>Thống kê điểm danh trong ngày</h1>
-                            <button onclick="refreshAll()" class="btn btn-outline-primary shadow-sm"><i class="fas fa-sync"></i> Cập nhật số liệu</button>
+                            <h1>Thống kê & Toàn bộ lịch sử</h1>
+                            <button onclick="refreshAll()" class="btn btn-primary"><i class="fas fa-sync"></i> Làm mới</button>
                         </div>
                     </div>
                 </section>
@@ -99,41 +103,60 @@
                         <div class="row">
                             <div class="col-lg-3 col-6">
                                 <div class="small-box bg-info">
-                                    <div class="inner"><h3 id="countHS">0</h3><p>Tổng số Học sinh</p></div>
-                                    <div class="icon"><i class="fas fa-user-friends"></i></div>
+                                    <div class="inner"><h3 id="countHS">0</h3><p>Học sinh</p></div>
+                                    <div class="icon"><i class="fas fa-users"></i></div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-6">
                                 <div class="small-box bg-success">
-                                    <div class="inner"><h3 id="countPresent">0</h3><p>Đã có mặt</p></div>
-                                    <div class="icon"><i class="fas fa-check-double"></i></div>
+                                    <div class="inner"><h3 id="countPresent">0</h3><p>Có mặt</p></div>
+                                    <div class="icon"><i class="fas fa-check"></i></div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-6">
                                 <div class="small-box bg-warning text-white">
-                                    <div class="inner"><h3 id="countAbsentP">0</h3><p>Vắng có phép (P)</p></div>
+                                    <div class="inner"><h3 id="countAbsentP">0</h3><p>Vắng (P)</p></div>
                                     <div class="icon"><i class="fas fa-envelope"></i></div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-6">
                                 <div class="small-box bg-danger">
-                                    <div class="inner"><h3 id="countAbsent">0</h3><p>Vắng không phép</p></div>
-                                    <div class="icon"><i class="fas fa-user-times"></i></div>
+                                    <div class="inner"><h3 id="countAbsent">0</h3><p>Vắng (K)</p></div>
+                                    <div class="icon"><i class="fas fa-times"></i></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-4">
+
+                        <div class="row mt-3">
                             <div class="col-md-4">
-                                <div class="card card-outline card-primary shadow-lg">
-                                    <div class="card-header text-center">
-                                        <h3 class="card-title float-none font-weight-bold">Tỉ lệ điểm danh (%)</h3>
+                                <div class="card card-outline card-primary shadow">
+                                    <div class="card-header"><h3 class="card-title font-weight-bold">Biểu đồ</h3></div>
+                                    <div class="card-body"><canvas id="attendanceChart"></canvas></div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card card-outline card-success shadow">
+                                    <div class="card-header">
+                                        <h3 class="card-title font-weight-bold">Nhật ký điểm danh (Full)</h3>
                                     </div>
-                                    <div class="card-body">
-                                        <canvas id="attendanceChart"></canvas>
+                                    <div class="card-body p-0 table-responsive history-card-body">
+                                        <table class="table table-head-fixed table-hover table-history text-nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thời gian</th>
+                                                    <th>Học sinh</th>
+                                                    <th>Nhóm</th>
+                                                    <th>Trạng thái</th>
+                                                    <th>Người thực hiện</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="historyAttendanceData">
+                                                <tr><td colspan="5" class="text-center text-muted">Đang tải...</td></tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-                            
                         </div>
                     </div>
                 </section>
@@ -141,13 +164,13 @@
 
             <div class="tab-pane fade" id="tab-students-list">
                 <section class="content-header">
-                    <div class="container-fluid"><h1>Dữ liệu học sinh toàn hệ thống</h1></div>
+                    <div class="container-fluid"><h1>Danh sách học sinh toàn hệ thống</h1></div>
                 </section>
                 <section class="content">
                     <div class="container-fluid">
                         <div class="card shadow">
                             <div class="card-body table-responsive">
-                                <table id="studentTable" class="table table-striped table-bordered table-hover w-100">
+                                <table id="studentTable" class="table table-striped table-bordered w-100">
                                     <thead class="thead-dark">
                                         <tr>
                                             <th>Họ tên</th>
@@ -158,8 +181,7 @@
                                             <th>Địa chỉ</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="studentData">
-                                        </tbody>
+                                    <tbody id="studentData"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -181,18 +203,29 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 let attendanceChart;
-let globalHistoryData = []; // Biến này giữ dữ liệu từ sheet Attendance
+let globalHistoryData = []; 
+let globalStudentsData = [];
+
+// Hàm hỗ trợ định dạng dd/mm/yyyy
+function formatDate(dateStr) {
+    if (!dateStr || dateStr === '-') return '-';
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}/${m}/${y}`;
+    } catch (e) { return dateStr; }
+}
 
 $(document).ready(function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     if(user) $('#adminNameDisplay').text(user.fullname);
-    
     refreshAll();
-    setInterval(updateAttendanceStats, 120000);
 });
 
 function refreshAll() {
-    toastr.info("Đang nạp dữ liệu hệ thống...");
     loadStudents();
     updateAttendanceStats();
 }
@@ -205,27 +238,28 @@ async function loadStudents() {
         });
         const res = await response.json();
         if (res.status === "success") {
+            globalStudentsData = res.data.students;
             $('#countHS').text(res.data.totalStudents);
-            if ($.fn.DataTable.isDataTable('#studentTable')) {
-                $('#studentTable').DataTable().destroy();
-            }
+            if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
+            
             let html = '';
             res.data.students.forEach(st => {
                 html += `<tr>
-                    <td class="font-weight-bold text-uppercase">${st.fullname}</td>
-                    <td class="text-dob">${st.dob}</td>
-                    <td><span class="badge badge-primary badge-group">${st.group}</span></td>
+                    <td class="font-weight-bold">${st.fullname}</td>
+                    <td class="text-dob">${formatDate(st.dob)}</td>
+                    <td><span class="badge badge-info badge-group">${st.group}</span></td>
                     <td><small>${st.school}</small></td>
-                    <td><a href="tel:${st.phone}" class="text-success">${st.phone || '-'}</a></td>
-                    <td style="white-space: normal; min-width: 150px;">${st.address || '-'}</td>
+                    <td><a href="tel:${st.phone}">${st.phone || '-'}</a></td>
+                    <td><small>${st.address || '-'}</small></td>
                 </tr>`;
             });
             $('#studentData').html(html);
-            initDataTable();
+            $('#studentTable').DataTable({
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
+                "pageLength": 10
+            });
         }
-    } catch (e) { 
-        toastr.error("Không thể kết nối đến máy chủ dữ liệu."); 
-    }
+    } catch (e) { toastr.error("Lỗi tải danh sách học sinh."); }
 }
 
 async function updateAttendanceStats() {
@@ -240,103 +274,79 @@ async function updateAttendanceStats() {
             $('#countPresent').text(s.present);
             $('#countAbsentP').text(s.absent_perm);
             $('#countAbsent').text(s.absent);
-            
-            if(res.data.history) {
-                globalHistoryData = res.data.history; // Cập nhật dữ liệu từ sheet Attendance
-                renderHistoryTable(res.data.history);
-            }
-
+            globalHistoryData = s.history || [];
+            renderHistoryTable(globalHistoryData);
             renderChart(s.present, s.absent_perm, s.absent);
         }
-    } catch (e) { console.error("Lỗi cập nhật số liệu."); }
+    } catch (e) { toastr.error("Không thể kết nối Server."); }
 }
 
 function renderHistoryTable(history) {
     let html = '';
     history.forEach(row => {
-        let statusText = row.status === 'present' ? 'Có mặt' : (row.status === 'absent_perm' ? 'Vắng (P)' : 'Vắng');
-        let badgeClass = row.status === 'present' ? 'text-success' : (row.status === 'absent_perm' ? 'text-warning' : 'text-danger');
+        let statusBadge = '';
+        if(row.status === 'present') statusBadge = '<span class="badge badge-success">Có mặt</span>';
+        else if(row.status === 'absent_perm') statusBadge = '<span class="badge badge-warning">Vắng (P)</span>';
+        else statusBadge = '<span class="badge badge-danger">Vắng</span>';
+
         html += `<tr>
-            <td>${row.timestamp}</td>
+            <td><small class="text-muted">${row.timestamp}</small></td>
             <td><b>${row.student_name}</b></td>
-            <td><span class="${badgeClass} font-weight-bold">${statusText}</span></td>
-            <td><i class="fas fa-user-edit text-muted"></i> ${row.recorded_by}</td>
+            <td><span class="badge badge-light border">${row.group_id}</span></td>
+            <td>${statusBadge}</td>
+            <td><small>${row.recorded_by}</small></td>
         </tr>`;
     });
-    $('#historyAttendanceData').html(html || '<tr><td colspan="4" class="text-center">Chưa có dữ liệu hôm nay</td></tr>');
+    $('#historyAttendanceData').html(html || '<tr><td colspan="5" class="text-center">Trống</td></tr>');
 }
 
 function renderChart(present, absentP, absent) {
     const ctx = document.getElementById('attendanceChart').getContext('2d');
     if (attendanceChart) attendanceChart.destroy();
-    if(present === 0 && absentP === 0 && absent === 0) return;
-
     attendanceChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Có mặt', 'Vắng có phép', 'Vắng không phép'],
             datasets: [{
                 data: [present, absentP, absent],
-                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
-                borderWidth: 2
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
             }]
         },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
-        }
+        options: { responsive: true, maintainAspectRatio: false }
     });
 }
 
-function initDataTable() {
-    $('#studentTable').DataTable({
-        "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
-        "pageLength": 15,
-        "ordering": true,
-        "info": true,
-        "order": [[ 2, "asc" ]]
-    });
+// XUẤT EXCEL LỊCH SỬ
+function exportExcelHistory() {
+    if (globalHistoryData.length === 0) return toastr.warning("Không có dữ liệu!");
+    const data = globalHistoryData.map(item => ({
+        "Thời Gian": item.timestamp,
+        "Học Sinh": item.student_name,
+        "Nhóm": item.group_id,
+        "Trạng Thái": item.status === 'present' ? 'Có mặt' : (item.status === 'absent_perm' ? 'Vắng (P)' : 'Vắng'),
+        "Người Thực Hiện": item.recorded_by
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử");
+    XLSX.writeFile(wb, `Lich_Su_Diem_Danh_All.xlsx`);
 }
 
-// HÀM XUẤT EXCEL TỪ DỮ LIỆU SHEET ATTENDANCE
-function exportExcel() {
-    try {
-        if (globalHistoryData.length === 0) {
-            toastr.warning("Không có dữ liệu điểm danh để xuất báo cáo.");
-            return;
-        }
-
-        // Sheet 1: Nhật ký điểm danh chi tiết (Có Tên Quản Lý)
-        const wsDetailData = globalHistoryData.map(item => ({
-            "Thời gian": item.timestamp,
-            "Học sinh": item.student_name,
-            "Nhóm": item.group_id,
-            "Trạng thái": item.status === 'present' ? 'Có mặt' : (item.status === 'absent_perm' ? 'Vắng (P)' : 'Vắng'),
-            "Quản lý thực hiện": item.recorded_by
-        }));
-        const wsDetail = XLSX.utils.json_to_sheet(wsDetailData);
-
-        // Sheet 2: Thống kê tổng hợp
-        const summaryData = [
-            ["HẠNG MỤC", "SỐ LƯỢNG"],
-            ["Có mặt", parseInt($('#countPresent').text())],
-            ["Vắng có phép (P)", parseInt($('#countAbsentP').text())],
-            ["Vắng không phép", parseInt($('#countAbsent').text())],
-            ["Tổng số học sinh hệ thống", parseInt($('#countHS').text())]
-        ];
-        const wsStats = XLSX.utils.aoa_to_sheet(summaryData);
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, wsDetail, "Chi tiết điểm danh");
-        XLSX.utils.book_append_sheet(wb, wsStats, "Thống kê tổng hợp");
-
-        const fileName = `Bao_Cao_SHH_${new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')}.xlsx`;
-        XLSX.writeFile(wb, fileName);
-        toastr.success("Đã xuất file báo cáo điểm danh!");
-    } catch (e) {
-        toastr.error("Lỗi khi xuất file Excel.");
-    }
+// XUẤT EXCEL DANH SÁCH HỌC SINH (CHỮA NGÀY SINH DD/MM/YYYY)
+function exportExcelStudents() {
+    if (globalStudentsData.length === 0) return toastr.warning("Không có dữ liệu học sinh!");
+    const data = globalStudentsData.map(st => ({
+        "Họ Và Tên": st.fullname,
+        "Ngày Sinh": formatDate(st.dob), // CHUẨN DD/MM/YYYY
+        "Nhóm": st.group,
+        "Trường Học": st.school,
+        "Số Điện Thoại": st.phone,
+        "Địa Chỉ": st.address
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DSHS");
+    XLSX.writeFile(wb, `Danh_Sach_Hoc_Sinh_Toan_He_Thong.xlsx`);
 }
 </script>
 </body>

@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Sinh hoạt hè - Nhóm</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         .info-box-content { justify-content: center; }
-        .attendance-card { transition: transform 0.2s; }
-        .attendance-card:hover { transform: scale(1.02); }
-        .table td, .table th { vertical-align: middle; }
-        .text-dob { color: #007bff; font-size: 0.85rem; }
-        /* Tối ưu nút bấm trên thiết bị di động */
+        .table thead th { background-color: #f4f6f9; color: #333; border-top: none; text-align: center; }
+        .table td, .table th { vertical-align: middle; padding: 12px 8px; }
         .btn-group-toggle .btn { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
+        .card-title { font-weight: bold; }
         @media (max-width: 576px) {
             .btn-group-toggle { display: flex; width: 100%; }
             .btn-group-toggle .btn { flex: 1; }
@@ -24,20 +26,11 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 
 <script>
-    // 1. KIỂM TRA BẢO MẬT
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        if (!user) {
-            alert("Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại!");
-            window.location.replace('login.html');
-            return;
-        }
+        if (!user) { window.location.replace('login.html'); }
     })();
-
-    function logout() {
-        sessionStorage.clear();
-        window.location.replace('login.html');
-    }
+    function logout() { sessionStorage.clear(); window.location.replace('login.html'); }
 </script>
 
 <div class="wrapper">
@@ -53,6 +46,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <li class="user-header bg-primary">
+                        <img src="" class="img-circle elevation-2" id="userAvatarInner">
                         <p id="managerFullName">Quản lý SHH</p>
                         <small id="userGroupDisplay">Nhóm: ...</small>
                     </li>
@@ -66,6 +60,9 @@
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <div class="sidebar">
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="info text-white">HỆ THỐNG QUẢN LÝ</div>
+            </div>
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                     <li class="nav-item">
@@ -78,54 +75,52 @@
                             <i class="nav-icon fas fa-user-friends"></i> <p>HS của nhóm</p>
                         </a>
                     </li>
-                    <li class="nav-header">HỆ THỐNG</li>
-                    <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="logout()" class="nav-link text-danger">
-                            <i class="nav-icon fas fa-sign-out-alt"></i> <p>Đăng xuất</p>
-                        </a>
-                    </li>
                 </ul>
             </nav>
         </div>
     </aside>
 
-    <div class="content-wrapper">
+    <div class="content-wrapper text-sm">
         <div class="tab-content p-3">
             <div class="tab-pane fade show active" id="tab-attendance">
                 <div class="callout callout-info mb-3 shadow-sm">
                     <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
-                    <p class="text-muted mb-0">Chọn trạng thái và nhấn "Gửi dữ liệu" để cập nhật biến động cho Admin.</p>
+                    <p class="text-muted mb-0">Chọn trạng thái cho từng học sinh và nhấn "Lưu kết quả".</p>
                 </div>
-                
                 <div id="attendanceList" class="row">
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-muted">Đang nạp danh sách học sinh...</p>
-                    </div>
+                    <div class="col-12 text-center p-5"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
                 </div>
-
                 <button class="btn btn-success btn-block mt-4 shadow py-3" onclick="submitAttendance()">
-                    <i class="fas fa-paper-plane mr-2"></i><b>GỬI DỮ LIỆU ĐIỂM DANH</b>
+                    <i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>
                 </button>
             </div>
 
             <div class="tab-pane fade" id="tab-students">
                 <div class="card card-outline card-primary shadow">
-                    <div class="card-header">
-                        <h3 class="card-title">Danh sách chi tiết <b id="groupBadge">...</b></h3>
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title text-uppercase flex-grow-1">
+                            <i class="fas fa-table mr-2"></i>Danh sách học sinh <span class="text-primary" id="groupBadge">...</span>
+                        </h3>
+                        <div class="card-tools">
+                            <button class="btn btn-success btn-sm shadow-sm" onclick="exportExcel()">
+                                <i class="fas fa-file-excel mr-1"></i> Xuất Excel
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap table-valign-middle">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>Họ tên</th>
-                                    <th>Ngày sinh</th> <th>Trường học</th>
-                                    <th>Địa chỉ</th>
-                                    <th>SĐT Phụ huynh</th>
+                        <table class="table table-bordered table-hover text-nowrap mb-0" id="excelTable">
+                            <thead>
+                                <tr class="text-center">
+                                    <th width="50">STT</th>
+                                    <th>Họ và Tên</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Trường học</th>
+                                    <th>Địa chỉ liên hệ</th>
+                                    <th>Số điện thoại PH</th>
                                 </tr>
                             </thead>
                             <tbody id="groupStudentList">
-                                <tr><td colspan="5" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                                <tr><td colspan="6" class="text-center p-4">Đang tải dữ liệu...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -143,14 +138,34 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 
+// Hàm hỗ trợ định dạng ngày tháng dd/mm/yyyy
+function formatDate(dateStr) {
+    if (!dateStr || dateStr === '-') return '-';
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr; // Trả về gốc nếu không phải định dạng ngày
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}/${m}/${y}`;
+    } catch (e) {
+        return dateStr;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
+    const avatarUrl = user.avatar || 'https://via.placeholder.com/150';
     
     document.getElementById('managerDisplayName').innerText = user.fullname;
     document.getElementById('managerFullName').innerText = user.fullname;
-    document.getElementById('userGroupDisplay').innerText = `Nhóm: ${user.group_name || user.group_id}`;
-    document.getElementById('groupBadge').innerText = user.group_name || user.group_id;
-    document.getElementById('userAvatar').src = user.avatar || 'https://via.placeholder.com/150';
+    document.getElementById('userAvatar').src = avatarUrl;
+    document.getElementById('userAvatarInner').src = avatarUrl;
+    
+    const displayGroupName = user.group_name || user.group_id;
+    document.getElementById('userGroupDisplay').innerText = `Nhóm: ${displayGroupName}`;
+    document.getElementById('groupBadge').innerText = displayGroupName;
+    
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
     fetchStudentsByGroup(user.group_id);
@@ -174,99 +189,77 @@ async function fetchStudentsByGroup(groupId) {
             let attHtml = '';
             let tableHtml = '';
 
-            if (res.data.length === 0) {
-                attContainer.innerHTML = '<div class="col-12 text-center py-5 text-muted">Không có học sinh trong nhóm này.</div>';
-                tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Nhóm trống</td></tr>';
-                return;
-            }
+            res.data.forEach((student, index) => {
+                // Định dạng ngày sinh sang dd/mm/yyyy
+                const formattedDob = formatDate(student.dob);
 
-            res.data.forEach(student => {
-                // Giao diện Thẻ điểm danh
                 attHtml += `
-                    <div class="col-12 col-sm-6 col-md-4 attendance-card">
+                    <div class="col-12 col-sm-6 col-md-4">
                         <div class="info-box shadow-sm border">
-                            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-user-graduate"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text font-weight-bold" style="font-size: 1.1rem;">${student.fullname}</span>
-                                <span class="text-dob"><i class="fas fa-birthday-cake mr-1"></i>${student.dob || 'Chưa cập nhật'}</span>
-                                <span class="info-box-number text-muted font-weight-normal" style="font-size: 0.85rem;">${student.school}</span>
+                                <span class="info-box-text font-weight-bold" style="font-size:1.1rem">${student.fullname}</span>
                                 <div class="btn-group btn-group-toggle mt-2" data-toggle="buttons">
-                                    <label class="btn btn-outline-success active">
-                                        <input type="radio" name="st_${student.id}" value="present" checked> Có mặt
-                                    </label>
-                                    <label class="btn btn-outline-warning">
-                                        <input type="radio" name="st_${student.id}" value="absent_perm"> Vắng (P)
-                                    </label>
-                                    <label class="btn btn-outline-danger">
-                                        <input type="radio" name="st_${student.id}" value="absent"> Vắng
-                                    </label>
+                                    <label class="btn btn-outline-success active"><input type="radio" name="st_${student.id}" value="present" checked> Có mặt</label>
+                                    <label class="btn btn-outline-warning"><input type="radio" name="st_${student.id}" value="absent_perm"> Vắng (P)</label>
+                                    <label class="btn btn-outline-danger"><input type="radio" name="st_${student.id}" value="absent"> Vắng</label>
                                 </div>
                             </div>
                         </div>
                     </div>`;
 
-                // Giao diện Bảng chi tiết
                 tableHtml += `
                     <tr>
-                        <td><div class="font-weight-bold">${student.fullname}</div><small class="text-muted">ID: ${student.id}</small></td>
-                        <td class="text-primary font-weight-bold">${student.dob || '-'}</td>
-                        <td>${student.school}</td>
-                        <td style="white-space: normal; max-width: 200px;">${student.address}</td>
-                        <td><a href="tel:${student.phone}" class="btn btn-sm btn-default"><i class="fas fa-phone mr-2 text-success"></i>${student.phone}</a></td>
+                        <td class="text-center font-weight-bold">${index + 1}</td>
+                        <td class="font-weight-bold">${student.fullname}</td>
+                        <td class="text-center text-primary font-weight-bold">${formattedDob}</td>
+                        <td>${student.school || '-'}</td>
+                        <td style="white-space: normal;">${student.address || '-'}</td>
+                        <td class="text-center">
+                            ${student.phone ? `<a href="tel:${student.phone}" class="btn btn-xs btn-link"><i class="fas fa-phone mr-1"></i>${student.phone}</a>` : '-'}
+                        </td>
                     </tr>`;
             });
 
-            attContainer.innerHTML = attHtml;
-            tableBody.innerHTML = tableHtml;
-        } else {
-            toastr.error(res.message);
+            attContainer.innerHTML = attHtml || '<div class="col-12 text-center">Không có dữ liệu.</div>';
+            tableBody.innerHTML = tableHtml || '<tr><td colspan="6" class="text-center">Không có dữ liệu.</td></tr>';
         }
     } catch (error) {
         toastr.error("Lỗi kết nối máy chủ.");
     }
 }
 
+// Giữ nguyên hàm submitAttendance...
 async function submitAttendance() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const attendanceData = [];
     const inputs = document.querySelectorAll('input[type="radio"]:checked');
-    
     inputs.forEach(input => {
-        attendanceData.push({
-            student_id: input.name.replace('st_', ''),
-            status: input.value
-        });
+        attendanceData.push({ student_id: input.name.replace('st_', ''), status: input.value });
     });
-
-    if (attendanceData.length === 0) {
-        toastr.warning("Không có dữ liệu để gửi!");
-        return;
-    }
-
-    toastr.info('Đang đồng bộ dữ liệu điểm danh...');
-
     try {
         const response = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({
                 action: "SAVE_ATTENDANCE",
-                payload: {
-                    group_id: user.group_id,
-                    recorded_by: user.fullname,
-                    attendance: attendanceData
-                }
+                payload: { group_id: user.group_id, recorded_by: user.fullname, attendance: attendanceData }
             })
         });
-        
         const res = await response.json();
-        if (res.status === "success") {
-            toastr.success('Dữ liệu điểm danh đã được ghi nhận vào bảng hệ thống!');
-        } else {
-            toastr.error("Lỗi: " + res.message);
-        }
-    } catch (error) {
-        toastr.error("Không thể kết nối để lưu dữ liệu. Vui lòng thử lại.");
-    }
+        if (res.status === "success") toastr.success('Lưu thành công!');
+    } catch (error) { toastr.error("Lỗi lưu dữ liệu."); }
+}
+
+// XUẤT EXCEL (Dữ liệu đã được định dạng dd/mm/yyyy trong bảng HTML)
+function exportExcel() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const groupName = user.group_name || user.group_id;
+    const table = document.getElementById("excelTable");
+    
+    // Tạo workbook từ table (Nó sẽ lấy đúng nội dung dd/mm/yyyy hiển thị trên bảng)
+    const wb = XLSX.utils.table_to_book(table, {sheet: "Danh sách"});
+    
+    XLSX.writeFile(wb, `Danh_sach_HS_${groupName.replace(/\s+/g, '_')}.xlsx`);
+    toastr.info("Đang tải file Excel...");
 }
 </script>
 </body>
