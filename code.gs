@@ -5,6 +5,7 @@
 
 const SPREADSHEET_ID = "1ebzd0DRukRVtInH7srEqOBeX7NntSkbHsqFcHlEe7hU";
 const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+const CLOUDFLARE_SECRET_KEY = "1x0000000000000000000000000000000AA"; // Key Test Cloudflare (Thay bằng key thật nếu cần)
 
 function doPost(e) {
   try {
@@ -649,32 +650,68 @@ function handleLogin(payload) {
   const rows = sheet.getDataRange().getValues();
   const userIn = payload.username.toString().trim();
   const passIn = payload.password.toString().trim();
+  
+  // 1. Xác thực Cloudflare Turnstile
+  if (!verifyTurnstile(payload.token)) {
+    return response({ status: "error", message: "Xác thực CAPTCHA thất bại! Vui lòng thử lại." });
+  }
+
+  // 2. Kiểm tra An ninh (Số lần lỗi & Thiết bị)
+  const secData = getSecurityData(userIn); // { rowIndex, failedAttempts, devices, successfulAttempts }
+  
+  // Nếu sai quá 10 lần -> Khóa
+  if (secData.failedAttempts >= 10) {
+     return response({ status: "error", message: "Tài khoản bị tạm khóa do nhập sai mật khẩu quá 10 lần. Vui lòng liên hệ Admin." });
+  }
+
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0].toString().trim() === userIn && rows[i][1].toString().trim() === passIn) {
+    if (rows[i][0].toString().trim() === userIn) {
+      // Kiểm tra mật khẩu
+      if (rows[i][1].toString().trim() === passIn) {
+        // --- ĐĂNG NHẬP THÀNH CÔNG ---
+        
+        // Kiểm tra thiết bị (User Agent)
+        const currentUA = payload.userAgent || "Unknown Device";
+        let devices = secData.devices || [];
+        // Nếu thiết bị mới chưa có trong danh sách -> Thêm vào
+        if (!devices.includes(currentUA)) {
+          devices.push(currentUA);
+        }
 
-      // --- CHECK PIN ---
-      const isPinEnabled = (rows[i][6] === true || rows[i][6] === 'TRUE');
+        const isPinEnabled = (rows[i][6] === true || rows[i][6] === 'TRUE');
+        // Nếu đổi thiết bị quá 5 lần -> Bắt buộc xác thực PIN
+        const forcePinByDevice = devices.length > 5;
+        // Nếu đăng nhập thành công liên tục >= 10 lần -> Bắt buộc xác thực PIN
+        const forcePinBySuccess = secData.successfulAttempts >= 9; // Lần này là lần thứ 10
 
-      if (isPinEnabled) {
-        // Yêu cầu nhập PIN
-        return response({ status: "pin_required", username: rows[i][0].toString().trim() });
+        if (isPinEnabled || forcePinByDevice || forcePinBySuccess) {
+          // Nếu yêu cầu PIN vì đăng nhập thành công nhiều lần, reset bộ đếm. Ngược lại, tăng bộ đếm.
+          const nextSuccessfulCount = forcePinBySuccess ? 0 : secData.successfulAttempts + 1;
+          updateSecurityData(userIn, 0, devices, nextSuccessfulCount);
+
+          let msg = "";
+          if (forcePinBySuccess) {
+            msg = "Phát hiện đăng nhập thành công nhiều lần liên tiếp. Yêu cầu xác thực PIN để đảm bảo an toàn.";
+          } else if (forcePinByDevice) {
+            msg = "Phát hiện đăng nhập trên nhiều thiết bị (>5). Yêu cầu xác thực PIN để bảo mật.";
+          }
+          return response({ status: "pin_required", username: rows[i][0].toString().trim(), message: msg });
+        }
+
+        // Đăng nhập thành công, không cần PIN -> Tăng bộ đếm thành công
+        updateSecurityData(userIn, 0, devices, secData.successfulAttempts + 1);
+
+        writeLog(userIn, "LOGIN", "Đăng nhập thành công");
+        return response({ 
+          status: "success", 
+          user: { username: rows[i][0], role: rows[i][2].toString().toLowerCase(), group_id: rows[i][3].toString(), group_name: getGroupName(rows[i][3].toString()), fullname: rows[i][4], avatar: rows[i][5] || 'https://via.placeholder.com/150', is_pin_enabled: isPinEnabled, is_default_pass: (rows[i][1].toString().trim() === 'Abc@123') } 
+        });
+      } else {
+        // --- SAI MẬT KHẨU ---
+        // Tăng số lần lỗi, reset số lần thành công về 0
+        updateSecurityData(userIn, secData.failedAttempts + 1, secData.devices, 0);
+        return response({ status: "error", message: "Sai mật khẩu! (Lần " + (secData.failedAttempts + 1) + "/10)" });
       }
-      // -----------------
-
-      writeLog(userIn, "LOGIN", "Đăng nhập thành công");
-      return response({ 
-        status: "success", 
-        user: {
-          username: rows[i][0],
-          role: rows[i][2].toString().toLowerCase(),
-          group_id: rows[i][3].toString(),
-          group_name: getGroupName(rows[i][3].toString()), 
-          fullname: rows[i][4],
-          avatar: rows[i][5] || 'https://via.placeholder.com/150',
-          is_pin_enabled: isPinEnabled,
-          is_default_pass: (rows[i][1].toString().trim() === 'Abc@123')
-        } 
-      });
     }
   }
   return response({ status: "error", message: "Sai tài khoản hoặc mật khẩu!" });
@@ -911,6 +948,77 @@ function handleVerifyPIN(payload) {
     }
   }
   return response({ status: "error", message: "Tài khoản không tồn tại" });
+}
+
+// ============================================================
+// CÁC HÀM HỖ TRỢ BẢO MẬT (CAPTCHA & SECURITY LOGS)
+// ============================================================
+
+function verifyTurnstile(token) {
+  if (!token) return false;
+  const url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+  const payload = {
+    secret: CLOUDFLARE_SECRET_KEY,
+    response: token
+  };
+  const options = {
+    method: 'post',
+    payload: payload,
+    muteHttpExceptions: true
+  };
+  try {
+    const response = UrlFetchApp.fetch(url, options);
+    const json = JSON.parse(response.getContentText());
+    return json.success;
+  } catch (e) {
+    return false;
+  }
+}
+
+function getSecuritySheet() {
+  let sheet = ss.getSheetByName('security_state');
+  if (!sheet) {
+    sheet = ss.insertSheet('security_state');
+    sheet.appendRow(['Username', 'FailedAttempts', 'Devices', 'SuccessfulAttempts']); // Header
+  }
+  // Ensure the new header exists for old sheets
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  if (headers.length < 4 || headers[3] !== 'SuccessfulAttempts') {
+    sheet.getRange(1, 4).setValue('SuccessfulAttempts');
+  }
+  return sheet;
+}
+
+function getSecurityData(username) {
+  const sheet = getSecuritySheet();
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(username)) {
+      let devices = [];
+      try { devices = JSON.parse(data[i][2] || '[]'); } catch(e) { devices = []; }
+      return { 
+        rowIndex: i + 1, 
+        failedAttempts: Number(data[i][1]) || 0, 
+        devices: devices,
+        successfulAttempts: Number(data[i][3]) || 0
+      };
+    }
+  }
+  return { rowIndex: -1, failedAttempts: 0, devices: [], successfulAttempts: 0 };
+}
+
+function updateSecurityData(username, failedCount, devices, successfulCount) {
+  const sheet = getSecuritySheet();
+  const secData = getSecurityData(username);
+  const devicesJson = JSON.stringify(devices);
+  
+  if (secData.rowIndex > 0) {
+    // Cập nhật dòng cũ
+    sheet.getRange(secData.rowIndex, 2, 1, 3).setValues([[failedCount, devicesJson, successfulCount]]);
+  } else {
+    // Thêm dòng mới
+    sheet.appendRow([username, failedCount, devicesJson, successfulCount]);
+  }
 }
 
 function handleUserChangePin(payload) {
