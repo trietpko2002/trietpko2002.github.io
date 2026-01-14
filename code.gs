@@ -22,6 +22,7 @@ function doPost(e) {
     if (action === 'GET_ADMIN_STATS') return handleGetAdminStats();
     if (action === 'GET_ADMIN_EXTRAS') return handleGetAdminExtras(payload);
     if (action === 'BACKUP_SYSTEM') return handleBackupSystem(payload);
+    if (action === 'RESTORE_SYSTEM') return handleRestoreSystem(payload);
     
     // --- 2. NHÓM TÍNH NĂNG LOGS & NOTIFICATIONS ---
     if (action === 'GET_LOGS') return handleGetLogs();
@@ -48,6 +49,9 @@ function doPost(e) {
     if (action === 'GET_FUND_LOGS') return handleGetFundLogs(payload);
     if (action === 'CHANGE_PASSWORD') return handleUserChangePassword(payload);
     if (action === 'UPDATE_AVATAR') return handleUserUpdateAvatar(payload);
+    if (action === 'TOGGLE_PIN') return handleTogglePIN(payload);
+    if (action === 'VERIFY_PIN') return handleVerifyPIN(payload);
+    if (action === 'CHANGE_PIN') return handleUserChangePin(payload);
 
     return response({ status: 'error', message: 'Hành động không hợp lệ' });
   } catch (err) {
@@ -572,6 +576,38 @@ function handleBackupSystem(payload) {
   }
 }
 
+function handleRestoreSystem(payload) {
+  try {
+    const backupData = payload.data;
+    const sheetNames = Object.keys(backupData);
+
+    if (!sheetNames || sheetNames.length === 0) {
+      return response({ status: 'error', message: 'Không có dữ liệu để phục hồi.' });
+    }
+
+    sheetNames.forEach(name => {
+      let sheet = ss.getSheetByName(name);
+      const dataToRestore = backupData[name];
+
+      if (!sheet) {
+        sheet = ss.insertSheet(name);
+      }
+      
+      if (dataToRestore && dataToRestore.length > 0) {
+        sheet.clear();
+        sheet.getRange(1, 1, dataToRestore.length, dataToRestore[0].length).setValues(dataToRestore);
+      } else {
+        sheet.clear(); // Xóa sheet nếu trong backup sheet đó rỗng
+      }
+    });
+
+    writeLog(payload.admin_user || "System", "RESTORE", "Thực hiện phục hồi hệ thống từ file backup.");
+    return response({ status: 'success', message: 'Phục hồi hệ thống thành công!' });
+  } catch (e) {
+    return response({ status: 'error', message: 'Lỗi khi phục hồi: ' + e.toString() });
+  }
+}
+
 // ============================================================
 // CÁC HÀM NGHIỆP VỤ
 // ============================================================
@@ -615,6 +651,16 @@ function handleLogin(payload) {
   const passIn = payload.password.toString().trim();
   for (let i = 1; i < rows.length; i++) {
     if (rows[i][0].toString().trim() === userIn && rows[i][1].toString().trim() === passIn) {
+
+      // --- CHECK PIN ---
+      const isPinEnabled = (rows[i][6] === true || rows[i][6] === 'TRUE');
+
+      if (isPinEnabled) {
+        // Yêu cầu nhập PIN
+        return response({ status: "pin_required", username: rows[i][0].toString().trim() });
+      }
+      // -----------------
+
       writeLog(userIn, "LOGIN", "Đăng nhập thành công");
       return response({ 
         status: "success", 
@@ -625,6 +671,7 @@ function handleLogin(payload) {
           group_name: getGroupName(rows[i][3].toString()), 
           fullname: rows[i][4],
           avatar: rows[i][5] || 'https://via.placeholder.com/150',
+          is_pin_enabled: isPinEnabled,
           is_default_pass: (rows[i][1].toString().trim() === 'Abc@123')
         } 
       });
@@ -648,7 +695,8 @@ function handleGetAdminExtras(payload) {
           group_id: userValues[i][3],
           group_display: getGroupName(userValues[i][3]), 
           fullname: userValues[i][4],
-          avatar: userValues[i][5] || 'https://via.placeholder.com/150'
+          avatar: userValues[i][5] || 'https://via.placeholder.com/150',
+          is_pin_enabled: (userValues[i][6] === true || userValues[i][6] === 'TRUE')
         });
       }
     }
@@ -806,4 +854,81 @@ function formatDateVN(dateVal) {
 
 function response(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// TÍNH NĂNG BẢO MẬT MÃ PIN
+// ============================================================
+
+function handleTogglePIN(payload) {
+  const sheet = ss.getSheetByName('users');
+  const rows = sheet.getDataRange().getValues();
+  const targetUser = payload.target_user.toString().trim();
+  const enable = payload.enable; // boolean
+  const defaultPin = '1234';
+  
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0].toString().trim() === targetUser) {
+      sheet.getRange(i + 1, 7).setValue(enable); // Column G: pin_enabled
+      if (enable) {
+        sheet.getRange(i + 1, 8).setValue(defaultPin); // Column H: pin_code
+      } else {
+        sheet.getRange(i + 1, 8).setValue(""); // Xóa PIN nếu tắt
+      }
+      writeLog(payload.admin_user, "TOGGLE_PIN", (enable ? "Bật" : "Tắt") + " mã PIN cho " + targetUser);
+      return response({ status: "success", message: "Đã cập nhật trạng thái mã PIN" });
+    }
+  }
+  return response({ status: "error", message: "User not found" });
+}
+
+function handleVerifyPIN(payload) {
+  const sheet = ss.getSheetByName('users');
+  const rows = sheet.getDataRange().getValues();
+  const username = payload.username.toString().trim();
+  const pin_in = payload.pin.toString().trim();
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0].toString().trim() === username) {
+      const pin_sheet = rows[i][7].toString();
+      if (pin_sheet !== pin_in) return response({ status: "error", message: "Mã PIN không đúng!" });
+      
+      writeLog(username, "LOGIN_PIN", "Đăng nhập bằng mã PIN thành công");
+      return response({ 
+        status: "success", 
+        user: {
+          username: rows[i][0],
+          role: rows[i][2].toString().toLowerCase(),
+          group_id: rows[i][3].toString(),
+          group_name: getGroupName(rows[i][3].toString()),
+          fullname: rows[i][4],
+          avatar: rows[i][5] || 'https://via.placeholder.com/150',
+          is_pin_enabled: true,
+          is_default_pin: (pin_sheet === '1234'),
+          is_default_pass: (rows[i][1].toString().trim() === 'Abc@123')
+        } 
+      });
+    }
+  }
+  return response({ status: "error", message: "Tài khoản không tồn tại" });
+}
+
+function handleUserChangePin(payload) {
+  const sheet = ss.getSheetByName('users');
+  const rows = sheet.getDataRange().getValues();
+  const username = payload.username.toString().trim();
+  const current_pin = payload.current_pin.toString().trim();
+  const new_pin = payload.new_pin.toString().trim();
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0].toString().trim() === username) {
+      const pin_sheet = rows[i][7].toString();
+      if (pin_sheet !== current_pin) return response({ status: "error", message: "Mã PIN hiện tại không đúng!" });
+
+      sheet.getRange(i + 1, 8).setValue(new_pin);
+      writeLog(username, "CHANGE_PIN", "Người dùng tự đổi mã PIN");
+      return response({ status: "success", message: "Đổi mã PIN thành công!" });
+    }
+  }
+  return response({ status: "error", message: "Tài khoản không tồn tại" });
 }

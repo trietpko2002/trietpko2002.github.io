@@ -53,8 +53,12 @@
                         <img src="" class="img-circle elevation-2" id="userAvatarInner">
                         <p id="managerFullName">Quản lý SHH</p>
                         <small id="userGroupDisplay">Nhóm: ...</small>
+                        <div class="mt-1"><span id="pinStatusBadge" class="badge badge-light">PIN: Tắt</span></div>
                     </li>
-                    <li class="user-body"><a href="#" class="btn btn-default btn-flat btn-block" onclick="openChangePassModal()"><i class="fas fa-key mr-2"></i>Đổi mật khẩu</a></li>
+                    <li class="user-body d-flex justify-content-center">
+                        <a href="#" class="btn btn-default btn-flat" onclick="openChangePassModal()"><i class="fas fa-lock mr-2"></i>Đổi mật khẩu</a>
+                        <a href="#" class="btn btn-default btn-flat" onclick="openChangePinModal()"><i class="fas fa-key mr-2"></i>Đổi mã PIN</a>
+                    </li>
                     <li class="user-body mt-0"><a href="#" class="btn btn-default btn-flat btn-block" onclick="openAvatarModal()"><i class="fas fa-image mr-2"></i>Đổi Avatar</a></li>
                     <li class="user-footer">
                         <a href="javascript:void(0)" onclick="logout()" class="btn btn-default btn-flat float-right text-danger">Đăng xuất</a>
@@ -116,7 +120,7 @@
                     <p class="text-muted mb-0">Chọn trạng thái cho từng học sinh và nhấn "Lưu kết quả".</p>
                 </div>
                 <div id="attendanceList" class="row">
-                    <div class="col-12 text-center p-5"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+                    <!-- Data loaded by JS -->
                 </div>
                 <button class="btn btn-success btn-block mt-4 shadow py-3" onclick="submitAttendance()">
                     <i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>
@@ -155,7 +159,7 @@
                                 </tr>
                             </thead>
                             <tbody id="groupStudentList">
-                                <tr><td colspan="6" class="text-center p-4">Đang tải dữ liệu...</td></tr>
+                                <!-- Data loaded by JS -->
                             </tbody>
                         </table>
                     </div>
@@ -260,7 +264,7 @@
                     </div>
                     <div class="card-body p-0">
                         <ul class="products-list product-list-in-card pl-2 pr-2" id="notificationList">
-                            <li class="item text-center p-3">Đang tải...</li>
+                            <!-- Data loaded by JS -->
                         </ul>
                     </div>
                 </div>
@@ -284,7 +288,9 @@
                                     <th class="text-center">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody id="evaluationList"></tbody>
+                            <tbody id="evaluationList">
+                                <!-- Data loaded by JS -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -336,8 +342,7 @@
                             </div>
                             <div class="card-body bg-light p-3" style="max-height: 700px; overflow-y: auto;">
                                 <div id="feedbackHistoryList">
-                                    <!-- Items rendered here -->
-                                    <div class="text-center text-muted mt-5"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
+                                    <!-- Data loaded by JS -->
                                 </div>
                             </div>
                         </div>
@@ -468,6 +473,27 @@
     </div>
 </div>
 
+<!-- Modal Change PIN -->
+<div class="modal fade" id="modalChangePin" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-key mr-2"></i>Đổi mã PIN</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" id="btnClosePinModal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="pinAlert">Bạn đang sử dụng mã PIN mặc định. Vui lòng đổi mã PIN để tăng cường bảo mật!</div>
+                <div class="form-group"><label>Mã PIN hiện tại</label><input type="password" id="current_pin" class="form-control" maxlength="4" inputmode="numeric" autocomplete="one-time-code"></div>
+                <div class="form-group"><label>Mã PIN mới (4 số)</label><input type="password" id="new_pin" class="form-control" maxlength="4" inputmode="numeric" autocomplete="one-time-code"></div>
+                <div class="form-group"><label>Nhập lại PIN mới</label><input type="password" id="confirm_pin" class="form-control" maxlength="4" inputmode="numeric" autocomplete="one-time-code"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-block" style="background-color: #6f42c1; color: white;" onclick="submitChangePin()">Xác nhận đổi PIN</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Change Avatar -->
 <div class="modal fade" id="modalAvatar" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -498,6 +524,17 @@ let globalGroupStudents = [];
 let globalNotifications = [];
 let globalFundLogs = [];
 
+// --- HELPER FUNCTIONS FOR LOADING/ERROR STATES ---
+function getLoadingRowHtml(colspan) {
+    return `<tr><td colspan="${colspan}" class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Đang tải dữ liệu...</p></td></tr>`;
+}
+function getErrorRowHtml(colspan, message = "Không thể tải dữ liệu.") {
+    return `<tr><td colspan="${colspan}" class="text-center text-danger p-5"><i class="fas fa-exclamation-triangle fa-2x"></i><p class="mt-2">${message}</p></td></tr>`;
+}
+const loadingSpinner = `<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Đang tải dữ liệu...</p></div>`;
+const errorAlert = (message = "Không thể tải dữ liệu.") => `<div class="text-center p-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x"></i><p class="mt-2">${message}</p></div>`;
+
+
 // Hàm hỗ trợ định dạng ngày tháng dd/mm/yyyy
 function formatDate(dateStr) {
     if (!dateStr || dateStr === '-') return '-';
@@ -526,19 +563,32 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('userGroupDisplay').innerText = `Nhóm: ${displayGroupName}`;
     document.getElementById('groupBadge').innerText = displayGroupName;
     
+    if (user.is_pin_enabled) {
+        $('#pinStatusBadge').removeClass('badge-light').addClass('badge-success').html('<i class="fas fa-shield-alt mr-1"></i>PIN: Bật');
+    } else {
+        $('#pinStatusBadge').removeClass('badge-success').addClass('badge-danger').html('<i class="fas fa-exclamation-circle mr-1"></i>PIN: Tắt');
+    }
+    
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
     fetchStudentsByGroup(user.group_id);
     loadNotifications();
     loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
     loadFeedbackHistory();
-    checkTrollStatus(); // Kiểm tra Troll Push
+    checkUrgentNotification(); // Kiểm tra thông báo khẩn
 
     // Kiểm tra mật khẩu mặc định
     if (user.is_default_pass) {
         $('#modalChangePass').modal('show');
         $('#passAlert').removeClass('d-none');
         $('#btnClosePassModal').hide(); // Ẩn nút đóng để bắt buộc đổi
+    }
+
+    // Kiểm tra mã PIN mặc định
+    if (user.is_default_pin) {
+        $('#modalChangePin').modal('show');
+        $('#pinAlert').removeClass('d-none');
+        $('#btnClosePinModal').hide();
     }
 
     // Tự động thu gọn sidebar khi click menu trên điện thoại
@@ -571,6 +621,43 @@ async function submitChangePass() {
         const res = await response.json();
         if (res.status === 'success') {
             Swal.fire('Thành công', 'Vui lòng đăng nhập lại!', 'success').then(() => logout());
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+// --- LOGIC ĐỔI MÃ PIN ---
+function openChangePinModal() {
+    $('#modalChangePin').modal('show');
+    $('#pinAlert').addClass('d-none');
+    $('#btnClosePinModal').show();
+    $('#current_pin, #new_pin, #confirm_pin').val('');
+}
+
+async function submitChangePin() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const currentPin = $('#current_pin').val().trim();
+    const newPin = $('#new_pin').val().trim();
+    const confirmPin = $('#confirm_pin').val().trim();
+
+    if (newPin.length !== 4) return toastr.warning("Mã PIN mới phải có 4 số!");
+    if (newPin !== confirmPin) return toastr.error("Mã PIN nhập lại không khớp!");
+    if (currentPin === newPin) return toastr.warning("Mã PIN mới phải khác mã PIN hiện tại!");
+
+    Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { 
+            method: "POST", 
+            body: JSON.stringify({ 
+                action: "CHANGE_PIN", 
+                payload: { username: user.username, current_pin: currentPin, new_pin: newPin } 
+            }) 
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công', 'Đã đổi mã PIN thành công!', 'success');
+            $('#modalChangePin').modal('hide');
+            user.is_default_pin = false; // Cập nhật trạng thái trong session
+            sessionStorage.setItem('user', JSON.stringify(user));
         } else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
@@ -645,6 +732,9 @@ async function loadGroupsForSelect() {
 async function fetchStudentsByGroup(groupId) {
     const attContainer = document.getElementById('attendanceList');
     const tableBody = document.getElementById('groupStudentList');
+    
+    attContainer.innerHTML = loadingSpinner;
+    tableBody.innerHTML = getLoadingRowHtml(7);
 
     try {
         const response = await fetch(API_URL, {
@@ -703,10 +793,14 @@ async function fetchStudentsByGroup(groupId) {
         }
     } catch (error) {
         toastr.error("Lỗi kết nối máy chủ.");
+        attContainer.innerHTML = errorAlert();
+        tableBody.innerHTML = getErrorRowHtml(7);
     }
 }
 
 async function loadNotifications() {
+    const notiList = $('#notificationList');
+    notiList.html(loadingSpinner);
     try {
         const user = JSON.parse(sessionStorage.getItem('user'));
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS", payload: { username: user.username } }) });
@@ -771,12 +865,12 @@ async function loadNotifications() {
                     </li>`;
                 });
             }
-            $('#notificationList').html(html);
+            notiList.html(html);
             checkAttendanceLock(); // Kiểm tra khóa sau khi có dữ liệu thông báo
         }
     } catch (e) {
         console.error(e);
-        $('#notificationList').html('<li class="item text-center p-3 text-danger">Lỗi tải thông báo.</li>');
+        notiList.html(`<li class="item">${errorAlert('Lỗi tải thông báo.')}</li>`);
     }
 }
 
@@ -1001,6 +1095,8 @@ async function sendFeedback() {
 }
 
 async function loadFeedbackHistory() {
+    const feedbackList = $('#feedbackHistoryList');
+    feedbackList.html(loadingSpinner);
     const user = JSON.parse(sessionStorage.getItem('user'));
     try {
         const response = await fetch(API_URL, {
@@ -1042,15 +1138,19 @@ async function loadFeedbackHistory() {
                         </div>`;
                 });
             }
-            $('#feedbackHistoryList').html(html);
+            feedbackList.html(html);
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e); 
+        feedbackList.html(errorAlert());
+    }
 }
 
 // --- LOGIC ĐÁNH GIÁ HỌC SINH ---
 let globalEvaluations = [];
 
 async function loadEvaluationUI() {
+    $('#evaluationList').html(getLoadingRowHtml(3));
     const user = JSON.parse(sessionStorage.getItem('user'));
     try {
         // 1. Lấy cấu hình và danh sách đánh giá song song
@@ -1107,24 +1207,27 @@ async function loadEvaluationUI() {
             });
         }
         $('#evaluationList').html(html);
-    } catch (e) { console.error("Lỗi tải đánh giá", e); }
+    } catch (e) { 
+        console.error("Lỗi tải đánh giá", e); 
+        $('#evaluationList').html(getErrorRowHtml(3));
+    }
 }
 
 // --- TROLL PUSH LOGIC ---
-async function checkTrollStatus() {
+async function checkUrgentNotification() {
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
         const res = await response.json();
         if (res.status === "success") {
             const conf = res.data;
             if (String(conf.troll_enabled).toUpperCase() === 'TRUE') {
-                let htmlContent = `<p>${conf.troll_content || ''}</p>`;
+                let htmlContent = `<div style="text-align: left; white-space: pre-wrap;">${conf.troll_content || ''}</div>`;
                 
                 // Xử lý YouTube
                 if (conf.troll_youtube) {
                     let videoId = conf.troll_youtube.split('v=')[1];
                     const ampersandPosition = videoId ? videoId.indexOf('&') : -1;
-                    if (videoId && ampersandPosition !== -1) {
+                    if (videoId && ampersandPosition > -1) {
                         videoId = videoId.substring(0, ampersandPosition);
                     }
                     // Nếu là link short youtu.be
@@ -1138,17 +1241,18 @@ async function checkTrollStatus() {
                 }
 
                 Swal.fire({
-                    title: conf.troll_title || 'Thông báo',
+                    icon: 'warning',
+                    title: conf.troll_title || 'THÔNG BÁO KHẨN',
                     html: htmlContent,
                     imageUrl: conf.troll_image || null,
                     imageWidth: 400,
-                    imageAlt: 'Troll Image',
-                    confirmButtonText: 'Đã xem',
-                    backdrop: `rgba(0,0,123,0.4) url("https://media.giphy.com/media/Ju7l5y9osyymQ/giphy.gif") left top no-repeat` // Hiệu ứng nền vui nhộn (tùy chọn)
+                    imageAlt: 'Image',
+                    confirmButtonText: 'Đã hiểu',
+                    allowOutsideClick: false
                 });
             }
         }
-    } catch (e) { console.error("Troll check error", e); }
+    } catch (e) { console.error("Urgent notification check error", e); }
 }
 
 function openEvaluateModal(id, name) {
@@ -1318,6 +1422,8 @@ async function saveExpenseLog() {
 }
 
 async function loadFundHistory() {
+    const historyTable = $('#fundHistoryData');
+    historyTable.html(getLoadingRowHtml(3));
     const user = JSON.parse(sessionStorage.getItem('user'));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FUND_LOGS", payload: { group_id: user.group_id } }) });
@@ -1341,9 +1447,12 @@ async function loadFundHistory() {
                     </td>
                 </tr>`;
             });
-            $('#fundHistoryData').html(html || '<tr><td colspan="3" class="text-center text-muted">Chưa có lịch sử</td></tr>');
+            historyTable.html(html || '<tr><td colspan="3" class="text-center text-muted">Chưa có lịch sử</td></tr>');
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e); 
+        historyTable.html(getErrorRowHtml(3));
+    }
 }
 
 function exportFundHistoryExcel() {

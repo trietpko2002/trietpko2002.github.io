@@ -132,6 +132,11 @@
                             <i class="nav-icon fas fa-database"></i> <p>Sao lưu Hệ thống (Backup)</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="openRestoreModal()" class="nav-link text-danger">
+                            <i class="nav-icon fas fa-undo-alt"></i> <p>Phục hồi Hệ thống (Restore)</p>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -208,7 +213,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="historyAttendanceData">
-                                                <tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>
+                                                <!-- Data loaded by JS -->
                                             </tbody>
                                         </table>
                                     </div>
@@ -245,7 +250,9 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="studentData"></tbody>
+                                    <tbody id="studentData">
+                                        <!-- Data loaded by JS -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -272,10 +279,13 @@
                                             <th>Họ tên Quản lý</th>
                                             <th>Nhóm phụ trách</th>
                                             <th>Quyền hạn</th>
+                                            <th>Bảo mật PIN</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="managerData"></tbody>
+                                    <tbody id="managerData">
+                                        <!-- Data loaded by JS -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -321,7 +331,9 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="notiData"></tbody>
+                                    <tbody id="notiData">
+                                        <!-- Data loaded by JS -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -350,7 +362,9 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="feedbackData"></tbody>
+                                    <tbody id="feedbackData">
+                                        <!-- Data loaded by JS -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -406,7 +420,9 @@
                                             <th>Xếp loại</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="evalData"></tbody>
+                                    <tbody id="evalData">
+                                        <!-- Data loaded by JS -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -433,7 +449,9 @@
                                             <th>Chi tiết</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="logData"></tbody>
+                                    <tbody id="logData">
+                                        <!-- Data loaded by JS -->
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -487,6 +505,30 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="processImportAdmin()">Tải lên & Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Restore System -->
+<div class="modal fade" id="modalRestore" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-undo-alt mr-2"></i>Phục hồi Hệ thống từ Backup</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <strong>CẢNH BÁO!</strong> Hành động này sẽ <strong>XÓA SẠCH</strong> toàn bộ dữ liệu hiện tại và thay thế bằng dữ liệu từ file backup. Hãy chắc chắn bạn đã chọn đúng file.
+                </div>
+                <div class="form-group">
+                    <label>Chọn file Backup (.xlsx)</label>
+                    <input type="file" id="file_restore" class="form-control-file border p-2" accept=".xlsx">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="processRestore()">Bắt đầu Phục hồi</button>
             </div>
         </div>
     </div>
@@ -619,7 +661,7 @@
             <div class="modal-body">
                 <ul class="nav nav-tabs mb-3" id="settingTabs" role="tablist">
                     <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab-interface">Giao diện</a></li>
-                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-troll">Troll Push</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-troll">Thông báo Khẩn</a></li>
                 </ul>
                 <div class="tab-content">
                     <!-- Tab Giao diện -->
@@ -633,24 +675,27 @@
                         </div>
                         <p class="text-muted small">Chuyển đổi giao diện sáng/tối để dễ nhìn hơn.</p>
                     </div>
-                    <!-- Tab Troll -->
+                    <!-- Tab Thông báo Khẩn -->
                     <div class="tab-pane fade" id="tab-troll">
                         <div class="form-group d-flex justify-content-between align-items-center bg-light p-2 rounded">
-                            <label class="mb-0 text-danger font-weight-bold">Kích hoạt Troll Push</label>
+                            <label class="mb-0 text-danger font-weight-bold">Kích hoạt Thông báo Khẩn</label>
                             <div class="custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="troll_enabled">
                                 <label class="custom-control-label" for="troll_enabled"></label>
                             </div>
                         </div>
-                        <div class="form-group"><label>Tiêu đề Troll</label><input type="text" id="troll_title" class="form-control" placeholder="VD: Thông báo khẩn..."></div>
+                        <div class="form-group"><label>Tiêu đề Thông báo</label><input type="text" id="troll_title" class="form-control" placeholder="VD: THÔNG BÁO KHẨN..."></div>
                         <div class="form-group"><label>Nội dung</label><textarea id="troll_content" class="form-control" rows="3" placeholder="Nội dung hiển thị..."></textarea></div>
-                        <div class="form-group"><label>Link YouTube (Video ID hoặc Link)</label><input type="text" id="troll_youtube" class="form-control" placeholder="https://youtu.be/..."></div>
+                        <div class="form-group"><label>Link YouTube (Tùy chọn)</label><input type="text" id="troll_youtube" class="form-control" placeholder="https://youtu.be/..."></div>
                         <div class="form-group">
-                            <label>Ảnh Troll (Upload)</label>
+                            <label>Ảnh đính kèm (Tùy chọn)</label>
                             <input type="file" id="troll_file" class="form-control-file border p-1" accept="image/*">
                             <input type="hidden" id="troll_image_base64">
                         </div>
-                        <button class="btn btn-danger btn-block" onclick="saveTrollConfig()"><i class="fas fa-save mr-2"></i>Lưu & Push ngay</button>
+                        <div class="d-flex">
+                            <button class="btn btn-secondary flex-grow-1 mr-2" onclick="resetPushNotification()"><i class="fas fa-undo mr-2"></i>Reset & Tắt</button>
+                            <button class="btn btn-primary flex-grow-1" onclick="saveTrollConfig()"><i class="fas fa-save mr-2"></i>Lưu Cấu hình</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -671,6 +716,15 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs4
 let attendanceChart;
 let globalHistoryData = [], globalStudentsData = [], globalUsersData = [], globalGroupsData = [], globalNotisData = [];
 let currentHistoryView = []; // Dữ liệu lịch sử đang hiển thị (đã lọc)
+
+function getLoadingRowHtml(colspan) {
+    return `<tr><td colspan="${colspan}" class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Đang tải dữ liệu...</p></td></tr>`;
+}
+
+function getErrorRowHtml(colspan, message = "Không thể tải dữ liệu.") {
+    return `<tr><td colspan="${colspan}" class="text-center text-danger p-5"><i class="fas fa-exclamation-triangle fa-2x"></i><p class="mt-2">${message}</p></td></tr>`;
+}
+
 
 $(document).ready(function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -695,6 +749,7 @@ async function refreshAll() {
 }
 
 async function loadStudents() {
+    $('#studentData').html(getLoadingRowHtml(7));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_USERS" }) });
         const res = await response.json();
@@ -720,10 +775,15 @@ async function loadStudents() {
             if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
             $('#studentTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
         }
-    } catch (e) { toastr.error("Lỗi tải danh sách học sinh."); }
+    } catch (e) { 
+        toastr.error("Lỗi tải danh sách học sinh."); 
+        $('#studentData').html(getErrorRowHtml(7));
+    }
 }
 
 async function loadExtraData() {
+    $('#managerData').html(getLoadingRowHtml(6));
+    $('#notiData').html(getLoadingRowHtml(8));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS" }) });
         const res = await response.json();
@@ -735,12 +795,20 @@ async function loadExtraData() {
             // Managers Table
             let mHtml = '';
             res.data.managers.forEach((m, idx) => {
+                const isChecked = m.is_pin_enabled ? 'checked' : '';
+                const toggleBtn = `
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="pin_${m.username}" ${isChecked} onchange="togglePIN('${m.username}', this.checked)">
+                        <label class="custom-control-label" for="pin_${m.username}"></label>
+                    </div>`;
+
                 mHtml += `<tr>
                     <td class="text-center"><img src="${m.avatar || 'https://via.placeholder.com/50'}" class="img-manager shadow-sm"></td>
                     <td><code>${m.username}</code></td>
                     <td class="font-weight-bold">${m.fullname}</td>
                     <td><span class="badge badge-warning">${m.group_id}</span></td>
                     <td><span class="badge badge-secondary">${m.role}</span></td>
+                    <td>${toggleBtn}</td>
                     <td>
                         <button class="btn btn-info btn-action" onclick="editUser(${idx})"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-warning btn-action" onclick="resetPassword('${m.username}')" title="Reset Pass"><i class="fas fa-key"></i></button>
@@ -802,10 +870,15 @@ async function loadExtraData() {
             });
             $('#notiData').html(nHtml);
         }
-    } catch (e) { console.error("Error loading extra data", e); }
+    } catch (e) { 
+        console.error("Error loading extra data", e); 
+        $('#managerData').html(getErrorRowHtml(6));
+        $('#notiData').html(getErrorRowHtml(8));
+    }
 }
 
 async function loadLogs() {
+    $('#logData').html(getLoadingRowHtml(4));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_LOGS" }) });
         const res = await response.json();
@@ -821,10 +894,11 @@ async function loadLogs() {
             });
             $('#logData').html(html);
         }
-    } catch (e) { console.log("Logs error"); }
+    } catch (e) { console.log("Logs error"); $('#logData').html(getErrorRowHtml(4)); }
 }
 
 async function loadFeedbacks() {
+    $('#feedbackData').html(getLoadingRowHtml(5));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FEEDBACKS" }) });
         const res = await response.json();
@@ -858,7 +932,7 @@ async function loadFeedbacks() {
             if ($.fn.DataTable.isDataTable('#feedbackTable')) $('#feedbackTable').DataTable().destroy();
             $('#feedbackTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }, "order": [[ 0, "desc" ]] });
         }
-    } catch (e) { console.error("Feedback error", e); }
+    } catch (e) { console.error("Feedback error", e); $('#feedbackData').html(getErrorRowHtml(5)); }
 }
 
 // Load config cho cả Eval và Troll
@@ -940,13 +1014,40 @@ async function saveTrollConfig() {
     if (imgBase64) payload.troll_image = imgBase64;
     else if (!enabled) payload.troll_image = ''; // Nếu tắt thì có thể xóa ảnh
 
-    Swal.fire({ title: 'Đang lưu & Push...', didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: 'Đang lưu cấu hình...', didOpen: () => Swal.showLoading() });
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
         const res = await response.json();
-        if (res.status === 'success') Swal.fire('Thành công', 'Đã cập nhật cấu hình Troll!', 'success');
+        if (res.status === 'success') Swal.fire('Thành công', 'Đã cập nhật cấu hình Thông báo Khẩn!', 'success');
         else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+async function resetPushNotification() {
+    Swal.fire({
+        title: 'Reset Thông báo Khẩn?',
+        text: "Toàn bộ nội dung thông báo sẽ bị xóa và tắt kích hoạt. Bạn có chắc không?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Vâng, Reset!',
+        cancelButtonText: 'Hủy'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            $('#troll_enabled').prop('checked', false);
+            $('#troll_title, #troll_content, #troll_youtube, #troll_file, #troll_image_base64').val('');
+
+            const payload = { troll_enabled: 'FALSE', troll_title: '', troll_content: '', troll_youtube: '', troll_image: '' };
+
+            Swal.fire({ title: 'Đang reset...', didOpen: () => Swal.showLoading() });
+            try {
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
+                const res = await response.json();
+                if (res.status === 'success') Swal.fire('Đã Reset', 'Thông báo khẩn đã được xóa và tắt.', 'success');
+                else Swal.fire('Lỗi', res.message, 'error');
+            } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối khi reset.', 'error'); }
+        }
+    });
 }
 
 // Alias function để load config chung
@@ -988,6 +1089,7 @@ function resetEvaluations() {
 
 let globalEvaluationsData = [];
 async function loadEvaluations() {
+    $('#evalData').html(getLoadingRowHtml(6));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_EVALUATIONS" }) });
         const res = await response.json();
@@ -1041,10 +1143,11 @@ async function loadEvaluations() {
             if ($.fn.DataTable.isDataTable('#evalTable')) $('#evalTable').DataTable().destroy();
             $('#evalTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
         }
-    } catch (e) { console.error("Eval error", e); }
+    } catch (e) { console.error("Eval error", e); $('#evalData').html(getErrorRowHtml(6)); }
 }
 
 async function updateAttendanceStats() {
+    $('#historyAttendanceData').html(getLoadingRowHtml(5));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_STATS" }) });
         const res = await response.json();
@@ -1058,7 +1161,10 @@ async function updateAttendanceStats() {
             renderHistoryTable(currentHistoryView);
             renderChart(s.present, s.absent_perm, s.absent);
         }
-    } catch (e) { toastr.error("Không thể kết nối Server."); }
+    } catch (e) { 
+        toastr.error("Không thể kết nối Server."); 
+        $('#historyAttendanceData').html(getErrorRowHtml(5));
+    }
 }
 
 function renderHistoryTable(history) {
@@ -1439,6 +1545,81 @@ function processImportAdmin() {
         .catch(() => Swal.fire('Lỗi', 'Lỗi kết nối', 'error'));
     };
     reader.readAsArrayBuffer(file);
+}
+
+function openRestoreModal() {
+    $('#modalRestore').modal('show');
+    $('#file_restore').val('');
+}
+
+function processRestore() {
+    const file = document.getElementById('file_restore').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file backup!");
+
+    Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: "Toàn bộ dữ liệu hiện tại sẽ bị ghi đè. Hành động này không thể hoàn tác!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Vâng, phục hồi ngay!',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const restoreData = {};
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        if (sheetData.length > 0) {
+                            restoreData[sheetName] = sheetData;
+                        }
+                    });
+
+                    if (Object.keys(restoreData).length === 0) {
+                        return Swal.fire('Lỗi', 'File backup rỗng hoặc không hợp lệ.', 'error');
+                    }
+
+                    Swal.fire({ title: 'Đang phục hồi...', text: 'Vui lòng không đóng trang.', didOpen: () => Swal.showLoading() });
+
+                    const user = JSON.parse(sessionStorage.getItem('user'));
+                    fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ 
+                            action: "RESTORE_SYSTEM", 
+                            payload: { data: restoreData, admin_user: user.username } 
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            Swal.fire('Thành công!', 'Hệ thống đã được phục hồi. Trang sẽ được tải lại.', 'success').then(() => window.location.reload());
+                            $('#modalRestore').modal('hide');
+                        } else Swal.fire('Lỗi', res.message, 'error');
+                    })
+                    .catch(() => Swal.fire('Lỗi', 'Lỗi kết nối khi phục hồi.', 'error'));
+                } catch (err) { Swal.fire('Lỗi', 'Đã xảy ra lỗi khi đọc file backup. File có thể bị hỏng.', 'error'); console.error(err); }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    });
+}
+
+async function togglePIN(username, enable) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    toastr.info("Đang cập nhật trạng thái mã PIN...");
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "TOGGLE_PIN", payload: { target_user: username, enable: enable, admin_user: user.username } }) });
+        const res = await response.json();
+        if (res.status === 'success') toastr.success(res.message);
+        else { toastr.error(res.message); $('#pin_' + username).prop('checked', !enable); } // Revert if fail
+    } catch (e) { toastr.error("Lỗi kết nối"); $('#pin_' + username).prop('checked', !enable); }
 }
 </script>
 </body>
