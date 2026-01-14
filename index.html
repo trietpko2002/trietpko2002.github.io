@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         .info-box-content { justify-content: center; }
@@ -17,13 +18,16 @@
         .table td, .table th { vertical-align: middle; padding: 12px 8px; }
         .btn-group-toggle .btn { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
         .card-title { font-weight: bold; }
-        @media (max-width: 576px) {
-            .btn-group-toggle { display: flex; width: 100%; }
-            .btn-group-toggle .btn { flex: 1; }
-        }
+        .content-wrapper { background-color: #f4f6f9; }
+        /* Youth Union Theme - Blue & White */
+        .navbar-primary { background-color: #0069d9 !important; }
+        .brand-link.bg-primary { background-color: #0069d9 !important; border-bottom: 1px solid #0056b3; }
+        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #0069d9; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .btn-primary { background-color: #0069d9; border-color: #0062cc; }
+        .btn-primary:hover { background-color: #0056b3; border-color: #004085; }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
 
 <script>
     (function checkSecurity() {
@@ -34,7 +38,7 @@
 </script>
 
 <div class="wrapper">
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <nav class="main-header navbar navbar-expand navbar-primary navbar-dark border-bottom-0">
         <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
         </ul>
@@ -50,6 +54,8 @@
                         <p id="managerFullName">Quản lý SHH</p>
                         <small id="userGroupDisplay">Nhóm: ...</small>
                     </li>
+                    <li class="user-body"><a href="#" class="btn btn-default btn-flat btn-block" onclick="openChangePassModal()"><i class="fas fa-key mr-2"></i>Đổi mật khẩu</a></li>
+                    <li class="user-body mt-0"><a href="#" class="btn btn-default btn-flat btn-block" onclick="openAvatarModal()"><i class="fas fa-image mr-2"></i>Đổi Avatar</a></li>
                     <li class="user-footer">
                         <a href="javascript:void(0)" onclick="logout()" class="btn btn-default btn-flat float-right text-danger">Đăng xuất</a>
                     </li>
@@ -58,11 +64,11 @@
         </ul>
     </nav>
 
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <aside class="main-sidebar sidebar-light-primary elevation-4">
+        <a href="#" class="brand-link bg-primary">
+            <span class="brand-text font-weight-bold pl-3">QUẢN LÝ SHH</span>
+        </a>
         <div class="sidebar">
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="info text-white">HỆ THỐNG QUẢN LÝ</div>
-            </div>
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                     <li class="nav-item">
@@ -75,13 +81,35 @@
                             <i class="nav-icon fas fa-user-friends"></i> <p>HS của nhóm</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="#tab-funds" class="nav-link" data-toggle="pill" onclick="loadFundTab()">
+                            <i class="nav-icon fas fa-hand-holding-usd"></i> <p>Quỹ nhóm</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-notifications" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-bell"></i> <p>Thông báo</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-evaluation" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-star"></i> <p>Đánh giá</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-feedback" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-comments"></i> <p>Góp ý</p>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
     </aside>
 
     <div class="content-wrapper text-sm">
-        <div class="tab-content p-3">
+        <div class="content">
+            <div class="container-fluid pt-3">
+                <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-attendance">
                 <div class="callout callout-info mb-3 shadow-sm">
                     <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
@@ -102,6 +130,12 @@
                             <i class="fas fa-table mr-2"></i>Danh sách học sinh <span class="text-primary" id="groupBadge">...</span>
                         </h3>
                         <div class="card-tools">
+                            <button class="btn btn-info btn-sm shadow-sm mr-2" onclick="openImportModalIndex()">
+                                <i class="fas fa-file-upload mr-1"></i> Nhập Excel
+                            </button>
+                            <button class="btn btn-primary btn-sm shadow-sm mr-2" onclick="openStudentModal()">
+                                <i class="fas fa-plus mr-1"></i> Thêm HS
+                            </button>
                             <button class="btn btn-success btn-sm shadow-sm" onclick="exportExcel()">
                                 <i class="fas fa-file-excel mr-1"></i> Xuất Excel
                             </button>
@@ -116,7 +150,8 @@
                                     <th>Ngày sinh</th>
                                     <th>Trường học</th>
                                     <th>Địa chỉ liên hệ</th>
-                                    <th>Số điện thoại PH</th>
+                                    <th>Số điện thoại học sinh</th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="groupStudentList">
@@ -125,6 +160,328 @@
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-funds">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card card-primary card-outline shadow">
+                            <div class="card-header"><h3 class="card-title font-weight-bold"><i class="fas fa-calculator mr-2"></i>Công cụ tính quỹ</h3></div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Số tiền thu / người (VNĐ)</label>
+                                    <input type="number" id="fund_amount" class="form-control font-weight-bold text-success" value="20000" onchange="calculateFund()">
+                                </div>
+                                <div class="row text-center mb-3">
+                                    <div class="col-6 border-right">
+                                        <h5 class="text-muted">Đã đóng</h5>
+                                        <h3 class="font-weight-bold text-primary" id="fund_count">0</h3>
+                                    </div>
+                                    <div class="col-6">
+                                        <h5 class="text-muted">Tổng tiền</h5>
+                                        <h3 class="font-weight-bold text-success" id="fund_total">0</h3>
+                                    </div>
+                                </div>
+                                <button class="btn btn-success btn-block font-weight-bold mb-2" onclick="saveFundLog()">
+                                    <i class="fas fa-save mr-2"></i>LƯU VÀO SỔ QUỸ (THU)
+                                </button>
+                                <button class="btn btn-warning btn-block font-weight-bold mb-2" data-toggle="modal" data-target="#modalChiQuy">
+                                    <i class="fas fa-file-invoice-dollar mr-2"></i>CHI QUỸ (RÚT TIỀN)
+                                </button>
+                                <button class="btn btn-outline-danger btn-block" onclick="resetFundCheckboxes()">
+                                    <i class="fas fa-redo mr-2"></i>Reset (Tính đợt mới)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card card-info card-outline shadow mt-3">
+                            <div class="card-header d-flex p-2 align-items-center">
+                                <h3 class="card-title font-weight-bold pl-2"><i class="fas fa-history mr-2"></i>Lịch sử Thu/Chi</h3>
+                                <div class="ml-auto">
+                                    <button class="btn btn-xs btn-success" onclick="exportFundHistoryExcel()"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0 table-responsive" style="max-height: 300px;">
+                                <table class="table table-sm table-striped">
+                                    <thead><tr><th>Thời gian</th><th>Số tiền</th><th>Chi tiết</th></tr></thead>
+                                    <tbody id="fundHistoryData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card shadow">
+                            <div class="card-header bg-light">
+                                <h3 class="card-title font-weight-bold">Danh sách đóng tiền</h3>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm" style="width: 200px;">
+                                        <input type="text" id="fund_search" class="form-control float-right" placeholder="Tìm tên..." onkeyup="filterFundList()">
+                                        <div class="input-group-append"><button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0 table-responsive" style="height: 600px;">
+                                <table class="table table-hover table-head-fixed text-nowrap">
+                                    <thead><tr><th width="50">#</th><th>Họ và Tên</th><th class="text-center">Trạng thái</th><th>Ghi Chú</th></tr></thead>
+                                    <tbody id="fundStudentList"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        
+            <!-- Modal Chi Quỹ -->
+            <div class="modal fade" id="modalChiQuy" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-warning"><h5 class="modal-title"><i class="fas fa-donate mr-2"></i>Chi quỹ nhóm</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+                        <div class="modal-body">
+                            <div class="form-group"><label>Mục đích chi</label><input type="text" id="expense_reason" class="form-control" placeholder="Mua đồ dùng, tổ chức..."></div>
+                            <div class="form-group"><label>Số tiền chi (VNĐ)</label><input type="number" id="expense_amount" class="form-control" placeholder="Nhập số tiền..."></div>
+                            <div class="form-group"><label>Ghi chú thêm</label><textarea id="expense_notes" class="form-control" rows="3"></textarea></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                            <button type="button" class="btn btn-warning" onclick="saveExpenseLog()">Lưu Khoản Chi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-notifications">
+                <div class="card card-outline card-warning shadow">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bell mr-2"></i>Thông báo từ Admin</h3>
+                        <div class="card-tools">
+                            <button class="btn btn-tool" onclick="loadNotifications()"><i class="fas fa-sync"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="products-list product-list-in-card pl-2 pr-2" id="notificationList">
+                            <li class="item text-center p-3">Đang tải...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-evaluation">
+                <div class="card card-outline card-purple shadow">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-star mr-2"></i>Đánh giá & Xếp loại Học sinh</h3>
+                        <div class="card-tools">
+                            <button class="btn btn-tool" onclick="loadEvaluationUI()"><i class="fas fa-sync"></i></button>
+                        </div>
+                    </div>
+                    <div id="evalAlertContainer" class="p-3"></div>
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Học sinh</th>
+                                    <th>Xếp loại hiện tại</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="evaluationList"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-feedback">
+                <div class="row">
+                    <!-- Cột trái: Form gửi -->
+                    <div class="col-md-4">
+                        <div class="card card-primary card-outline shadow-sm">
+                            <div class="card-header">
+                                <h3 class="card-title font-weight-bold"><i class="fas fa-pen-alt mr-2"></i>Tạo góp ý mới</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-phone"></i></span></div>
+                                        <input type="text" id="fb_phone" class="form-control" placeholder="Nhập SĐT...">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tiêu đề <span class="text-danger">*</span></label>
+                                    <input type="text" id="fb_title" class="form-control" placeholder="VD: Lỗi điểm danh...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nội dung / Khó khăn</label>
+                                    <textarea id="fb_difficulty" class="form-control" rows="4" placeholder="Mô tả chi tiết vấn đề..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Đề xuất (nếu có)</label>
+                                    <textarea id="fb_suggestion" class="form-control" rows="2" placeholder="Giải pháp mong muốn..."></textarea>
+                                </div>
+                                <button class="btn btn-primary btn-block font-weight-bold" onclick="sendFeedback()">
+                                    <i class="fas fa-paper-plane mr-2"></i> GỬI YÊU CẦU
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cột phải: Lịch sử -->
+                    <div class="col-md-8">
+                        <div class="card card-outline card-info shadow-sm h-100">
+                            <div class="card-header border-0 bg-white">
+                                <h3 class="card-title font-weight-bold text-info"><i class="fas fa-history mr-2"></i>Lịch sử hỗ trợ</h3>
+                                <div class="card-tools">
+                                    <button class="btn btn-tool" onclick="loadFeedbackHistory()"><i class="fas fa-sync"></i></button>
+                                </div>
+                            </div>
+                            <div class="card-body bg-light p-3" style="max-height: 700px; overflow-y: auto;">
+                                <div id="feedbackHistoryList">
+                                    <!-- Items rendered here -->
+                                    <div class="text-center text-muted mt-5"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Student -->
+<div class="modal fade" id="modalStudent" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title">Thông tin Học sinh</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="student_id_old">
+                <div class="form-group"><label>Mã Học sinh (ID)</label><input type="text" id="st_id" class="form-control" placeholder="Nhập mã HS..."></div>
+                <div class="form-group"><label>Họ và Tên</label><input type="text" id="st_name" class="form-control" placeholder="Nguyễn Văn A"></div>
+                <div class="form-group"><label>Ngày sinh</label><input type="text" id="st_dob" class="form-control" placeholder="dd/mm/yyyy"></div>
+                <div class="form-group"><label>Địa chỉ</label><input type="text" id="st_address" class="form-control"></div>
+                <div class="form-group"><label>Số điện thoại học sinh</label><input type="text" id="st_phone" class="form-control"></div>
+                <div class="form-group"><label>Trường học</label><input type="text" id="st_school" class="form-control"></div>
+                <div class="form-group bg-light p-2 border rounded">
+                    <label class="text-primary"><i class="fas fa-exchange-alt mr-1"></i>Chuyển Nhóm (Nếu cần)</label>
+                    <select id="st_group_select" class="form-control">
+                        <!-- Options loaded via JS -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveStudent()">Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import Excel Index -->
+<div class="modal fade" id="modalImportIndex" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Nhập danh sách từ Excel</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Tải file mẫu cho nhóm: <button class="btn btn-sm btn-link" onclick="downloadTemplateIndex()">Tải Mẫu.xlsx</button></p>
+                <div class="form-group">
+                    <label>Chọn file Excel (.xlsx)</label>
+                    <input type="file" id="file_import_index" class="form-control-file border p-2" accept=".xlsx, .xls">
+                </div>
+                <small class="text-muted">*Hệ thống sẽ tự động gán vào nhóm của bạn.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="processImportIndex()">Tải lên & Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Evaluate Student -->
+<div class="modal fade" id="modalEvaluate" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title"><i class="fas fa-user-graduate mr-2"></i>Phiếu Đánh Giá Sinh Hoạt Hè</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="eval_st_id">
+                <input type="hidden" id="eval_st_name">
+                <h5 class="text-center font-weight-bold text-primary mb-3" id="eval_st_display_name"></h5>
+                
+                <div class="form-group">
+                    <label class="font-weight-bold">1. Ý thức tổ chức kỷ luật:</label>
+                    <textarea id="eval_discipline" class="form-control" rows="2" placeholder="Nhận xét về việc chấp hành giờ giấc, nội quy..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">2. Mức độ tích cực:</label>
+                    <textarea id="eval_positivity" class="form-control" rows="2" placeholder="Nhận xét về sự hăng hái tham gia phong trào..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">3. Hoạt động tình nguyện:</label>
+                    <textarea id="eval_volunteering" class="form-control" rows="2" placeholder="Nhận xét về tham gia vệ sinh môi trường, hỗ trợ..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold text-danger">4. Xếp loại chung:</label>
+                    <select id="eval_classification" class="form-control font-weight-bold">
+                        <option value="">-- Chọn mức xếp loại --</option>
+                        <option value="Xuất sắc">Xuất sắc (100% buổi, tích cực)</option>
+                        <option value="Tốt">Tốt/Khá (Đều đặn, ý thức tốt)</option>
+                        <option value="Trung bình">Trung bình (Không đầy đủ/Chưa tích cực)</option>
+                        <option value="Yếu">Yếu (Không tham gia/Vi phạm)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-purple" style="background-color: #6f42c1; color: white;" onclick="submitEvaluation()">Lưu đánh giá</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Change Password -->
+<div class="modal fade" id="modalChangePass" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-key mr-2"></i>Đổi mật khẩu</h5>
+                <button type="button" class="close" data-dismiss="modal" id="btnClosePassModal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="passAlert">Bạn đang sử dụng mật khẩu mặc định. Vui lòng đổi mật khẩu để tiếp tục!</div>
+                <div class="form-group"><label>Mật khẩu mới</label><input type="password" id="new_pass" class="form-control"></div>
+                <div class="form-group"><label>Nhập lại mật khẩu</label><input type="password" id="confirm_pass" class="form-control"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-block" onclick="submitChangePass()">Xác nhận đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Change Avatar -->
+<div class="modal fade" id="modalAvatar" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title"><i class="fas fa-image mr-2"></i>Đổi Ảnh đại diện</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="form-group"><label>Chọn ảnh từ thiết bị</label><input type="file" id="avatarFile" class="form-control-file border p-2" accept="image/*"></div>
+                <div class="mt-3"><img id="previewAvatar" src="" style="max-width: 150px; max-height: 150px; border-radius: 50%; display: none;" class="shadow"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-block" onclick="submitAvatar()">Lưu ảnh đại diện</button>
             </div>
         </div>
     </div>
@@ -137,6 +494,9 @@
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+let globalGroupStudents = [];
+let globalNotifications = [];
+let globalFundLogs = [];
 
 // Hàm hỗ trợ định dạng ngày tháng dd/mm/yyyy
 function formatDate(dateStr) {
@@ -169,7 +529,118 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
     fetchStudentsByGroup(user.group_id);
+    loadNotifications();
+    loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
+    loadFeedbackHistory();
+    checkTrollStatus(); // Kiểm tra Troll Push
+
+    // Kiểm tra mật khẩu mặc định
+    if (user.is_default_pass) {
+        $('#modalChangePass').modal('show');
+        $('#passAlert').removeClass('d-none');
+        $('#btnClosePassModal').hide(); // Ẩn nút đóng để bắt buộc đổi
+    }
+
+    // Tự động thu gọn sidebar khi click menu trên điện thoại
+    $('.nav-sidebar .nav-link').on('click', function() {
+        if (window.innerWidth < 992) {
+            $('[data-widget="pushmenu"]').PushMenu('collapse');
+        }
+    });
 });
+
+// --- LOGIC ĐỔI MẬT KHẨU ---
+function openChangePassModal() {
+    $('#modalChangePass').modal('show');
+    $('#passAlert').addClass('d-none');
+    $('#btnClosePassModal').show();
+    $('#new_pass, #confirm_pass').val('');
+}
+
+async function submitChangePass() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const newPass = $('#new_pass').val().trim();
+    const confirmPass = $('#confirm_pass').val().trim();
+
+    if (newPass.length < 6) return toastr.warning("Mật khẩu phải từ 6 ký tự trở lên!");
+    if (newPass !== confirmPass) return toastr.error("Mật khẩu nhập lại không khớp!");
+
+    Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CHANGE_PASSWORD", payload: { username: user.username, new_pass: newPass } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công', 'Vui lòng đăng nhập lại!', 'success').then(() => logout());
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+// --- LOGIC ĐỔI AVATAR (FILE -> LINK BASE64) ---
+function openAvatarModal() {
+    $('#modalAvatar').modal('show');
+    $('#avatarFile').val('');
+    $('#previewAvatar').hide();
+}
+
+$('#avatarFile').change(function() {
+    const file = this.files[0];
+    if (file) {
+        resizeImage(file, 300, 300, function(base64) {
+            $('#previewAvatar').attr('src', base64).show();
+        });
+    }
+});
+
+function resizeImage(file, maxWidth, maxHeight, callback) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > maxWidth) { h *= maxWidth / w; w = maxWidth; } } 
+            else { if (h > maxHeight) { w *= maxHeight / h; h = maxHeight; } }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.7)); // Nén ảnh JPEG 70%
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+async function submitAvatar() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const avatarBase64 = $('#previewAvatar').attr('src');
+    if (!avatarBase64) return toastr.warning("Vui lòng chọn ảnh!");
+    Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_AVATAR", payload: { username: user.username, avatar: avatarBase64 } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            user.avatar = avatarBase64;
+            sessionStorage.setItem('user', JSON.stringify(user));
+            $('#userAvatar, #userAvatarInner').attr('src', avatarBase64);
+            $('#modalAvatar').modal('hide');
+            Swal.fire('Thành công', 'Đã cập nhật ảnh đại diện!', 'success');
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+let globalGroupsList = [];
+async function loadGroupsForSelect() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_GROUPS_PUBLIC" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            globalGroupsList = res.data;
+            let html = '<option value="">-- Chọn nhóm --</option>';
+            res.data.forEach(g => { html += `<option value="${g.id}">${g.name}</option>`; });
+            $('#st_group_select').html(html);
+        }
+    } catch (e) { console.error(e); }
+}
 
 async function fetchStudentsByGroup(groupId) {
     const attContainer = document.getElementById('attendanceList');
@@ -186,6 +657,7 @@ async function fetchStudentsByGroup(groupId) {
         const res = await response.json();
 
         if (res.status === "success") {
+            globalGroupStudents = res.data;
             let attHtml = '';
             let tableHtml = '';
 
@@ -217,15 +689,237 @@ async function fetchStudentsByGroup(groupId) {
                         <td class="text-center">
                             ${student.phone ? `<a href="tel:${student.phone}" class="btn btn-xs btn-link"><i class="fas fa-phone mr-1"></i>${student.phone}</a>` : '-'}
                         </td>
+                        <td class="text-center">
+                            <button class="btn btn-xs btn-info" onclick="editStudent(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-xs btn-danger" onclick="deleteStudent('${student.id}')"><i class="fas fa-trash"></i></button>
+                        </td>
                     </tr>`;
             });
 
             attContainer.innerHTML = attHtml || '<div class="col-12 text-center">Không có dữ liệu.</div>';
             tableBody.innerHTML = tableHtml || '<tr><td colspan="6" class="text-center">Không có dữ liệu.</td></tr>';
+            checkAttendanceLock(); // Kiểm tra khóa sau khi render xong
+            loadEvaluationUI(); // Tải đánh giá sau khi đã có danh sách học sinh
         }
     } catch (error) {
         toastr.error("Lỗi kết nối máy chủ.");
     }
+}
+
+async function loadNotifications() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS", payload: { username: user.username } }) });
+        const res = await response.json();
+        
+        if (res.status === "success" && res.data.notifications) {
+            globalNotifications = res.data.notifications; // Lưu vào biến toàn cục để check lock
+            let html = '';
+            const notis = res.data.notifications;
+            const readIds = res.data.read_ids || [];
+
+            if(notis.length === 0) {
+                html = '<li class="item text-center p-3 text-muted">Không có thông báo nào.</li>';
+            } else {
+                notis.forEach(n => {
+                    const isRead = readIds.includes(n.id);
+                    const btnHtml = isRead 
+                        ? '<span class="badge badge-secondary float-right ml-2"><i class="fas fa-check mr-1"></i>Đã xem</span>' 
+                        : `<button class="btn btn-xs btn-outline-primary float-right ml-2" onclick="markRead('${n.id}')">Đã xem</button>`;
+
+                    let meetingInfo = '';
+                    if (n.type === 'online' && n.location) {
+                        meetingInfo = `
+                            <div class="mt-2 p-2 bg-light border rounded border-primary">
+                                <i class="fas fa-video text-primary mr-2"></i><strong>Họp Online:</strong> 
+                                <a href="${n.location}" target="_blank" class="btn btn-sm btn-primary ml-2"><i class="fas fa-external-link-alt mr-1"></i>Tham gia ngay</a>
+                            </div>`;
+                    } else if (n.type === 'offline' && n.location) {
+                        meetingInfo = `
+                            <div class="mt-2 p-2 bg-light border rounded border-success">
+                                <i class="fas fa-map-marker-alt text-success mr-2"></i><strong>Địa điểm:</strong> <span class="text-dark">${n.location}</span>
+                            </div>`;
+                    }
+
+                    let attachHtml = '';
+                    if (n.attachment) {
+                        // Kiểm tra loại file để hiển thị icon/text phù hợp
+                        let isPdf = n.attachment.indexOf('application/pdf') !== -1;
+                        let btnIcon = isPdf ? 'fa-file-pdf' : 'fa-file-word';
+                        let fileName = n.attachment_name || (isPdf ? 'Tai_lieu.pdf' : 'Tai_lieu.docx');
+                        
+                        attachHtml = `
+                            <div class="mt-2">
+                                <a href="${n.attachment}" download="${fileName}" class="btn btn-sm btn-outline-dark text-truncate" style="max-width: 100%;"><i class="fas ${btnIcon} mr-1"></i> ${fileName}</a>
+                            </div>`;
+                    }
+
+                    html += `
+                    <li class="item">
+                        <div class="product-info ml-2 mr-2">
+                            <span class="product-title font-weight-bold text-primary">${n.title}
+                                ${btnHtml}
+                                <span class="badge badge-warning float-right ml-2">${n.datetime}</span>
+                            </span>
+                            <span class="product-description" style="white-space: pre-line;">
+                                ${n.content}
+                            </span>
+                            ${attachHtml}
+                            ${meetingInfo}
+                            ${n.early === 'TRUE' ? '<span class="badge badge-success mt-1">Điểm danh sớm</span>' : ''}
+                        </div>
+                    </li>`;
+                });
+            }
+            $('#notificationList').html(html);
+            checkAttendanceLock(); // Kiểm tra khóa sau khi có dữ liệu thông báo
+        }
+    } catch (e) {
+        console.error(e);
+        $('#notificationList').html('<li class="item text-center p-3 text-danger">Lỗi tải thông báo.</li>');
+    }
+}
+
+// --- HÀM KIỂM TRA KHÓA ĐIỂM DANH ---
+function checkAttendanceLock() {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const submitBtn = document.querySelector('button[onclick="submitAttendance()"]');
+    const inputs = document.querySelectorAll('input[name^="st_"]');
+    
+    // Xóa thông báo cũ nếu có
+    $('.attendance-alert').remove();
+
+    let isLocked = false;
+    let message = "";
+
+    // 1. Khóa nếu sau 20:00 (8h tối)
+    if (currentHour >= 20) {
+        isLocked = true;
+        message = "Đã quá thời gian điểm danh trong ngày (Sau 20:00).";
+    } else {
+        // 2. Khóa nếu có lịch họp hôm nay mà chưa đến giờ (và không cho điểm danh sớm)
+        // Format ngày hiện tại yyyy-MM-dd để so sánh
+        const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        
+        // Tìm thông báo có ngày trùng hôm nay
+        const todayNoti = globalNotifications.find(n => n.datetime.startsWith(todayStr));
+        
+        if (todayNoti) {
+            const meetingTime = new Date(todayNoti.datetime.replace(" ", "T")); // Chuyển đổi format cho Safari/Mobile
+            const isEarlyAllowed = todayNoti.early === 'TRUE';
+            
+            if (now < meetingTime && !isEarlyAllowed) {
+                isLocked = true;
+                message = `Chưa đến giờ điểm danh (${todayNoti.datetime.split(' ')[1]}). Không cho phép điểm danh sớm.`;
+            }
+        }
+    }
+
+    if (isLocked) {
+        if(submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-lock mr-2"></i> ${message}`;
+            submitBtn.classList.remove('btn-success');
+            submitBtn.classList.add('btn-secondary');
+        }
+        inputs.forEach(inp => inp.disabled = true);
+        $('#attendanceList').prepend(`<div class="col-12 attendance-alert"><div class="alert alert-warning font-weight-bold"><i class="fas fa-exclamation-triangle mr-2"></i>${message}</div></div>`);
+    } else {
+        // Mở khóa nếu hợp lệ
+        if(submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>`;
+            submitBtn.classList.add('btn-success');
+            submitBtn.classList.remove('btn-secondary');
+        }
+        inputs.forEach(inp => inp.disabled = false);
+    }
+}
+
+async function markRead(id) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "MARK_READ", payload: { username: user.username, notification_id: id } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            loadNotifications(); // Tải lại để cập nhật trạng thái
+        }
+    } catch (e) { console.error(e); }
+}
+
+// CRUD FUNCTIONS
+function openStudentModal() {
+    $('#modalStudent').modal('show');
+    $('#student_id_old').val('');
+    $('#st_id').prop('readonly', false).val('');
+    $('#st_name, #st_dob, #st_address, #st_phone, #st_school').val('');
+    
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    $('#st_group_select').val(user.group_id);
+}
+
+function editStudent(index) {
+    const s = globalGroupStudents[index];
+    $('#student_id_old').val(s.id);
+    $('#st_id').val(s.id).prop('readonly', true);
+    $('#st_name').val(s.fullname);
+    $('#st_dob').val(s.dob);
+    $('#st_address').val(s.address);
+    $('#st_phone').val(s.phone);
+    $('#st_school').val(s.school);
+    
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    $('#st_group_select').val(user.group_id);
+    $('#modalStudent').modal('show');
+}
+
+async function saveStudent() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const idOld = $('#student_id_old').val();
+    const action = idOld ? 'UPDATE_DATA' : 'ADD_DATA';
+    const selectedGroup = $('#st_group_select').val();
+    
+    if (!selectedGroup) return toastr.warning("Vui lòng chọn nhóm!");
+    
+    const dataArr = [
+        $('#st_id').val(), 
+        $('#st_name').val(), 
+        $('#st_dob').val(), 
+        $('#st_address').val(), 
+        $('#st_phone').val(), 
+        selectedGroup, 
+        '', 
+        $('#st_school').val()
+    ];
+
+    Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: action, payload: { type: 'students', id: idOld, data: dataArr } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            $('#modalStudent').modal('hide');
+            if (String(selectedGroup) !== String(user.group_id)) {
+                Swal.fire('Đã chuyển nhóm!', 'Học sinh đã được chuyển sang nhóm mới.', 'success');
+            } else {
+                Swal.fire('Thành công!', res.message, 'success');
+            }
+            fetchStudentsByGroup(user.group_id);
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối Server', 'error'); }
+}
+
+function deleteStudent(id) {
+    Swal.fire({ title: 'Xóa học sinh?', text: "Hành động này không thể hoàn tác!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Xóa' }).then(async (result) => {
+        if (result.isConfirmed) {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            try {
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: 'students', id: id } }) });
+                const res = await response.json();
+                if (res.status === 'success') { Swal.fire('Đã xóa!', res.message, 'success'); fetchStudentsByGroup(user.group_id); }
+            } catch (e) { toastr.error("Lỗi xóa dữ liệu"); }
+        }
+    });
 }
 
 // Giữ nguyên hàm submitAttendance...
@@ -261,6 +955,456 @@ function exportExcel() {
     XLSX.writeFile(wb, `Danh_sach_HS_${groupName.replace(/\s+/g, '_')}.xlsx`);
     toastr.info("Đang tải file Excel...");
 }
+
+async function sendFeedback() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const title = $('#fb_title').val().trim();
+    const phone = $('#fb_phone').val().trim();
+    const difficulty = $('#fb_difficulty').val().trim();
+    const suggestion = $('#fb_suggestion').val().trim();
+
+    if (!title || !phone) {
+        return toastr.warning("Vui lòng nhập tiêu đề và số điện thoại!");
+    }
+    if (!difficulty && !suggestion) {
+        return toastr.warning("Vui lòng nhập nội dung khó khăn hoặc góp ý!");
+    }
+
+    const payload = {
+        username: user.username,
+        fullname: user.fullname,
+        phone: phone,
+        group_id: user.group_id,
+        title: title,
+        difficulty: difficulty,
+        suggestion: suggestion
+    };
+
+    Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "SEND_FEEDBACK", payload: payload })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công!', 'Cảm ơn đóng góp của bạn.', 'success');
+            $('#fb_title, #fb_difficulty, #fb_suggestion').val('');
+            loadFeedbackHistory(); // Reload history
+        } else {
+            Swal.fire('Lỗi', res.message || 'Không thể gửi.', 'error');
+        }
+    } catch (e) {
+        Swal.fire('Lỗi', 'Lỗi kết nối Server', 'error');
+    }
+}
+
+async function loadFeedbackHistory() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "GET_FEEDBACKS", payload: { username: user.username } })
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            let html = '';
+            if (res.data.length === 0) {
+                html = '<div class="text-center text-muted p-5"><i class="fas fa-inbox fa-3x mb-3"></i><br>Bạn chưa gửi góp ý nào.</div>';
+            } else {
+                res.data.forEach(fb => {
+                    let statusBadge = fb.status === 'replied' 
+                        ? '<span class="badge badge-success float-right"><i class="fas fa-check mr-1"></i>Đã trả lời</span>' 
+                        : '<span class="badge badge-warning float-right"><i class="fas fa-clock mr-1"></i>Đang chờ xử lý</span>';
+                    
+                    let replySection = '';
+                    if (fb.reply) {
+                        replySection = `
+                            <div class="callout callout-success mt-3 mb-0" style="background-color: #f0fff4; border-left: 5px solid #28a745;">
+                                <h6 class="text-success font-weight-bold"><i class="fas fa-user-shield mr-1"></i> Phản hồi từ Admin:</h6>
+                                <div class="text-dark" style="font-size: 0.95rem;">${fb.reply}</div>
+                            </div>`;
+                    }
+
+                    html += `
+                        <div class="card shadow-sm mb-3 border-0">
+                            <div class="card-header bg-white border-bottom-0 pb-0">
+                                <h5 class="card-title text-primary font-weight-bold">${fb.title}</h5>
+                                ${statusBadge}
+                            </div>
+                            <div class="card-body pt-2">
+                                <small class="text-muted d-block mb-2"><i class="far fa-clock mr-1"></i> Gửi lúc: ${fb.timestamp}</small>
+                                ${fb.difficulty ? `<div class="mb-1"><strong><i class="fas fa-exclamation-circle text-danger mr-1"></i>Khó khăn:</strong> ${fb.difficulty}</div>` : ''}
+                                ${fb.suggestion ? `<div class="mb-1"><strong><i class="fas fa-lightbulb text-warning mr-1"></i>Góp ý:</strong> ${fb.suggestion}</div>` : ''}
+                                ${replySection}
+                            </div>
+                        </div>`;
+                });
+            }
+            $('#feedbackHistoryList').html(html);
+        }
+    } catch (e) { console.error(e); }
+}
+
+// --- LOGIC ĐÁNH GIÁ HỌC SINH ---
+let globalEvaluations = [];
+
+async function loadEvaluationUI() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    try {
+        // 1. Lấy cấu hình và danh sách đánh giá song song
+        const [configRes, evalRes] = await Promise.all([
+            fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) }).then(r => r.json()),
+            fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_EVALUATIONS" }) }).then(r => r.json())
+        ]);
+
+        // 2. Kiểm tra trạng thái khóa
+        const config = configRes.data || {};
+        const isEnabled = String(config.evaluation_enabled).toUpperCase() === 'TRUE';
+        let isLocked = !isEnabled;
+        let lockMessage = "Hệ thống đánh giá hiện đang đóng.";
+
+        if (isEnabled && config.evaluation_deadline) {
+            const deadline = new Date(config.evaluation_deadline);
+            deadline.setHours(23, 59, 59, 999); // Hết ngày
+            if (new Date() > deadline) {
+                isLocked = true;
+                lockMessage = `Đã quá hạn đánh giá (${formatDate(config.evaluation_deadline)}).`;
+            }
+        }
+
+        if (isLocked) {
+            $('#evalAlertContainer').html(`<div class="alert alert-danger mb-0"><i class="fas fa-lock mr-2"></i>${lockMessage} Vui lòng liên hệ Admin nếu cần hỗ trợ.</div>`);
+        } else {
+            $('#evalAlertContainer').empty();
+        }
+
+        if (evalRes.status === 'success') {
+            globalEvaluations = evalRes.data; 
+        }
+
+        // 2. Render danh sách học sinh kèm trạng thái đánh giá
+        let html = '';
+        if (globalGroupStudents.length === 0) {
+            html = '<tr><td colspan="3" class="text-center">Chưa có học sinh trong nhóm.</td></tr>';
+        } else {
+            globalGroupStudents.forEach(st => {
+                // Tìm đánh giá của học sinh này (cột 0 là StudentID)
+                const evalData = globalEvaluations.find(e => String(e[0]) === String(st.id));
+                const classification = evalData ? evalData[6] : '<span class="text-muted font-italic">Chưa đánh giá</span>';
+                const btnClass = evalData ? 'btn-outline-primary' : 'btn-primary';
+                const btnText = evalData ? '<i class="fas fa-edit"></i> Sửa' : '<i class="fas fa-star"></i> Đánh giá';
+                const disabledAttr = isLocked ? 'disabled' : '';
+                
+                html += `<tr>
+                    <td class="align-middle font-weight-bold">${st.fullname}</td>
+                    <td class="align-middle">${classification}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm ${btnClass}" onclick="openEvaluateModal('${st.id}', '${st.fullname}')" ${disabledAttr}>${btnText}</button>
+                    </td>
+                </tr>`;
+            });
+        }
+        $('#evaluationList').html(html);
+    } catch (e) { console.error("Lỗi tải đánh giá", e); }
+}
+
+// --- TROLL PUSH LOGIC ---
+async function checkTrollStatus() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            const conf = res.data;
+            if (String(conf.troll_enabled).toUpperCase() === 'TRUE') {
+                let htmlContent = `<p>${conf.troll_content || ''}</p>`;
+                
+                // Xử lý YouTube
+                if (conf.troll_youtube) {
+                    let videoId = conf.troll_youtube.split('v=')[1];
+                    const ampersandPosition = videoId ? videoId.indexOf('&') : -1;
+                    if (videoId && ampersandPosition !== -1) {
+                        videoId = videoId.substring(0, ampersandPosition);
+                    }
+                    // Nếu là link short youtu.be
+                    if (!videoId && conf.troll_youtube.indexOf('youtu.be/') !== -1) {
+                        videoId = conf.troll_youtube.split('youtu.be/')[1];
+                    }
+                    
+                    if (videoId) {
+                        htmlContent += `<div class="embed-responsive embed-responsive-16by9 mt-2 mb-2"><iframe class="embed-responsive-item" src="https://www.youtube.com/embed/${videoId}?autoplay=1" allowfullscreen></iframe></div>`;
+                    }
+                }
+
+                Swal.fire({
+                    title: conf.troll_title || 'Thông báo',
+                    html: htmlContent,
+                    imageUrl: conf.troll_image || null,
+                    imageWidth: 400,
+                    imageAlt: 'Troll Image',
+                    confirmButtonText: 'Đã xem',
+                    backdrop: `rgba(0,0,123,0.4) url("https://media.giphy.com/media/Ju7l5y9osyymQ/giphy.gif") left top no-repeat` // Hiệu ứng nền vui nhộn (tùy chọn)
+                });
+            }
+        }
+    } catch (e) { console.error("Troll check error", e); }
+}
+
+function openEvaluateModal(id, name) {
+    $('#eval_st_id').val(id);
+    $('#eval_st_name').val(name);
+    $('#eval_st_display_name').text(name);
+    
+    // Reset form
+    $('#eval_discipline, #eval_positivity, #eval_volunteering, #eval_classification').val('');
+    
+    // Fill data nếu đã có
+    const evalData = globalEvaluations.find(e => String(e[0]) === String(id));
+    if (evalData) {
+        $('#eval_discipline').val(evalData[3]);
+        $('#eval_positivity').val(evalData[4]);
+        $('#eval_volunteering').val(evalData[5]);
+        $('#eval_classification').val(evalData[6]);
+    }
+    
+    $('#modalEvaluate').modal('show');
+}
+
+async function submitEvaluation() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const payload = {
+        student_id: $('#eval_st_id').val(),
+        student_name: $('#eval_st_name').val(),
+        group_id: user.group_id,
+        discipline: $('#eval_discipline').val(),
+        positivity: $('#eval_positivity').val(),
+        volunteering: $('#eval_volunteering').val(),
+        classification: $('#eval_classification').val(),
+        updated_by: user.fullname
+    };
+
+    if (!payload.classification) return toastr.warning("Vui lòng chọn mức xếp loại!");
+
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_EVALUATION", payload: payload }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công', 'Đã lưu phiếu đánh giá!', 'success');
+            $('#modalEvaluate').modal('hide');
+            loadEvaluationUI(); // Reload lại bảng
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+// --- FUND MANAGEMENT FUNCTIONS ---
+function loadFundTab() {
+    const list = document.getElementById('fundStudentList');
+    if (globalGroupStudents.length === 0) {
+        list.innerHTML = '<tr><td colspan="3" class="text-center">Chưa có học sinh</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    globalGroupStudents.forEach((st, idx) => {
+        html += `
+        <tr class="fund-row">
+            <td>${idx + 1}</td>
+            <td class="font-weight-bold student-name">${st.fullname}</td>
+            <td class="text-center">
+
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input fund-check" id="fund_chk_${idx}" data-name="${st.fullname}" onchange="calculateFund()">
+                    <label class="custom-control-label" for="fund_chk_${idx}">Đã đóng</label>
+                </div>
+            </td>
+        </tr>`;
+    });
+
+    list.innerHTML = html;
+    calculateFund();
+    loadFundHistory();
+}
+
+function calculateFund() {
+    const amount = parseInt($('#fund_amount').val()) || 0;
+    const checkedCount = $('.fund-check:checked').length;
+    const total = amount * checkedCount;
+    
+    $('#fund_count').text(checkedCount);
+    $('#fund_total').text(total.toLocaleString('vi-VN') + ' đ');
+}
+
+function filterFundList() {
+    const term = $('#fund_search').val().toLowerCase();
+    $('.fund-row').each(function() {
+        const name = $(this).find('.student-name').text().toLowerCase();
+        $(this).toggle(name.indexOf(term) > -1);
+    });
+}
+
+function resetFundCheckboxes() {
+    $('.fund-check').prop('checked', false);
+    calculateFund();
+    toastr.info("Đã reset trạng thái đóng tiền (Chưa lưu).");
+}
+
+async function saveFundLog() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+
+    const amountPerHead = parseInt($('#fund_amount').val()) || 0;
+    const checkedBoxes = $('.fund-check:checked');
+    
+    if (checkedBoxes.length === 0) return toastr.warning("Chưa có ai đóng tiền!");
+
+    const paidList = [];
+    checkedBoxes.each(function() {
+
+        paidList.push($(this).data('name'));
+    });
+
+    const payload = {
+        group_id: user.group_id,
+        manager: user.fullname,
+
+        amount_per_head: amountPerHead,
+        total_collected: amountPerHead * checkedBoxes.length,
+        paid_students: paidList.join(', '),
+        notes: $('#fund_notes').val(),
+        timestamp: new Date().toLocaleString('vi-VN')
+    };
+
+    Swal.fire({ title: 'Đang lưu sổ quỹ...', didOpen: () => Swal.showLoading() });
+    try {
+
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_FUND_LOG", payload: payload }) });
+
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công', 'Đã lưu vào lịch sử quỹ!', 'success');
+            loadFundHistory();
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+async function saveExpenseLog() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const reason = $('#expense_reason').val();
+    const amount = $('#expense_amount').val();
+    const notes = $('#expense_notes').val();
+
+    if (!reason || !amount) return toastr.warning("Vui lòng nhập lý do và số tiền!");
+
+    const payload = {
+        group_id: user.group_id,
+        manager: user.fullname,
+        reason: reason,
+        amount: amount,
+        notes: notes
+    };
+
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_EXPENSE_LOG", payload: payload }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công', 'Đã lưu khoản chi!', 'success');
+            $('#modalChiQuy').modal('hide');
+            $('#expense_reason, #expense_amount, #expense_notes').val('');
+            loadFundHistory();
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+async function loadFundHistory() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FUND_LOGS", payload: { group_id: user.group_id } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            globalFundLogs = res.data; // Lưu dữ liệu để xuất Excel
+            let html = '';
+            res.data.forEach(log => {
+                const isThu = log.type === 'THU';
+                const colorClass = isThu ? 'text-success' : 'text-danger';
+                const sign = isThu ? '+' : '-';
+                const desc = isThu ? (log.paid_list ? `Thu: ${log.paid_list.split(',').length} người` : 'Thu quỹ') : log.reason;
+                const detailBtn = isThu ? `<button class="btn btn-xs btn-outline-info ml-1" onclick="Swal.fire('Danh sách đóng', '${log.paid_list}', 'info')"><i class="fas fa-list"></i></button>` : '';
+                
+                html += `<tr>
+                    <td><small>${log.timestamp}</small></td>
+                    <td class="${colorClass} font-weight-bold">${sign}${parseInt(log.amount).toLocaleString()}đ</td>
+                    <td>
+                        <span class="d-block text-truncate" style="max-width: 120px;" title="${desc} ${log.details}">${desc}</span>
+                        ${detailBtn}
+                    </td>
+                </tr>`;
+            });
+            $('#fundHistoryData').html(html || '<tr><td colspan="3" class="text-center text-muted">Chưa có lịch sử</td></tr>');
+        }
+    } catch (e) { console.error(e); }
+}
+
+function exportFundHistoryExcel() {
+    if (globalFundLogs.length === 0) return toastr.warning("Chưa có lịch sử để xuất!");
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    
+    const data = globalFundLogs.map(log => ({
+        "Thời gian": log.timestamp,
+        "Loại": log.type,
+        "Số tiền": parseInt(log.amount),
+        "Người thực hiện": log.manager,
+        "Lý do / Chi tiết": log.type === 'THU' ? log.details : log.reason,
+        "Ghi chú": log.type === 'THU' ? log.paid_list : log.notes
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Quy_Nhom");
+    XLSX.writeFile(wb, `So_Quy_Nhom_${user.group_id}.xlsx`);
+}
+
+// --- IMPORT EXCEL INDEX ---
+function openImportModalIndex() { $('#modalImportIndex').modal('show'); $('#file_import_index').val(''); }
+
+function downloadTemplateIndex() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const data = [{ "Họ và Tên": "Nguyễn Văn A", "Ngày sinh": "20/10/2010", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" }];
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Mau_Nhap_Lieu");
+    XLSX.writeFile(wb, `Mau_DS_Nhom_${user.group_id}.xlsx`);
+}
+
+function processImportIndex() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const file = document.getElementById('file_import_index').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file!");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        
+        const mappedData = jsonData.map(row => ({ fullname: row["Họ và Tên"], dob: row["Ngày sinh"], group_id: user.group_id, school: row["Trường học"], phone: row["SĐT"], address: row["Địa chỉ"] })).filter(i => i.fullname);
+        
+        Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
+        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "IMPORT_STUDENTS", payload: { students: mappedData } }) })
+        .then(r => r.json()).then(res => { if(res.status==='success'){ Swal.fire('Xong', `Thêm ${res.count} HS`, 'success'); $('#modalImportIndex').modal('hide'); fetchStudentsByGroup(user.group_id); } else Swal.fire('Lỗi', res.message, 'error'); });
+    };
+    reader.readAsArrayBuffer(file);
+}
 </script>
+
+
+
+
+
+
+
+
+
 </body>
 </html>

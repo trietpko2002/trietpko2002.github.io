@@ -19,10 +19,20 @@
         .badge-group { font-size: 0.85rem; padding: 4px 8px; }
         .table-history { font-size: 0.9rem; }
         .history-card-body { max-height: 600px; overflow-y: auto; }
+        .img-manager { width: 35px; height: 35px; object-fit: cover; border-radius: 50%; }
+        .btn-action { padding: 2px 5px; font-size: 0.8rem; }
+        .nav-link p { font-weight: 500; }
+        .sidebar-dark-primary { background-color: #343a40; }
+        /* Youth Union Theme */
+        .navbar-primary { background-color: #1e88e5 !important; }
+        .brand-link.bg-primary { background-color: #1e88e5 !important; }
+        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #1e88e5; color: #fff; }
+        .btn-primary { background-color: #1e88e5; border-color: #1976d2; }
+        .btn-primary:hover { background-color: #1565c0; border-color: #0d47a1; }
     </style>
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
 <script>
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -47,6 +57,11 @@
                 <span class="nav-link">Xin chào, <b id="adminNameDisplay" class="text-primary">Admin</b></span>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)" onclick="openSettingsModal()" title="Cài đặt hệ thống">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-danger" href="javascript:void(0)" onclick="logout()">
                     <i class="fas fa-power-off"></i> Thoát
                 </a>
@@ -54,13 +69,13 @@
         </ul>
     </nav>
 
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <div class="brand-link text-center">
-            <span class="brand-text font-weight-bold">QUẢN TRỊ SINH HOẠT HÈ</span>
+    <aside class="main-sidebar sidebar-light-primary elevation-4">
+        <div class="brand-link bg-primary text-center">
+            <span class="brand-text font-weight-bold text-white">QUẢN TRỊ SINH HOẠT HÈ</span>
         </div>
         <div class="sidebar">
             <nav class="mt-3">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist">
                     <li class="nav-item">
                         <a href="#tab-dashboard" class="nav-link active" data-toggle="pill">
                             <i class="nav-icon fas fa-chart-pie"></i> <p>Tổng quan & Lịch sử</p>
@@ -69,6 +84,36 @@
                     <li class="nav-item">
                         <a href="#tab-students-list" class="nav-link" data-toggle="pill">
                             <i class="nav-icon fas fa-id-card"></i> <p>Dữ liệu học sinh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-managers-list" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-user-shield"></i> <p>Quản lý tài khoản</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-groups-list" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-users-cog"></i> <p>Danh sách nhóm</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-notifications" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-bell"></i> <p>Thông báo hệ thống</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-feedbacks" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-comments"></i> <p>Quản lý Góp ý</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-evaluations" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-star"></i> <p>Quản lý Đánh giá</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-system-logs" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-history"></i> <p>Log hệ thống</p>
                         </a>
                     </li>
                     <li class="nav-header">XUẤT BÁO CÁO</li>
@@ -80,6 +125,11 @@
                     <li class="nav-item">
                         <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
                             <i class="nav-icon fas fa-file-download"></i> <p>Xuất DS Học Sinh (.xlsx)</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="backupSystem()" class="nav-link text-warning">
+                            <i class="nav-icon fas fa-database"></i> <p>Sao lưu Hệ thống (Backup)</p>
                         </a>
                     </li>
                 </ul>
@@ -130,14 +180,21 @@
                         <div class="row mt-3">
                             <div class="col-md-4">
                                 <div class="card card-outline card-primary shadow">
-                                    <div class="card-header"><h3 class="card-title font-weight-bold">Biểu đồ</h3></div>
+                                    <div class="card-header"><h3 class="card-title font-weight-bold">Biểu đồ tỷ lệ</h3></div>
                                     <div class="card-body"><canvas id="attendanceChart"></canvas></div>
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <div class="card card-outline card-success shadow">
-                                    <div class="card-header">
-                                        <h3 class="card-title font-weight-bold">Nhật ký điểm danh (Full)</h3>
+                                    <div class="card-header d-flex p-2 align-items-center">
+                                        <h3 class="card-title font-weight-bold pl-2">Nhật ký điểm danh</h3>
+                                        <div class="ml-auto d-flex">
+                                            <input type="date" id="filter_from" class="form-control form-control-sm mr-1" style="width: 130px;" title="Từ ngày">
+                                            <span class="align-self-center mr-1">-</span>
+                                            <input type="date" id="filter_to" class="form-control form-control-sm mr-1" style="width: 130px;" title="Đến ngày">
+                                            <button class="btn btn-sm btn-primary" onclick="filterHistory()"><i class="fas fa-filter"></i></button>
+                                            <button class="btn btn-sm btn-secondary ml-1" onclick="resetFilter()" title="Xóa lọc"><i class="fas fa-undo"></i></button>
+                                        </div>
                                     </div>
                                     <div class="card-body p-0 table-responsive history-card-body">
                                         <table class="table table-head-fixed table-hover table-history text-nowrap">
@@ -151,7 +208,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="historyAttendanceData">
-                                                <tr><td colspan="5" class="text-center text-muted">Đang tải...</td></tr>
+                                                <tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -164,7 +221,13 @@
 
             <div class="tab-pane fade" id="tab-students-list">
                 <section class="content-header">
-                    <div class="container-fluid"><h1>Danh sách học sinh toàn hệ thống</h1></div>
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Danh sách học sinh toàn hệ thống</h1>
+                        <div>
+                            <button class="btn btn-info mr-2" onclick="openImportModal()"><i class="fas fa-file-upload"></i> Nhập Excel</button>
+                            <button class="btn btn-success" onclick="openStudentModal()"><i class="fas fa-plus"></i> Thêm Học Sinh</button>
+                        </div>
+                    </div>
                 </section>
                 <section class="content">
                     <div class="container-fluid">
@@ -177,8 +240,9 @@
                                             <th>Ngày sinh</th>
                                             <th>Nhóm</th>
                                             <th>Trường học</th>
-                                            <th>SĐT Phụ huynh</th>
+                                            <th>SĐT học sinh</th>
                                             <th>Địa chỉ</th>
+                                            <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="studentData"></tbody>
@@ -189,6 +253,407 @@
                 </section>
             </div>
 
+            <div class="tab-pane fade" id="tab-managers-list">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Danh sách tài khoản quản lý</h1>
+                        <button class="btn btn-success" onclick="openUserModal()"><i class="fas fa-plus"></i> Thêm Tài Khoản</button>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="managerTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-primary text-white">
+                                        <tr>
+                                            <th>Avatar</th>
+                                            <th>Username</th>
+                                            <th>Họ tên Quản lý</th>
+                                            <th>Nhóm phụ trách</th>
+                                            <th>Quyền hạn</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="managerData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" id="tab-groups-list">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Danh sách các nhóm sinh hoạt</h1>
+                        <button class="btn btn-success" onclick="openGroupModal()"><i class="fas fa-plus"></i> Thêm Nhóm</button>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="row" id="groupCardsContainer"></div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" id="tab-notifications">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Thông báo chung hệ thống</h1>
+                        <button class="btn btn-success" onclick="openNotiModal()"><i class="fas fa-paper-plane"></i> Tạo thông báo</button>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="notiTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-warning">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Tiêu đề</th>
+                                            <th>Nội dung</th>
+                                            <th>Thời gian diễn ra</th>
+                                            <th>Điểm danh sớm</th>
+                                            <th>Hình thức</th>
+                                            <th>Người đã xem</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="notiData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" id="tab-feedbacks">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Danh sách Góp ý & Phản hồi</h1>
+                        <button class="btn btn-primary" onclick="loadFeedbacks()"><i class="fas fa-sync"></i> Tải lại</button>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="feedbackTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-info">
+                                        <tr>
+                                            <th>Thời gian</th>
+                                            <th>Người gửi</th>
+                                            <th>Nội dung Góp ý</th>
+                                            <th>Phản hồi của Admin</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="feedbackData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" id="tab-evaluations">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Tổng hợp Đánh giá & Xếp loại</h1>
+                        <div>
+                            <button class="btn btn-primary mr-2" onclick="loadEvaluations()"><i class="fas fa-sync"></i> Tải lại</button>
+                            <button class="btn btn-success" onclick="exportExcelEvaluations()"><i class="fas fa-file-excel"></i> Xuất Báo Cáo</button>
+                        </div>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <!-- Cấu hình đánh giá -->
+                        <div class="card card-outline card-danger shadow mb-3">
+                            <div class="card-header"><h3 class="card-title font-weight-bold"><i class="fas fa-cogs mr-2"></i>Cấu hình Đợt đánh giá</h3></div>
+                            <div class="card-body">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4 form-group">
+                                        <label>Trạng thái đánh giá</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="conf_eval_enabled">
+                                            <label class="custom-control-label font-weight-bold" for="conf_eval_enabled">Cho phép đánh giá</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 form-group"><label>Hạn chót (Deadline)</label><input type="date" id="conf_eval_deadline" class="form-control"></div>
+                                    <div class="col-md-3 form-group"><button class="btn btn-danger btn-block" onclick="saveEvalConfig()"><i class="fas fa-save mr-2"></i>Lưu cấu hình</button></div>
+                                    <div class="col-md-2 form-group">
+                                        <button class="btn btn-warning btn-block font-weight-bold" onclick="resetEvaluations()">
+                                            <i class="fas fa-redo-alt mr-2"></i>Reset Đợt Mới
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="evalTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-purple text-white">
+                                        <tr>
+                                            <th>Học sinh</th>
+                                            <th>Nhóm</th>
+                                            <th>Ý thức kỷ luật</th>
+                                            <th>Mức độ tích cực</th>
+                                            <th>Hoạt động tình nguyện</th>
+                                            <th>Xếp loại</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="evalData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" id="tab-system-logs">
+                <section class="content-header">
+                    <div class="container-fluid">
+                        <h1>Nhật ký hoạt động (Logs)</h1>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="logTable" class="table table-sm table-striped w-100">
+                                    <thead class="bg-dark text-white">
+                                        <tr>
+                                            <th>Thời gian</th>
+                                            <th>Tài khoản</th>
+                                            <th>Hành động</th>
+                                            <th>Chi tiết</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Student -->
+<div class="modal fade" id="modalStudent" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title">Thông tin Học sinh</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="student_id_old">
+                <div class="form-group"><label>Mã Học sinh (ID)</label><input type="text" id="st_id" class="form-control" placeholder="Nhập mã HS..."></div>
+                <div class="form-group"><label>Họ và Tên</label><input type="text" id="st_name" class="form-control" placeholder="Nguyễn Văn A"></div>
+                <div class="form-group"><label>Ngày sinh</label><input type="text" id="st_dob" class="form-control" placeholder="dd/mm/yyyy"></div>
+                <div class="form-group"><label>Địa chỉ</label><input type="text" id="st_address" class="form-control"></div>
+                <div class="form-group"><label>Số điện thoại học sinh</label><input type="text" id="st_phone" class="form-control"></div>
+                <div class="form-group"><label>Mã Nhóm</label><input type="text" id="st_group" class="form-control" placeholder="VD: 1, 2, 3..."></div>
+                <div class="form-group"><label>Trường học</label><input type="text" id="st_school" class="form-control"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveData('students')">Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import Excel -->
+<div class="modal fade" id="modalImportAdmin" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Nhập danh sách từ Excel</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Tải file mẫu (Có cột Nhóm): <button class="btn btn-sm btn-link" onclick="downloadTemplate()">Tải Mẫu Admin.xlsx</button></p>
+                <div class="form-group">
+                    <label>Chọn file Excel (.xlsx)</label>
+                    <input type="file" id="file_import_admin" class="form-control-file border p-2" accept=".xlsx, .xls">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="processImportAdmin()">Tải lên & Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal User -->
+<div class="modal fade" id="modalUser" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title">Thông tin Tài khoản</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="user_id_old">
+                <div class="form-group"><label>Tên đăng nhập</label><input type="text" id="u_name" class="form-control"></div>
+                <div class="form-group" id="pass_area"><label>Mật khẩu</label><input type="text" id="u_pass" class="form-control"></div>
+                <div class="form-group"><label>Họ tên hiển thị</label><input type="text" id="u_fullname" class="form-control"></div>
+                <div class="form-group"><label>Phân quyền</label>
+                    <select id="u_role" class="form-control">
+                        <option value="manager">Quản lý (Manager)</option>
+                        <option value="admin">Quản trị (Admin)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Nhóm phụ trách</label><input type="text" id="u_group" class="form-control" placeholder="Để trống nếu là Admin"></div>
+                <div class="form-group"><label>Link Avatar</label><input type="text" id="u_avatar" class="form-control"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveData('users')">Lưu tài khoản</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Group -->
+<div class="modal fade" id="modalGroup" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title">Thông tin Nhóm</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="group_id_old">
+                <div class="form-group"><label>Mã Nhóm</label><input type="text" id="g_id" class="form-control"></div>
+                <div class="form-group"><label>Tên Nhóm</label><input type="text" id="g_name" class="form-control"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveData('groups')">Lưu nhóm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNoti" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title font-weight-bold">Thông tin thông báo</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="noti_id_old">
+                <div class="form-group"><label>Mã TB (ID)</label><input type="text" id="n_id" class="form-control" placeholder="NOTI01..."></div>
+                <div class="form-group"><label>Tiêu đề</label><input type="text" id="n_title" class="form-control"></div>
+                <div class="form-group"><label>Nội dung</label><textarea id="n_content" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label>Thời gian sinh hoạt (Y-m-d H:i)</label><input type="text" id="n_datetime" class="form-control" placeholder="2026-01-18 07:30"></div>
+                <div class="form-group"><label>Cho phép điểm danh sớm?</label>
+                    <select id="n_early" class="form-control">
+                        <option value="TRUE">Cho phép (Mở mọi lúc)</option>
+                        <option value="FALSE">Không (Chỉ mở khi đến giờ)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Hình thức thông báo</label>
+                    <select id="n_type" class="form-control" onchange="toggleLocationInput()">
+                        <option value="normal">Thông báo thường</option>
+                        <option value="online">Họp Online (Google Meet/Zoom)</option>
+                        <option value="offline">Họp Trực tiếp (Tại địa điểm)</option>
+                    </select>
+                </div>
+                <div class="form-group d-none" id="grp_location"><label id="lbl_location">Địa điểm / Link họp</label><input type="text" id="n_location" class="form-control"></div>
+                <div class="form-group">
+                    <label>Đính kèm văn bản (Word/PDF - Max 35KB)</label>
+                    <input type="file" id="n_file" class="form-control-file border p-1" accept=".doc,.docx,.pdf">
+                    <input type="hidden" id="n_attachment_base64">
+                    <input type="hidden" id="n_file_name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveData('notifications')">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reply Feedback -->
+<div class="modal fade" id="modalReply" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white">
+                <h5 class="modal-title">Phản hồi Góp ý</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reply_id">
+                <div class="form-group"><label>Nội dung phản hồi:</label><textarea id="reply_content" class="form-control" rows="4"></textarea></div>
+                <div class="form-group"><label>Người trả lời:</label><input type="text" id="reply_responder" class="form-control"></div>
+                <div class="form-group"><label>SĐT liên hệ (nếu thắc mắc):</label><input type="text" id="reply_phone" class="form-control" placeholder="Nhập SĐT..."></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="submitReply()">Gửi phản hồi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Settings -->
+<div class="modal fade" id="modalSettings" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><i class="fas fa-cogs mr-2"></i>Cài đặt hệ thống</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" id="settingTabs" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab-interface">Giao diện</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-troll">Troll Push</a></li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Tab Giao diện -->
+                    <div class="tab-pane fade show active" id="tab-interface">
+                        <div class="form-group d-flex justify-content-between align-items-center">
+                            <label class="mb-0">Chế độ Tối (Dark Mode)</label>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="darkModeSwitch" onchange="toggleDarkMode()">
+                                <label class="custom-control-label" for="darkModeSwitch"></label>
+                            </div>
+                        </div>
+                        <p class="text-muted small">Chuyển đổi giao diện sáng/tối để dễ nhìn hơn.</p>
+                    </div>
+                    <!-- Tab Troll -->
+                    <div class="tab-pane fade" id="tab-troll">
+                        <div class="form-group d-flex justify-content-between align-items-center bg-light p-2 rounded">
+                            <label class="mb-0 text-danger font-weight-bold">Kích hoạt Troll Push</label>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="troll_enabled">
+                                <label class="custom-control-label" for="troll_enabled"></label>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Tiêu đề Troll</label><input type="text" id="troll_title" class="form-control" placeholder="VD: Thông báo khẩn..."></div>
+                        <div class="form-group"><label>Nội dung</label><textarea id="troll_content" class="form-control" rows="3" placeholder="Nội dung hiển thị..."></textarea></div>
+                        <div class="form-group"><label>Link YouTube (Video ID hoặc Link)</label><input type="text" id="troll_youtube" class="form-control" placeholder="https://youtu.be/..."></div>
+                        <div class="form-group">
+                            <label>Ảnh Troll (Upload)</label>
+                            <input type="file" id="troll_file" class="form-control-file border p-1" accept="image/*">
+                            <input type="hidden" id="troll_image_base64">
+                        </div>
+                        <button class="btn btn-danger btn-block" onclick="saveTrollConfig()"><i class="fas fa-save mr-2"></i>Lưu & Push ngay</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -199,75 +664,389 @@
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 let attendanceChart;
-let globalHistoryData = []; 
-let globalStudentsData = [];
-
-// Hàm hỗ trợ định dạng dd/mm/yyyy
-function formatDate(dateStr) {
-    if (!dateStr || dateStr === '-') return '-';
-    try {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr;
-        const d = String(date.getDate()).padStart(2, '0');
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const y = date.getFullYear();
-        return `${d}/${m}/${y}`;
-    } catch (e) { return dateStr; }
-}
+let globalHistoryData = [], globalStudentsData = [], globalUsersData = [], globalGroupsData = [], globalNotisData = [];
+let currentHistoryView = []; // Dữ liệu lịch sử đang hiển thị (đã lọc)
 
 $(document).ready(function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     if(user) $('#adminNameDisplay').text(user.fullname);
+    
+    // Load Dark Mode setting
+    if (localStorage.getItem('darkMode') === 'true') {
+        $('body').addClass('dark-mode');
+    }
     refreshAll();
 });
 
-function refreshAll() {
-    loadStudents();
+async function refreshAll() {
+    await loadStudents();
     updateAttendanceStats();
+    loadExtraData();
+    loadLogs();
+    loadFeedbacks();
+    loadEvaluations();
+    loadSystemSettings(); // Load config (Eval + Troll)
+    loadEvalConfig();
 }
 
 async function loadStudents() {
     try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "GET_USERS" })
-        });
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_USERS" }) });
         const res = await response.json();
         if (res.status === "success") {
             globalStudentsData = res.data.students;
             $('#countHS').text(res.data.totalStudents);
-            if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
-            
             let html = '';
-            res.data.students.forEach(st => {
+            res.data.students.forEach((st, index) => {
                 html += `<tr>
                     <td class="font-weight-bold">${st.fullname}</td>
-                    <td class="text-dob">${formatDate(st.dob)}</td>
-                    <td><span class="badge badge-info badge-group">${st.group}</span></td>
+                    <td class="text-dob">${st.dob}</td>
+                    <td><span class="badge badge-info badge-group">${st.group_display}</span></td>
                     <td><small>${st.school}</small></td>
                     <td><a href="tel:${st.phone}">${st.phone || '-'}</a></td>
                     <td><small>${st.address || '-'}</small></td>
+                    <td>
+                        <button class="btn btn-info btn-action" onclick="editStudent(${index})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-action" onclick="deleteData('students', '${st.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
                 </tr>`;
             });
             $('#studentData').html(html);
-            $('#studentTable').DataTable({
-                "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
-                "pageLength": 10
-            });
+            if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
+            $('#studentTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
         }
     } catch (e) { toastr.error("Lỗi tải danh sách học sinh."); }
 }
 
+async function loadExtraData() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            globalUsersData = res.data.managers;
+            globalGroupsData = res.data.groups;
+            globalNotisData = res.data.notifications || [];
+            
+            // Managers Table
+            let mHtml = '';
+            res.data.managers.forEach((m, idx) => {
+                mHtml += `<tr>
+                    <td class="text-center"><img src="${m.avatar || 'https://via.placeholder.com/50'}" class="img-manager shadow-sm"></td>
+                    <td><code>${m.username}</code></td>
+                    <td class="font-weight-bold">${m.fullname}</td>
+                    <td><span class="badge badge-warning">${m.group_id}</span></td>
+                    <td><span class="badge badge-secondary">${m.role}</span></td>
+                    <td>
+                        <button class="btn btn-info btn-action" onclick="editUser(${idx})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-warning btn-action" onclick="resetPassword('${m.username}')" title="Reset Pass"><i class="fas fa-key"></i></button>
+                        <button class="btn btn-danger btn-action" onclick="deleteData('users', '${m.username}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            $('#managerData').html(mHtml);
+            if ($.fn.DataTable.isDataTable('#managerTable')) $('#managerTable').DataTable().destroy();
+            $('#managerTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }});
+
+            // Groups View
+            let gHtml = '';
+            res.data.groups.forEach((g, idx) => {
+                gHtml += `<div class="col-md-3">
+                    <div class="info-box shadow-sm position-relative">
+                        <span class="info-box-icon bg-info elevation-1"><i class="fas fa-layer-group"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text text-bold">${g.group_name}</span>
+                            <span class="info-box-number">Mã: ${g.group_id}</span>
+                        </div>
+                        <div style="position:absolute; right:5px; top:5px;">
+                             <button class="btn btn-xs btn-outline-info" onclick="editGroup(${idx})"><i class="fas fa-edit"></i></button>
+                             <button class="btn btn-xs btn-outline-danger" onclick="deleteData('groups', '${g.group_id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            $('#groupCardsContainer').html(gHtml || '<div class="col-12 text-center">Không có dữ liệu nhóm</div>');
+
+            // Notifications Table
+            let nHtml = '';
+            globalNotisData.forEach((n, idx) => {
+                let readers = n.read_by || [];
+                if (typeof readers === 'string') readers = readers.split(',').filter(x => x);
+                let readersHtml = readers.length > 0 
+                    ? `<span class="badge badge-info">${readers.length}</span> <small class="d-block" style="max-height:60px;overflow-y:auto;">${readers.join(', ')}</small>` 
+                    : '<small class="text-muted">Chưa có</small>';
+
+                let typeBadge = '<span class="badge badge-secondary">Thường</span>';
+                if (n.type === 'online') typeBadge = '<span class="badge badge-primary"><i class="fas fa-video mr-1"></i>Online</span>';
+                if (n.type === 'offline') typeBadge = '<span class="badge badge-success"><i class="fas fa-map-marker-alt mr-1"></i>Trực tiếp</span>';
+                
+                let locationInfo = n.location ? `<br><small class="text-muted">${n.type === 'online' ? 'Link: ' : 'ĐĐ: '}${n.location}</small>` : '';
+                let attachIcon = n.attachment ? `<br><span class="badge badge-warning"><i class="fas fa-paperclip"></i> Có file</span>` : '';
+
+                nHtml += `<tr>
+                    <td>${n.id}</td>
+                    <td class="font-weight-bold">${n.title}</td>
+                    <td><small>${n.content}</small></td>
+                    <td><code>${n.datetime}</code></td>
+                    <td><span class="badge badge-${n.early === 'TRUE' ? 'success' : 'secondary'}">${n.early}</span></td>
+                    <td>${typeBadge}${locationInfo}${attachIcon}</td>
+                    <td>${readersHtml}</td>
+                    <td>
+                        <button class="btn btn-danger btn-action" onclick="deleteData('notifications', '${n.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            $('#notiData').html(nHtml);
+        }
+    } catch (e) { console.error("Error loading extra data", e); }
+}
+
+async function loadLogs() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_LOGS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            let html = '';
+            res.data.forEach(log => {
+                html += `<tr>
+                    <td><small>${log.timestamp}</small></td>
+                    <td><code>${log.username}</code></td>
+                    <td><span class="badge badge-light border">${log.action}</span></td>
+                    <td><small>${log.details}</small></td>
+                </tr>`;
+            });
+            $('#logData').html(html);
+        }
+    } catch (e) { console.log("Logs error"); }
+}
+
+async function loadFeedbacks() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FEEDBACKS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            let html = '';
+            res.data.forEach(fb => {
+                let statusColor = fb.status === 'replied' ? 'success' : 'danger';
+                let statusText = fb.status === 'replied' ? 'Đã trả lời' : 'Chờ xử lý';
+                
+                html += `<tr>
+                    <td><small>${fb.timestamp}</small></td>
+                    <td>
+                        <b>${fb.fullname}</b><br>
+                        <small>SĐT: ${fb.phone}</small><br>
+                        <span class="badge badge-secondary">Nhóm ${fb.group_id}</span>
+                    </td>
+                    <td>
+                        <b>${fb.title}</b><br>
+                        <span class="text-danger">Khó khăn:</span> ${fb.difficulty}<br>
+                        <span class="text-info">Góp ý:</span> ${fb.suggestion}
+                    </td>
+                    <td>
+                        ${fb.reply ? `<div class="alert alert-light border">${fb.reply}</div>` : '<i class="text-muted">Chưa có phản hồi</i>'}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="openReply('${fb.id}')"><i class="fas fa-reply"></i> Trả lời</button>
+                    </td>
+                </tr>`;
+            });
+            $('#feedbackData').html(html);
+            if ($.fn.DataTable.isDataTable('#feedbackTable')) $('#feedbackTable').DataTable().destroy();
+            $('#feedbackTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }, "order": [[ 0, "desc" ]] });
+        }
+    } catch (e) { console.error("Feedback error", e); }
+}
+
+// Load config cho cả Eval và Troll
+async function loadEvalConfig() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            $('#conf_eval_enabled').prop('checked', String(res.data.evaluation_enabled).toUpperCase() === 'TRUE');
+            // Format date for input type=date (YYYY-MM-DD)
+            if (res.data.evaluation_deadline) {
+                const d = new Date(res.data.evaluation_deadline);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                $('#conf_eval_deadline').val(`${yyyy}-${mm}-${dd}`);
+            }
+            
+            // Load Troll Config
+            $('#troll_enabled').prop('checked', String(res.data.troll_enabled).toUpperCase() === 'TRUE');
+            $('#troll_title').val(res.data.troll_title || '');
+            $('#troll_content').val(res.data.troll_content || '');
+            $('#troll_youtube').val(res.data.troll_youtube || '');
+        }
+    } catch (e) { console.error("Config error", e); }
+}
+
+async function saveEvalConfig() {
+    const enabled = $('#conf_eval_enabled').is(':checked') ? 'TRUE' : 'FALSE';
+    const deadline = $('#conf_eval_deadline').val();
+    
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { evaluation_enabled: enabled, evaluation_deadline: deadline } }) });
+        const res = await response.json();
+        if (res.status === 'success') Swal.fire('Thành công', 'Đã lưu cấu hình đánh giá!', 'success');
+        else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+// --- SETTINGS & TROLL FUNCTIONS ---
+function openSettingsModal() {
+    $('#modalSettings').modal('show');
+    $('#darkModeSwitch').prop('checked', $('body').hasClass('dark-mode'));
+    loadEvalConfig(); // Reload config để lấy dữ liệu mới nhất
+}
+
+function toggleDarkMode() {
+    if ($('#darkModeSwitch').is(':checked')) {
+        $('body').addClass('dark-mode');
+        localStorage.setItem('darkMode', 'true');
+    } else {
+        $('body').removeClass('dark-mode');
+        localStorage.setItem('darkMode', 'false');
+    }
+}
+
+// Xử lý ảnh Troll
+$('#troll_file').change(function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) { $('#troll_image_base64').val(e.target.result); };
+        reader.readAsDataURL(file);
+    }
+});
+
+async function saveTrollConfig() {
+    const enabled = $('#troll_enabled').is(':checked') ? 'TRUE' : 'FALSE';
+    const payload = {
+        troll_enabled: enabled,
+        troll_title: $('#troll_title').val(),
+        troll_content: $('#troll_content').val(),
+        troll_youtube: $('#troll_youtube').val()
+    };
+    
+    // Chỉ gửi ảnh nếu có chọn ảnh mới (để tránh xóa ảnh cũ nếu không chọn)
+    const imgBase64 = $('#troll_image_base64').val();
+    if (imgBase64) payload.troll_image = imgBase64;
+    else if (!enabled) payload.troll_image = ''; // Nếu tắt thì có thể xóa ảnh
+
+    Swal.fire({ title: 'Đang lưu & Push...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
+        const res = await response.json();
+        if (res.status === 'success') Swal.fire('Thành công', 'Đã cập nhật cấu hình Troll!', 'success');
+        else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+// Alias function để load config chung
+function loadSystemSettings() {
+    // Đã gộp vào loadEvalConfig nhưng giữ hàm này nếu cần mở rộng
+    loadEvalConfig();
+}
+
+function resetEvaluations() {
+    Swal.fire({
+        title: 'Bắt đầu đợt đánh giá mới?',
+        text: "Hành động này sẽ XÓA TOÀN BỘ dữ liệu đánh giá hiện tại của tất cả học sinh để bắt đầu đợt mới. Bạn có chắc chắn không?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Xóa & Reset',
+        cancelButtonText: 'Hủy'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
+            try {
+                const response = await fetch(API_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ 
+                        action: "RESET_EVALUATIONS", 
+                        payload: { admin_user: user.username } 
+                    }) 
+                });
+                const res = await response.json();
+                if (res.status === 'success') {
+                    Swal.fire('Thành công', res.message, 'success');
+                    loadEvaluations();
+                } else Swal.fire('Lỗi', res.message, 'error');
+            } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+        }
+    });
+}
+
+let globalEvaluationsData = [];
+async function loadEvaluations() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_EVALUATIONS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            const rawEvaluations = res.data; // [ID, Name, Group, Disc, Pos, Vol, Class, By, Time]
+            
+            const mergedList = globalStudentsData.map(st => {
+                const evalItem = rawEvaluations.find(e => String(e[0]) === String(st.id));
+                if (evalItem) {
+                    return {
+                        name: st.fullname,
+                        group: st.group_display,
+                        disc: evalItem[3],
+                        pos: evalItem[4],
+                        vol: evalItem[5],
+                        class: evalItem[6]
+                    };
+                } else {
+                    return {
+                        name: st.fullname,
+                        group: st.group_display,
+                        disc: '',
+                        pos: '',
+                        vol: '',
+                        class: 'Chưa đánh giá'
+                    };
+                }
+            });
+            
+            globalEvaluationsData = mergedList; // Lưu dữ liệu đã ghép để xuất Excel
+
+            let html = '';
+            mergedList.forEach(e => {
+                let badgeClass = 'secondary';
+                if (e.class === 'Xuất sắc') badgeClass = 'success';
+                else if (e.class === 'Tốt') badgeClass = 'primary';
+                else if (e.class === 'Trung bình') badgeClass = 'warning';
+                else if (e.class === 'Yếu') badgeClass = 'danger';
+                else badgeClass = 'light border'; // Chưa đánh giá
+
+                html += `<tr>
+                    <td class="font-weight-bold">${e.name}</td>
+                    <td><span class="badge badge-light border">${e.group}</span></td>
+                    <td><small>${e.disc || '-'}</small></td>
+                    <td><small>${e.pos || '-'}</small></td>
+                    <td><small>${e.vol || '-'}</small></td>
+                    <td><span class="badge badge-${badgeClass}">${e.class}</span></td>
+                </tr>`;
+            });
+            $('#evalData').html(html);
+            if ($.fn.DataTable.isDataTable('#evalTable')) $('#evalTable').DataTable().destroy();
+            $('#evalTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
+        }
+    } catch (e) { console.error("Eval error", e); }
+}
+
 async function updateAttendanceStats() {
     try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "GET_ADMIN_STATS" })
-        });
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_STATS" }) });
         const res = await response.json();
         if (res.status === "success") {
             const s = res.data;
@@ -275,7 +1054,8 @@ async function updateAttendanceStats() {
             $('#countAbsentP').text(s.absent_perm);
             $('#countAbsent').text(s.absent);
             globalHistoryData = s.history || [];
-            renderHistoryTable(globalHistoryData);
+            currentHistoryView = globalHistoryData; // Mặc định hiển thị tất cả
+            renderHistoryTable(currentHistoryView);
             renderChart(s.present, s.absent_perm, s.absent);
         }
     } catch (e) { toastr.error("Không thể kết nối Server."); }
@@ -284,11 +1064,8 @@ async function updateAttendanceStats() {
 function renderHistoryTable(history) {
     let html = '';
     history.forEach(row => {
-        let statusBadge = '';
-        if(row.status === 'present') statusBadge = '<span class="badge badge-success">Có mặt</span>';
-        else if(row.status === 'absent_perm') statusBadge = '<span class="badge badge-warning">Vắng (P)</span>';
-        else statusBadge = '<span class="badge badge-danger">Vắng</span>';
-
+        let statusBadge = row.status === 'present' ? '<span class="badge badge-success">Có mặt</span>' : 
+                          (row.status === 'absent_perm' ? '<span class="badge badge-warning">Vắng (P)</span>' : '<span class="badge badge-danger">Vắng</span>');
         html += `<tr>
             <td><small class="text-muted">${row.timestamp}</small></td>
             <td><b>${row.student_name}</b></td>
@@ -298,6 +1075,32 @@ function renderHistoryTable(history) {
         </tr>`;
     });
     $('#historyAttendanceData').html(html || '<tr><td colspan="5" class="text-center">Trống</td></tr>');
+}
+
+function filterHistory() {
+    const from = $('#filter_from').val();
+    const to = $('#filter_to').val();
+    if(!from || !to) {
+        toastr.warning("Vui lòng chọn đầy đủ Từ ngày và Đến ngày");
+        return;
+    }
+    const d1 = new Date(from); d1.setHours(0,0,0,0);
+    const d2 = new Date(to); d2.setHours(23,59,59,999);
+    
+    currentHistoryView = globalHistoryData.filter(h => {
+        // h.timestamp format: "dd/MM/yyyy HH:mm:ss"
+        const parts = h.timestamp.split(' ')[0].split('/');
+        const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        return d >= d1 && d <= d2;
+    });
+    renderHistoryTable(currentHistoryView);
+    toastr.success(`Đã lọc: ${currentHistoryView.length} bản ghi`);
+}
+
+function resetFilter() {
+    $('#filter_from, #filter_to').val('');
+    currentHistoryView = globalHistoryData;
+    renderHistoryTable(currentHistoryView);
 }
 
 function renderChart(present, absentP, absent) {
@@ -316,37 +1119,326 @@ function renderChart(present, absentP, absent) {
     });
 }
 
-// XUẤT EXCEL LỊCH SỬ
+// AUTO GENERATE ID FUNCTION
+function getNextId(list, prop, prefix = '') {
+    if (!list || list.length === 0) return prefix + '1';
+    let max = 0;
+    list.forEach(item => {
+        let val = String(item[prop]);
+        // Lấy số ở cuối chuỗi ID hiện tại
+        const match = val.match(/(\d+)$/);
+        if (match) {
+            const num = parseInt(match[1]);
+            if (num > max) max = num;
+        }
+    });
+    // Trả về prefix + số tiếp theo
+    return prefix + (max + 1);
+}
+
+// OPEN MODAL FUNCTIONS
+function openStudentModal() { $('#modalStudent').modal('show'); $('#student_id_old').val(''); $('#st_id').prop('readonly', false).val(getNextId(globalStudentsData, 'id', '')); $('#st_name, #st_dob, #st_address, #st_phone, #st_group, #st_school').val(''); }
+function openUserModal() { $('#modalUser').modal('show'); $('#user_id_old').val(''); $('#pass_area').show(); $('#u_name').val(getNextId(globalUsersData, 'username', 'user')); $('#u_pass, #u_role, #u_group, #u_fullname, #u_avatar').val(''); }
+function openGroupModal() { $('#modalGroup').modal('show'); $('#group_id_old').val(''); $('#g_id').val(getNextId(globalGroupsData, 'group_id', '')); $('#g_name').val(''); }
+function openNotiModal() { 
+    $('#modalNoti').modal('show'); 
+    $('#noti_id_old').val(''); 
+    $('#n_id').val(getNextId(globalNotisData, 'id', 'NOTI')); 
+    $('#n_title, #n_content, #n_datetime, #n_location, #n_file, #n_attachment_base64, #n_file_name').val(''); 
+    $('#n_type').val('normal');
+    toggleLocationInput();
+}
+
+function toggleLocationInput() {
+    const type = $('#n_type').val();
+    if (type === 'normal') {
+        $('#grp_location').addClass('d-none');
+    } else {
+        $('#grp_location').removeClass('d-none');
+        $('#lbl_location').text(type === 'online' ? 'Link cuộc họp (Google Meet/Zoom)' : 'Địa điểm tổ chức');
+        $('#n_location').attr('placeholder', type === 'online' ? 'https://meet.google.com/...' : 'Phòng họp số 1, Tầng 2...');
+    }
+}
+
+// Xử lý file đính kèm (Chuyển sang Base64)
+$('#n_file').change(function() {
+    const file = this.files[0];
+    if (file) {
+        $('#n_file_name').val(file.name); // Lưu tên file
+        if (file.size > 35000) { // Giới hạn ~35KB do giới hạn ô Google Sheet
+            toastr.warning("File quá lớn! Vui lòng chọn file < 35KB.");
+            this.value = ''; // Reset input
+            $('#n_attachment_base64').val('');
+            $('#n_file_name').val('');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) { $('#n_attachment_base64').val(e.target.result); };
+        reader.readAsDataURL(file);
+    }
+});
+
+// EDIT FUNCTIONS
+function editStudent(idx) {
+    const s = globalStudentsData[idx];
+    $('#student_id_old').val(s.id);
+    $('#st_id').val(s.id).prop('readonly', true);
+    $('#st_name').val(s.fullname);
+    $('#st_dob').val(s.dob);
+    $('#st_address').val(s.address);
+    $('#st_phone').val(s.phone);
+    $('#st_group').val(s.group_id);
+    $('#st_school').val(s.school);
+    $('#modalStudent').modal('show');
+}
+
+function editUser(idx) {
+    const u = globalUsersData[idx];
+    $('#user_id_old').val(u.username);
+    $('#u_name').val(u.username);
+    $('#u_role').val(u.role);
+    $('#u_group').val(u.group_id);
+    $('#u_fullname').val(u.fullname);
+    $('#u_avatar').val(u.avatar);
+    $('#pass_area').hide();
+    $('#modalUser').modal('show');
+}
+
+function editGroup(idx) {
+    const g = globalGroupsData[idx];
+    $('#group_id_old').val(g.group_id);
+    $('#g_id').val(g.group_id);
+    $('#g_name').val(g.group_name);
+    $('#modalGroup').modal('show');
+}
+
+function openReply(id) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    $('#reply_id').val(id);
+    $('#reply_content').val('');
+    $('#reply_responder').val(user ? user.fullname : '');
+    $('#reply_phone').val('');
+    $('#modalReply').modal('show');
+}
+
+async function submitReply() {
+    const id = $('#reply_id').val();
+    const content = $('#reply_content').val();
+    const responder = $('#reply_responder').val();
+    const phone = $('#reply_phone').val();
+
+    if(!content || !responder) return toastr.warning("Vui lòng nhập nội dung và tên người trả lời!");
+    
+    const fullReply = `${content}<br><br>----------------<br><b>Người trả lời:</b> ${responder}<br><b>SĐT hỗ trợ:</b> ${phone || 'Không có'}`;
+    
+    Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'REPLY_FEEDBACK', payload: { id: id, reply: fullReply } }) });
+        const res = await response.json();
+        if (res.status === 'success') { Swal.fire('Thành công', 'Đã gửi phản hồi', 'success'); $('#modalReply').modal('hide'); loadFeedbacks(); }
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+async function resetPassword(username) {
+    const user = globalUsersData.find(u => String(u.username) === String(username));
+    if (!user) return;
+    
+    const result = await Swal.fire({
+        title: 'Xác nhận reset?',
+        text: `Mật khẩu của ${username} sẽ về mặc định: Abc@123`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Reset ngay',
+        cancelButtonText: 'Hủy'
+    });
+    
+    if (result.isConfirmed) {
+        Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'RESET_PASSWORD', payload: { username: username, admin_user: JSON.parse(sessionStorage.getItem('user')).username } }) });
+            const res = await response.json();
+            if (res.status === 'success') Swal.fire('Thành công!', res.message, 'success');
+            else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    }
+}
+
+// SAVE & DELETE DATA
+async function saveData(type) {
+    let action = 'ADD_DATA', idOld = "", dataArr = [];
+    if (type === 'students') {
+        idOld = $('#student_id_old').val();
+        dataArr = [$('#st_id').val(), $('#st_name').val(), $('#st_dob').val(), $('#st_address').val(), $('#st_phone').val(), $('#st_group').val(), '', $('#st_school').val()];
+    } else if (type === 'users') {
+        idOld = $('#user_id_old').val();
+        dataArr = [$('#u_name').val(), $('#u_pass').val(), $('#u_role').val(), $('#u_group').val(), $('#u_fullname').val(), $('#u_avatar').val()];
+    } else if (type === 'groups') {
+        idOld = $('#group_id_old').val();
+        dataArr = [$('#g_id').val(), $('#g_name').val()];
+    } else if (type === 'notifications') {
+        idOld = $('#noti_id_old').val();
+        // Cấu trúc: ID, Title, Content, DateTime, Early, CreatedAt, Readers(Auto), Type, Location, Attachment, AttachmentName
+        dataArr = [$('#n_id').val(), $('#n_title').val(), $('#n_content').val(), $('#n_datetime').val(), $('#n_early').val(), new Date().toLocaleString(), "", $('#n_type').val(), $('#n_location').val(), $('#n_attachment_base64').val(), $('#n_file_name').val()];
+    }
+
+    if (idOld) action = 'UPDATE_DATA';
+    Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: action, payload: { type: type, id: idOld, data: dataArr } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            $('.modal').modal('hide');
+            Swal.fire('Thành công!', res.message, 'success');
+            refreshAll();
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Không thể kết nối Server', 'error'); }
+}
+
+function deleteData(type, id) {
+    Swal.fire({ title: 'Xóa dữ liệu?', text: "Hành động này không thể hoàn tác!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Xóa' }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: type, id: id } }) });
+                const res = await response.json();
+                if (res.status === 'success') { Swal.fire('Đã xóa!', res.message, 'success'); refreshAll(); }
+            } catch (e) { toastr.error("Lỗi xóa dữ liệu"); }
+        }
+    });
+}
+
+// EXPORT FUNCTIONS
 function exportExcelHistory() {
-    if (globalHistoryData.length === 0) return toastr.warning("Không có dữ liệu!");
-    const data = globalHistoryData.map(item => ({
-        "Thời Gian": item.timestamp,
-        "Học Sinh": item.student_name,
-        "Nhóm": item.group_id,
-        "Trạng Thái": item.status === 'present' ? 'Có mặt' : (item.status === 'absent_perm' ? 'Vắng (P)' : 'Vắng'),
-        "Người Thực Hiện": item.recorded_by
-    }));
+    if (currentHistoryView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
+    const data = currentHistoryView.map(item => ({ "Thời Gian": item.timestamp, "Học Sinh": item.student_name, "Nhóm": item.group_id, "Trạng Thái": item.status, "Người Thực Hiện": item.recorded_by }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử");
-    XLSX.writeFile(wb, `Lich_Su_Diem_Danh_All.xlsx`);
+    XLSX.writeFile(wb, `Lich_Su_Diem_Danh.xlsx`);
 }
 
-// XUẤT EXCEL DANH SÁCH HỌC SINH (CHỮA NGÀY SINH DD/MM/YYYY)
 function exportExcelStudents() {
-    if (globalStudentsData.length === 0) return toastr.warning("Không có dữ liệu học sinh!");
-    const data = globalStudentsData.map(st => ({
-        "Họ Và Tên": st.fullname,
-        "Ngày Sinh": formatDate(st.dob), // CHUẨN DD/MM/YYYY
-        "Nhóm": st.group,
-        "Trường Học": st.school,
-        "Số Điện Thoại": st.phone,
-        "Địa Chỉ": st.address
-    }));
+    if (globalStudentsData.length === 0) return toastr.warning("Không có dữ liệu!");
+    const data = globalStudentsData.map(st => ({ "Họ Và Tên": st.fullname, "Ngày Sinh": st.dob, "Nhóm": st.group_display, "Trường": st.school, "SĐT": st.phone }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "DSHS");
-    XLSX.writeFile(wb, `Danh_Sach_Hoc_Sinh_Toan_He_Thong.xlsx`);
+    XLSX.writeFile(wb, `Danh_Sach_Hoc_Sinh.xlsx`);
+}
+
+function exportExcelEvaluations() {
+    if (globalEvaluationsData.length === 0) return toastr.warning("Chưa có dữ liệu đánh giá!");
+    
+    const data = globalEvaluationsData.map(e => ({
+        "Họ và Tên": e.name,
+        "Nhóm": e.group,
+        "Ý thức tổ chức kỷ luật": e.disc,
+        "Mức độ tích cực": e.pos,
+        "Hoạt động tình nguyện": e.vol,
+        "Xếp loại": e.class
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DanhGia");
+    XLSX.writeFile(wb, `Tong_Hop_Danh_Gia_SHH.xlsx`);
+}
+
+async function backupSystem() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    Swal.fire({ title: 'Đang tạo bản sao lưu...', text: 'Vui lòng chờ, quá trình này có thể mất vài giây.', didOpen: () => Swal.showLoading() });
+    
+    try {
+        const response = await fetch(API_URL, { 
+            method: "POST", 
+            body: JSON.stringify({ 
+                action: "BACKUP_SYSTEM", 
+                payload: { admin_user: user.username } 
+            }) 
+        });
+        const res = await response.json();
+        
+        if (res.status === 'success') {
+            const wb = XLSX.utils.book_new();
+            const data = res.data;
+            
+            for (const [sheetName, sheetData] of Object.entries(data)) {
+                if (sheetData && sheetData.length > 0) {
+                    const ws = XLSX.utils.aoa_to_sheet(sheetData);
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                }
+            }
+            
+            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,"-");
+            XLSX.writeFile(wb, `FULL_BACKUP_SHH_${timestamp}.xlsx`);
+            
+            Swal.fire('Thành công', 'Đã tải xuống file sao lưu toàn bộ hệ thống!', 'success');
+        } else {
+            Swal.fire('Lỗi', res.message, 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        Swal.fire('Lỗi', 'Lỗi kết nối Server khi backup', 'error');
+    }
+}
+
+// IMPORT EXCEL FUNCTIONS
+function openImportModal() {
+    $('#modalImportAdmin').modal('show');
+    $('#file_import_admin').val('');
+}
+
+function downloadTemplate() {
+    const data = [
+        { "Họ và Tên": "Nguyễn Văn A", "Ngày sinh": "20/10/2010", "Nhóm": "1", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" },
+        { "Họ và Tên": "Trần Thị B", "Ngày sinh": "01/01/2011", "Nhóm": "2", "Trường học": "THCS B", "SĐT": "0909654321", "Địa chỉ": "456 Đường XYZ" }
+    ];
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Mau_Nhap_Lieu");
+    XLSX.writeFile(wb, "Mau_Nhap_Lieu_Admin_Full.xlsx");
+}
+
+function processImportAdmin() {
+    const file = document.getElementById('file_import_admin').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file!");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+        if (jsonData.length === 0) return toastr.warning("File rỗng!");
+
+        // Map data to standard format
+        const mappedData = jsonData.map(row => ({
+            fullname: row["Họ và Tên"] || "",
+            dob: row["Ngày sinh"] || "",
+            group_id: row["Nhóm"] || "",
+            school: row["Trường học"] || "",
+            phone: row["SĐT"] || "",
+            address: row["Địa chỉ"] || ""
+        })).filter(item => item.fullname && item.group_id); // Filter invalid rows
+
+        if (mappedData.length === 0) return toastr.warning("Không tìm thấy dữ liệu hợp lệ (Cần có Tên và Nhóm)!");
+
+        Swal.fire({ title: 'Đang nhập liệu...', didOpen: () => Swal.showLoading() });
+        
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "IMPORT_STUDENTS", payload: { students: mappedData } })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                Swal.fire('Thành công', `Đã thêm ${res.count} học sinh!`, 'success');
+                $('#modalImportAdmin').modal('hide');
+                loadStudents();
+            } else Swal.fire('Lỗi', res.message, 'error');
+        })
+        .catch(() => Swal.fire('Lỗi', 'Lỗi kết nối', 'error'));
+    };
+    reader.readAsArrayBuffer(file);
 }
 </script>
 </body>
