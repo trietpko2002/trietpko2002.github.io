@@ -12,6 +12,13 @@
         .attendance-card { transition: transform 0.2s; }
         .attendance-card:hover { transform: scale(1.02); }
         .table td, .table th { vertical-align: middle; }
+        .text-dob { color: #007bff; font-size: 0.85rem; }
+        /* Tối ưu nút bấm trên thiết bị di động */
+        .btn-group-toggle .btn { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
+        @media (max-width: 576px) {
+            .btn-group-toggle { display: flex; width: 100%; }
+            .btn-group-toggle .btn { flex: 1; }
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -87,7 +94,7 @@
             <div class="tab-pane fade show active" id="tab-attendance">
                 <div class="callout callout-info mb-3 shadow-sm">
                     <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
-                    <p class="text-muted mb-0">Vui lòng chọn trạng thái cho từng học sinh và nhấn "Gửi dữ liệu".</p>
+                    <p class="text-muted mb-0">Chọn trạng thái và nhấn "Gửi dữ liệu" để cập nhật biến động cho Admin.</p>
                 </div>
                 
                 <div id="attendanceList" class="row">
@@ -105,20 +112,20 @@
             <div class="tab-pane fade" id="tab-students">
                 <div class="card card-outline card-primary shadow">
                     <div class="card-header">
-                        <h3 class="card-title">Danh sách chi tiết Nhóm <b id="groupBadge">...</b></h3>
+                        <h3 class="card-title">Danh sách chi tiết <b id="groupBadge">...</b></h3>
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap table-valign-middle">
                             <thead class="bg-light">
                                 <tr>
                                     <th>Họ tên</th>
-                                    <th>Trường học</th>
+                                    <th>Ngày sinh</th> <th>Trường học</th>
                                     <th>Địa chỉ</th>
                                     <th>SĐT Phụ huynh</th>
                                 </tr>
                             </thead>
                             <tbody id="groupStudentList">
-                                <tr><td colspan="4" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
+                                <tr><td colspan="5" class="text-center py-4 text-muted">Đang tải dữ liệu...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -134,21 +141,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-// Cấu hình URL Web App của bạn
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 
 document.addEventListener("DOMContentLoaded", function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
-    // Hiển thị thông tin Profile
     document.getElementById('managerDisplayName').innerText = user.fullname;
     document.getElementById('managerFullName').innerText = user.fullname;
-    document.getElementById('userGroupDisplay').innerText = `Nhóm: ${user.group_id}`;
-    document.getElementById('groupBadge').innerText = user.group_id;
+    document.getElementById('userGroupDisplay').innerText = `Nhóm: ${user.group_name || user.group_id}`;
+    document.getElementById('groupBadge').innerText = user.group_name || user.group_id;
     document.getElementById('userAvatar').src = user.avatar || 'https://via.placeholder.com/150';
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
-    // Tải dữ liệu
     fetchStudentsByGroup(user.group_id);
 });
 
@@ -171,25 +175,29 @@ async function fetchStudentsByGroup(groupId) {
             let tableHtml = '';
 
             if (res.data.length === 0) {
-                attContainer.innerHTML = '<div class="col-12 text-center py-5 text-muted">Không tìm thấy học sinh nào trong nhóm này.</div>';
-                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Nhóm trống</td></tr>';
+                attContainer.innerHTML = '<div class="col-12 text-center py-5 text-muted">Không có học sinh trong nhóm này.</div>';
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Nhóm trống</td></tr>';
                 return;
             }
 
             res.data.forEach(student => {
-                // Render Tab Điểm danh (Dạng card)
+                // Giao diện Thẻ điểm danh
                 attHtml += `
                     <div class="col-12 col-sm-6 col-md-4 attendance-card">
                         <div class="info-box shadow-sm border">
                             <span class="info-box-icon bg-info elevation-1"><i class="fas fa-user-graduate"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text font-weight-bold" style="font-size: 1.1rem;">${student.fullname}</span>
+                                <span class="text-dob"><i class="fas fa-birthday-cake mr-1"></i>${student.dob || 'Chưa cập nhật'}</span>
                                 <span class="info-box-number text-muted font-weight-normal" style="font-size: 0.85rem;">${student.school}</span>
                                 <div class="btn-group btn-group-toggle mt-2" data-toggle="buttons">
-                                    <label class="btn btn-sm btn-outline-success active px-3">
+                                    <label class="btn btn-outline-success active">
                                         <input type="radio" name="st_${student.id}" value="present" checked> Có mặt
                                     </label>
-                                    <label class="btn btn-sm btn-outline-danger px-3">
+                                    <label class="btn btn-outline-warning">
+                                        <input type="radio" name="st_${student.id}" value="absent_perm"> Vắng (P)
+                                    </label>
+                                    <label class="btn btn-outline-danger">
                                         <input type="radio" name="st_${student.id}" value="absent"> Vắng
                                     </label>
                                 </div>
@@ -197,10 +205,11 @@ async function fetchStudentsByGroup(groupId) {
                         </div>
                     </div>`;
 
-                // Render Tab Danh sách chi tiết (Dạng bảng)
+                // Giao diện Bảng chi tiết
                 tableHtml += `
                     <tr>
                         <td><div class="font-weight-bold">${student.fullname}</div><small class="text-muted">ID: ${student.id}</small></td>
+                        <td class="text-primary font-weight-bold">${student.dob || '-'}</td>
                         <td>${student.school}</td>
                         <td style="white-space: normal; max-width: 200px;">${student.address}</td>
                         <td><a href="tel:${student.phone}" class="btn btn-sm btn-default"><i class="fas fa-phone mr-2 text-success"></i>${student.phone}</a></td>
@@ -213,18 +222,51 @@ async function fetchStudentsByGroup(groupId) {
             toastr.error(res.message);
         }
     } catch (error) {
-        toastr.error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại URL API.");
-        console.error(error);
+        toastr.error("Lỗi kết nối máy chủ.");
     }
 }
 
-function submitAttendance() {
-    toastr.info('Đang đồng bộ dữ liệu điểm danh...');
+async function submitAttendance() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const attendanceData = [];
+    const inputs = document.querySelectorAll('input[type="radio"]:checked');
     
-    // Mô phỏng quá trình gửi
-    setTimeout(() => {
-        toastr.success('Dữ liệu điểm danh đã được ghi nhận thành công!');
-    }, 1200);
+    inputs.forEach(input => {
+        attendanceData.push({
+            student_id: input.name.replace('st_', ''),
+            status: input.value
+        });
+    });
+
+    if (attendanceData.length === 0) {
+        toastr.warning("Không có dữ liệu để gửi!");
+        return;
+    }
+
+    toastr.info('Đang đồng bộ dữ liệu điểm danh...');
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "SAVE_ATTENDANCE",
+                payload: {
+                    group_id: user.group_id,
+                    recorded_by: user.fullname,
+                    attendance: attendanceData
+                }
+            })
+        });
+        
+        const res = await response.json();
+        if (res.status === "success") {
+            toastr.success('Dữ liệu điểm danh đã được ghi nhận vào bảng hệ thống!');
+        } else {
+            toastr.error("Lỗi: " + res.message);
+        }
+    } catch (error) {
+        toastr.error("Không thể kết nối để lưu dữ liệu. Vui lòng thử lại.");
+    }
 }
 </script>
 </body>

@@ -4,27 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng nhập | Hệ thống Quản lý SHH</title>
-
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  
   <style>
     .login-page { background: #e9ecef; }
     .card-primary.card-outline { border-top: 3px solid #007bff; }
-    #pinInput { 
-        letter-spacing: 12px; 
-        font-weight: bold; 
-        text-align: center; 
-        font-size: 32px; 
-        border: 2px solid #007bff; 
-        color: #007bff;
-        height: 60px;
-    }
-    .modal-content { border-radius: 20px; border: none; }
-    .btn-lg { border-radius: 10px; }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -34,16 +21,16 @@
       <h2 class="mb-0"><b>Quản lý</b> SHH</h2>
     </div>
     <div class="card-body text-center">
-      <p class="login-box-msg">Vui lòng đăng nhập để bắt đầu phiên</p>
+      <p class="login-box-msg">Đăng nhập bằng tài khoản Quản lý/Admin</p>
 
       <form id="loginForm">
-        <div class="input-group mb-3 text-left">
+        <div class="input-group mb-3">
           <input type="text" id="username" class="form-control" placeholder="Tên đăng nhập" required>
           <div class="input-group-append">
             <div class="input-group-text"><span class="fas fa-user"></span></div>
           </div>
         </div>
-        <div class="input-group mb-3 text-left">
+        <div class="input-group mb-3">
           <input type="password" id="password" class="form-control" placeholder="Mật khẩu" required>
           <div class="input-group-append">
             <div class="input-group-text"><span class="fas fa-lock"></span></div>
@@ -52,33 +39,10 @@
         
         <div class="cf-turnstile mb-3" data-sitekey="3x00000000000000000000FF" data-callback="onTurnstileSuccess"></div>
 
-        <div class="row">
-          <div class="col-12">
-            <button type="submit" id="submitBtn" class="btn btn-primary btn-block" disabled>
-                <i class="fas fa-sign-in-alt mr-2"></i> Đăng nhập
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="modalPIN" data-backdrop="static" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content shadow-lg">
-      <div class="modal-body text-center p-4">
-        <i class="fas fa-key fa-3x text-warning mb-3"></i>
-        <h5 class="font-weight-bold">Mã PIN Admin</h5>
-        <p class="small text-muted mb-4">Nhập mã PIN 6 số để hoàn tất đăng nhập</p>
-        <div class="form-group mb-4">
-            <input type="password" maxlength="6" id="pinInput" class="form-control" placeholder="******" autocomplete="off">
-        </div>
-        <button onclick="verifyPIN()" class="btn btn-warning btn-block btn-lg shadow font-weight-bold">
-            <i class="fas fa-unlock-alt mr-2"></i> XÁC NHẬN
+        <button type="submit" id="submitBtn" class="btn btn-primary btn-block" disabled>
+            <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY
         </button>
-        <button type="button" class="btn btn-link btn-sm mt-2 text-muted" data-dismiss="modal">Hủy bỏ</button>
-      </div>
+      </form>
     </div>
   </div>
 </div>
@@ -89,10 +53,8 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
-    let tempUser = null;
 
-    // BẮT BUỘC: Xóa phiên làm việc cũ khi tải lại trang login
-    window.onload = () => { sessionStorage.clear(); localStorage.removeItem('user'); };
+    window.onload = () => { sessionStorage.clear(); };
 
     function onTurnstileSuccess() { 
         document.getElementById('submitBtn').disabled = false; 
@@ -101,7 +63,10 @@
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...';
+        const user = $('#username').val().trim();
+        const pass = $('#password').val().trim();
+
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác thực...';
         btn.disabled = true;
 
         try {
@@ -109,57 +74,27 @@
                 method: "POST",
                 body: JSON.stringify({ 
                     action: "LOGIN", 
-                    payload: { 
-                        username: $('#username').val().trim(), 
-                        password: $('#password').val().trim() 
-                    } 
+                    payload: { username: user, password: pass } 
                 })
             });
             const res = await response.json();
 
             if (res.status === "success") {
-                tempUser = res.user;
-                if (tempUser.role.toLowerCase() === 'admin') {
-                    $('#pinInput').val('');
-                    $('#modalPIN').modal('show');
-                    setTimeout(() => $('#pinInput').focus(), 600);
-                } else {
-                    // Sử dụng sessionStorage để tự động logout khi refresh/đóng tab
-                    sessionStorage.setItem('user', JSON.stringify(tempUser));
-                    toastr.success("Đăng nhập thành công!");
-                    window.location.replace('index.html');
-                }
+                sessionStorage.setItem('user', JSON.stringify(res.user));
+                toastr.success("Đăng nhập thành công!");
+                setTimeout(() => {
+                    window.location.replace(res.user.role === 'admin' ? 'admin.html' : 'index.html');
+                }, 800);
             } else {
                 toastr.error(res.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY';
             }
         } catch (error) {
-            toastr.error("Lỗi kết nối Server!");
-        } finally {
+            toastr.error("Lỗi kết nối hệ thống!");
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Đăng nhập';
+            btn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY';
         }
-    });
-
-    function verifyPIN() {
-        const pinInput = $('#pinInput').val().trim();
-        if(pinInput.length === 0) {
-            toastr.warning("Vui lòng nhập mã PIN");
-            return;
-        }
-
-        if (pinInput === String(tempUser.pin_2FA)) {
-            // Lưu vào session khi PIN đúng
-            sessionStorage.setItem('user', JSON.stringify(tempUser));
-            toastr.success('Xác thực PIN thành công!');
-            window.location.replace('admin.html');
-        } else {
-            toastr.error("Mã PIN không chính xác!");
-            $('#pinInput').val('').focus();
-        }
-    }
-
-    $('#pinInput').keypress(function (e) {
-        if (e.which == 13) { verifyPIN(); return false; }
     });
 </script>
 </body>
