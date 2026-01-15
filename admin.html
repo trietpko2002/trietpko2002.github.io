@@ -390,13 +390,19 @@
                 <section class="content">
                     <div class="container-fluid">
                         <div class="card shadow">
-                            <div class="card-header bg-primary"><h3 class="card-title"><i class="fas fa-cloud-download-alt mr-2"></i>Danh sách tệp tin & Link đã nhận</h3></div>
+                            <div class="card-header bg-primary"><h3 class="card-title"><i class="fas fa-cloud-download-alt mr-2"></i>Quản lý Tài nguyên & Tệp tin</h3></div>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <p class="mb-0 text-muted"><i class="fas fa-info-circle mr-1"></i>File tải lên sẽ tự động xóa sau <strong>7 ngày</strong>.</p>
+                                    <p class="mb-0 text-muted"><i class="fas fa-info-circle mr-1"></i>Danh sách file từ Quản lý và Admin.</p>
                                     <button class="btn btn-sm btn-success" onclick="loadUploadedFiles()"><i class="fas fa-sync mr-1"></i>Làm mới danh sách</button>
                                 </div>
                                 
+                                <div class="form-group bg-light p-3 border rounded">
+                                    <label class="text-info"><i class="fas fa-upload mr-2"></i>Admin Upload (Tài nguyên chung cho các nhóm)</label>
+                                    <input type="file" id="file_upload_generic" class="form-control-file border p-2 bg-white">
+                                    <button type="button" class="btn btn-info mt-2" onclick="uploadFileGeneric('admin')"><i class="fas fa-upload mr-2"></i>Tải lên ngay</button>
+                                </div>
+
                                 <div class="table-responsive mt-2" style="max-height: 500px;">
                                     <table class="table table-bordered table-hover">
                                         <thead class="bg-light">
@@ -412,13 +418,6 @@
                                         <tbody id="uploadedFilesList"></tbody>
                                     </table>
                                 </div>
-
-                                <hr>
-                                <h5 class="text-info"><i class="fas fa-upload mr-2"></i>Admin Upload (Lưu trữ tạm)</h5>
-                                <div class="form-group">
-                                    <input type="file" id="file_upload_generic" class="form-control-file border p-2">
-                                </div>
-                                <button type="button" class="btn btn-info" onclick="uploadFileGeneric('admin')"><i class="fas fa-upload mr-2"></i>Tải lên ngay</button>
                             </div>
                         </div>
                     </div>
@@ -910,6 +909,14 @@
                             <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_feedback"><label class="custom-control-label" for="maint_feedback">Góp ý</label></div></div>
                             <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_upload"><label class="custom-control-label" for="maint_upload">Tải file (Upload)</label></div></div>
                         </div>
+                        <hr>
+                        <h6 class="text-warning font-weight-bold"><i class="fas fa-user-lock mr-2"></i>Khóa nhập liệu Học sinh</h6>
+                        <div class="form-group d-flex justify-content-between align-items-center">
+                            <label class="mb-0">Khóa nhập/thêm học sinh mới</label>
+                            <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_student_import_locked"><label class="custom-control-label" for="conf_student_import_locked"></label></div>
+                        </div>
+                        <div class="form-group"><label>Hạn chót nhập liệu (Tự động khóa sau ngày này)</label><input type="date" id="conf_student_import_deadline" class="form-control"></div>
+
                         <div class="form-group mt-2 border-top pt-2">
                             <label>Giới hạn dung lượng file Upload (MB)</label>
                             <input type="number" id="conf_max_upload_size" class="form-control" placeholder="Mặc định: 200" value="200">
@@ -1319,6 +1326,10 @@ async function loadEvalConfig() {
             $('#maint_feedback').prop('checked', String(res.data.maint_feedback).toUpperCase() === 'TRUE');
             $('#maint_upload').prop('checked', String(res.data.maint_upload).toUpperCase() === 'TRUE');
             
+            // Student Import Lock
+            $('#conf_student_import_locked').prop('checked', String(res.data.student_import_locked).toUpperCase() === 'TRUE');
+            if(res.data.student_import_deadline) $('#conf_student_import_deadline').val(res.data.student_import_deadline.split('T')[0]);
+            
             // Load Max Upload Size
             globalMaxUploadSize = parseInt(res.data.max_upload_size) || 200;
             $('#conf_max_upload_size').val(globalMaxUploadSize);
@@ -1447,6 +1458,8 @@ async function saveFeatureConfig() {
         maint_eval: $('#maint_eval').is(':checked') ? 'TRUE' : 'FALSE',
         maint_feedback: $('#maint_feedback').is(':checked') ? 'TRUE' : 'FALSE',
         maint_upload: $('#maint_upload').is(':checked') ? 'TRUE' : 'FALSE',
+        student_import_locked: $('#conf_student_import_locked').is(':checked') ? 'TRUE' : 'FALSE',
+        student_import_deadline: $('#conf_student_import_deadline').val(),
         max_upload_size: $('#conf_max_upload_size').val() || '200',
         upload_drive_link: $('#conf_upload_drive_link').val().trim()
     };
