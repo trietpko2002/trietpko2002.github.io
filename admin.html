@@ -352,6 +352,7 @@
                                             <th>Nhóm phụ trách</th>
                                             <th>Quyền hạn</th>
                                             <th>Bảo mật PIN</th>
+                                            <th>Lần đăng nhập cuối</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
@@ -469,27 +470,6 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
-                        <!-- Bộ lọc Góp ý -->
-                        <div class="card card-outline card-info shadow mb-3">
-                            <div class="card-header"><h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc Góp ý</h3></div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-2">
-                                        <input type="text" id="fb_filter_search" class="form-control" placeholder="Tìm theo tên, nội dung...">
-                                    </div>
-                                    <div class="col-md-3 mb-2">
-                                        <select id="fb_filter_group" class="form-control"><option value="">-- Tất cả Nhóm --</option></select>
-                                    </div>
-                                    <div class="col-md-3 mb-2">
-                                        <select id="fb_filter_status" class="form-control"><option value="">-- Trạng thái --</option><option value="replied">Đã trả lời</option><option value="pending">Chờ xử lý</option></select>
-                                    </div>
-                                    <div class="col-md-2 mb-2 text-right">
-                                        <button class="btn btn-primary" onclick="filterFeedbacks()"><i class="fas fa-search"></i></button>
-                                        <button class="btn btn-secondary" onclick="resetFeedbackFilter()"><i class="fas fa-undo"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
                                 <table id="feedbackTable" class="table table-hover table-bordered w-100">
@@ -1070,7 +1050,7 @@ function resetStudentFilter() {
 }
 
 async function loadExtraData() {
-    $('#managerData').html(getLoadingRowHtml(6));
+    $('#managerData').html(getLoadingRowHtml(8));
     $('#notiData').html(getLoadingRowHtml(8));
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS" }) });
@@ -1097,6 +1077,7 @@ async function loadExtraData() {
                     <td><span class="badge badge-warning">${m.group_id}</span></td>
                     <td><span class="badge badge-secondary">${m.role}</span></td>
                     <td>${toggleBtn}</td>
+                    <td><small>${m.last_login || '-'}</small></td>
                     <td>
                         <button class="btn btn-info btn-action" onclick="editUser('${m.username}')"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-warning btn-action" onclick="resetPassword('${m.username}')" title="Reset Pass"><i class="fas fa-key"></i></button>
@@ -1109,7 +1090,7 @@ async function loadExtraData() {
             }
             $('#managerData').html(mHtml);
             $('#managerTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }});
-
+ 
             // Groups View
             let gHtml = '';
             res.data.groups.forEach((g, idx) => {
@@ -1206,61 +1187,39 @@ async function loadFeedbacks() {
         if (res.status === "success") {
             let html = '';
             globalFeedbacksData = res.data || [];
-            
-            // Populate Group Filter for Feedback
-            const groups = [...new Set(globalFeedbacksData.map(f => f.group_id ? String(f.group_id) : ""))].filter(g => g).sort();
-            let gHtml = '<option value="">-- Tất cả Nhóm --</option>';
-            groups.forEach(g => gHtml += `<option value="${g}">Nhóm ${g}</option>`);
-            $('#fb_filter_group').html(gHtml);
-
-            filterFeedbacks(); // Render with default filter
+            renderFeedbacks(globalFeedbacksData);
         }
     } catch (e) { console.error("Feedback error", e); $('#feedbackData').html(getErrorRowHtml(5)); }
 }
 
-function filterFeedbacks() {
-    const search = ($('#fb_filter_search').val() || '').toLowerCase();
-    const group = $('#fb_filter_group').val();
-    const status = $('#fb_filter_status').val();
-
-    const filtered = globalFeedbacksData.filter(fb => {
-        const fName = fb.fullname ? String(fb.fullname).toLowerCase() : "";
-        const fTitle = fb.title ? String(fb.title).toLowerCase() : "";
-        const fDiff = fb.difficulty ? String(fb.difficulty).toLowerCase() : "";
-
-        const matchSearch = !search || 
-            fName.includes(search) || 
-            fTitle.includes(search) ||
-            fDiff.includes(search);
-        
-        const matchGroup = !group || String(fb.group_id) === String(group);
-        const matchStatus = !status || fb.status === status;
-
-        return matchSearch && matchGroup && matchStatus;
-    });
-
+function renderFeedbacks(data) {
     let html = '';
-    if (filtered.length === 0) {
-        html = '<tr><td colspan="5" class="text-center">Không tìm thấy kết quả</td></tr>';
+    if (data.length === 0) {
+        html = '<tr><td colspan="5" class="text-center">Không có góp ý nào.</td></tr>';
     } else {
-        filtered.forEach(fb => {
+        data.forEach(fb => {
+            const contentAndAttachments = `
+                <b>${fb.title || '(Không có tiêu đề)'}</b><br>
+                <small>
+                    <span class="text-danger">Khó khăn:</span> ${fb.difficulty || 'Không'}<br>
+                    <span class="text-info">Góp ý:</span> ${fb.suggestion || 'Không'}
+                </small>
+                <div class="mt-2">
+                    ${fb.drive_link ? `<a href="${fb.drive_link}" target="_blank" class="btn btn-xs btn-info mb-1"><i class="fab fa-google-drive mr-1"></i>Link Drive</a> ` : ''}
+                    ${fb.attachment ? `<a href="${fb.attachment}" download="${fb.attachment_name || 'file'}" class="btn btn-xs btn-secondary"><i class="fas fa-download mr-1"></i>Tải File</a>` : ''}
+                </div>
+            `;
+
             html += `<tr>
                 <td><small>${fb.timestamp}</small></td>
                 <td>
-                    <b>${fb.fullname}</b><br>
+                    <b>${fb.fullname || 'Vô danh'}</b><br>
                     <small>SĐT: ${fb.phone}</small><br>
                     <span class="badge badge-secondary">Nhóm ${fb.group_id}</span>
                 </td>
                 <td>
-                    <b>${fb.title}</b><br>
-                    <span class="text-danger">Khó khăn:</span> ${fb.difficulty}<br>
-                    <span class="text-info">Góp ý:</span> ${fb.suggestion}
+                    ${contentAndAttachments}
                 </td>
-            <td>
-                ${fb.drive_link ? `<a href="${fb.drive_link}" target="_blank" class="btn btn-xs btn-info mb-1"><i class="fab fa-google-drive mr-1"></i>Link Drive</a><br>` : ''}
-                ${fb.attachment ? `<a href="${fb.attachment}" download="${fb.attachment_name || 'file'}" class="btn btn-xs btn-secondary"><i class="fas fa-download mr-1"></i>Tải File</a>` : ''}
-                ${!fb.drive_link && !fb.attachment ? '<small class="text-muted">Không có file</small>' : ''}
-            </td>
                 <td>
                     ${fb.reply ? `<div class="alert alert-light border">${fb.reply}</div>` : '<i class="text-muted">Chưa có phản hồi</i>'}
                 </td>
@@ -1279,13 +1238,8 @@ function filterFeedbacks() {
     $('#feedbackTable').DataTable({ 
         "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }, 
         "order": [[ 0, "desc" ]],
-        "searching": false // Disable built-in search to use our custom filter
+        "searching": true
     });
-}
-
-function resetFeedbackFilter() {
-    $('#fb_filter_search, #fb_filter_group, #fb_filter_status').val('');
-    filterFeedbacks();
 }
 
 // Load config cho cả Eval và Troll
