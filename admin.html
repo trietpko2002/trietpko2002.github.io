@@ -37,6 +37,38 @@
         body.dark-mode .form-control:focus { background-color: #454d55; color: #fff; }
         body.dark-mode .custom-file-label { background-color: #454d55; color: #fff; }
         body.dark-mode .custom-file-label::after { background-color: #56606a; color: #fff; }
+
+        @media print {
+            /* Hide all UI chrome */
+            .main-sidebar, .main-header, .btn, .modal, .nav-tabs, .card-outline, .content-header, .nav-header, .small-box, .modal-backdrop {
+                display: none !important;
+            }
+            /* Hide non-active tabs */
+            .tab-pane:not(.active) {
+                display: none !important;
+            }
+            /* Reset layout for printing */
+            .content-wrapper {
+                margin-left: 0 !important;
+                padding-top: 0 !important;
+                background: #fff !important;
+            }
+            .tab-pane.active {
+                display: block !important;
+                opacity: 1 !important;
+            }
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #ddd;
+            }
+            /* Hide datatable controls for cleaner print */
+            .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate {
+                display: none !important;
+            }
+            .table-responsive {
+                overflow-x: visible !important;
+            }
+        }
     </style>
 </head>
 
@@ -243,6 +275,7 @@
                     <div class="container-fluid d-flex justify-content-between">
                         <h1>Danh sách học sinh toàn hệ thống</h1>
                         <div>
+                            <button class="btn btn-default" onclick="printStudents()"><i class="fas fa-print"></i> In danh sách</button>
                             <button class="btn btn-success" onclick="openStudentModal()"><i class="fas fa-plus"></i> Thêm Học Sinh</button>
                         </div>
                     </div>
@@ -1000,12 +1033,12 @@ function renderStudentTable(data) {
             <td><a href="tel:${st.phone}">${st.phone || '-'}</a></td>
             <td><small>${st.address || '-'}</small></td>
             <td>
-                <button class="btn btn-info btn-action" onclick="editStudent(${index})"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-info btn-action" onclick="editStudent('${st.id}')"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-danger btn-action" onclick="deleteData('students', '${st.id}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     });
-    $('#studentData').html(html);
+    $('#studentData').empty().html(html);
     
     if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
     $('#studentTable').DataTable({ 
@@ -1084,7 +1117,7 @@ async function loadExtraData() {
                     <td><span class="badge badge-secondary">${m.role}</span></td>
                     <td>${toggleBtn}</td>
                     <td>
-                        <button class="btn btn-info btn-action" onclick="editUser(${idx})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-info btn-action" onclick="editUser('${m.username}')"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-warning btn-action" onclick="resetPassword('${m.username}')" title="Reset Pass"><i class="fas fa-key"></i></button>
                         <button class="btn btn-danger btn-action" onclick="deleteData('users', '${m.username}')"><i class="fas fa-trash"></i></button>
                     </td>
@@ -1250,7 +1283,7 @@ function filterFeedbacks() {
             </tr>`;
         });
     }
-    $('#feedbackData').html(html);
+    $('#feedbackData').empty().html(html);
     
     // Re-init DataTable if needed, or just rely on manual filter
     if ($.fn.DataTable.isDataTable('#feedbackTable')) $('#feedbackTable').DataTable().destroy();
@@ -1609,7 +1642,7 @@ function renderEvaluationTable(data) {
             </tr>`;
         });
     }
-    $('#evalData').html(html);
+    $('#evalData').empty().html(html);
     if ($.fn.DataTable.isDataTable('#evalTable')) $('#evalTable').DataTable().destroy();
     $('#evalTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }, "searching": false });
 }
@@ -1760,8 +1793,11 @@ $('#n_file').change(function() {
 });
 
 // EDIT FUNCTIONS
-function editStudent(idx) {
-    const s = globalStudentsData[idx];
+function editStudent(studentId) {
+    const s = globalStudentsData.find(st => String(st.id) === String(studentId));
+    if (!s) {
+        return toastr.error("Không tìm thấy học sinh để sửa!");
+    }
     $('#student_id_old').val(s.id);
     $('#st_id').val(s.id).prop('readonly', true);
     $('#st_name').val(s.fullname);
@@ -1773,8 +1809,11 @@ function editStudent(idx) {
     $('#modalStudent').modal('show');
 }
 
-function editUser(idx) {
-    const u = globalUsersData[idx];
+function editUser(username) {
+    const u = globalUsersData.find(user => String(user.username) === String(username));
+    if (!u) {
+        return toastr.error("Không tìm thấy tài khoản để sửa!");
+    }
     $('#user_id_old').val(u.username);
     $('#u_name').val(u.username);
     $('#u_role').val(u.role);
@@ -1873,6 +1912,25 @@ async function saveData(type) {
             refreshAll();
         } else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Không thể kết nối Server', 'error'); }
+}
+
+function printStudents() {
+    const table = $('#studentTable').DataTable();
+    const pageLength = table.page.len();
+    
+    const afterPrint = () => {
+        table.page.len(pageLength).draw();
+        window.removeEventListener('afterprint', afterPrint);
+    };
+    window.addEventListener('afterprint', afterPrint);
+
+    // Show all entries for printing
+    table.page.len(-1).draw();
+
+    // Use a timeout to allow the table to redraw before printing
+    setTimeout(() => {
+        window.print();
+    }, 300);
 }
 
 function deleteData(type, id) {
