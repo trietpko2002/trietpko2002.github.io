@@ -517,6 +517,7 @@
                     <div class="container-fluid d-flex justify-content-between">
                         <h1>Tổng hợp Đánh giá & Xếp loại</h1>
                         <div>
+                            <button class="btn btn-warning mr-2" onclick="openEvalConfigModal()"><i class="fas fa-cogs"></i> Cấu hình</button>
                             <button class="btn btn-primary mr-2" onclick="loadEvaluations()"><i class="fas fa-sync"></i> Tải lại</button>
                             <button class="btn btn-success" onclick="exportExcelEvaluations()"><i class="fas fa-file-excel"></i> Xuất Báo Cáo</button>
                         </div>
@@ -554,28 +555,6 @@
                                     <div class="col-md-3 mb-2 text-right">
                                         <button class="btn btn-primary" onclick="filterEvaluations()"><i class="fas fa-search mr-2"></i>Lọc</button>
                                         <button class="btn btn-secondary" onclick="resetEvaluationFilter()"><i class="fas fa-undo"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card card-outline card-danger shadow mb-3">
-                            <div class="card-header"><h3 class="card-title font-weight-bold"><i class="fas fa-cogs mr-2"></i>Cấu hình Đợt đánh giá</h3></div>
-                            <div class="card-body">
-                                <div class="row align-items-end">
-                                    <div class="col-md-4 form-group">
-                                        <label>Trạng thái đánh giá</label>
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="conf_eval_enabled">
-                                            <label class="custom-control-label font-weight-bold" for="conf_eval_enabled">Cho phép đánh giá</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 form-group"><label>Hạn chót (Deadline)</label><input type="date" id="conf_eval_deadline" class="form-control"></div>
-                                    <div class="col-md-3 form-group"><button class="btn btn-danger btn-block" onclick="saveEvalConfig()"><i class="fas fa-save mr-2"></i>Lưu cấu hình</button></div>
-                                    <div class="col-md-2 form-group">
-                                        <button class="btn btn-warning btn-block font-weight-bold" onclick="resetEvaluations()">
-                                            <i class="fas fa-redo-alt mr-2"></i>Reset Đợt Mới
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1038,9 +1017,11 @@ function renderStudentTable(data) {
             </td>
         </tr>`;
     });
-    $('#studentData').empty().html(html);
     
-    if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#studentTable')) {
+        $('#studentTable').DataTable().destroy();
+    }
+    $('#studentData').html(html);
     $('#studentTable').DataTable({ 
         "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
         "pageLength": 10,
@@ -1123,8 +1104,10 @@ async function loadExtraData() {
                     </td>
                 </tr>`;
             });
+            if ($.fn.DataTable.isDataTable('#managerTable')) {
+                $('#managerTable').DataTable().destroy();
+            }
             $('#managerData').html(mHtml);
-            if ($.fn.DataTable.isDataTable('#managerTable')) $('#managerTable').DataTable().destroy();
             $('#managerTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }});
 
             // Groups View
@@ -1283,10 +1266,12 @@ function filterFeedbacks() {
             </tr>`;
         });
     }
-    $('#feedbackData').empty().html(html);
     
     // Re-init DataTable if needed, or just rely on manual filter
-    if ($.fn.DataTable.isDataTable('#feedbackTable')) $('#feedbackTable').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#feedbackTable')) {
+        $('#feedbackTable').DataTable().destroy();
+    }
+    $('#feedbackData').html(html);
     $('#feedbackTable').DataTable({ 
         "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }, 
         "order": [[ 0, "desc" ]],
@@ -1364,7 +1349,10 @@ async function saveEvalConfig() {
     try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { evaluation_enabled: enabled, evaluation_deadline: deadline } }) });
         const res = await response.json();
-        if (res.status === 'success') Swal.fire('Thành công', 'Đã lưu cấu hình đánh giá!', 'success');
+        if (res.status === 'success') {
+            Swal.fire('Thành công', 'Đã lưu cấu hình đánh giá!', 'success');
+            $('#modalEvalConfig').modal('hide');
+        }
         else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
@@ -1642,8 +1630,10 @@ function renderEvaluationTable(data) {
             </tr>`;
         });
     }
-    $('#evalData').empty().html(html);
-    if ($.fn.DataTable.isDataTable('#evalTable')) $('#evalTable').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#evalTable')) {
+        $('#evalTable').DataTable().destroy();
+    }
+    $('#evalData').html(html);
     $('#evalTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }, "searching": false });
 }
 
@@ -2248,6 +2238,10 @@ function openPollModal() {
     $('#poll_question, #poll_options, #poll_deadline').val('');
 }
 
+function openEvalConfigModal() {
+    $('#modalEvalConfig').modal('show');
+}
+
 async function createPoll() {
     const question = $('#poll_question').val().trim();
     const optionsStr = $('#poll_options').val().trim();
@@ -2332,5 +2326,41 @@ async function exportPollExcel(pollId, title) {
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 </script>
+
+<!-- Modal Eval Config -->
+<div class="modal fade" id="modalEvalConfig" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-cogs mr-2"></i>Cấu hình Đợt đánh giá</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Trạng thái đánh giá</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="conf_eval_enabled">
+                        <label class="custom-control-label font-weight-bold" for="conf_eval_enabled">Cho phép đánh giá</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hạn chót (Deadline)</label>
+                    <input type="date" id="conf_eval_deadline" class="form-control">
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label class="text-danger font-weight-bold">Khu vực nguy hiểm</label>
+                    <button class="btn btn-warning btn-block font-weight-bold" onclick="resetEvaluations()">
+                        <i class="fas fa-redo-alt mr-2"></i>Reset Đợt Mới (Xóa hết đánh giá)
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="saveEvalConfig()">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
