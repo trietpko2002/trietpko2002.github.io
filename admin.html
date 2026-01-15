@@ -1205,10 +1205,10 @@ async function loadFeedbacks() {
         const res = await response.json();
         if (res.status === "success") {
             let html = '';
-            globalFeedbacksData = res.data;
+            globalFeedbacksData = res.data || [];
             
             // Populate Group Filter for Feedback
-            const groups = [...new Set(globalFeedbacksData.map(f => f.group_id))].sort();
+            const groups = [...new Set(globalFeedbacksData.map(f => f.group_id ? String(f.group_id) : ""))].filter(g => g).sort();
             let gHtml = '<option value="">-- Tất cả Nhóm --</option>';
             groups.forEach(g => gHtml += `<option value="${g}">Nhóm ${g}</option>`);
             $('#fb_filter_group').html(gHtml);
@@ -1219,15 +1219,19 @@ async function loadFeedbacks() {
 }
 
 function filterFeedbacks() {
-    const search = $('#fb_filter_search').val().toLowerCase();
+    const search = ($('#fb_filter_search').val() || '').toLowerCase();
     const group = $('#fb_filter_group').val();
     const status = $('#fb_filter_status').val();
 
     const filtered = globalFeedbacksData.filter(fb => {
+        const fName = fb.fullname ? String(fb.fullname).toLowerCase() : "";
+        const fTitle = fb.title ? String(fb.title).toLowerCase() : "";
+        const fDiff = fb.difficulty ? String(fb.difficulty).toLowerCase() : "";
+
         const matchSearch = !search || 
-            (fb.fullname && fb.fullname.toLowerCase().includes(search)) || 
-            (fb.title && fb.title.toLowerCase().includes(search)) ||
-            (fb.difficulty && fb.difficulty.toLowerCase().includes(search));
+            fName.includes(search) || 
+            fTitle.includes(search) ||
+            fDiff.includes(search);
         
         const matchGroup = !group || String(fb.group_id) === String(group);
         const matchStatus = !status || fb.status === status;
