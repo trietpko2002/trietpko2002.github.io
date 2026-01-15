@@ -53,9 +53,8 @@ function doPost(e) {
     if (action === 'GET_FUND_LOGS') return handleGetFundLogs(payload);
     if (action === 'CHANGE_PASSWORD') return handleUserChangePassword(payload);
     if (action === 'UPDATE_AVATAR') return handleUserUpdateAvatar(payload);
-    if (action === 'TOGGLE_PIN') return handleTogglePIN(payload);
-    if (action === 'VERIFY_PIN') return handleVerifyPIN(payload);
-    if (action === 'CHANGE_PIN') return handleUserChangePin(payload);
+    if (action === 'UPDATE_PROFILE') return handleUpdateProfile(payload);
+    if (action === 'SAVE_USER_ADMIN') return handleSaveUserAdmin(payload);
 
     // --- 5. NHÓM TÍNH NĂNG BÌNH CHỌN (POLL) ---
     if (action === 'VOTE_POLL') return handleVotePoll(payload);
@@ -510,9 +509,13 @@ function handleUserChangePassword(payload) {
     const sheet = ss.getSheetByName('users');
     const rows = sheet.getDataRange().getValues();
     const username = String(payload.username).trim();
+    const oldPass = String(payload.old_pass).trim();
     const newPass = payload.new_pass;
     for (let i = 1; i < rows.length; i++) {
       if (rows[i][0].toString().trim() === username) {
+        if (String(rows[i][1]).trim() !== oldPass) {
+            return response({ status: 'error', message: 'Mật khẩu cũ không chính xác!' });
+        }
         sheet.getRange(i + 1, 2).setValue(newPass);
         writeLog(username, "CHANGE_PASS", "Người dùng tự đổi mật khẩu");
         return response({ status: 'success', message: 'Đổi mật khẩu thành công!' });
@@ -739,7 +742,6 @@ function handleLogin(payload) {
   const rows = sheet.getDataRange().getValues();
   const userIn = payload.username.toString().trim();
   const passIn = payload.password.toString().trim();
-  const pinIn = payload.pin ? payload.pin.toString().trim() : null;
   
   // Chạy dọn dẹp hệ thống (Xóa file > 7 ngày, Link > 30 ngày) khi có người đăng nhập
   cleanUpSystem();
@@ -784,40 +786,23 @@ function handleLogin(payload) {
           devices.push(currentUA);
         }
 
-        const isPinEnabled = (rows[i][6] === true || rows[i][6] === 'TRUE');
-        // Nếu đổi thiết bị quá 5 lần -> Bắt buộc xác thực PIN
-        const forcePinByDevice = devices.length > 5;
-        // Nếu đăng nhập thành công liên tục >= 10 lần -> Bắt buộc xác thực PIN
-        const forcePinBySuccess = secData.successfulAttempts >= 9; // Lần này là lần thứ 10
-
-        if (isPinEnabled || forcePinByDevice || forcePinBySuccess) {
-          // --- LOGIC KIỂM TRA PIN ---
-          if (pinIn) {
-             // Nếu người dùng đã gửi PIN lên
-             const correctPin = rows[i][7].toString().trim();
-             if (pinIn !== correctPin) {
-                 return response({ status: "error", message: "Mã PIN không chính xác!" });
-             }
-             // PIN đúng -> Cho qua (Tiếp tục chạy xuống logic updateSecurityData bên dưới)
-             writeLog(userIn, "LOGIN_PIN", "Đăng nhập với PIN thành công");
-          } else {
-             // Chưa có PIN -> Yêu cầu nhập PIN
-             let msg = "";
-             if (forcePinBySuccess) msg = "Yêu cầu xác thực PIN (Đăng nhập nhiều lần).";
-             else if (forcePinByDevice) msg = "Yêu cầu xác thực PIN (Thiết bị mới).";
-             else msg = "Tài khoản này yêu cầu mã PIN bảo mật.";
-             
-             return response({ status: "pin_required", username: rows[i][0].toString().trim(), message: msg });
-          }
-        }
-
         // Đăng nhập thành công, không cần PIN -> Tăng bộ đếm thành công
         updateSecurityData(userIn, 0, devices, secData.successfulAttempts + 1);
 
         writeLog(userIn, "LOGIN", "Đăng nhập thành công");
         return response({ 
           status: "success", 
-          user: { username: rows[i][0], role: role, group_id: rows[i][3].toString(), group_name: getGroupName(rows[i][3].toString()), fullname: rows[i][4], avatar: rows[i][5] || 'https://via.placeholder.com/150', is_pin_enabled: isPinEnabled, is_default_pass: (rows[i][1].toString().trim() === 'Abc@123') } 
+          user: { 
+            username: rows[i][0], 
+            role: role, 
+            group_id: rows[i][3].toString(), 
+            group_name: getGroupName(rows[i][3].toString()), 
+            fullname: rows[i][4], 
+            avatar: rows[i][5] || 'https://via.placeholder.com/150', 
+            email: rows[i][6] || '', // Cột G: Email
+            is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
+            honors: rows[i][9] || '' // Cột J: Vinh danh (JSON)
+          } 
         });
       } else {
         // --- SAI MẬT KHẨU ---
@@ -846,7 +831,8 @@ function handleGetAdminExtras(payload) {
           group_display: getGroupName(userValues[i][3]), 
           fullname: userValues[i][4],
           avatar: userValues[i][5] || 'https://via.placeholder.com/150',
-          is_pin_enabled: (userValues[i][6] === true || userValues[i][6] === 'TRUE')
+          email: userValues[i][6] || '', // Cột G: Email
+          honors: userValues[i][9] || '' // Cột J: Vinh danh
         });
       }
     }
@@ -1035,61 +1021,63 @@ function response(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-// ============================================================
-// TÍNH NĂNG BẢO MẬT MÃ PIN
-// ============================================================
-
-function handleTogglePIN(payload) {
+function handleUpdateProfile(payload) {
   const sheet = ss.getSheetByName('users');
   const rows = sheet.getDataRange().getValues();
-  const targetUser = payload.target_user.toString().trim();
-  const enable = payload.enable; // boolean
-  const defaultPin = '1234';
-  
+  const currentUsername = String(payload.current_username).trim().toLowerCase();
+  const newUsername = payload.new_username;
+  const newFullname = payload.fullname;
+  const newEmail = payload.email;
+  const now = new Date();
+
+  // Tìm user hiện tại
+  let rowIndex = -1;
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0].toString().trim() === targetUser) {
-      sheet.getRange(i + 1, 7).setValue(enable); // Column G: pin_enabled
-      if (enable) {
-        sheet.getRange(i + 1, 8).setValue(defaultPin); // Column H: pin_code
-      } else {
-        sheet.getRange(i + 1, 8).setValue(""); // Xóa PIN nếu tắt
+    // So sánh an toàn hơn: chuyển về string, trim và lowercase
+    if (rows[i][0].toString().trim().toLowerCase() === currentUsername) {
+      rowIndex = i + 1;
+      break;
+    }
+  }
+
+  if (rowIndex === -1) return response({ status: "error", message: "Không tìm thấy tài khoản: " + payload.current_username });
+
+  // Lấy dữ liệu hiện tại
+  // Cấu trúc giả định: 0:User, 1:Pass, 2:Role, 3:Group, 4:Name, 5:Avatar, 6:Email, 7:LastChangeName, 8:LastChangeUser
+  const currentRow = rows[rowIndex - 1];
+  const lastChangeName = currentRow[7] ? new Date(currentRow[7]) : null;
+  const lastChangeUser = currentRow[8] ? new Date(currentRow[8]) : null;
+
+  // 1. Kiểm tra đổi Tên hiển thị (7 ngày)
+  if (newFullname !== currentRow[4]) {
+    if (lastChangeName && (now - lastChangeName) < (7 * 24 * 60 * 60 * 1000)) {
+      return response({ status: "error", message: "Bạn chỉ được đổi tên hiển thị 7 ngày một lần!" });
+    }
+    sheet.getRange(rowIndex, 5).setValue(newFullname); // Cột E
+    sheet.getRange(rowIndex, 8).setValue(now); // Cột H: LastChangeName
+  }
+
+  // 2. Kiểm tra đổi Username (30 ngày)
+  if (newUsername !== currentUsername) {
+    if (lastChangeUser && (now - lastChangeUser) < (30 * 24 * 60 * 60 * 1000)) {
+      return response({ status: "error", message: "Bạn chỉ được đổi Username 30 ngày một lần!" });
+    }
+    // Check trùng username
+    for (let j = 1; j < rows.length; j++) {
+      if (rows[j][0].toString().trim() === newUsername) {
+        return response({ status: "error", message: "Username đã tồn tại!" });
       }
-      writeLog(payload.admin_user, "TOGGLE_PIN", (enable ? "Bật" : "Tắt") + " mã PIN cho " + targetUser);
-      return response({ status: "success", message: "Đã cập nhật trạng thái mã PIN" });
     }
+    sheet.getRange(rowIndex, 1).setValue(newUsername); // Cột A
+    sheet.getRange(rowIndex, 9).setValue(now); // Cột I: LastChangeUser
+    // Lưu ý: Việc đổi Username ở đây KHÔNG tự động cập nhật các bảng khác (Logs, Attendance...).
+    // Trong thực tế cần cân nhắc kỹ hoặc dùng ID cố định.
   }
-  return response({ status: "error", message: "User not found" });
-}
 
-function handleVerifyPIN(payload) {
-  const sheet = ss.getSheetByName('users');
-  const rows = sheet.getDataRange().getValues();
-  const username = payload.username.toString().trim();
-  const pin_in = payload.pin.toString().trim();
+  // 3. Cập nhật Email (Không giới hạn)
+  sheet.getRange(rowIndex, 7).setValue(newEmail); // Cột G
 
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0].toString().trim() === username) {
-      const pin_sheet = rows[i][7].toString();
-      if (pin_sheet !== pin_in) return response({ status: "error", message: "Mã PIN không đúng!" });
-      
-      writeLog(username, "LOGIN_PIN", "Đăng nhập bằng mã PIN thành công");
-      return response({ 
-        status: "success", 
-        user: {
-          username: rows[i][0],
-          role: rows[i][2].toString().toLowerCase(),
-          group_id: rows[i][3].toString(),
-          group_name: getGroupName(rows[i][3].toString()),
-          fullname: rows[i][4],
-          avatar: rows[i][5] || 'https://via.placeholder.com/150',
-          is_pin_enabled: true,
-          is_default_pin: (pin_sheet === '1234'),
-          is_default_pass: (rows[i][1].toString().trim() === 'Abc@123')
-        } 
-      });
-    }
-  }
-  return response({ status: "error", message: "Tài khoản không tồn tại" });
+  return response({ status: "success", message: "Cập nhật hồ sơ thành công!" });
 }
 
 function handleVotePoll(payload) {
@@ -1124,6 +1112,38 @@ function handleVotePoll(payload) {
 
     return response({ status: 'success', message: 'Đã ghi nhận bình chọn (' + students.length + ' HS)' });
   } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+function handleSaveUserAdmin(payload) {
+  try {
+    const sheet = ss.getSheetByName('users');
+    const rows = sheet.getDataRange().getValues();
+    const id = payload.id; // Username cũ (nếu update)
+    const data = payload.data; // [User, Pass, Role, Group, Name, Avatar, Email, HonorsJSON]
+    
+    // data từ client gửi lên: [u_name, u_pass, u_role, u_group, u_fullname, u_avatar, u_email, u_honors]
+    // Cấu trúc Sheet: A:User, B:Pass, C:Role, D:Group, E:Name, F:Avatar, G:Email, H:LastChangeName, I:LastChangeUser, J:Honors
+
+    if (payload.is_add) {
+      // Thêm mới: Ghi đủ các cột, H và I để trống
+      sheet.appendRow([data[0], data[1], data[2], data[3], data[4], data[5], data[6], "", "", data[7]]);
+      return response({ status: 'success', message: 'Thêm tài khoản thành công!' });
+    } else {
+      // Cập nhật: Tìm dòng và ghi đè các cột A-G và J, giữ nguyên H-I
+      for (let i = 1; i < rows.length; i++) {
+        if (rows[i][0].toString().trim() === id) {
+          // Ghi A-G (7 cột đầu)
+          sheet.getRange(i + 1, 1, 1, 7).setValues([[data[0], data[1], data[2], data[3], data[4], data[5], data[6]]]);
+          // Ghi J (Cột 10)
+          sheet.getRange(i + 1, 10).setValue(data[7]);
+          
+          writeLog(payload.admin_user, "UPDATE_USER", "Cập nhật user: " + id);
+          return response({ status: 'success', message: 'Cập nhật tài khoản thành công!' });
+        }
+      }
+      return response({ status: 'error', message: 'Không tìm thấy User ID: ' + id });
+    }
+  } catch (e) { return response({ status: 'error', message: 'Lỗi lưu user: ' + e.toString() }); }
 }
 
 function handleGetPollResults(payload) {
@@ -1216,24 +1236,4 @@ function updateSecurityData(username, failedCount, devices, successfulCount) {
     // Thêm dòng mới
     sheet.appendRow([username, failedCount, devicesJson, successfulCount]);
   }
-}
-
-function handleUserChangePin(payload) {
-  const sheet = ss.getSheetByName('users');
-  const rows = sheet.getDataRange().getValues();
-  const username = payload.username.toString().trim();
-  const current_pin = payload.current_pin.toString().trim();
-  const new_pin = payload.new_pin.toString().trim();
-
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][0].toString().trim() === username) {
-      const pin_sheet = rows[i][7].toString();
-      if (pin_sheet !== current_pin) return response({ status: "error", message: "Mã PIN hiện tại không đúng!" });
-
-      sheet.getRange(i + 1, 8).setValue(new_pin);
-      writeLog(username, "CHANGE_PIN", "Người dùng tự đổi mã PIN");
-      return response({ status: "success", message: "Đổi mã PIN thành công!" });
-    }
-  }
-  return response({ status: "error", message: "Tài khoản không tồn tại" });
 }
