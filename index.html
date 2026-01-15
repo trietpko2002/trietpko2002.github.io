@@ -199,6 +199,7 @@
                         </h3>
                         <div class="card-tools">
                             <button class="btn btn-default btn-sm shadow-sm mr-2" onclick="window.print()"><i class="fas fa-print"></i> In</button>
+                            <button class="btn btn-info btn-sm shadow-sm mr-2" onclick="openImportModal('manager')"><i class="fas fa-file-import"></i> Nhập từ Excel</button>
                             <button class="btn btn-primary btn-sm shadow-sm mr-2" onclick="openStudentModal()">
                                 <i class="fas fa-plus mr-1"></i> Thêm HS
                             </button>
@@ -548,6 +549,33 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-purple" style="background-color: #6f42c1; color: white;" onclick="submitEvaluation()">Lưu đánh giá</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import Students -->
+<div class="modal fade" id="modalImport" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title"><i class="fas fa-file-import mr-2"></i>Nhập danh sách học sinh từ Excel</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Vui lòng sử dụng file Excel theo đúng định dạng mẫu. Hệ thống sẽ tự động bỏ qua các học sinh đã tồn tại (trùng Tên trong nhóm của bạn).</p>
+                <div class="form-group">
+                    <label>1. Tải file mẫu</label><br>
+                    <button class="btn btn-success" id="btnDownloadTemplate"><i class="fas fa-download mr-2"></i>Tải mẫu Excel</button>
+                </div>
+                <div class="form-group">
+                    <label>2. Chọn file Excel của bạn</label>
+                    <input type="file" id="file_import" class="form-control-file border p-2" accept=".xlsx, .xls">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-info" id="btnProcessImport">Bắt đầu Nhập</button>
             </div>
         </div>
     </div>
@@ -1916,9 +1944,9 @@ async function submitDriveLink() {
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 
-function processImportIndexTab() {
+function processImportManagerTab() {
     const user = JSON.parse(sessionStorage.getItem('user'));
-    const file = document.getElementById('file_import_index_tab').files[0];
+    const file = document.getElementById('file_import').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!"); 
     
     if (file.size > globalMaxUploadSize * 1024 * 1024) {
