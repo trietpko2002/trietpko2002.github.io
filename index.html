@@ -183,6 +183,7 @@
                     <p class="text-muted mb-0">Chọn trạng thái cho từng học sinh và nhấn "Lưu kết quả".</p>
                 </div>
                 <div class="text-right mb-2"><button class="btn btn-sm btn-default" onclick="window.print()"><i class="fas fa-print"></i> In Phiếu Điểm Danh</button></div>
+                <div class="text-right mb-2"><button class="btn btn-sm btn-info" onclick="openImportAttendanceModal()"><i class="fas fa-file-import"></i> Nhập Điểm Danh (Excel)</button></div>
                 <div id="attendanceList" class="row">
                     <!-- Data loaded by JS -->
                 </div>
@@ -230,43 +231,46 @@
             </div>
 
             <div class="tab-pane fade" id="tab-upload">
-                <div class="card card-outline card-info shadow">
-                    <div class="card-header"><h3 class="card-title"><i class="fas fa-folder-open mr-2"></i>Quản lý Tệp tin & Tài nguyên</h3></div>
-                    <div class="card-body">
-                        <!-- Section 1: Admin Drive Link -->
-                        <div class="alert alert-light border border-info mb-4">
-                            <h5 class="text-info font-weight-bold"><i class="fab fa-google-drive mr-2"></i>Kho lưu trữ của Admin</h5>
-                            <p class="mb-2">Truy cập link dưới đây để tải file lớn hoặc xem tài liệu chung:</p>
-                            <a href="javascript:void(0)" id="admin_drive_link_btn" class="btn btn-info font-weight-bold disabled"><i class="fas fa-external-link-alt mr-2"></i>Mở Google Drive Admin</a>
+                <div class="card card-outline card-primary shadow">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-folder-open mr-2"></i>Kho Tài nguyên & Giải trí</h3>
+                        <div class="card-tools">
+                            <button class="btn btn-tool" onclick="loadResources()"><i class="fas fa-sync"></i></button>
                         </div>
-
-                        <hr>
-                        
-                        <!-- Section 2: Upload File -->
-                        <h6 class="font-weight-bold text-primary"><i class="fas fa-upload mr-2"></i>Tải file lên hệ thống (Giới hạn <span id="limit_display">200</span>MB)</h6>
-                        <div id="upload_feature_area">
-                            <div class="input-group mb-3">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="file_upload_index">
-                                    <label class="custom-file-label" for="file_upload_index">Chọn file...</label>
+                    </div>
+                    <div class="card-body">
+                        <!-- File Manager Interface -->
+                        <div class="row">
+                            <div class="col-md-3 border-right">
+                                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                    <a class="nav-link active" id="filter-all" data-toggle="pill" href="#" onclick="filterResources('all')"><i class="fas fa-layer-group mr-2"></i>Tất cả</a>
+                                    <a class="nav-link" id="filter-docs" data-toggle="pill" href="#" onclick="filterResources('docs')"><i class="fas fa-file-word mr-2"></i>Tài liệu (Word/PDF)</a>
+                                    <a class="nav-link" id="filter-media" data-toggle="pill" href="#" onclick="filterResources('media')"><i class="fas fa-photo-video mr-2"></i>Media (Nhạc/Video)</a>
+                                    <a class="nav-link" id="filter-other" data-toggle="pill" href="#" onclick="filterResources('other')"><i class="fas fa-archive mr-2"></i>Khác</a>
                                 </div>
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button" onclick="uploadFileIndex()">Upload</button>
+                                <hr>
+                                <div class="alert alert-info p-2">
+                                    <small><i class="fas fa-info-circle"></i> Dung lượng tối đa: <b id="limit_display">200</b>MB</small>
                                 </div>
                             </div>
-                            <small class="text-muted"><i class="fas fa-info-circle mr-1"></i>File sẽ tự động xóa sau 7 ngày.</small>
+                            <div class="col-md-9">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="resource_search" class="form-control" placeholder="Tìm kiếm tệp tin..." onkeyup="searchResources()">
+                                    <div class="input-group-append"><span class="input-group-text"><i class="fas fa-search"></i></span></div>
+                                </div>
+                                <div id="resource_list" class="row" style="max-height: 600px; overflow-y: auto;">
+                                    <!-- Files loaded here -->
+                                </div>
+                            </div>
                         </div>
                         
-                        <div id="upload_blocked_msg" class="alert alert-warning d-none mt-3">
-                            <h5><i class="fas fa-exclamation-circle mr-2"></i>Thông báo</h5>
-                            <p id="upload_drive_link_display"></p>
+                        <hr class="mt-4">
+                        <h5 class="text-primary font-weight-bold"><i class="fas fa-cloud-upload-alt mr-2"></i>Gửi file cho Admin</h5>
+                        <div class="form-group">
+                            <label>Chọn file (Tối đa 200MB)</label>
+                            <input type="file" id="file_upload_index" class="form-control-file border p-2">
+                            <button class="btn btn-primary mt-2" onclick="uploadFileIndex()">Tải lên</button>
                         </div>
-
-                        <hr>
-
-                        <!-- Section 3: Submit Link -->
-                        <h6 class="font-weight-bold text-success"><i class="fas fa-link mr-2"></i>Gửi Link Google Drive (File lớn)</h6>
-                        <p class="small text-muted mb-2">Nếu file quá lớn, hãy upload lên Drive của bạn và dán link vào đây để Admin tải xuống.</p>
                         <div class="input-group">
                             <input type="text" id="drive_link_submission" class="form-control" placeholder="https://drive.google.com/...">
                             <div class="input-group-append">
@@ -581,6 +585,24 @@
     </div>
 </div>
 
+<!-- Modal Import Attendance -->
+<div class="modal fade" id="modalImportAttendance" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Nhập Điểm Danh từ Excel</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Tải file mẫu, điền trạng thái (C: Có mặt, P: Vắng phép, K: Vắng không phép) và tải lên.</p>
+                <button class="btn btn-outline-success btn-sm mb-3" onclick="downloadAttendanceTemplate()"><i class="fas fa-download mr-1"></i>Tải file mẫu</button>
+                <input type="file" id="file_att_import" class="form-control-file border p-2" accept=".xlsx">
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-success" onclick="processAttendanceImport()">Xử lý</button></div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Change Password -->
 <div class="modal fade" id="modalChangePass" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog" role="document">
@@ -622,6 +644,21 @@
     </div>
 </div>
 
+<!-- Modal Preview File -->
+<div class="modal fade" id="modalPreview" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document" style="height: 90%;">
+        <div class="modal-content" style="height: 100%;">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="previewTitle">Xem trước</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-0 d-flex justify-content-center align-items-center bg-light" id="previewBody" style="height: 100%; overflow: hidden;">
+                <!-- Content loaded via JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Change Avatar -->
 <div class="modal fade" id="modalAvatar" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -653,6 +690,7 @@ let globalNotifications = [];
 let globalFundLogs = [];
 let globalMaxUploadSize = 200; // Default 200MB
 let globalDriveLink = "";
+let globalResources = [];
 
 // --- HELPER FUNCTIONS FOR LOADING/ERROR STATES ---
 function getLoadingRowHtml(colspan) {
@@ -710,6 +748,7 @@ document.addEventListener("DOMContentLoaded", function() {
     loadGlobalConfig(); // Tải cấu hình hệ thống (Bảo trì, Marquee...)
     loadNotifications();
     loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
+    loadResources(); // Tải tài nguyên
     loadFeedbackHistory();
     checkUrgentNotification(); // Kiểm tra thông báo khẩn
 
@@ -742,6 +781,7 @@ async function loadGlobalConfig() {
         const res = await response.json();
         if (res.status === "success") {
             const conf = res.data;
+            sessionStorage.setItem('globalConfig', JSON.stringify(conf)); // Lưu config để dùng cho check Lock
             
             // 1. Global Maintenance (Bảo trì toàn bộ)
             // 1. Global Maintenance (Bảo trì toàn bộ - Manual & Auto)
@@ -784,30 +824,6 @@ async function loadGlobalConfig() {
             globalMaxUploadSize = parseInt(conf.max_upload_size) || 200;
             $('#limit_display').text(globalMaxUploadSize);
             globalDriveLink = conf.upload_drive_link || "";
-            
-            const driveBtn = $('#admin_drive_link_btn');
-            if(globalDriveLink) {
-                if (!globalDriveLink.match(/^https?:\/\//i)) {
-                    globalDriveLink = 'https://' + globalDriveLink;
-                }
-                driveBtn.attr('href', globalDriveLink).attr('target', '_blank').removeClass('disabled').html('<i class="fas fa-external-link-alt mr-2"></i>Mở Google Drive Admin');
-                
-                // Kiểm tra link mới (So sánh với localStorage)
-                const lastLink = localStorage.getItem('last_drive_link');
-                if (lastLink !== globalDriveLink) {
-                    driveBtn.addClass('btn-new-highlight');
-                    driveBtn.append(' <span class="badge badge-warning ml-1">MỚI</span>');
-                    
-                    // Khi click thì lưu lại link mới và tắt hiệu ứng
-                    driveBtn.one('click', function() {
-                        localStorage.setItem('last_drive_link', globalDriveLink);
-                        $(this).removeClass('btn-new-highlight');
-                        $(this).find('.badge-warning').remove();
-                    });
-                }
-            } else {
-                driveBtn.attr('href', 'javascript:void(0)').removeAttr('target').addClass('disabled').text('Chưa có link');
-            }
 
             // Check Upload Maintenance
             if (String(conf.maint_upload).toUpperCase() === 'TRUE') {
@@ -1290,6 +1306,19 @@ async function markRead(id) {
 
 // CRUD FUNCTIONS
 function openStudentModal() {
+    // Check Lock
+    const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    if (String(conf.student_import_locked).toUpperCase() === 'TRUE') {
+        return Swal.fire('Đã khóa', 'Chức năng thêm học sinh đang bị khóa bởi Admin.', 'warning');
+    }
+    if (conf.student_import_deadline) {
+        const deadline = new Date(conf.student_import_deadline);
+        deadline.setHours(23,59,59);
+        if (new Date() > deadline) {
+            return Swal.fire('Hết hạn', 'Đã quá hạn thêm học sinh mới.', 'warning');
+        }
+    }
+
     $('#modalStudent').modal('show');
     $('#student_id_old').val('');
     $('#st_id').prop('readonly', false).val('');
@@ -1945,6 +1974,19 @@ async function submitDriveLink() {
 }
 
 function processImportManagerTab() {
+    // Check Lock
+    const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    if (String(conf.student_import_locked).toUpperCase() === 'TRUE') {
+        return Swal.fire('Đã khóa', 'Chức năng nhập học sinh đang bị khóa bởi Admin.', 'warning');
+    }
+    if (conf.student_import_deadline) {
+        const deadline = new Date(conf.student_import_deadline);
+        deadline.setHours(23,59,59);
+        if (new Date() > deadline) {
+            return Swal.fire('Hết hạn', 'Đã quá hạn nhập học sinh mới.', 'warning');
+        }
+    }
+
     const user = JSON.parse(sessionStorage.getItem('user'));
     const file = document.getElementById('file_import').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!"); 
@@ -1966,6 +2008,15 @@ function processImportManagerTab() {
         .then(r => r.json()).then(res => { if(res.status==='success'){ Swal.fire('Xong', `Thêm ${res.count} HS`, 'success'); fetchStudentsByGroup(user.group_id); } else Swal.fire('Lỗi', res.message, 'error'); });
     };
     reader.readAsArrayBuffer(file);
+}
+
+function openImportModal(context) {
+    // Check Lock
+    const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    if (String(conf.student_import_locked).toUpperCase() === 'TRUE') {
+        return Swal.fire('Đã khóa', 'Chức năng nhập học sinh đang bị khóa bởi Admin.', 'warning');
+    }
+    $('#modalImport').modal('show');
 }
 
 async function submitVote(pollId) {
@@ -2000,6 +2051,139 @@ async function submitVote(pollId) {
             Swal.fire('Lỗi', res.message, 'error');
         }
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+// --- ATTENDANCE IMPORT ---
+function openImportAttendanceModal() {
+    $('#modalImportAttendance').modal('show');
+}
+
+function downloadAttendanceTemplate() {
+    if (globalGroupStudents.length === 0) return toastr.warning("Chưa có học sinh để tạo mẫu!");
+    const data = globalGroupStudents.map(s => ({
+        "ID": s.id,
+        "Họ và Tên": s.fullname,
+        "Trạng thái (C/P/K)": "",
+        "Lý do (Nếu có)": ""
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DiemDanh");
+    XLSX.writeFile(wb, `Mau_Diem_Danh_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`);
+}
+
+function processAttendanceImport() {
+    const file = document.getElementById('file_att_import').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file!");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+        let count = 0;
+        jsonData.forEach(row => {
+            const id = row["ID"];
+            const statusChar = (row["Trạng thái (C/P/K)"] || "").toUpperCase().trim();
+            const reason = row["Lý do (Nếu có)"] || "";
+
+            if (id) {
+                let statusVal = 'absent'; // Default K
+                if (statusChar === 'C' || statusChar === 'CÓ' || statusChar === 'X') statusVal = 'present';
+                else if (statusChar === 'P') statusVal = 'absent_perm';
+                
+                // Update UI
+                $(`input[name="st_${id}"][value="${statusVal}"]`).prop('checked', true);
+                if (statusVal === 'absent_perm') {
+                    $(`#reason_box_${id}`).removeClass('d-none');
+                    $(`#reason_${id}`).val(reason);
+                } else {
+                    $(`#reason_box_${id}`).addClass('d-none');
+                }
+                count++;
+            }
+        });
+        $('#modalImportAttendance').modal('hide');
+        toastr.success(`Đã cập nhật trạng thái cho ${count} học sinh. Nhấn Lưu để hoàn tất.`);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// --- RESOURCE MANAGER ---
+async function loadResources() {
+    $('#resource_list').html(loadingSpinner);
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_UPLOADS" }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            // Filter only ADMIN uploads
+            globalResources = res.data.filter(f => f.group_id === 'ADMIN');
+            filterResources('all');
+        }
+    } catch (e) { console.error(e); }
+}
+
+function filterResources(type) {
+    $('.nav-link').removeClass('active');
+    $(`#filter-${type}`).addClass('active');
+    
+    let filtered = globalResources;
+    if (type === 'docs') filtered = globalResources.filter(f => f.filename.match(/\.(doc|docx|pdf|xls|xlsx|ppt|pptx|txt)$/i));
+    if (type === 'media') filtered = globalResources.filter(f => f.filename.match(/\.(mp3|mp4|jpg|jpeg|png|gif|wav)$/i));
+    
+    renderResources(filtered);
+}
+
+function renderResources(list) {
+    let html = '';
+    if (list.length === 0) html = '<div class="col-12 text-center text-muted mt-5">Không có tệp tin nào.</div>';
+    
+    list.forEach(f => {
+        let icon = 'fa-file';
+        let color = 'text-secondary';
+        if (f.filename.match(/\.pdf$/i)) { icon = 'fa-file-pdf'; color = 'text-danger'; }
+        else if (f.filename.match(/\.(doc|docx)$/i)) { icon = 'fa-file-word'; color = 'text-primary'; }
+        else if (f.filename.match(/\.(xls|xlsx)$/i)) { icon = 'fa-file-excel'; color = 'text-success'; }
+        else if (f.filename.match(/\.(jpg|png|gif)$/i)) { icon = 'fa-image'; color = 'text-purple'; }
+        else if (f.filename.match(/\.(mp3|wav)$/i)) { icon = 'fa-music'; color = 'text-warning'; }
+        else if (f.filename.match(/\.(mp4|avi)$/i)) { icon = 'fa-video'; color = 'text-danger'; }
+
+        html += `
+        <div class="col-6 col-md-4 col-lg-3 mb-3">
+            <div class="card h-100 shadow-sm resource-card">
+                <div class="card-body text-center p-2">
+                    <i class="fas ${icon} fa-3x ${color} mb-2"></i>
+                    <h6 class="text-truncate" title="${f.filename}">${f.filename}</h6>
+                    <small class="text-muted">${f.size}</small>
+                </div>
+                <div class="card-footer bg-white p-1 text-center">
+                    <button class="btn btn-xs btn-primary" onclick="previewResource('${f.data}', '${f.filename}')"><i class="fas fa-eye"></i> Xem</button>
+                    <a href="${f.data}" download="${f.filename}" class="btn btn-xs btn-success"><i class="fas fa-download"></i> Tải</a>
+                </div>
+            </div>
+        </div>`;
+    });
+    $('#resource_list').html(html);
+}
+
+function searchResources() {
+    const term = $('#resource_search').val().toLowerCase();
+    const filtered = globalResources.filter(f => f.filename.toLowerCase().includes(term));
+    renderResources(filtered);
+}
+
+function previewResource(url, filename) {
+    $('#previewTitle').text(filename);
+    let content = '';
+    if (filename.match(/\.(jpg|jpeg|png|gif)$/i)) content = `<img src="${url}" style="max-width:100%; max-height:100%;">`;
+    else if (filename.match(/\.mp4$/i)) content = `<video controls style="max-width:100%; max-height:100%;"><source src="${url}" type="video/mp4"></video>`;
+    else if (filename.match(/\.mp3$/i)) content = `<audio controls><source src="${url}" type="audio/mpeg"></audio>`;
+    else if (filename.match(/\.pdf$/i)) content = `<iframe src="${url}" style="width:100%; height:100%; border:none;"></iframe>`;
+    else content = `<div class="text-center"><p>Không hỗ trợ xem trước định dạng này.</p><a href="${url}" download="${filename}" class="btn btn-primary">Tải xuống</a></div>`;
+    
+    $('#previewBody').html(content);
+    $('#modalPreview').modal('show');
 }
 </script>
 
