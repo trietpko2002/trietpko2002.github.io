@@ -275,7 +275,8 @@
                     <div class="container-fluid d-flex justify-content-between">
                         <h1>Danh sách học sinh toàn hệ thống</h1>
                         <div>
-                            <button class="btn btn-default" onclick="printStudents()"><i class="fas fa-print"></i> In danh sách</button>
+                            <button class="btn btn-default" onclick="printStudents()"><i class="fas fa-print"></i> In</button>
+                            <button class="btn btn-info" onclick="openImportModal('admin')"><i class="fas fa-file-import"></i> Nhập từ Excel</button>
                             <button class="btn btn-success" onclick="openStudentModal()"><i class="fas fa-plus"></i> Thêm Học Sinh</button>
                         </div>
                     </div>
@@ -640,6 +641,33 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" onclick="processRestore()">Bắt đầu Phục hồi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Import Students -->
+<div class="modal fade" id="modalImport" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title"><i class="fas fa-file-import mr-2"></i>Nhập danh sách học sinh từ Excel</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Vui lòng sử dụng file Excel theo đúng định dạng mẫu. Hệ thống sẽ tự động bỏ qua các học sinh đã tồn tại (trùng Tên và Nhóm).</p>
+                <div class="form-group">
+                    <label>1. Tải file mẫu</label><br>
+                    <button class="btn btn-success" id="btnDownloadTemplate"><i class="fas fa-download mr-2"></i>Tải mẫu Excel</button>
+                </div>
+                <div class="form-group">
+                    <label>2. Chọn file Excel của bạn</label>
+                    <input type="file" id="file_import" class="form-control-file border p-2" accept=".xlsx, .xls">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-info" id="btnProcessImport">Bắt đầu Nhập</button>
             </div>
         </div>
     </div>
@@ -1982,7 +2010,7 @@ async function backupSystem() {
     }
 }
 
-function downloadTemplate() {
+function downloadTemplateAdmin() {
     const data = [
         { "Họ và Tên": "Nguyễn Văn A", "Ngày sinh": "20/10/2010", "Nhóm": "1", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" },
         { "Họ và Tên": "Trần Thị B", "Ngày sinh": "01/01/2011", "Nhóm": "2", "Trường học": "THCS B", "SĐT": "0909654321", "Địa chỉ": "456 Đường XYZ" }
@@ -1990,9 +2018,9 @@ function downloadTemplate() {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Mau_Nhap_Lieu");
-    XLSX.writeFile(wb, "Mau_Nhap_Lieu_Admin_Full.xlsx");
+    XLSX.writeFile(wb, `Mau_Nhap_Lieu_Admin_Full.xlsx`);
 }
-
+ 
 async function uploadFileGeneric(source) {
     const fileInput = document.getElementById(source === 'admin' ? 'file_upload_generic' : 'file_upload_generic');
     const file = fileInput.files[0];
@@ -2069,7 +2097,7 @@ refreshAll = async function() {
 };
 
 function processImportAdminTab() {
-    const file = document.getElementById('file_import_admin_tab').files[0];
+    const file = document.getElementById('file_import').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
     
     // Check size limit
@@ -2090,7 +2118,7 @@ function processImportAdminTab() {
         const mappedData = jsonData.map(row => ({
             fullname: row["Họ và Tên"] || "",
             dob: row["Ngày sinh"] || "",
-            group_id: row["Nhóm"] || "",
+            group_id: String(row["Nhóm"] || "").trim(),
             school: row["Trường học"] || "",
             phone: row["SĐT"] || "",
             address: row["Địa chỉ"] || ""
@@ -2099,21 +2127,34 @@ function processImportAdminTab() {
         if (mappedData.length === 0) return toastr.warning("Không tìm thấy dữ liệu hợp lệ (Cần có Tên và Nhóm)!");
 
         Swal.fire({ title: 'Đang nhập liệu...', didOpen: () => Swal.showLoading() });
-        
+        const user = JSON.parse(sessionStorage.getItem('user'));
         fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "IMPORT_STUDENTS", payload: { students: mappedData } })
+            body: JSON.stringify({ 
+                action: "IMPORT_STUDENTS", 
+                payload: { students: mappedData, admin_user: user.username } 
+            })
         })
         .then(r => r.json())
         .then(res => {
             if (res.status === 'success') {
-                Swal.fire('Thành công', `Đã thêm ${res.count} học sinh!`, 'success');
+                Swal.fire('Thành công', res.message, 'success');
+                $('#modalImport').modal('hide');
                 loadStudents();
             } else Swal.fire('Lỗi', res.message, 'error');
         })
         .catch(() => Swal.fire('Lỗi', 'Lỗi kết nối', 'error'));
     };
     reader.readAsArrayBuffer(file);
+}
+
+function openImportModal(context) {
+    if (context === 'admin') {
+        $('#btnDownloadTemplate').attr('onclick', 'downloadTemplateAdmin()');
+        $('#btnProcessImport').attr('onclick', 'processImportAdminTab()');
+    }
+    $('#modalImport').modal('show');
+    $('#file_import').val('');
 }
 
 function openRestoreModal() {
