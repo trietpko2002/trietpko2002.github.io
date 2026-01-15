@@ -1,11 +1,10 @@
 /**
- * HỆ THỐNG QUẢN LÝ SINH HOẠT HÈ - BACKEND (V7.5 - SYNC SHEET VIEW)
+ * HỆ THỐNG QUẢN LÝ SINH HOẠT HÈ - BACKEND (V8.0 - OPTIMIZED FILTERS)
  * Cập nhật: Tự động ghi danh sách người xem vào cột G của sheet 'notifications' để dễ theo dõi trên file Excel.
  */
 
 const SPREADSHEET_ID = "1ebzd0DRukRVtInH7srEqOBeX7NntSkbHsqFcHlEe7hU";
 const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-const CLOUDFLARE_SECRET_KEY = "1x0000000000000000000000000000000AA"; // Key Test Cloudflare (Thay bằng key thật nếu cần)
 
 function doPost(e) {
   try {
@@ -37,6 +36,10 @@ function doPost(e) {
     if (action === 'SAVE_CONFIG') return handleSaveConfig(payload);
     if (action === 'RESET_EVALUATIONS') return handleResetEvaluations(payload);
 
+    // --- 2.1. FILE UPLOAD ---
+    if (action === 'UPLOAD_FILE') return handleUploadFile(payload);
+    if (action === 'GET_UPLOADS') return handleGetUploads(payload);
+
     // --- 3. NHÓM TÍNH NĂNG CRUD ---
     if (action === 'ADD_DATA') return handleAddData(payload);
     if (action === 'UPDATE_DATA') return handleUpdateData(payload);
@@ -53,6 +56,11 @@ function doPost(e) {
     if (action === 'TOGGLE_PIN') return handleTogglePIN(payload);
     if (action === 'VERIFY_PIN') return handleVerifyPIN(payload);
     if (action === 'CHANGE_PIN') return handleUserChangePin(payload);
+
+    // --- 5. NHÓM TÍNH NĂNG BÌNH CHỌN (POLL) ---
+    if (action === 'VOTE_POLL') return handleVotePoll(payload);
+    if (action === 'GET_POLL_RESULTS') return handleGetPollResults(payload);
+    if (action === 'GET_POLL_VOTES') return handleGetPollVotes(payload);
 
     return response({ status: 'error', message: 'Hành động không hợp lệ' });
   } catch (err) {
@@ -138,8 +146,8 @@ function handleSendFeedback(payload) {
     let sheet = ss.getSheetByName('feedback');
     if (!sheet) {
       sheet = ss.insertSheet('feedback');
-      // Header: ID, Time, Username, Fullname, Phone, Group, Title, Difficulty, Suggestion, Admin_Reply, Status
-      sheet.appendRow(['ID', 'Timestamp', 'Username', 'Fullname', 'Phone', 'Group', 'Title', 'Difficulty', 'Suggestion', 'Admin_Reply', 'Status']);
+      // Header: ID, Time, Username, Fullname, Phone, Group, Title, Difficulty, Suggestion, Admin_Reply, Status, Attachment, Attachment_Name, Drive_Link
+      sheet.appendRow(['ID', 'Timestamp', 'Username', 'Fullname', 'Phone', 'Group', 'Title', 'Difficulty', 'Suggestion', 'Admin_Reply', 'Status', 'Attachment', 'Attachment_Name', 'Drive_Link']);
     }
     
     const id = 'FB' + new Date().getTime();
@@ -147,7 +155,8 @@ function handleSendFeedback(payload) {
     
     sheet.appendRow([
       id, timestamp, payload.username, payload.fullname, payload.phone, payload.group_id,
-      payload.title, payload.difficulty, payload.suggestion, '', 'pending'
+      payload.title, payload.difficulty, payload.suggestion, '', 'pending',
+      payload.attachment || '', payload.attachment_name || '', payload.drive_link || ''
     ]);
     
     return response({ status: 'success', message: 'Đã gửi góp ý thành công!' });
@@ -162,8 +171,19 @@ function handleGetFeedbacks(payload) {
     const data = sheet.getDataRange().getValues();
     const feedbacks = [];
     const isSpecificUser = payload && payload.username; // Nếu có username là lấy cho User, không có là Admin lấy tất cả
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     for (let i = data.length - 1; i >= 1; i--) {
+      // CLEANUP LOGIC: Xóa file đính kèm nếu quá 7 ngày (Chỉ xóa nội dung cột Attachment để tiết kiệm, giữ lại log)
+      // Hoặc xóa cả dòng nếu muốn. Ở đây xóa nội dung file Base64.
+      const ts = data[i][1] instanceof Date ? data[i][1] : new Date(data[i][1]);
+      if (ts < sevenDaysAgo && data[i][11]) {
+         // Nếu có file và cũ hơn 7 ngày -> Xóa file
+         sheet.getRange(i + 1, 12).setValue(""); // Clear Attachment
+         data[i][11] = ""; // Update local var
+      }
+
       // Nếu là User thường thì chỉ lấy của chính mình, Admin lấy hết
       if (isSpecificUser && data[i][2] !== payload.username) continue;
 
@@ -174,11 +194,14 @@ function handleGetFeedbacks(payload) {
         fullname: data[i][3],
         phone: data[i][4],
         group_id: data[i][5],
-        title: data[i][6],
+        title: data[i][6] || '',
         difficulty: data[i][7],
         suggestion: data[i][8],
         reply: data[i][9],
-        status: data[i][10]
+        status: data[i][10],
+        attachment: data[i][11],
+        attachment_name: data[i][12],
+        drive_link: data[i][13]
       });
     }
     return response({ status: 'success', data: feedbacks });
@@ -272,6 +295,71 @@ function handleResetEvaluations(payload) {
 }
 
 // ============================================================
+// TÍNH NĂNG UPLOAD FILE (GENERIC)
+// ============================================================
+
+function handleUploadFile(payload) {
+  try {
+    let sheet = ss.getSheetByName('uploads');
+    if (!sheet) {
+      sheet = ss.insertSheet('uploads');
+      // ID, Timestamp, Uploader, Group, Filename, Size, Data
+      sheet.appendRow(['ID', 'Timestamp', 'Uploader', 'Group', 'Filename', 'Size', 'Data']);
+    }
+    const id = 'FILE' + new Date().getTime();
+    sheet.appendRow([id, new Date(), payload.uploader, payload.group_id, payload.filename, payload.size, payload.data]);
+    return response({ status: 'success', message: 'Upload file thành công!' });
+  } catch (e) { return response({ status: 'error', message: 'Lỗi upload: ' + e.toString() }); }
+}
+
+// Hàm tạo ID mã hóa (MD5 Hash)
+function generateSecureId(prefix) {
+  const raw = prefix + new Date().getTime() + Math.random().toString();
+  const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, raw);
+  // Lấy 12 ký tự đầu của Base64 hash để làm ID ngắn gọn nhưng bảo mật
+  const hash = Utilities.base64EncodeWebSafe(digest).substring(0, 12);
+  return prefix + '_' + hash;
+}
+
+function handleUploadFile(payload) {
+  try {
+    let sheet = ss.getSheetByName('uploads');
+    if (!sheet) {
+      sheet = ss.insertSheet('uploads');
+      sheet.appendRow(['ID', 'Timestamp', 'Uploader', 'Group', 'Filename', 'Size', 'Data']);
+    }
+    // Mã hóa ID file
+    const id = generateSecureId('FILE');
+    sheet.appendRow([id, new Date(), payload.uploader, payload.group_id, payload.filename, payload.size, payload.data]);
+    return response({ status: 'success', message: 'Upload file thành công!' });
+  } catch (e) { return response({ status: 'error', message: 'Lỗi upload: ' + e.toString() }); }
+}
+
+function handleGetUploads(payload) {
+  try {
+    const sheet = ss.getSheetByName('uploads');
+    if (!sheet) return response({ status: 'success', data: [] });
+    const data = sheet.getDataRange().getValues();
+    // Trả về toàn bộ dữ liệu (bao gồm Base64) - Lưu ý: Có thể nặng nếu file lớn
+    // Bỏ header
+    const files = [];
+    for (let i = 1; i < data.length; i++) {
+      files.push({
+        id: data[i][0],
+        timestamp: (data[i][1] instanceof Date ? Utilities.formatDate(data[i][1], "GMT+7", "dd/MM/yyyy HH:mm") : data[i][1]),
+        uploader: data[i][2],
+        group_id: data[i][3],
+        filename: data[i][4],
+        size: data[i][5],
+        data: data[i][6],
+        type: data[i][7] || 'FILE'
+      });
+    }
+    return response({ status: 'success', data: files.reverse() }); // Mới nhất lên đầu
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+// ============================================================
 // TÍNH NĂNG CẤU HÌNH HỆ THỐNG (SETTINGS)
 // ============================================================
 
@@ -283,6 +371,7 @@ function handleGetConfig() {
       sheet.appendRow(['Key', 'Value']);
       sheet.appendRow(['evaluation_enabled', 'FALSE']);
       sheet.appendRow(['evaluation_deadline', '']);
+      sheet.appendRow(['upload_drive_link', '']);
     }
     const data = sheet.getDataRange().getValues();
     const config = {};
@@ -650,10 +739,21 @@ function handleLogin(payload) {
   const rows = sheet.getDataRange().getValues();
   const userIn = payload.username.toString().trim();
   const passIn = payload.password.toString().trim();
+  const pinIn = payload.pin ? payload.pin.toString().trim() : null;
   
-  // 1. Xác thực Cloudflare Turnstile
-  if (!verifyTurnstile(payload.token)) {
-    return response({ status: "error", message: "Xác thực CAPTCHA thất bại! Vui lòng thử lại." });
+  // Chạy dọn dẹp hệ thống (Xóa file > 7 ngày, Link > 30 ngày) khi có người đăng nhập
+  cleanUpSystem();
+
+  // --- CHECK MAINTENANCE MODE ---
+  let isMaintenance = false;
+  const settingsSheet = ss.getSheetByName('settings');
+  if (settingsSheet) {
+    const sData = settingsSheet.getDataRange().getValues();
+    for (let k = 1; k < sData.length; k++) {
+      if (sData[k][0] === 'maintenance_mode' && String(sData[k][1]).toUpperCase() === 'TRUE') {
+        isMaintenance = true; break;
+      }
+    }
   }
 
   // 2. Kiểm tra An ninh (Số lần lỗi & Thiết bị)
@@ -669,6 +769,12 @@ function handleLogin(payload) {
       // Kiểm tra mật khẩu
       if (rows[i][1].toString().trim() === passIn) {
         // --- ĐĂNG NHẬP THÀNH CÔNG ---
+        const role = rows[i][2].toString().trim().toLowerCase();
+
+        // CHẶN NẾU ĐANG BẢO TRÌ (Trừ Admin)
+        if (isMaintenance && role !== 'admin') {
+            return response({ status: "error", message: "Hệ thống đang bảo trì để nâng cấp. Vui lòng quay lại sau!" });
+        }
         
         // Kiểm tra thiết bị (User Agent)
         const currentUA = payload.userAgent || "Unknown Device";
@@ -685,17 +791,24 @@ function handleLogin(payload) {
         const forcePinBySuccess = secData.successfulAttempts >= 9; // Lần này là lần thứ 10
 
         if (isPinEnabled || forcePinByDevice || forcePinBySuccess) {
-          // Nếu yêu cầu PIN vì đăng nhập thành công nhiều lần, reset bộ đếm. Ngược lại, tăng bộ đếm.
-          const nextSuccessfulCount = forcePinBySuccess ? 0 : secData.successfulAttempts + 1;
-          updateSecurityData(userIn, 0, devices, nextSuccessfulCount);
-
-          let msg = "";
-          if (forcePinBySuccess) {
-            msg = "Phát hiện đăng nhập thành công nhiều lần liên tiếp. Yêu cầu xác thực PIN để đảm bảo an toàn.";
-          } else if (forcePinByDevice) {
-            msg = "Phát hiện đăng nhập trên nhiều thiết bị (>5). Yêu cầu xác thực PIN để bảo mật.";
+          // --- LOGIC KIỂM TRA PIN ---
+          if (pinIn) {
+             // Nếu người dùng đã gửi PIN lên
+             const correctPin = rows[i][7].toString().trim();
+             if (pinIn !== correctPin) {
+                 return response({ status: "error", message: "Mã PIN không chính xác!" });
+             }
+             // PIN đúng -> Cho qua (Tiếp tục chạy xuống logic updateSecurityData bên dưới)
+             writeLog(userIn, "LOGIN_PIN", "Đăng nhập với PIN thành công");
+          } else {
+             // Chưa có PIN -> Yêu cầu nhập PIN
+             let msg = "";
+             if (forcePinBySuccess) msg = "Yêu cầu xác thực PIN (Đăng nhập nhiều lần).";
+             else if (forcePinByDevice) msg = "Yêu cầu xác thực PIN (Thiết bị mới).";
+             else msg = "Tài khoản này yêu cầu mã PIN bảo mật.";
+             
+             return response({ status: "pin_required", username: rows[i][0].toString().trim(), message: msg });
           }
-          return response({ status: "pin_required", username: rows[i][0].toString().trim(), message: msg });
         }
 
         // Đăng nhập thành công, không cần PIN -> Tăng bộ đếm thành công
@@ -704,7 +817,7 @@ function handleLogin(payload) {
         writeLog(userIn, "LOGIN", "Đăng nhập thành công");
         return response({ 
           status: "success", 
-          user: { username: rows[i][0], role: rows[i][2].toString().toLowerCase(), group_id: rows[i][3].toString(), group_name: getGroupName(rows[i][3].toString()), fullname: rows[i][4], avatar: rows[i][5] || 'https://via.placeholder.com/150', is_pin_enabled: isPinEnabled, is_default_pass: (rows[i][1].toString().trim() === 'Abc@123') } 
+          user: { username: rows[i][0], role: role, group_id: rows[i][3].toString(), group_name: getGroupName(rows[i][3].toString()), fullname: rows[i][4], avatar: rows[i][5] || 'https://via.placeholder.com/150', is_pin_enabled: isPinEnabled, is_default_pass: (rows[i][1].toString().trim() === 'Abc@123') } 
         });
       } else {
         // --- SAI MẬT KHẨU ---
@@ -811,11 +924,39 @@ function handleGetStudentsByGroup(payload) {
   return response({ status: "success", data: list });
 }
 
+// Hàm dọn dẹp dữ liệu cũ (7 ngày cho file, 30 ngày cho link/feedback)
+function cleanUpSystem() {
+  const now = new Date().getTime();
+  const sevenDays = 7 * 24 * 60 * 60 * 1000;
+  const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+
+  // 1. Cleanup Uploads (7 days)
+  const upSheet = ss.getSheetByName('uploads');
+  if (upSheet) {
+    const data = upSheet.getDataRange().getValues();
+    // Duyệt ngược để xóa không bị lỗi index
+    for (let i = data.length - 1; i >= 1; i--) {
+      const ts = new Date(data[i][1]).getTime();
+      if (now - ts > sevenDays) upSheet.deleteRow(i + 1);
+    }
+  }
+
+  // 2. Cleanup Feedback/Links (30 days)
+  const fbSheet = ss.getSheetByName('feedback');
+  if (fbSheet) {
+    const data = fbSheet.getDataRange().getValues();
+    for (let i = data.length - 1; i >= 1; i--) {
+      const ts = new Date(data[i][1]).getTime();
+      if (now - ts > thirtyDays) fbSheet.deleteRow(i + 1);
+    }
+  }
+}
+
 function handleSaveAttendance(payload) {
   const attendanceSheet = ss.getSheetByName('attendance');
   const timestamp = new Date(); 
   payload.attendance.forEach(item => {
-    attendanceSheet.appendRow([timestamp, item.student_id, item.status === 'present' ? 'Có mặt' : (item.status === 'absent_perm' ? 'Vắng (P)' : 'Vắng'), "", payload.group_id, payload.recorded_by]);
+    attendanceSheet.appendRow([timestamp, item.student_id, item.status === 'present' ? 'Có mặt' : (item.status === 'absent_perm' ? 'Vắng (P)' : 'Vắng'), item.reason || "", payload.group_id, payload.recorded_by]);
   });
   writeLog(payload.recorded_by, "ATTENDANCE", "Điểm danh nhóm: " + payload.group_id);
   return response({ status: "success", message: "Đã lưu thành công!" });
@@ -841,6 +982,7 @@ function handleGetAdminStats() {
       student_id: sId,
       student_name: studentMap[sId] || sId,
       status: statusText === 'Có mặt' ? 'present' : (statusText === 'Vắng (P)' ? 'absent_perm' : 'absent'),
+      reason: attData[i][3] || "",
       group_id: groupMap[attData[i][4]] || attData[i][4],
       recorded_by: attData[i][5] || "Admin"
     });
@@ -950,30 +1092,85 @@ function handleVerifyPIN(payload) {
   return response({ status: "error", message: "Tài khoản không tồn tại" });
 }
 
+function handleVotePoll(payload) {
+  try {
+    // payload: { poll_id, manager, group_id, students: ['Name A', 'Name B'], option: 'Option A' }
+    let sheet = ss.getSheetByName('poll_votes');
+    if (!sheet) {
+      sheet = ss.insertSheet('poll_votes');
+      sheet.appendRow(['PollID', 'Timestamp', 'Manager', 'GroupID', 'StudentName', 'Option']);
+    }
+    
+    const data = sheet.getDataRange().getValues();
+    const voteMap = new Map(); // Key: PollID_StudentName -> RowIndex
+    for (let i = 1; i < data.length; i++) {
+      voteMap.set(String(data[i][0]) + '_' + String(data[i][4]), i + 1);
+    }
+
+    const timestamp = new Date();
+    const students = Array.isArray(payload.students) ? payload.students : [payload.student_name];
+    
+    students.forEach(stName => {
+        if(!stName) return;
+        const key = String(payload.poll_id) + '_' + String(stName);
+        if (voteMap.has(key)) {
+            const r = voteMap.get(key);
+            sheet.getRange(r, 6).setValue(payload.option);
+            sheet.getRange(r, 2).setValue(timestamp);
+        } else {
+            sheet.appendRow([payload.poll_id, timestamp, payload.manager, payload.group_id, stName, payload.option]);
+        }
+    });
+
+    return response({ status: 'success', message: 'Đã ghi nhận bình chọn (' + students.length + ' HS)' });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+function handleGetPollResults(payload) {
+  try {
+    const sheet = ss.getSheetByName('poll_votes');
+    if (!sheet) return response({ status: 'success', data: {} });
+    const data = sheet.getDataRange().getValues();
+    const counts = {};
+    const pollId = String(payload.poll_id);
+    
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === pollId) {
+        const opt = data[i][5];
+        counts[opt] = (counts[opt] || 0) + 1;
+      }
+    }
+    return response({ status: 'success', data: counts });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+function handleGetPollVotes(payload) {
+  try {
+    const sheet = ss.getSheetByName('poll_votes');
+    if (!sheet) return response({ status: 'success', data: [] });
+    const data = sheet.getDataRange().getValues();
+    const votes = [];
+    const pollId = String(payload.poll_id);
+  
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === pollId) {
+        votes.push({
+          poll_id: data[i][0],
+          timestamp: (data[i][1] instanceof Date ? Utilities.formatDate(data[i][1], "GMT+7", "dd/MM/yyyy HH:mm") : data[i][1]),
+          manager: data[i][2],
+          group_id: data[i][3],
+          student_name: data[i][4],
+          option: data[i][5]
+        });
+      }
+    }
+    return response({ status: 'success', data: votes });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
 // ============================================================
 // CÁC HÀM HỖ TRỢ BẢO MẬT (CAPTCHA & SECURITY LOGS)
 // ============================================================
-
-function verifyTurnstile(token) {
-  if (!token) return false;
-  const url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
-  const payload = {
-    secret: CLOUDFLARE_SECRET_KEY,
-    response: token
-  };
-  const options = {
-    method: 'post',
-    payload: payload,
-    muteHttpExceptions: true
-  };
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    const json = JSON.parse(response.getContentText());
-    return json.success;
-  } catch (e) {
-    return false;
-  }
-}
 
 function getSecuritySheet() {
   let sheet = ss.getSheetByName('security_state');

@@ -25,6 +25,54 @@
         .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #0069d9; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .btn-primary { background-color: #0069d9; border-color: #0062cc; }
         .btn-primary:hover { background-color: #0056b3; border-color: #004085; }
+        /* Poll Styles */
+        .student-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 5px; border-radius: 4px; margin-bottom: 10px; }
+        /* Maintenance Overlay */
+        #maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #343a40; color: white; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #topMarquee { background: #d81b60; color: #fff; padding: 5px; font-weight: bold; display: none; z-index: 1040; position: relative; }
+        
+        /* Dark Mode Full Coverage */
+        body.dark-mode { background-color: #454d55 !important; color: #fff; }
+        body.dark-mode .content-wrapper { background-color: #343a40; color: #fff; }
+        body.dark-mode .card { background-color: #343a40; color: #fff; }
+        body.dark-mode .card-header { border-bottom-color: #454d55; }
+        body.dark-mode .table { color: #fff; }
+        body.dark-mode .table thead th { background-color: #3f474e; color: #fff; border-color: #454d55; }
+        body.dark-mode .table td, body.dark-mode .table th { border-color: #454d55; }
+        body.dark-mode .modal-content { background-color: #343a40; color: #fff; }
+        body.dark-mode .close { color: #fff; }
+        body.dark-mode .form-control { background-color: #454d55; color: #fff; border-color: #6c757d; }
+        body.dark-mode .form-control:focus { background-color: #454d55; color: #fff; }
+        body.dark-mode .list-group-item { background-color: #343a40; border-color: #454d55; }
+        body.dark-mode .callout { background-color: #3f474e; border-color: #454d55; }
+
+        /* Phone Notification Style */
+        #phone-notification { position: fixed; top: -150px; left: 0; width: 100%; background: rgba(255, 255, 255, 0.98); color: #333; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1060; transition: top 0.5s ease; border-bottom: 3px solid #007bff; display: flex; align-items: center; backdrop-filter: blur(10px); }
+        body.dark-mode #phone-notification { background: rgba(52, 58, 64, 0.98); color: #fff; border-bottom: 3px solid #17a2b8; }
+        #phone-notification.show { top: 0; }
+        #phone-notification img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; margin-right: 15px; }
+        #phone-notification .content { flex-grow: 1; }
+        #phone-notification .title { font-weight: bold; font-size: 1.1rem; margin-bottom: 2px; }
+        #phone-notification .body { font-size: 0.95rem; opacity: 0.9; }
+        #phone-notification .close-btn { background: none; border: none; font-size: 1.5rem; color: inherit; cursor: pointer; padding: 0 10px; }
+        
+        /* Hiệu ứng nút mới */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); transform: scale(1); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); transform: scale(1); }
+        }
+        .btn-new-highlight {
+            animation: pulse-glow 2s infinite;
+            border: 2px solid #ffc107 !important;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            .main-sidebar, .main-header, .btn, .no-print, .card-tools, .nav-pills, #phone-notification, #topMarquee { display: none !important; }
+            .content-wrapper { margin-left: 0 !important; background: white !important; }
+            .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
@@ -38,6 +86,15 @@
 </script>
 
 <div class="wrapper">
+    <div id="phone-notification">
+        <img id="pn-img" src="" style="display:none;">
+        <div class="content">
+            <div id="pn-title" class="title"></div>
+            <div id="pn-body" class="body"></div>
+            <div id="pn-link" class="mt-1"></div>
+        </div>
+        <button class="close-btn" onclick="closePhoneNotification()">&times;</button>
+    </div>
     <nav class="main-header navbar navbar-expand navbar-primary navbar-dark border-bottom-0">
         <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
@@ -86,6 +143,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="#tab-upload" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-cloud-upload-alt"></i> <p>Tải file lên</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="#tab-funds" class="nav-link" data-toggle="pill" onclick="loadFundTab()">
                             <i class="nav-icon fas fa-hand-holding-usd"></i> <p>Quỹ nhóm</p>
                         </a>
@@ -105,12 +167,13 @@
                             <i class="nav-icon fas fa-comments"></i> <p>Góp ý</p>
                         </a>
                     </li>
-                </ul>
+                    <li class="nav-item">
             </nav>
         </div>
     </aside>
 
     <div class="content-wrapper text-sm">
+        <div id="topMarquee"><marquee id="marqueeText" behavior="scroll" direction="left"></marquee></div>
         <div class="content">
             <div class="container-fluid pt-3">
                 <div class="tab-content">
@@ -119,6 +182,7 @@
                     <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
                     <p class="text-muted mb-0">Chọn trạng thái cho từng học sinh và nhấn "Lưu kết quả".</p>
                 </div>
+                <div class="text-right mb-2"><button class="btn btn-sm btn-default" onclick="window.print()"><i class="fas fa-print"></i> In Phiếu Điểm Danh</button></div>
                 <div id="attendanceList" class="row">
                     <!-- Data loaded by JS -->
                 </div>
@@ -134,9 +198,7 @@
                             <i class="fas fa-table mr-2"></i>Danh sách học sinh <span class="text-primary" id="groupBadge">...</span>
                         </h3>
                         <div class="card-tools">
-                            <button class="btn btn-info btn-sm shadow-sm mr-2" onclick="openImportModalIndex()">
-                                <i class="fas fa-file-upload mr-1"></i> Nhập Excel
-                            </button>
+                            <button class="btn btn-default btn-sm shadow-sm mr-2" onclick="window.print()"><i class="fas fa-print"></i> In</button>
                             <button class="btn btn-primary btn-sm shadow-sm mr-2" onclick="openStudentModal()">
                                 <i class="fas fa-plus mr-1"></i> Thêm HS
                             </button>
@@ -162,6 +224,57 @@
                                 <!-- Data loaded by JS -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-upload">
+                <div class="card card-outline card-info shadow">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-folder-open mr-2"></i>Quản lý Tệp tin & Tài nguyên</h3></div>
+                    <div class="card-body">
+                        <!-- Section 1: Admin Drive Link -->
+                        <div class="alert alert-light border border-info mb-4">
+                            <h5 class="text-info font-weight-bold"><i class="fab fa-google-drive mr-2"></i>Kho lưu trữ của Admin</h5>
+                            <p class="mb-2">Truy cập link dưới đây để tải file lớn hoặc xem tài liệu chung:</p>
+                            <a href="javascript:void(0)" id="admin_drive_link_btn" class="btn btn-info font-weight-bold disabled"><i class="fas fa-external-link-alt mr-2"></i>Mở Google Drive Admin</a>
+                        </div>
+
+                        <hr>
+                        
+                        <!-- Section 2: Upload File -->
+                        <h6 class="font-weight-bold text-primary"><i class="fas fa-upload mr-2"></i>Tải file lên hệ thống (Giới hạn <span id="limit_display">200</span>MB)</h6>
+                        <div id="upload_feature_area">
+                            <div class="input-group mb-3">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="file_upload_index">
+                                    <label class="custom-file-label" for="file_upload_index">Chọn file...</label>
+                                </div>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" onclick="uploadFileIndex()">Upload</button>
+                                </div>
+                            </div>
+                            <small class="text-muted"><i class="fas fa-info-circle mr-1"></i>File sẽ tự động xóa sau 7 ngày.</small>
+                        </div>
+                        
+                        <div id="upload_blocked_msg" class="alert alert-warning d-none mt-3">
+                            <h5><i class="fas fa-exclamation-circle mr-2"></i>Thông báo</h5>
+                            <p id="upload_drive_link_display"></p>
+                        </div>
+
+                        <hr>
+
+                        <!-- Section 3: Submit Link -->
+                        <h6 class="font-weight-bold text-success"><i class="fas fa-link mr-2"></i>Gửi Link Google Drive (File lớn)</h6>
+                        <p class="small text-muted mb-2">Nếu file quá lớn, hãy upload lên Drive của bạn và dán link vào đây để Admin tải xuống.</p>
+                        <div class="input-group">
+                            <input type="text" id="drive_link_submission" class="form-control" placeholder="https://drive.google.com/...">
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="button" onclick="submitDriveLink()"><i class="fas fa-paper-plane mr-2"></i>Gửi Link</button>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-right">
+                             <a href="https://j2team.dev/links" target="_blank" class="btn btn-xs btn-outline-secondary"><i class="fas fa-link mr-1"></i>Rút gọn link (J2Team)</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -202,6 +315,7 @@
                             <div class="card-header d-flex p-2 align-items-center">
                                 <h3 class="card-title font-weight-bold pl-2"><i class="fas fa-history mr-2"></i>Lịch sử Thu/Chi</h3>
                                 <div class="ml-auto">
+                                    <button class="btn btn-xs btn-default mr-1" onclick="window.print()"><i class="fas fa-print"></i> In</button>
                                     <button class="btn btn-xs btn-success" onclick="exportFundHistoryExcel()"><i class="fas fa-file-excel"></i> Xuất Excel</button>
                                 </div>
                             </div>
@@ -324,6 +438,14 @@
                                     <label>Đề xuất (nếu có)</label>
                                     <textarea id="fb_suggestion" class="form-control" rows="2" placeholder="Giải pháp mong muốn..."></textarea>
                                 </div>
+                                <div class="form-group bg-light p-2 rounded border">
+                                    <label class="text-primary"><i class="fas fa-paperclip mr-2"></i>Gửi file lặt vặt (Max 200MB)</label>
+                                    <input type="file" id="fb_file" class="form-control-file mb-2">
+                                    <input type="text" id="fb_drive_link" class="form-control form-control-sm" placeholder="Hoặc dán Link Google Drive...">
+                                    <small class="text-muted d-block mt-1">
+                                        <i class="fas fa-info-circle"></i> File sẽ tự động xóa sau 7 ngày.
+                                    </small>
+                                </div>
                                 <button class="btn btn-primary btn-block font-weight-bold" onclick="sendFeedback()">
                                     <i class="fas fa-paper-plane mr-2"></i> GỬI YÊU CẦU
                                 </button>
@@ -349,6 +471,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
             </div>
         </div>
@@ -381,29 +504,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" onclick="saveStudent()">Lưu dữ liệu</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Import Excel Index -->
-<div class="modal fade" id="modalImportIndex" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-info">
-                <h5 class="modal-title"><i class="fas fa-file-excel mr-2"></i>Nhập danh sách từ Excel</h5>
-                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <p>Tải file mẫu cho nhóm: <button class="btn btn-sm btn-link" onclick="downloadTemplateIndex()">Tải Mẫu.xlsx</button></p>
-                <div class="form-group">
-                    <label>Chọn file Excel (.xlsx)</label>
-                    <input type="file" id="file_import_index" class="form-control-file border p-2" accept=".xlsx, .xls">
-                </div>
-                <small class="text-muted">*Hệ thống sẽ tự động gán vào nhóm của bạn.</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="processImportIndex()">Tải lên & Cập nhật</button>
             </div>
         </div>
     </div>
@@ -523,6 +623,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs4
 let globalGroupStudents = [];
 let globalNotifications = [];
 let globalFundLogs = [];
+let globalMaxUploadSize = 200; // Default 200MB
+let globalDriveLink = "";
 
 // --- HELPER FUNCTIONS FOR LOADING/ERROR STATES ---
 function getLoadingRowHtml(colspan) {
@@ -571,7 +673,13 @@ document.addEventListener("DOMContentLoaded", function() {
     
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
+    // Dark Mode Init
+    if (localStorage.getItem('darkMode') === 'true') {
+        $('body').addClass('dark-mode');
+    }
+
     fetchStudentsByGroup(user.group_id);
+    loadGlobalConfig(); // Tải cấu hình hệ thống (Bảo trì, Marquee...)
     loadNotifications();
     loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
     loadFeedbackHistory();
@@ -598,6 +706,160 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+// --- MAINTENANCE CHECK ---
+async function loadGlobalConfig() {
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            const conf = res.data;
+            
+            // 1. Global Maintenance (Bảo trì toàn bộ)
+            // 1. Global Maintenance (Bảo trì toàn bộ - Manual & Auto)
+            const now = new Date();
+            const start = conf.maintenance_start ? new Date(conf.maintenance_start) : null;
+            const end = conf.maintenance_end ? new Date(conf.maintenance_end) : null;
+            let isMaintenance = false;
+            let showTimer = false;
+
+            // Check Manual
+            if (String(conf.maintenance_mode).toUpperCase() === 'TRUE') {
+                const overlay = document.createElement('div');
+                overlay.id = 'maintenance-overlay';
+                overlay.innerHTML = '<i class="fas fa-tools fa-4x mb-3 text-warning"></i><h1 class="font-weight-bold">HỆ THỐNG ĐANG BẢO TRÌ</h1><p class="lead">Vui lòng quay lại sau.</p><button class="btn btn-outline-light mt-3 font-weight-bold" onclick="logout()"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</button>';
+                document.body.appendChild(overlay);
+                document.body.style.overflow = 'hidden';
+                return; // Dừng tải các thành phần khác
+                isMaintenance = true;
+            } 
+            // Check Schedule
+            else if (start && end && now >= start && now <= end) {
+                isMaintenance = true;
+                showTimer = true;
+            }
+
+            if (isMaintenance) {
+                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null);
+                return;
+            }
+
+            // 2. Marquee (Chữ chạy)
+            if (String(conf.marquee_enabled).toUpperCase() === 'TRUE' && conf.marquee_text) {
+                $('#marqueeText').text(conf.marquee_text);
+                $('#topMarquee').show();
+            } else {
+                $('#topMarquee').hide();
+            }
+
+            // Load Max Upload Size
+            globalMaxUploadSize = parseInt(conf.max_upload_size) || 200;
+            $('#limit_display').text(globalMaxUploadSize);
+            globalDriveLink = conf.upload_drive_link || "";
+            
+            const driveBtn = $('#admin_drive_link_btn');
+            if(globalDriveLink) {
+                if (!globalDriveLink.match(/^https?:\/\//i)) {
+                    globalDriveLink = 'https://' + globalDriveLink;
+                }
+                driveBtn.attr('href', globalDriveLink).attr('target', '_blank').removeClass('disabled').html('<i class="fas fa-external-link-alt mr-2"></i>Mở Google Drive Admin');
+                
+                // Kiểm tra link mới (So sánh với localStorage)
+                const lastLink = localStorage.getItem('last_drive_link');
+                if (lastLink !== globalDriveLink) {
+                    driveBtn.addClass('btn-new-highlight');
+                    driveBtn.append(' <span class="badge badge-warning ml-1">MỚI</span>');
+                    
+                    // Khi click thì lưu lại link mới và tắt hiệu ứng
+                    driveBtn.one('click', function() {
+                        localStorage.setItem('last_drive_link', globalDriveLink);
+                        $(this).removeClass('btn-new-highlight');
+                        $(this).find('.badge-warning').remove();
+                    });
+                }
+            } else {
+                driveBtn.attr('href', 'javascript:void(0)').removeAttr('target').addClass('disabled').text('Chưa có link');
+            }
+
+            // Check Upload Maintenance
+            if (String(conf.maint_upload).toUpperCase() === 'TRUE') {
+                $('#upload_feature_area').hide();
+                $('#upload_blocked_msg').removeClass('d-none');
+                if (conf.upload_drive_link) {
+                    $('#upload_drive_link_display').html(`Tính năng tải file trực tiếp đang tắt.`);
+                } else {
+                    $('#upload_drive_link_display').text("Vui lòng liên hệ Admin để biết thêm chi tiết.");
+                }
+            }
+
+            // 3. Feature Maintenance (Bảo trì từng phần)
+            const features = {
+                'maint_attendance': 'tab-attendance',
+                'maint_students': 'tab-students',
+                'maint_funds': 'tab-funds',
+                'maint_notis': 'tab-notifications',
+                'maint_eval': 'tab-evaluation',
+                'maint_feedback': 'tab-feedback',
+                // 'maint_upload': 'tab-upload' // Handled separately above
+            };
+
+            for (const [key, tabId] of Object.entries(features)) {
+                if (String(conf[key]).toUpperCase() === 'TRUE') {
+                    $(`#${tabId}`).html('<div class="text-center p-5 text-muted"><i class="fas fa-tools fa-3x mb-3 text-warning"></i><h4>Tính năng đang bảo trì</h4><p>Vui lòng quay lại sau.</p></div>');
+                }
+            }
+        }
+    } catch(e) {}
+}
+
+function showMaintenanceOverlay(startTime, endTime) {
+    const overlay = document.createElement('div');
+    overlay.id = 'maintenance-overlay';
+    
+    let timeHtml = '';
+    if (endTime) {
+        timeHtml = `
+            <div class="w-75 mt-4" style="max-width: 500px;">
+                <h4 id="maint-timer" class="font-weight-bold mb-3 text-warning" style="font-family: monospace; font-size: 2.5rem; text-shadow: 0 0 10px rgba(0,0,0,0.5);">00:00:00</h4>
+                <div class="progress" style="height: 25px; background-color: rgba(255,255,255,0.2);">
+                    <div id="maint-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 0%; font-weight: bold; color: #000;">0%</div>
+                </div>
+                <p class="mt-2 text-light"><small>Hệ thống sẽ tự động mở lại vào: ${endTime.toLocaleString('vi-VN')}</small></p>
+            </div>`;
+    }
+
+    overlay.innerHTML = `
+        <i class="fas fa-tools fa-4x mb-3 text-warning"></i>
+        <h1 class="font-weight-bold">HỆ THỐNG ĐANG BẢO TRÌ</h1>
+        <p class="lead">Chúng tôi đang nâng cấp hệ thống để phục vụ tốt hơn.</p>
+        ${timeHtml}
+        <button class="btn btn-outline-light mt-4 font-weight-bold" onclick="logout()"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</button>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    if (endTime) {
+        const updateTimer = () => {
+            const now = new Date();
+            const distance = endTime - now;
+            if (distance < 0) { location.reload(); return; }
+
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById('maint-timer').innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (startTime) {
+                let percent = ((now - startTime) / (endTime - startTime)) * 100;
+                percent = Math.min(100, Math.max(0, percent));
+                const bar = document.getElementById('maint-progress');
+                bar.style.width = `${percent}%`;
+                bar.innerText = `${Math.round(percent)}%`;
+            }
+        };
+        updateTimer(); setInterval(updateTimer, 1000);
+    }
+}
 
 // --- LOGIC ĐỔI MẬT KHẨU ---
 function openChangePassModal() {
@@ -760,10 +1022,19 @@ async function fetchStudentsByGroup(groupId) {
                         <div class="info-box shadow-sm border">
                             <div class="info-box-content">
                                 <span class="info-box-text font-weight-bold" style="font-size:1.1rem">${student.fullname}</span>
-                                <div class="btn-group btn-group-toggle mt-2" data-toggle="buttons">
-                                    <label class="btn btn-outline-success active"><input type="radio" name="st_${student.id}" value="present" checked> Có mặt</label>
-                                    <label class="btn btn-outline-warning"><input type="radio" name="st_${student.id}" value="absent_perm"> Vắng (P)</label>
-                                    <label class="btn btn-outline-danger"><input type="radio" name="st_${student.id}" value="absent"> Vắng</label>
+                                <div class="btn-group btn-group-toggle mt-2 w-100" data-toggle="buttons">
+                                    <label class="btn btn-outline-success active" onclick="$('#reason_box_${student.id}').addClass('d-none')">
+                                        <input type="radio" name="st_${student.id}" value="present" checked> Có mặt
+                                    </label>
+                                    <label class="btn btn-outline-warning" onclick="$('#reason_box_${student.id}').removeClass('d-none'); $('#reason_${student.id}').focus()">
+                                        <input type="radio" name="st_${student.id}" value="absent_perm"> Vắng (P)
+                                    </label>
+                                    <label class="btn btn-outline-danger" onclick="$('#reason_box_${student.id}').addClass('d-none')">
+                                        <input type="radio" name="st_${student.id}" value="absent"> Vắng
+                                    </label>
+                                </div>
+                                <div id="reason_box_${student.id}" class="mt-2 d-none">
+                                    <input type="text" id="reason_${student.id}" class="form-control form-control-sm" placeholder="Nhập lý do vắng...">
                                 </div>
                             </div>
                         </div>
@@ -821,6 +1092,52 @@ async function loadNotifications() {
                         ? '<span class="badge badge-secondary float-right ml-2"><i class="fas fa-check mr-1"></i>Đã xem</span>' 
                         : `<button class="btn btn-xs btn-outline-primary float-right ml-2" onclick="markRead('${n.id}')">Đã xem</button>`;
 
+                    // --- XỬ LÝ BÌNH CHỌN (POLL) ---
+                    let pollHtml = '';
+                    if (n.type === 'poll') {
+                        try {
+                            const pollData = JSON.parse(n.content); // {question, options:[], deadline}
+                            const isExpired = new Date() > new Date(pollData.deadline);
+                            
+                            if (isExpired) {
+                                pollHtml = `<div class="mt-2 p-2 bg-light border rounded border-danger text-center"><span class="text-danger font-weight-bold">Bình chọn đã kết thúc</span></div>`;
+                            } else {
+                                let optionsHtml = '';
+                                pollData.options.forEach((opt, idx) => {
+                                    optionsHtml += `
+                                        <div class="custom-control custom-radio mb-1">
+                                            <input class="custom-control-input" type="radio" id="poll_${n.id}_${idx}" name="poll_opt_${n.id}" value="${opt}">
+                                            <label for="poll_${n.id}_${idx}" class="custom-control-label font-weight-normal">${opt}</label>
+                                        </div>`;
+                                });
+
+                                // Checkbox chọn nhiều học sinh
+                                let studentListHtml = '<div class="student-checkbox-grid">';
+                                globalGroupStudents.forEach((st, sIdx) => {
+                                    studentListHtml += `
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input poll-student-check-${n.id}" id="ps_${n.id}_${sIdx}" value="${st.fullname}">
+                                            <label class="custom-control-label small" for="ps_${n.id}_${sIdx}">${st.fullname}</label>
+                                        </div>`;
+                                });
+                                studentListHtml += '</div>';
+
+                                pollHtml = `
+                                    <div class="mt-3 p-3 bg-white border rounded shadow-sm">
+                                        <h6 class="font-weight-bold text-primary border-bottom pb-2 mb-2"><i class="fas fa-poll mr-2"></i>Bình chọn: ${pollData.question}</h6>
+                                        <div class="mb-2 font-weight-bold text-dark small">1. Chọn học sinh tham gia:</div>
+                                        ${studentListHtml}
+                                        <div class="mb-2 font-weight-bold text-dark small">2. Chọn phương án (1 lựa chọn):</div>
+                                        ${optionsHtml}
+                                        <button class="btn btn-primary btn-sm btn-block mt-3" onclick="submitVote('${n.id}')"><i class="fas fa-paper-plane mr-2"></i>Gửi bình chọn</button>
+                                        <small class="text-muted d-block mt-2 text-right">Hạn chót: ${formatDate(pollData.deadline)}</small>
+                                    </div>`;
+                            }
+                            // Ẩn nội dung gốc vì đã hiển thị trong Poll Card
+                            n.content = ''; 
+                        } catch(e) { pollHtml = `<div class="text-danger">Lỗi hiển thị bình chọn</div>`; }
+                    }
+
                     let meetingInfo = '';
                     if (n.type === 'online' && n.location) {
                         meetingInfo = `
@@ -855,9 +1172,10 @@ async function loadNotifications() {
                                 ${btnHtml}
                                 <span class="badge badge-warning float-right ml-2">${n.datetime}</span>
                             </span>
-                            <span class="product-description" style="white-space: pre-line;">
+                            <span class="product-description" style="white-space: pre-line; display: ${n.content ? 'block' : 'none'}">
                                 ${n.content}
                             </span>
+                            ${pollHtml}
                             ${attachHtml}
                             ${meetingInfo}
                             ${n.early === 'TRUE' ? '<span class="badge badge-success mt-1">Điểm danh sớm</span>' : ''}
@@ -1022,7 +1340,13 @@ async function submitAttendance() {
     const attendanceData = [];
     const inputs = document.querySelectorAll('input[type="radio"]:checked');
     inputs.forEach(input => {
-        attendanceData.push({ student_id: input.name.replace('st_', ''), status: input.value });
+        const sId = input.name.replace('st_', '');
+        const status = input.value;
+        let reason = '';
+        if (status === 'absent_perm') {
+            reason = $(`#reason_${sId}`).val().trim();
+        }
+        attendanceData.push({ student_id: sId, status: status, reason: reason });
     });
     try {
         const response = await fetch(API_URL, {
@@ -1056,6 +1380,8 @@ async function sendFeedback() {
     const phone = $('#fb_phone').val().trim();
     const difficulty = $('#fb_difficulty').val().trim();
     const suggestion = $('#fb_suggestion').val().trim();
+    const driveLink = $('#fb_drive_link').val().trim();
+    const fileInput = document.getElementById('fb_file');
 
     if (!title || !phone) {
         return toastr.warning("Vui lòng nhập tiêu đề và số điện thoại!");
@@ -1071,26 +1397,36 @@ async function sendFeedback() {
         group_id: user.group_id,
         title: title,
         difficulty: difficulty,
-        suggestion: suggestion
+        suggestion: suggestion,
+        drive_link: driveLink
     };
 
-    Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
+    const send = async (finalPayload) => {
+        Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SEND_FEEDBACK", payload: finalPayload }) });
+            const res = await response.json();
+            if (res.status === 'success') {
+                Swal.fire('Thành công!', 'Đã gửi yêu cầu/file.', 'success');
+                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file').val('');
+                loadFeedbackHistory();
+            } else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    };
 
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "SEND_FEEDBACK", payload: payload })
-        });
-        const res = await response.json();
-        if (res.status === 'success') {
-            Swal.fire('Thành công!', 'Cảm ơn đóng góp của bạn.', 'success');
-            $('#fb_title, #fb_difficulty, #fb_suggestion').val('');
-            loadFeedbackHistory(); // Reload history
-        } else {
-            Swal.fire('Lỗi', res.message || 'Không thể gửi.', 'error');
-        }
-    } catch (e) {
-        Swal.fire('Lỗi', 'Lỗi kết nối Server', 'error');
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        if (file.size > 200 * 1024 * 1024) return toastr.warning("File quá lớn (>200MB)!");
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            payload.attachment = e.target.result;
+            payload.attachment_name = file.name;
+            send(payload);
+        };
+        reader.readAsDataURL(file);
+    } else {
+        send(payload);
     }
 }
 
@@ -1133,6 +1469,8 @@ async function loadFeedbackHistory() {
                                 <small class="text-muted d-block mb-2"><i class="far fa-clock mr-1"></i> Gửi lúc: ${fb.timestamp}</small>
                                 ${fb.difficulty ? `<div class="mb-1"><strong><i class="fas fa-exclamation-circle text-danger mr-1"></i>Khó khăn:</strong> ${fb.difficulty}</div>` : ''}
                                 ${fb.suggestion ? `<div class="mb-1"><strong><i class="fas fa-lightbulb text-warning mr-1"></i>Góp ý:</strong> ${fb.suggestion}</div>` : ''}
+                                ${fb.drive_link ? `<div class="mb-1"><a href="${fb.drive_link}" target="_blank" class="text-info"><i class="fab fa-google-drive mr-1"></i>Link Drive</a></div>` : ''}
+                                ${fb.attachment ? `<div class="mb-1"><a href="${fb.attachment}" download="${fb.attachment_name || 'file'}" class="text-secondary"><i class="fas fa-paperclip mr-1"></i>File: ${fb.attachment_name}</a></div>` : ''}
                                 ${replySection}
                             </div>
                         </div>`;
@@ -1221,6 +1559,20 @@ async function checkUrgentNotification() {
         if (res.status === "success") {
             const conf = res.data;
             if (String(conf.troll_enabled).toUpperCase() === 'TRUE') {
+                // Check Mode: Phone Notification vs Popup
+                if (String(conf.troll_mode).toUpperCase() === 'TRUE') {
+                    $('#pn-title').text(conf.troll_title || 'Thông báo');
+                    $('#pn-body').html(conf.troll_content || '');
+                    if (conf.troll_image) { $('#pn-img').attr('src', conf.troll_image).show(); } else { $('#pn-img').hide(); }
+                    
+                    // Link download file trong banner
+                    if (conf.troll_image && conf.troll_file_name) { $('#pn-link').html(`<a href="${conf.troll_image}" download="${conf.troll_file_name}" class="btn btn-xs btn-light text-dark font-weight-bold"><i class="fas fa-download mr-1"></i>Tải: ${conf.troll_file_name}</a>`); } else { $('#pn-link').empty(); }
+
+                    $('#phone-notification').addClass('show');
+                    if (!conf.troll_youtube) setTimeout(closePhoneNotification, 10000); // Auto hide if no video
+                    return;
+                }
+
                 let htmlContent = `<div style="text-align: left; white-space: pre-wrap;">${conf.troll_content || ''}</div>`;
                 
                 // Xử lý YouTube
@@ -1240,10 +1592,17 @@ async function checkUrgentNotification() {
                     }
                 }
 
+                // File đính kèm trong Popup
+                let footerHtml = '';
+                if (conf.troll_image && conf.troll_file_name) {
+                    footerHtml = `<a href="${conf.troll_image}" download="${conf.troll_file_name}" class="btn btn-success"><i class="fas fa-download mr-2"></i>Tải file đính kèm: ${conf.troll_file_name}</a>`;
+                }
+
                 Swal.fire({
                     icon: 'warning',
                     title: conf.troll_title || 'THÔNG BÁO KHẨN',
                     html: htmlContent,
+                    footer: footerHtml,
                     imageUrl: conf.troll_image || null,
                     imageWidth: 400,
                     imageAlt: 'Image',
@@ -1253,6 +1612,10 @@ async function checkUrgentNotification() {
             }
         }
     } catch (e) { console.error("Urgent notification check error", e); }
+}
+
+function closePhoneNotification() {
+    $('#phone-notification').removeClass('show');
 }
 
 function openEvaluateModal(id, name) {
@@ -1474,9 +1837,6 @@ function exportFundHistoryExcel() {
     XLSX.writeFile(wb, `So_Quy_Nhom_${user.group_id}.xlsx`);
 }
 
-// --- IMPORT EXCEL INDEX ---
-function openImportModalIndex() { $('#modalImportIndex').modal('show'); $('#file_import_index').val(''); }
-
 function downloadTemplateIndex() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const data = [{ "Họ và Tên": "Nguyễn Văn A", "Ngày sinh": "20/10/2010", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" }];
@@ -1486,10 +1846,75 @@ function downloadTemplateIndex() {
     XLSX.writeFile(wb, `Mau_DS_Nhom_${user.group_id}.xlsx`);
 }
 
-function processImportIndex() {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const file = document.getElementById('file_import_index').files[0];
+async function uploadFileIndex() {
+    const fileInput = document.getElementById('file_upload_index');
+    const file = fileInput.files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
+    
+    if (file.size > globalMaxUploadSize * 1024 * 1024) {
+        // Show Drive Link if file is too big
+        let msg = `File quá lớn (> ${globalMaxUploadSize}MB)!`;
+        if (globalDriveLink) {
+            msg += `<br>Vui lòng tải lên qua Google Drive: <a href="${globalDriveLink}" target="_blank" class="font-weight-bold">Tại đây</a>`;
+            $('#upload_blocked_msg').removeClass('d-none');
+            $('#upload_drive_link_display').html(`File của bạn quá lớn. Vui lòng gửi qua: <a href="${globalDriveLink}" target="_blank" class="font-weight-bold">${globalDriveLink}</a>`);
+        }
+        return toastr.error(msg);
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result;
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        
+        Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    action: "UPLOAD_FILE", 
+                    payload: { uploader: user.username, group_id: user.group_id, filename: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', data: base64, type: 'FILE' } 
+                }) 
+            });
+            const res = await response.json();
+            if (res.status === 'success') { Swal.fire('Thành công', 'File đã được tải lên!', 'success'); fileInput.value = ''; }
+            else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    };
+    reader.readAsDataURL(file);
+}
+
+async function submitDriveLink() {
+    const link = $('#drive_link_submission').val().trim();
+    if (!link) return toastr.warning("Vui lòng nhập link!");
+    
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    Swal.fire({ title: 'Đang gửi link...', didOpen: () => Swal.showLoading() });
+    
+    try {
+        const response = await fetch(API_URL, { 
+            method: "POST", 
+            body: JSON.stringify({ 
+                action: "UPLOAD_FILE", 
+                payload: { uploader: user.username, group_id: user.group_id, filename: "Google Drive Link", size: "Link", data: link, type: 'LINK' } 
+            }) 
+        });
+        const res = await response.json();
+        if (res.status === 'success') { 
+            Swal.fire('Thành công', 'Đã gửi link cho Admin!', 'success'); 
+            $('#drive_link_submission').val(''); 
+        } else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+function processImportIndexTab() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const file = document.getElementById('file_import_index_tab').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file!"); 
+    
+    if (file.size > globalMaxUploadSize * 1024 * 1024) {
+        return toastr.warning(`File quá lớn! Giới hạn cho phép là ${globalMaxUploadSize}MB.`);
+    }
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -1501,9 +1926,43 @@ function processImportIndex() {
         
         Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
         fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "IMPORT_STUDENTS", payload: { students: mappedData } }) })
-        .then(r => r.json()).then(res => { if(res.status==='success'){ Swal.fire('Xong', `Thêm ${res.count} HS`, 'success'); $('#modalImportIndex').modal('hide'); fetchStudentsByGroup(user.group_id); } else Swal.fire('Lỗi', res.message, 'error'); });
+        .then(r => r.json()).then(res => { if(res.status==='success'){ Swal.fire('Xong', `Thêm ${res.count} HS`, 'success'); fetchStudentsByGroup(user.group_id); } else Swal.fire('Lỗi', res.message, 'error'); });
     };
     reader.readAsArrayBuffer(file);
+}
+
+async function submitVote(pollId) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    
+    // Lấy danh sách học sinh được chọn
+    const selectedStudents = [];
+    $(`.poll-student-check-${pollId}:checked`).each(function() {
+        selectedStudents.push($(this).val());
+    });
+
+    const option = $(`input[name='poll_opt_${pollId}']:checked`).val();
+
+    if (selectedStudents.length === 0) return toastr.warning("Vui lòng chọn ít nhất 1 học sinh!");
+    if (!option) return toastr.warning("Vui lòng chọn một phương án!");
+
+    const payload = {
+        poll_id: pollId,
+        manager: user.fullname,
+        group_id: user.group_id,
+        students: selectedStudents,
+        option: option
+    };
+
+    Swal.fire({ title: 'Đang gửi bình chọn...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "VOTE_POLL", payload: payload }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            Swal.fire('Thành công', res.message, 'success');
+        } else {
+            Swal.fire('Lỗi', res.message, 'error');
+        }
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 </script>
 
