@@ -1132,8 +1132,13 @@ function handleSaveUserAdmin(payload) {
       // Cập nhật: Tìm dòng và ghi đè các cột A-G và J, giữ nguyên H-I
       for (let i = 1; i < rows.length; i++) {
         if (rows[i][0].toString().trim() === id) {
-          // Ghi A-G (7 cột đầu)
-          sheet.getRange(i + 1, 1, 1, 7).setValues([[data[0], data[1], data[2], data[3], data[4], data[5], data[6]]]);
+          // Lấy mật khẩu hiện tại
+          const currentPassword = rows[i][1];
+          // Nếu mật khẩu gửi lên là rỗng (do admin không sửa), giữ lại mật khẩu cũ. Ngược lại, dùng mật khẩu mới.
+          const newPassword = (data[1] === "" || data[1] == null) ? currentPassword : data[1];
+
+          // Ghi A-G (7 cột đầu), sử dụng mật khẩu đã được xử lý
+          sheet.getRange(i + 1, 1, 1, 7).setValues([[data[0], newPassword, data[2], data[3], data[4], data[5], data[6]]]);
           // Ghi J (Cột 10)
           sheet.getRange(i + 1, 10).setValue(data[7]);
           
