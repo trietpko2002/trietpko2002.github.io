@@ -14,6 +14,8 @@
     <style>
         .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
         .small-box:hover { transform: translateY(-5px); }
+        .info-box { transition: transform 0.3s; border-radius: 10px; }
+        .info-box:hover { transform: translateY(-5px); }
         .text-dob { color: #007bff; font-weight: bold; }
         .badge-group { font-size: 0.85rem; padding: 4px 8px; }
         .table-history { font-size: 0.9rem; }
@@ -72,6 +74,23 @@
         /* Poll Tabs */
         .poll-tab-content { max-height: 400px; overflow-y: auto; }
         .poll-group-header { background: #f4f6f9; padding: 10px; font-weight: bold; border-bottom: 2px solid #ddd; }
+        
+        /* Hacker Title Effect */
+        .hacker-gold {
+            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+            background-size: 200% auto;
+            color: #000;
+            font-weight: bold;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 10px #ffd700;
+            animation: shineText 2s linear infinite;
+            padding: 5px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin: 2px;
+        }
+        @keyframes shineText { to { background-position: 200% center; } }
     </style>
 </head>
 
@@ -203,42 +222,46 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-info" style="cursor: pointer;" onclick="showChartsFor('students')">
-                                    <div class="inner"><h3 id="countHS">0</h3><p>Học sinh</p></div>
-                                    <div class="icon"><i class="fas fa-users"></i></div>
-                                </div>
+                        <div class="d-flex flex-nowrap overflow-auto pb-3" style="gap: 15px;">
+                            <!-- Students -->
+                            <div class="info-box bg-info shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('students', 'Thống kê Học sinh', 'countHS')">
+                                <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                                <div class="info-box-content"><span class="info-box-text">Học sinh</span><span class="info-box-number" id="countHS">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-success" style="cursor: pointer;" onclick="showChartsFor('attendance')">
-                                    <div class="inner"><h3 id="countPresent">0</h3><p>Có mặt</p></div>
-                                    <div class="icon"><i class="fas fa-check"></i></div>
-                                </div>
+                            <!-- Present -->
+                            <div class="info-box bg-success shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Có mặt', 'countPresent')">
+                                <span class="info-box-icon"><i class="fas fa-check"></i></span>
+                                <div class="info-box-content"><span class="info-box-text">Có mặt</span><span class="info-box-number" id="countPresent">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-warning text-white" style="cursor: pointer;" onclick="showChartsFor('attendance')">
-                                    <div class="inner"><h3 id="countAbsentP">0</h3><p>Vắng (P)</p></div>
-                                    <div class="icon"><i class="fas fa-envelope"></i></div>
-                                </div>
+                            <!-- Absent P -->
+                            <div class="info-box bg-warning shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (P)', 'countAbsentP')">
+                                <span class="info-box-icon text-white"><i class="fas fa-envelope"></i></span>
+                                <div class="info-box-content text-white"><span class="info-box-text">Vắng (P)</span><span class="info-box-number" id="countAbsentP">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-danger" style="cursor: pointer;" onclick="showChartsFor('attendance')">
-                                    <div class="inner"><h3 id="countAbsent">0</h3><p>Vắng (K)</p></div>
-                                    <div class="icon"><i class="fas fa-times"></i></div>
-                                </div>
+                            <!-- Absent K -->
+                            <div class="info-box bg-danger shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (K)', 'countAbsent')">
+                                <span class="info-box-icon"><i class="fas fa-times"></i></span>
+                                <div class="info-box-content"><span class="info-box-text">Vắng (K)</span><span class="info-box-number" id="countAbsent">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-purple" style="cursor: pointer;" onclick="showChartsFor('managers')"><div class="inner"><h3 id="countManagers">0</h3><p>Quản lý</p></div><div class="icon"><i class="fas fa-user-shield"></i></div></div>
+                            <!-- Managers -->
+                            <div class="info-box bg-purple shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('managers', 'Thống kê Quản lý', 'countManagers')">
+                                <span class="info-box-icon"><i class="fas fa-user-shield"></i></span>
+                                <div class="info-box-content"><span class="info-box-text">Quản lý</span><span class="info-box-number" id="countManagers">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-indigo" style="cursor: pointer;" onclick="showChartsFor('groups')"><div class="inner"><h3 id="countGroups">0</h3><p>Nhóm SHH</p></div><div class="icon"><i class="fas fa-layer-group"></i></div></div>
+                            <!-- Groups -->
+                            <div class="info-box bg-indigo shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('groups', 'Thống kê Nhóm', 'countGroups')">
+                                <span class="info-box-icon"><i class="fas fa-layer-group"></i></span>
+                                <div class="info-box-content"><span class="info-box-text">Nhóm SHH</span><span class="info-box-number" id="countGroups">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-orange text-white" style="cursor: pointer;" onclick="showChartsFor('notifications')"><div class="inner"><h3 id="countNotis">0</h3><p>Thông báo</p></div><div class="icon"><i class="fas fa-bell"></i></div></div>
+                            <!-- Notifications -->
+                            <div class="info-box bg-orange shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('notifications', 'Thống kê Thông báo', 'countNotis')">
+                                <span class="info-box-icon text-white"><i class="fas fa-bell"></i></span>
+                                <div class="info-box-content text-white"><span class="info-box-text">Thông báo</span><span class="info-box-number" id="countNotis">0</span></div>
                             </div>
-                            <div class="col-lg-3 col-6">
-                                <div class="small-box bg-teal" style="cursor: pointer;" onclick="showChartsFor('feedbacks')"><div class="inner"><h3 id="countFeedbacks">0</h3><p>Phản ánh</p></div><div class="icon"><i class="fas fa-comments"></i></div></div>
+                            <!-- Feedbacks -->
+                            <div class="info-box bg-teal shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('feedbacks', 'Thống kê Phản ánh', 'countFeedbacks')">
+                                <span class="info-box-icon"><i class="fas fa-comments"></i></span>
+                                <div class="info-box-content"><span class="info-box-text">Phản ánh</span><span class="info-box-number" id="countFeedbacks">0</span></div>
                             </div>
                         </div>
 
@@ -779,6 +802,7 @@
                         <option value="vip3">VIP 3 (Khung Kim Cương + Hiệu ứng)</option>
                         <option value="vip4">VIP 4 (Bạch Kim - Supervisor)</option>
                         <option value="vip5">VIP 5 (Hoàng Kim - Supervisor)</option>
+                        <option value="vip10">VIP 10 (Cấp Quản Lý Xịn Sò)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1062,6 +1086,7 @@
                 </div>
             </div>
             <div class="modal-body bg-light">
+                <h4 class="text-center font-weight-bold mb-3" id="modalTotalDisplay"></h4>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card shadow-sm"><div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title font-weight-bold" id="chartTitle1">Phân bố</h3><button class="btn btn-xs btn-outline-secondary" onclick="downloadChartImage('modalChart1', 'Bieu_do_phan_bo.png')"><i class="fas fa-download"></i> PNG</button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart1"></canvas></div></div></div>
@@ -1279,12 +1304,17 @@ async function loadExtraData() {
                     const h = JSON.parse(m.honors || '{}');
                     if(h.level) honorBadge = `<span class="badge badge-warning ml-1">${h.level.toUpperCase()}</span>`;
                 } catch(e){}
+                
+                let roleBadge = `<span class="badge badge-secondary">${m.role}</span>`;
+                if (m.role === 'admin') roleBadge = `<span class="badge badge-danger">ADMIN</span>`;
+                if (m.role === 'supervisor') roleBadge = `<span class="badge badge-primary">SUPERVISOR</span>`;
+
                 mHtml += `<tr>
                     <td class="text-center"><img src="${m.avatar || 'https://via.placeholder.com/50'}" class="img-manager shadow-sm"></td>
                     <td><code>${m.username}</code></td>
                     <td class="font-weight-bold">${m.fullname}</td>
                     <td><span class="badge badge-warning">${m.group_id}</span></td>
-                    <td><span class="badge badge-secondary">${m.role}</span></td>
+                    <td>${roleBadge}</td>
                     <td><small>${m.email || '-'}</small></td>
                     <td><small>${m.phone || '-'}</small></td>
                     <td><small>${m.last_login || '-'}</small></td>
@@ -1843,10 +1873,15 @@ function renderDashboardStats() {
     $('#countFeedbacks').text(globalFeedbacksData.length);
 }
 
-function showChartsFor(category) {
+function showChartsFor(category, title, countId) {
     currentChartCategory = category;
     $('#modalCharts').modal('show');
     
+    // Update Title & Total
+    $('#chartModalTitle').text(title || 'Thống kê chi tiết');
+    const count = countId ? $('#' + countId).text() : 0;
+    $('#modalTotalDisplay').html(`Tổng số: <span class="text-primary font-weight-bold" style="font-size: 1.5rem;">${count}</span>`);
+
     // Populate Group Filter
     const groupSelect = $('#chartGroupFilter');
     groupSelect.empty().append('<option value="">-- Tất cả Nhóm --</option>');
@@ -1943,8 +1978,8 @@ function updateModalCharts() {
         // Chart 2
         const groups = {};
         globalUsersData.forEach(u => { groups[u.group_id] = (groups[u.group_id]||0)+1; });
-        data2 = { labels: Object.keys(groups), datasets: [{ label: 'Số lượng', data: Object.values(groups), backgroundColor: '#6f42c1' }] };
-        type2 = 'bar';
+        data2 = { labels: Object.keys(groups), datasets: [{ label: 'Số lượng', data: Object.values(groups), backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de', '#605ca8', '#ff851b'] }] };
+        type2 = 'pie';
 
     } else if (currentChartCategory === 'groups') {
         title1 = 'Học sinh theo Nhóm'; title2 = 'Số lượng Quản lý';
@@ -1956,8 +1991,8 @@ function updateModalCharts() {
         // Chart 2
         const mgrs = {};
         globalUsersData.forEach(u => { mgrs[u.group_id] = (mgrs[u.group_id]||0)+1; });
-        data2 = { labels: Object.keys(mgrs), datasets: [{ label: 'Quản lý', data: Object.values(mgrs), backgroundColor: '#17a2b8' }] };
-        type2 = 'bar';
+        data2 = { labels: Object.keys(mgrs), datasets: [{ label: 'Quản lý', data: Object.values(mgrs), backgroundColor: ['#17a2b8', '#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de'] }] };
+        type2 = 'pie';
 
     } else if (currentChartCategory === 'notifications') {
         title1 = 'Loại Thông báo'; title2 = 'Lịch sử tạo';
@@ -2372,6 +2407,11 @@ async function saveData(type) {
         const vip = $('#u_vip_level').val();
         if ((vip === 'vip4' || vip === 'vip5') && role !== 'supervisor') {
             return Swal.fire('Lỗi', 'VIP 4 và VIP 5 chỉ dành cho Cấp quản lý (Supervisor)!', 'error');
+        }
+        
+        // Auto add Title for VIP 10
+        if (vip === 'vip10') {
+            if (!titles.includes("CẤP QUẢN LÝ XỊN SÒ")) titles.push("CẤP QUẢN LÝ XỊN SÒ");
         }
 
         // Special handling for Users to preserve timestamps in backend

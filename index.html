@@ -105,6 +105,40 @@
             z-index: 10;
         }
         @keyframes floatDiamond { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        /* VIP 10 Styles */
+        .vip-border-10 { border: 4px solid #ffd700 !important; box-shadow: 0 0 25px #ffd700, 0 0 10px #fff inset; animation: pulseBorder 1s infinite; }
+        .vip-wing { position: absolute; top: -10px; font-size: 1.8rem; color: #ffd700; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); z-index: 10; }
+        .vip-wing-left { left: -25px; transform: rotate(-20deg); }
+        .vip-wing-right { right: -25px; transform: rotate(20deg); }
+        .vip-crown-10 { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); font-size: 2rem; color: #ffd700; filter: drop-shadow(0 0 10px #ffd700); animation: floatCrown 2s ease-in-out infinite; z-index: 11; }
+        
+        /* Hacker Title Effect */
+        .hacker-gold {
+            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+            background-size: 200% auto;
+            color: #000;
+            font-weight: bold;
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 10px #ffd700;
+            animation: shineText 2s linear infinite;
+            padding: 5px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin: 2px;
+        }
+        @keyframes shineText { to { background-position: 200% center; } }
+
+        /* Cloudflare Turnstile Simulation */
+        .cf-turnstile { background-color: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; padding: 10px; display: flex; align-items: center; width: 100%; margin-bottom: 15px; cursor: pointer; user-select: none; }
+        .cf-checkbox { width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px; margin-right: 10px; background: #fff; display: flex; align-items: center; justify-content: center; }
+        .cf-checkbox.loading { border: 2px solid #f2f2f2; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        .cf-checkbox.checked { border: none; }
+        .cf-checkbox.checked::after { content: '✓'; color: #00b900; font-size: 20px; font-weight: bold; }
+        .cf-label { font-family: sans-serif; font-size: 14px; color: #333; flex-grow: 1; }
+        .cf-logo { width: 20px; height: 20px; background: url('https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg') no-repeat center/contain; opacity: 0.5; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
@@ -480,10 +514,8 @@
                                     <input type="text" id="fb_title" class="form-control" placeholder="VD: Lỗi điểm danh...">
                                 </div>
                                 <div class="form-group">
-                                    <label>Mã xác nhận <span class="text-danger">*</span></label>
-                                    <div class="d-flex">
-                                        <canvas id="fbCaptchaCanvas" width="120" height="38" style="border:1px solid #ccc; cursor:pointer; border-radius:4px;" title="Click để đổi mã"></canvas>
-                                        <input type="text" id="fb_captcha_input" class="form-control ml-2" placeholder="Nhập 4 số" maxlength="4">
+                                    <div class="cf-turnstile" onclick="verifyTurnstile('fb')">
+                                        <div class="cf-checkbox" id="cf-checkbox-fb"></div><div class="cf-label">Xác thực bạn là con người</div><input type="hidden" id="cf-verified-fb" value="false">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -763,7 +795,6 @@ let globalFundLogs = [];
 let globalMaxUploadSize = 200; // Default 200MB
 let globalDriveLink = "";
 let globalResources = [];
-let fbCaptchaCode = ""; // Store captcha code
 
 // --- HELPER FUNCTIONS FOR LOADING/ERROR STATES ---
 function getLoadingRowHtml(colspan) {
@@ -829,6 +860,14 @@ document.addEventListener("DOMContentLoaded", function() {
         } else if (honors.level === 'vip5') {
             avatarNav.addClass('vip-border-5');
             $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>');
+        } else if (honors.level === 'vip10') {
+            avatarNav.addClass('vip-border-10');
+            $('#vipCrownArea').html(`
+                <i class="fas fa-crown vip-crown-10"></i>
+                <i class="fas fa-dove vip-wing vip-wing-left"></i>
+                <i class="fas fa-dove vip-wing vip-wing-right"></i>
+            `);
+            $('#managerDisplayName').html(user.fullname + ' <span class="badge badge-warning ml-1" style="font-size: 0.7rem; vertical-align: top;">VIP MEMBER</span>');
         }
     } catch(e) {}
 
@@ -839,7 +878,6 @@ document.addEventListener("DOMContentLoaded", function() {
     loadResources(); // Tải tài nguyên
     loadFeedbackHistory();
     checkUrgentNotification(); // Kiểm tra thông báo khẩn
-    generateFbCaptcha(); // Tạo captcha góp ý
     
     // Role specific UI
     if (user.role === 'supervisor') {
@@ -1388,6 +1426,21 @@ function checkAttendanceLock() {
     const submitBtn = document.querySelector('button[onclick="submitAttendance()"]');
     const inputs = document.querySelectorAll('input[name^="st_"]');
     
+    // VIP Member Bypass
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (user && user.role === 'vip_member') {
+        // Explicitly enable to be sure
+        if(submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>`;
+            submitBtn.classList.add('btn-success');
+            submitBtn.classList.remove('btn-secondary');
+        }
+        inputs.forEach(inp => inp.disabled = false);
+        $('.attendance-alert').remove();
+        return; 
+    }
+    
     // Xóa thông báo cũ nếu có
     $('.attendance-alert').remove();
 
@@ -1451,8 +1504,12 @@ async function markRead(id) {
 
 // CRUD FUNCTIONS
 function openStudentModal() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
     // Check Lock
     const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    
+    // VIP Member Bypass
+    if (user.role !== 'vip_member') {
     if (String(conf.student_import_locked).toUpperCase() === 'TRUE') {
         return Swal.fire('Đã khóa', 'Chức năng thêm học sinh đang bị khóa bởi Admin.', 'warning');
     }
@@ -1462,6 +1519,7 @@ function openStudentModal() {
         if (new Date() > deadline) {
             return Swal.fire('Hết hạn', 'Đã quá hạn thêm học sinh mới.', 'warning');
         }
+    }
     }
 
     $('#modalStudent').modal('show');
@@ -1583,25 +1641,16 @@ function exportExcel() {
     toastr.info("Đang tải file Excel...");
 }
 
-// --- FEEDBACK CAPTCHA ---
-function generateFbCaptcha() {
-    const canvas = document.getElementById('fbCaptchaCanvas');
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const chars = "0123456789";
-    fbCaptchaCode = "";
-    for (let i = 0; i < 4; i++) fbCaptchaCode += chars[Math.floor(Math.random() * chars.length)];
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#f4f6f9";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "bold 24px Arial";
-    ctx.fillStyle = "#333";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(fbCaptchaCode, canvas.width/2, canvas.height/2);
+function verifyTurnstile(id) {
+    const box = $(`#cf-checkbox-${id}`);
+    const input = $(`#cf-verified-${id}`);
+    if(input.val() === 'true') return;
+    box.addClass('loading');
+    setTimeout(() => {
+        box.removeClass('loading').addClass('checked');
+        input.val('true');
+    }, 1500);
 }
-$('#fbCaptchaCanvas').click(generateFbCaptcha);
 
 async function sendFeedback() {
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -1610,7 +1659,6 @@ async function sendFeedback() {
     const difficulty = $('#fb_difficulty').val().trim();
     const suggestion = $('#fb_suggestion').val().trim();
     const driveLink = $('#fb_drive_link').val().trim();
-    const captchaIn = $('#fb_captcha_input').val().trim();
     const fileInput = document.getElementById('fb_file');
 
     if (!title || !phone) {
@@ -1619,9 +1667,8 @@ async function sendFeedback() {
     if (!difficulty && !suggestion) {
         return toastr.warning("Vui lòng nhập nội dung phản ánh hoặc kiến nghị!");
     }
-    if (captchaIn !== fbCaptchaCode) {
-        toastr.error("Mã xác nhận không đúng!");
-        generateFbCaptcha();
+    if ($('#cf-verified-fb').val() !== 'true') {
+        toastr.error("Vui lòng xác thực Captcha!");
         return;
     }
 
@@ -1643,8 +1690,7 @@ async function sendFeedback() {
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công!', 'Đã gửi yêu cầu/file.', 'success');
-                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file, #fb_captcha_input').val('');
-                generateFbCaptcha();
+                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file').val('');
                 loadFeedbackHistory();
             } else Swal.fire('Lỗi', res.message, 'error');
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
@@ -2096,7 +2142,9 @@ async function uploadFileIndex() {
     const file = fileInput.files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
     
-    if (file.size > globalMaxUploadSize * 1024 * 1024) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    // Bypass limit for VIP Member
+    if (user.role !== 'vip_member' && file.size > globalMaxUploadSize * 1024 * 1024) {
         // Show Drive Link if file is too big
         let msg = `File quá lớn (> ${globalMaxUploadSize}MB)!`;
         if (globalDriveLink) {
@@ -2110,7 +2158,6 @@ async function uploadFileIndex() {
     const reader = new FileReader();
     reader.onload = async function(e) {
         const base64 = e.target.result;
-        const user = JSON.parse(sessionStorage.getItem('user'));
         
         Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
         try {
@@ -2153,8 +2200,12 @@ async function submitDriveLink() {
 }
 
 function processImportManagerTab() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
     // Check Lock
     const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    
+    // VIP Member Bypass
+    if (user.role !== 'vip_member') {
     if (String(conf.student_import_locked).toUpperCase() === 'TRUE') {
         return Swal.fire('Đã khóa', 'Chức năng nhập học sinh đang bị khóa bởi Admin.', 'warning');
     }
@@ -2165,12 +2216,13 @@ function processImportManagerTab() {
             return Swal.fire('Hết hạn', 'Đã quá hạn nhập học sinh mới.', 'warning');
         }
     }
+    }
 
-    const user = JSON.parse(sessionStorage.getItem('user'));
     const file = document.getElementById('file_import').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!"); 
     
-    if (file.size > globalMaxUploadSize * 1024 * 1024) {
+    // Bypass limit for VIP Member
+    if (user.role !== 'vip_member' && file.size > globalMaxUploadSize * 1024 * 1024) {
         return toastr.warning(`File quá lớn! Giới hạn cho phép là ${globalMaxUploadSize}MB.`);
     }
 
@@ -2190,10 +2242,15 @@ function processImportManagerTab() {
 }
 
 function openImportModal(context) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
     // Check Lock
     const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    
+    // VIP Member Bypass
+    if (user.role !== 'vip_member') {
     if (String(conf.student_import_locked).toUpperCase() === 'TRUE') {
         return Swal.fire('Đã khóa', 'Chức năng nhập học sinh đang bị khóa bởi Admin.', 'warning');
+    }
     }
     $('#modalImport').modal('show');
 }

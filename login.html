@@ -113,8 +113,25 @@
         100% { transform: translateY(-20px); opacity: 0; }
     }
 
-    /* Captcha Style */
-    #captchaCanvas { border: 1px solid #ccc; border-radius: 4px; cursor: pointer; width: 100%; height: 40px; }
+    /* Cloudflare Turnstile Simulation */
+    .cf-turnstile {
+        background-color: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px;
+        padding: 10px; display: flex; align-items: center; width: 100%;
+        margin-bottom: 15px; cursor: pointer; user-select: none;
+    }
+    .cf-checkbox {
+        width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px;
+        margin-right: 10px; background: #fff; display: flex; align-items: center; justify-content: center;
+    }
+    .cf-checkbox.loading {
+        border: 2px solid #f2f2f2; border-top: 2px solid #3498db; border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    .cf-checkbox.checked { border: none; }
+    .cf-checkbox.checked::after { content: '✓'; color: #00b900; font-size: 20px; font-weight: bold; }
+    .cf-label { font-family: sans-serif; font-size: 14px; color: #333; flex-grow: 1; }
+    .cf-logo { width: 20px; height: 20px; background: url('https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg') no-repeat center/contain; opacity: 0.5; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -149,14 +166,12 @@
           </div>
         </div>
         
-        <!-- Captcha Area -->
-        <div class="row mb-3 captcha-group">
-            <div class="col-7">
-                <canvas id="captchaCanvas" title="Click để đổi mã khác"></canvas>
-            </div>
-            <div class="col-5">
-                <input type="text" id="captchaInput" class="form-control" placeholder="Nhập 4 số" required maxlength="4" inputmode="numeric">
-            </div>
+        <!-- Cloudflare Turnstile -->
+        <div class="cf-turnstile" onclick="verifyTurnstile('login')">
+            <div class="cf-checkbox" id="cf-checkbox-login"></div>
+            <div class="cf-label">Xác thực bạn là con người</div>
+            <div class="cf-logo"></div>
+            <input type="hidden" id="cf-verified-login" value="false">
         </div>
 
         <div class="login-progress-container" id="loginProgress">
@@ -206,6 +221,12 @@
                 <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
                 <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
                 
+                <div class="cf-turnstile" onclick="verifyTurnstile('reg')">
+                    <div class="cf-checkbox" id="cf-checkbox-reg"></div>
+                    <div class="cf-label">Xác thực bạn là con người</div>
+                    <input type="hidden" id="cf-verified-reg" value="false">
+                </div>
+
                 <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
                 <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" placeholder="VD: Tháng 6 - Tháng 8"></div>
                 <div class="form-group"><label>Địa điểm đăng ký (Tổ chức/Địa phương)</label><input type="text" id="reg_loc" class="form-control"></div>
@@ -254,6 +275,12 @@
                     <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
                     <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
                     
+                    <div class="cf-turnstile" onclick="verifyTurnstile('update')">
+                        <div class="cf-checkbox" id="cf-checkbox-update"></div>
+                        <div class="cf-label">Xác thực bạn là con người</div>
+                        <input type="hidden" id="cf-verified-update" value="false">
+                    </div>
+
                     <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
                         <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
                     </button>
@@ -272,55 +299,26 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 
     let tempUser = "";
-    let generatedCaptcha = "";
 
     window.onload = () => { 
         sessionStorage.clear(); 
-        generateCaptcha();
         // Add event listener for the welcome screen button
         document.getElementById('start-btn').addEventListener('click', () => {
             document.getElementById('welcome-screen').classList.add('hidden');
         });
     };
 
-    // Captcha Logic
-    function generateCaptcha() {
-        const canvas = document.getElementById('captchaCanvas');
-        const ctx = canvas.getContext('2d');
-        // Chỉ dùng số, 4 ký tự
-        const chars = "0123456789";
-        let captcha = "";
-        for (let i = 0; i < 4; i++) {
-            captcha += chars[Math.floor(Math.random() * chars.length)];
-        }
-        generatedCaptcha = captcha;
-
-        // Vẽ nền
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#f4f6f9";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Vẽ từng ký tự với một chút biến dạng để dễ đọc hơn
-        const textWidth = canvas.width / captcha.length;
-        for (let i = 0; i < captcha.length; i++) {
-            ctx.save();
-            // Thêm xoay và vị trí ngẫu nhiên
-            const x = textWidth * i + textWidth / 2;
-            const y = canvas.height / 2;
-            ctx.translate(x, y);
-            // Bỏ xoay để dễ nhìn
-            
-            ctx.font = "bold 30px Arial";
-            ctx.fillStyle = "#333"; // Màu đen/xám đậm dễ đọc
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            
-            ctx.fillText(captcha[i], 0, 0);
-            ctx.restore();
-        }
+    // Cloudflare Simulation
+    function verifyTurnstile(id) {
+        const box = $(`#cf-checkbox-${id}`);
+        const input = $(`#cf-verified-${id}`);
+        if(input.val() === 'true') return;
+        box.addClass('loading');
+        setTimeout(() => {
+            box.removeClass('loading').addClass('checked');
+            input.val('true');
+        }, 1500);
     }
-
-    $('#captchaCanvas').click(generateCaptcha);
 
     // Sync Logic
     function simulateSync() {
@@ -353,14 +351,11 @@
         const btn = document.getElementById('submitBtn');
         const user = $('#username').val().trim();
         const pass = $('#password').val().trim();
-        const captchaInput = $('#captchaInput').val().trim();
+        const isVerified = $('#cf-verified-login').val();
         const progressBox = $('#loginProgress');
         
-        // Validate Captcha
-        if (captchaInput.toUpperCase() !== generatedCaptcha) {
-            toastr.error("Mã xác thực không đúng!");
-            generateCaptcha();
-            $('#captchaInput').val('');
+        if (isVerified !== 'true') {
+            toastr.error("Vui lòng xác thực bạn là con người!");
             return;
         }
         
@@ -390,8 +385,6 @@
                 handleLoginSuccess(res.user);
             } else {
                 toastr.error(res.message);
-                generateCaptcha(); // Reset captcha on error
-                $('#captchaInput').val('');
                 resetLoginForm();
             }
         } catch (error) {
@@ -445,6 +438,8 @@
     async function submitRegister() {
         const name = $('#reg_name').val().trim();
         if (!name) return toastr.warning("Vui lòng nhập họ tên!");
+        
+        if ($('#cf-verified-reg').val() !== 'true') return toastr.error("Vui lòng xác thực Captcha!");
 
         const payload = {
             fullname: name,
@@ -531,6 +526,8 @@
     async function confirmRegistration() {
         const group = $('#conf_group').val();
         if(!group) return toastr.warning("Vui lòng chọn Nhóm sinh hoạt!");
+        
+        if ($('#cf-verified-update').val() !== 'true') return toastr.error("Vui lòng xác thực Captcha!");
 
         const payload = {
             temp_id: $('#conf_temp_id').val(),
