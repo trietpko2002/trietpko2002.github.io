@@ -11,6 +11,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
         .small-box:hover { transform: translateY(-5px); }
@@ -91,6 +92,15 @@
             margin: 2px;
         }
         @keyframes shineText { to { background-position: 200% center; } }
+        
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .table td, .table th { padding: 0.5rem; font-size: 0.85rem; }
+            .btn-action { padding: 0.2rem 0.4rem; }
+            .card-title { font-size: 1.1rem; }
+            .info-box { min-height: 80px; }
+            .info-box-icon { font-size: 1.5rem; width: 60px; }
+        }
     </style>
 </head>
 
@@ -116,7 +126,10 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
+            <li class="nav-item d-flex align-items-center">
                 <span class="nav-link">Xin chào, <b id="adminNameDisplay" class="text-primary">Admin</b></span>
+                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-2" style="position: absolute; top: 12px; right: 120px;"><i class="fas fa-info-circle"></i></a>
+                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-2 mr-2"><i class="fas fa-info-circle"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)" onclick="openSettingsModal()" title="Cài đặt hệ thống">
@@ -192,16 +205,6 @@
                     <li class="nav-item">
                         <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
                             <i class="nav-icon fas fa-file-download"></i> <p>Xuất DS Học Sinh (.xlsx)</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="backupSystem()" class="nav-link text-warning">
-                            <i class="nav-icon fas fa-database"></i> <p>Sao lưu Hệ thống (Backup)</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="openRestoreModal()" class="nav-link text-danger">
-                            <i class="nav-icon fas fa-undo-alt"></i> <p>Phục hồi Hệ thống (Restore)</p>
                         </a>
                     </li>
                 </ul>
@@ -291,9 +294,9 @@
                                                 <tr>
                                                     <th>Thời gian</th>
                                                     <th>Học sinh</th>
-                                                    <th>Nhóm</th>
+                                                    <th class="d-none d-md-table-cell">Nhóm</th>
                                                     <th>Trạng thái</th>
-                                                    <th>Người thực hiện</th>
+                                                    <th class="d-none d-md-table-cell">Người thực hiện</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="historyAttendanceData">
@@ -327,16 +330,6 @@
                         </ul>
                         
                         <div class="tab-content">
-                        <!-- Charts Section for Students -->
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="card card-info"><div class="card-header"><h3 class="card-title">Phân bố Học sinh theo Nhóm</h3></div><div class="card-body"><div class="chart-container" style="height: 250px;"><canvas id="chartStGroup"></canvas></div></div></div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card card-success"><div class="card-header"><h3 class="card-title">Biểu đồ Tăng trưởng Học sinh</h3></div><div class="card-body"><div class="chart-container" style="height: 250px;"><canvas id="chartStTrend"></canvas></div></div></div>
-                            </div>
-                        </div>
-
                         <!-- Subtab Official -->
                         <div class="tab-pane fade show active" id="subtab-official">
                         <div class="card card-outline card-info shadow mb-3">
@@ -371,12 +364,12 @@
                                     <thead class="thead-dark">
                                         <tr>
                                             <th>Họ tên</th>
-                                            <th>Ngày sinh</th>
+                                            <th class="d-none d-md-table-cell">Ngày sinh</th>
                                             <th>Lớp</th>
-                                            <th>Nhóm</th>
-                                            <th>Trường học</th>
-                                            <th>SĐT học sinh</th>
-                                            <th>Địa chỉ</th>
+                                            <th class="d-none d-md-table-cell">Nhóm</th>
+                                            <th class="d-none d-md-table-cell">Trường học</th>
+                                            <th class="d-none d-md-table-cell">SĐT học sinh</th>
+                                            <th class="d-none d-md-table-cell">Địa chỉ</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
@@ -399,8 +392,8 @@
                                                 <th>ID Tạm</th>
                                                 <th>Mật khẩu</th>
                                                 <th>Họ tên</th>
-                                                <th>Lớp</th>
-                                                <th>Trường</th>
+                                                <th class="d-none d-md-table-cell">Lớp</th>
+                                                <th class="d-none d-md-table-cell">Trường</th>
                                                 <th>Thao tác</th>
                                             </tr>
                                         </thead>
@@ -431,12 +424,12 @@
                                         <tr>
                                             <th>Avatar</th>
                                             <th>Username</th>
-                                            <th>Họ tên Quản lý</th>
-                                            <th>Nhóm phụ trách</th>
+                                            <th class="d-none d-md-table-cell">Họ tên Quản lý</th>
+                                            <th class="d-none d-md-table-cell">Nhóm phụ trách</th>
                                             <th>Quyền hạn</th>
-                                            <th>Email</th>
-                                            <th>SĐT</th>
-                                            <th>Lần đăng nhập cuối</th>
+                                            <th class="d-none d-md-table-cell">Email</th>
+                                            <th class="d-none d-md-table-cell">SĐT</th>
+                                            <th class="d-none d-md-table-cell">Lần đăng nhập cuối</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
@@ -490,10 +483,10 @@
                                     <table class="table table-bordered table-hover">
                                         <thead class="bg-light">
                                             <tr>
-                                                <th>Thời gian</th>
+                                                <th class="d-none d-md-table-cell">Thời gian</th>
                                                 <th>Người gửi (Quản lý)</th>
-                                                <th>Nhóm</th>
-                                                <th>Loại</th>
+                                                <th class="d-none d-md-table-cell">Nhóm</th>
+                                                <th class="d-none d-md-table-cell">Loại</th>
                                                 <th>Nội dung / Tên file</th>
                                                 <th>Thao tác</th>
                                             </tr>
@@ -524,13 +517,13 @@
                                 <table id="notiTable" class="table table-hover table-bordered w-100">
                                     <thead class="bg-warning">
                                         <tr>
-                                            <th>ID</th>
+                                            <th class="d-none d-md-table-cell">ID</th>
                                             <th>Tiêu đề</th>
-                                            <th>Nội dung</th>
+                                            <th class="d-none d-md-table-cell">Nội dung</th>
                                             <th>Thời gian diễn ra</th>
-                                            <th>Điểm danh sớm</th>
-                                            <th>Hình thức</th>
-                                            <th>Người đã xem</th>
+                                            <th class="d-none d-md-table-cell">Điểm danh sớm</th>
+                                            <th class="d-none d-md-table-cell">Hình thức</th>
+                                            <th class="d-none d-md-table-cell">Người đã xem</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
@@ -561,7 +554,7 @@
                                             <th>Thời gian</th>
                                             <th>Người gửi</th>
                                             <th>Nội dung Phản ánh</th>
-                                            <th>Phản hồi của Admin</th>
+                                            <th class="d-none d-md-table-cell">Phản hồi của Admin</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
@@ -635,10 +628,10 @@
                                     <thead class="bg-purple text-white">
                                         <tr>
                                             <th>Học sinh</th>
-                                            <th>Nhóm</th>
-                                            <th>Ý thức kỷ luật</th>
-                                            <th>Mức độ tích cực</th>
-                                            <th>Hoạt động tình nguyện</th>
+                                            <th class="d-none d-md-table-cell">Nhóm</th>
+                                            <th class="d-none d-md-table-cell">Ý thức kỷ luật</th>
+                                            <th class="d-none d-md-table-cell">Mức độ tích cực</th>
+                                            <th class="d-none d-md-table-cell">Hoạt động tình nguyện</th>
                                             <th>Xếp loại</th>
                                         </tr>
                                     </thead>
@@ -655,11 +648,19 @@
             <div class="tab-pane fade" id="tab-system-logs">
                 <section class="content-header">
                     <div class="container-fluid">
-                        <h1>Nhật ký hoạt động (Logs)</h1>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h1>Nhật ký hoạt động (Logs)</h1>
+                            <button class="btn btn-success" onclick="exportExcelLogs()"><i class="fas fa-file-excel mr-2"></i>Xuất Excel Logs</button>
+                        </div>
                     </div>
                 </section>
                 <section class="content">
                     <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-md-3"><input type="text" id="log_filter_user" class="form-control form-control-sm" placeholder="Tìm theo User..." onkeyup="filterLogs()"></div>
+                            <div class="col-md-3"><input type="text" id="log_filter_action" class="form-control form-control-sm" placeholder="Tìm theo Hành động..." onkeyup="filterLogs()"></div>
+                            <div class="col-md-3"><input type="date" id="log_filter_date" class="form-control form-control-sm" onchange="filterLogs()"></div>
+                        </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
                                 <table id="logTable" class="table table-sm table-striped w-100">
@@ -668,7 +669,7 @@
                                             <th>Thời gian</th>
                                             <th>Tài khoản</th>
                                             <th>Hành động</th>
-                                            <th>Chi tiết</th>
+                                            <th class="d-none d-md-table-cell">Chi tiết</th>
                                         </tr>
                                     </thead>
                                     <tbody id="logData">
@@ -682,6 +683,9 @@
             </div>
         </div>
     </div>
+    <footer class="main-footer text-center text-sm">
+        <strong>Copyright &copy; 2025 Hệ thống Quản lý SHH.</strong> All rights reserved.
+    </footer>
 </div>
 
 <!-- Modal Student -->
@@ -710,30 +714,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" onclick="saveData('students')">Lưu dữ liệu</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Restore System -->
-<div class="modal fade" id="modalRestore" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title"><i class="fas fa-undo-alt mr-2"></i>Phục hồi Hệ thống từ Backup</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-warning">
-                    <strong>CẢNH BÁO!</strong> Hành động này sẽ <strong>XÓA SẠCH</strong> toàn bộ dữ liệu hiện tại và thay thế bằng dữ liệu từ file backup. Hãy chắc chắn bạn đã chọn đúng file.
-                </div>
-                <div class="form-group">
-                    <label>Chọn file Backup (.xlsx)</label>
-                    <input type="file" id="file_restore" class="form-control-file border p-2" accept=".xlsx">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" onclick="processRestore()">Bắt đầu Phục hồi</button>
             </div>
         </div>
     </div>
@@ -963,6 +943,7 @@
                     <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab-interface">Giao diện</a></li>
                     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-troll">Thông báo Khẩn</a></li>
                     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-features">Tính năng & Chữ chạy</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-backup">Dữ liệu & Sao lưu</a></li>
                 </ul>
                 <div class="tab-content">
                     <!-- Tab Giao diện -->
@@ -1051,6 +1032,14 @@
                             <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_calendar"><label class="custom-control-label" for="maint_calendar">Lịch hoạt động</label></div></div>
                         </div>
                         <hr>
+                        <h6 class="text-success font-weight-bold"><i class="fas fa-clock mr-2"></i>Cấu hình Giờ Điểm danh Tự động</h6>
+                        <div class="row">
+                            <div class="col-6"><label>Giờ mở (HH:MM)</label><input type="time" id="conf_att_start" class="form-control"></div>
+                            <div class="col-6"><label>Giờ đóng (HH:MM)</label><input type="time" id="conf_att_end" class="form-control"></div>
+                        </div>
+                        <small class="text-muted">Ngoài khung giờ này, hệ thống sẽ khóa điểm danh (trừ khi có thông báo cho phép sớm).</small>
+                        
+                        <hr>
                         <h6 class="text-warning font-weight-bold"><i class="fas fa-user-lock mr-2"></i>Khóa nhập liệu Học sinh</h6>
                         <div class="form-group d-flex justify-content-between align-items-center">
                             <label class="mb-0">Khóa nhập/thêm học sinh mới</label>
@@ -1063,6 +1052,34 @@
                             <input type="number" id="conf_max_upload_size" class="form-control" placeholder="Mặc định: 200" value="200">
                         </div>
                         <button class="btn btn-primary btn-block mt-3" onclick="saveFeatureConfig()"><i class="fas fa-save mr-2"></i>Lưu Cấu hình Tính năng</button>
+                    </div>
+                    <!-- Tab Backup/Restore -->
+                    <div class="tab-pane fade" id="tab-backup">
+                        <div class="alert alert-info"><i class="fas fa-shield-alt mr-2"></i>Khu vực yêu cầu xác thực an toàn.</div>
+                        
+                        <div class="card card-warning card-outline">
+                            <div class="card-header"><h6 class="card-title font-weight-bold">Sao lưu dữ liệu (Backup)</h6></div>
+                            <div class="card-body">
+                                <p class="small">Tải xuống toàn bộ dữ liệu hệ thống dưới dạng file Excel.</p>
+                                <div class="d-flex align-items-center mb-2"><span id="captcha_code_backup" class="bg-light border px-2 py-1 font-weight-bold mr-2" style="letter-spacing: 2px;"></span><button class="btn btn-xs btn-outline-secondary" onclick="generateCaptcha('captcha_code_backup')"><i class="fas fa-sync"></i></button></div>
+                                <input type="text" id="captcha_input_backup" class="form-control mb-2" placeholder="Nhập mã xác nhận trên">
+                                <button class="btn btn-warning btn-block" onclick="backupSystem()"><i class="fas fa-download mr-2"></i>Tải file Backup</button>
+                            </div>
+                        </div>
+
+                        <div class="card card-danger card-outline">
+                            <div class="card-header"><h6 class="card-title font-weight-bold">Phục hồi dữ liệu (Restore)</h6></div>
+                            <div class="card-body">
+                                <p class="small text-danger font-weight-bold">CẢNH BÁO: Dữ liệu hiện tại sẽ bị xóa và thay thế!</p>
+                                <div class="form-group">
+                                    <label>Chọn file Backup (.xlsx)</label>
+                                    <input type="file" id="file_restore" class="form-control-file border p-1" accept=".xlsx">
+                                </div>
+                                <div class="d-flex align-items-center mb-2"><span id="captcha_code_restore" class="bg-light border px-2 py-1 font-weight-bold mr-2" style="letter-spacing: 2px;"></span><button class="btn btn-xs btn-outline-secondary" onclick="generateCaptcha('captcha_code_restore')"><i class="fas fa-sync"></i></button></div>
+                                <input type="text" id="captcha_input_restore" class="form-control mb-2" placeholder="Nhập mã xác nhận trên">
+                                <button class="btn btn-danger btn-block" onclick="processRestore()"><i class="fas fa-upload mr-2"></i>Tiến hành Phục hồi</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1100,6 +1117,24 @@
     </div>
 </div>
 
+<!-- Modal Easter Egg -->
+<div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white text-center" style="border: 2px solid #ffd700;">
+            <div class="modal-header border-0"><h5 class="modal-title font-weight-bold text-warning"><i class="fas fa-crown mr-2"></i>CREDITS</h5><button type="button" class="close text-white" onclick="stopEasterEgg()"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <h4 class="text-primary font-weight-bold">Tổ Công nghệ Đoàn phường Phan Rang 2025</h4>
+                <p class="lead">Người làm: <span class="text-warning font-weight-bold">Triết Võ</span></p>
+                <p class="small text-muted">Hỗ trợ AI: Gemini Code Assist (VS Code)</p>
+                <hr class="bg-secondary">
+                <p><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
+                <p><i class="fas fa-phone mr-2"></i>0396385579</p>
+            </div>
+        </div>
+    </div>
+</div>
+<audio id="eggAudio" loop><source src="music/easter_egg.mp3" type="audio/mpeg"></audio>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
@@ -1110,7 +1145,7 @@
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
-let globalHistoryData = [], globalStudentsData = [], globalUsersData = [], globalGroupsData = [], globalNotisData = [];
+let globalHistoryData = [], globalStudentsData = [], globalUsersData = [], globalGroupsData = [], globalNotisData = [], globalLogsData = [];
 let chartEval, chartStGroup, chartStTrend;
 let modalChart1, modalChart2, currentChartCategory = '';
 let currentHistoryView = []; // Dữ liệu lịch sử đang hiển thị (đã lọc)
@@ -1126,6 +1161,14 @@ function getErrorRowHtml(colspan, message = "Không thể tải dữ liệu.") {
     return `<tr><td colspan="${colspan}" class="text-center text-danger p-5"><i class="fas fa-exclamation-triangle fa-2x"></i><p class="mt-2">${message}</p></td></tr>`;
 }
 
+function generateCaptcha(elementId) {
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.getElementById(elementId).innerText = result;
+}
 
 $(document).ready(function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -1135,6 +1178,8 @@ $(document).ready(function() {
     if (localStorage.getItem('darkMode') === 'true') {
         $('body').addClass('dark-mode');
     }
+    generateCaptcha('captcha_code_backup');
+    generateCaptcha('captcha_code_restore');
     refreshAll();
 });
 
@@ -1190,12 +1235,12 @@ function renderStudentTable(data) {
     data.forEach((st, index) => {
         html += `<tr>
             <td class="font-weight-bold">${st.fullname}</td>
-            <td class="text-dob">${st.dob}</td>
+            <td class="text-dob d-none d-md-table-cell">${st.dob}</td>
             <td>${st.class_name || '-'}</td>
-            <td><span class="badge badge-info badge-group">${st.group_display}</span></td>
-            <td><small>${st.school}</small></td>
-            <td><a href="tel:${st.phone}">${st.phone || '-'}</a></td>
-            <td><small>${st.address || '-'}</small></td>
+            <td class="d-none d-md-table-cell"><span class="badge badge-info badge-group">${st.group_display}</span></td>
+            <td class="d-none d-md-table-cell"><small>${st.school}</small></td>
+            <td class="d-none d-md-table-cell"><a href="tel:${st.phone}">${st.phone || '-'}</a></td>
+            <td class="d-none d-md-table-cell"><small>${st.address || '-'}</small></td>
             <td>
                 <button class="btn btn-info btn-action" onclick="editStudent('${st.id}')"><i class="fas fa-edit"></i></button>
                 <button class="btn btn-danger btn-action" onclick="deleteData('students', '${st.id}')"><i class="fas fa-trash"></i></button>
@@ -1266,8 +1311,8 @@ async function loadRegistrations() {
                     <td><code>${r.id}</code></td>
                     <td class="font-weight-bold text-danger">${r.pass}</td>
                     <td>${r.fullname}</td>
-                    <td>${r.class_name}</td>
-                    <td>${r.school}</td>
+                    <td class="d-none d-md-table-cell">${r.class_name}</td>
+                    <td class="d-none d-md-table-cell">${r.school}</td>
                     <td>
                         <button class="btn btn-sm btn-warning" onclick="regeneratePass('${r.id}')"><i class="fas fa-sync mr-1"></i>Đổi Pass</button>
                     </td>
@@ -1312,12 +1357,12 @@ async function loadExtraData() {
                 mHtml += `<tr>
                     <td class="text-center"><img src="${m.avatar || 'https://via.placeholder.com/50'}" class="img-manager shadow-sm"></td>
                     <td><code>${m.username}</code></td>
-                    <td class="font-weight-bold">${m.fullname}</td>
-                    <td><span class="badge badge-warning">${m.group_id}</span></td>
+                    <td class="font-weight-bold d-none d-md-table-cell">${m.fullname}</td>
+                    <td class="d-none d-md-table-cell"><span class="badge badge-warning">${m.group_id}</span></td>
                     <td>${roleBadge}</td>
-                    <td><small>${m.email || '-'}</small></td>
-                    <td><small>${m.phone || '-'}</small></td>
-                    <td><small>${m.last_login || '-'}</small></td>
+                    <td class="d-none d-md-table-cell"><small>${m.email || '-'}</small></td>
+                    <td class="d-none d-md-table-cell"><small>${m.phone || '-'}</small></td>
+                    <td class="d-none d-md-table-cell"><small>${m.last_login || '-'}</small></td>
                     <td>
                         <button class="btn btn-info btn-action" onclick="editUser('${m.username}')"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-warning btn-action" onclick="resetPassword('${m.username}')" title="Reset Pass"><i class="fas fa-key"></i></button>
@@ -1377,13 +1422,13 @@ async function loadExtraData() {
                 let attachIcon = n.attachment ? `<br><span class="badge badge-warning"><i class="fas fa-paperclip"></i> Có file</span>` : '';
 
                 nHtml += `<tr>
-                    <td>${n.id}</td>
+                    <td class="d-none d-md-table-cell">${n.id}</td>
                     <td class="font-weight-bold">${n.title}</td>
-                    <td><small>${n.content}</small></td>
+                    <td class="d-none d-md-table-cell"><small>${n.content}</small></td>
                     <td><code>${n.datetime}</code></td>
-                    <td><span class="badge badge-${n.early === 'TRUE' ? 'success' : 'secondary'}">${n.early}</span></td>
-                    <td>${typeBadge}${locationInfo}${attachIcon}</td>
-                    <td>${readersHtml}${pollActions}</td>
+                    <td class="d-none d-md-table-cell"><span class="badge badge-${n.early === 'TRUE' ? 'success' : 'secondary'}">${n.early}</span></td>
+                    <td class="d-none d-md-table-cell">${typeBadge}${locationInfo}${attachIcon}</td>
+                    <td class="d-none d-md-table-cell">${readersHtml}${pollActions}</td>
                     <td>
                         <button class="btn btn-danger btn-action" onclick="deleteData('notifications', '${n.id}')"><i class="fas fa-trash"></i></button>
                     </td>
@@ -1404,18 +1449,42 @@ async function loadLogs() {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_LOGS" }) });
         const res = await response.json();
         if (res.status === "success") {
-            let html = '';
-            res.data.forEach(log => {
-                html += `<tr>
-                    <td><small>${log.timestamp}</small></td>
-                    <td><code>${log.username}</code></td>
-                    <td><span class="badge badge-light border">${log.action}</span></td>
-                    <td><small>${log.details}</small></td>
-                </tr>`;
-            });
-            $('#logData').html(html);
+            globalLogsData = res.data;
+            filterLogs();
         }
     } catch (e) { console.log("Logs error"); $('#logData').html(getErrorRowHtml(4)); }
+}
+
+function filterLogs() {
+    const user = $('#log_filter_user').val().toLowerCase();
+    const action = $('#log_filter_action').val().toLowerCase();
+    const date = $('#log_filter_date').val();
+
+    const filtered = globalLogsData.filter(log => {
+        const matchUser = !user || log.username.toLowerCase().includes(user);
+        const matchAction = !action || log.action.toLowerCase().includes(action);
+        const matchDate = !date || log.timestamp.startsWith(date.split('-').reverse().join('/')); // Convert YYYY-MM-DD to DD/MM/YYYY check
+        return matchUser && matchAction && matchDate;
+    });
+
+    let html = '';
+    filtered.forEach(log => {
+        html += `<tr>
+            <td><small>${log.timestamp}</small></td>
+            <td><code>${log.username}</code></td>
+            <td><span class="badge badge-light border">${log.action}</span></td>
+            <td class="d-none d-md-table-cell"><small>${log.details}</small></td>
+        </tr>`;
+    });
+    $('#logData').html(html || '<tr><td colspan="4" class="text-center">Không tìm thấy log phù hợp</td></tr>');
+}
+
+function exportExcelLogs() {
+    if (globalLogsData.length === 0) return toastr.warning("Không có dữ liệu logs!");
+    const ws = XLSX.utils.json_to_sheet(globalLogsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "SystemLogs");
+    XLSX.writeFile(wb, `System_Logs_${new Date().getTime()}.xlsx`);
 }
 
 let globalFeedbacksData = [];
@@ -1460,7 +1529,7 @@ function renderFeedbacks(data) {
                 <td>
                     ${contentAndAttachments}
                 </td>
-                <td>
+                <td class="d-none d-md-table-cell">
                     ${fb.reply ? `<div class="alert alert-light border">${fb.reply}</div>` : '<i class="text-muted">Chưa có phản hồi</i>'}
                 </td>
                 <td>
@@ -1532,6 +1601,10 @@ async function loadEvalConfig() {
             $('#maint_upload').prop('checked', String(res.data.maint_upload).toUpperCase() === 'TRUE');
             $('#maint_calendar').prop('checked', String(res.data.maint_calendar).toUpperCase() === 'TRUE');
             
+            // Attendance Time
+            $('#conf_att_start').val(res.data.attendance_start_time || '');
+            $('#conf_att_end').val(res.data.attendance_end_time || '');
+
             // Student Import Lock
             $('#conf_student_import_locked').prop('checked', String(res.data.student_import_locked).toUpperCase() === 'TRUE');
             if(res.data.student_import_deadline) $('#conf_student_import_deadline').val(res.data.student_import_deadline.split('T')[0]);
@@ -1664,6 +1737,8 @@ async function saveFeatureConfig() {
         maint_feedback: $('#maint_feedback').is(':checked') ? 'TRUE' : 'FALSE',
         maint_upload: $('#maint_upload').is(':checked') ? 'TRUE' : 'FALSE',
         maint_calendar: $('#maint_calendar').is(':checked') ? 'TRUE' : 'FALSE',
+        attendance_start_time: $('#conf_att_start').val(),
+        attendance_end_time: $('#conf_att_end').val(),
         student_import_locked: $('#conf_student_import_locked').is(':checked') ? 'TRUE' : 'FALSE',
         student_import_deadline: $('#conf_student_import_deadline').val(),
         max_upload_size: $('#conf_max_upload_size').val() || '200'
@@ -1826,10 +1901,10 @@ function renderEvaluationTable(data) {
 
             html += `<tr>
                 <td class="font-weight-bold">${e.name}</td>
-                <td><span class="badge badge-light border">${e.group}</span></td>
-                <td><small>${e.disc || '-'}</small></td>
-                <td><small>${e.pos || '-'}</small></td>
-                <td><small>${e.vol || '-'}</small></td>
+                <td class="d-none d-md-table-cell"><span class="badge badge-light border">${e.group}</span></td>
+                <td class="d-none d-md-table-cell"><small>${e.disc || '-'}</small></td>
+                <td class="d-none d-md-table-cell"><small>${e.pos || '-'}</small></td>
+                <td class="d-none d-md-table-cell"><small>${e.vol || '-'}</small></td>
                 <td><span class="badge badge-${badgeClass}">${e.class}</span></td>
             </tr>`;
         });
@@ -1859,6 +1934,7 @@ async function updateAttendanceStats() {
             globalHistoryData = s.history || [];
             currentHistoryView = globalHistoryData; // Mặc định hiển thị tất cả
             renderHistoryTable(currentHistoryView);
+            renderCharts(s);
         }
     } catch (e) { 
         toastr.error("Không thể kết nối Server."); 
@@ -2139,13 +2215,13 @@ function renderHistoryTable(history) {
     history.forEach(row => {
         let statusBadge = row.status === 'present' ? '<span class="badge badge-success">Có mặt</span>' : 
                           (row.status === 'absent_perm' ? '<span class="badge badge-warning">Vắng (P)</span>' : '<span class="badge badge-danger">Vắng</span>');
-        let reasonHtml = row.reason ? `<br><small class="text-muted font-italic">Lý do: ${row.reason}</small>` : '';
+        let reasonHtml = row.reason ? `<div class="small text-danger font-italic border-top mt-1 pt-1">Lý do: ${row.reason}</div>` : '';
         html += `<tr>
             <td><small class="text-muted">${row.timestamp}</small></td>
             <td><b>${row.student_name}</b></td>
-            <td><span class="badge badge-light border">${row.group_id}</span></td>
+            <td class="d-none d-md-table-cell"><span class="badge badge-light border">${row.group_id}</span></td>
             <td>${statusBadge}${reasonHtml}</td>
-            <td><small>${row.recorded_by}</small></td>
+            <td class="d-none d-md-table-cell"><small>${row.recorded_by}</small></td>
         </tr>`;
     });
     $('#historyAttendanceData').html(html || '<tr><td colspan="5" class="text-center">Trống</td></tr>');
@@ -2493,7 +2569,7 @@ function exportExcelHistory() {
         if (item.status === 'present') st = "Có mặt";
         else if (item.status === 'absent_perm') st = "Vắng có phép";
         
-        return { "Thời Gian": item.timestamp, "Học Sinh": item.student_name, "Nhóm": item.group_id, "Trạng Thái": st, "Lý do": item.reason || "", "Người Thực Hiện": item.recorded_by };
+        return { "Thời Gian": item.timestamp, "Học Sinh": item.student_name, "Nhóm": item.group_id, "Trạng Thái": st, "Lý do": item.reason || "Không có", "Người Thực Hiện": item.recorded_by };
     });
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -2537,6 +2613,12 @@ function exportExcelEvaluations() {
 }
 
 async function backupSystem() {
+    const captchaInput = $('#captcha_input_backup').val().trim();
+    const captchaCode = $('#captcha_code_backup').text().trim();
+    if (captchaInput.toUpperCase() !== captchaCode) {
+        return toastr.error("Mã xác nhận không đúng!");
+    }
+
     const user = JSON.parse(sessionStorage.getItem('user'));
     Swal.fire({ title: 'Đang tạo bản sao lưu...', text: 'Vui lòng chờ, quá trình này có thể mất vài giây.', didOpen: () => Swal.showLoading() });
     
@@ -2640,10 +2722,10 @@ async function loadUploadedFiles() {
                     : `<a href="${f.data}" download="${f.filename}" class="font-weight-bold">${f.filename}</a> <small class="text-muted">(${f.size})</small>`;
 
                 html += `<tr>
-                    <td><small>${f.timestamp}</small></td>
+                    <td class="d-none d-md-table-cell"><small>${f.timestamp}</small></td>
                     <td class="font-weight-bold text-primary">${f.uploader}</td>
-                    <td><span class="badge badge-secondary">${f.group_id}</span></td>
-                    <td class="text-center">${icon}</td>
+                    <td class="d-none d-md-table-cell"><span class="badge badge-secondary">${f.group_id}</span></td>
+                    <td class="text-center d-none d-md-table-cell">${icon}</td>
                     <td>${content}</td>
                     <td><button class="btn btn-xs btn-danger" onclick="deleteData('uploads', '${f.id}')"><i class="fas fa-trash"></i></button></td>
                 </tr>`;
@@ -2725,12 +2807,13 @@ function openImportModal(context) {
     $('#file_import').val('');
 }
 
-function openRestoreModal() {
-    $('#modalRestore').modal('show');
-    $('#file_restore').val('');
-}
-
 function processRestore() {
+    const captchaInput = $('#captcha_input_restore').val().trim();
+    const captchaCode = $('#captcha_code_restore').text().trim();
+    if (captchaInput.toUpperCase() !== captchaCode) {
+        return toastr.error("Mã xác nhận không đúng!");
+    }
+
     const file = document.getElementById('file_restore').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file backup!");
 
@@ -2901,6 +2984,25 @@ async function exportPollExcel(pollId, title) {
                 </div>
                 <div class="form-group">
                     <label>Hạn chót (Deadline)</label>
+                    <input type="date" id="conf_eval_deadline" class="form-control">
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label class="text-danger font-weight-bold">Khu vực nguy hiểm</label>
+                    <button class="btn btn-warning btn-block font-weight-bold" onclick="resetEvaluations()">
+                        <i class="fas fa-redo-alt mr-2"></i>Reset Đợt Mới (Xóa hết đánh giá)
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="saveEvalConfig()">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>             <label>Hạn chót (Deadline)</label>
                     <input type="date" id="conf_eval_deadline" class="form-control">
                 </div>
                 <hr>

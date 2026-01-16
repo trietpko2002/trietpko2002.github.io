@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         .profile-user-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid #adb5bd; border-radius: 50%; }
         .list-group-item { background-color: transparent; }
@@ -133,7 +132,12 @@
                                             <div class="form-group row"><label class="col-sm-3 col-form-label">Email</label><div class="col-sm-9"><input type="email" class="form-control" id="inputEmail"></div></div>
                                             <div class="form-group row">
                                                 <div class="offset-sm-3 col-sm-9">
-                                                    <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-profile"></div>
+                                                    <label>Mã xác nhận</label>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span id="captcha_code_profile" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_profile')"><i class="fas fa-sync"></i></button>
+                                                    </div>
+                                                    <input type="text" id="captcha_input_profile" class="form-control" placeholder="Nhập mã xác nhận">
                                                 </div>
                                             </div>
                                             <div class="form-group row"><div class="offset-sm-3 col-sm-9"><button type="button" class="btn btn-primary" onclick="updateProfile()">Lưu thay đổi</button></div></div>
@@ -200,7 +204,17 @@
         $('#inputUsername').val(user.username);
         $('#inputEmail').val(user.email || '');
         $('#inputPhone').val(user.phone || '');
+        generateCaptcha('captcha_code_profile');
     });
+
+    function generateCaptcha(elementId) {
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let result = '';
+        for (let i = 0; i < 5; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById(elementId).innerText = result;
+    }
 
     $('#avatarInput').change(function() {
         const file = this.files[0];
@@ -248,22 +262,25 @@
         const newEmail = $('#inputEmail').val().trim();
         const newPhone = $('#inputPhone').val().trim();
 
-        const token = turnstile.getResponse('#cf-profile');
-        if (!token) return toastr.error("Vui lòng xác thực Captcha!");
+        const captchaInput = $('#captcha_input_profile').val().trim();
+        const captchaCode = $('#captcha_code_profile').text().trim();
+        if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
+
         if(!newName || !newUsername) return toastr.warning("Tên và Username không được để trống!");
 
         Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_PROFILE", payload: { current_username: user.username, new_username: newUsername, fullname: newName, email: newEmail, phone: newPhone, token: token } }) });
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_PROFILE", payload: { current_username: user.username, new_username: newUsername, fullname: newName, email: newEmail, phone: newPhone } }) });
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công', res.message, 'success');
                 user.fullname = newName; user.email = newEmail; user.phone = newPhone;
                 if(user.username !== newUsername) { user.username = newUsername; Swal.fire('Thông báo', 'Vui lòng đăng nhập lại.', 'info').then(() => { sessionStorage.clear(); window.location.replace('login.html'); }); } 
                 else { sessionStorage.setItem('user', JSON.stringify(user)); $('#displayFullname').text(newName); }
-                if (window.turnstile) turnstile.reset('#cf-profile');
-            } else { Swal.fire('Lỗi', res.message, 'error'); if (window.turnstile) turnstile.reset('#cf-profile'); }
-        } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-profile'); }
+                generateCaptcha('captcha_code_profile');
+                $('#captcha_input_profile').val('');
+            } else { Swal.fire('Lỗi', res.message, 'error'); }
+        } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     }
 
     async function changePassword() {

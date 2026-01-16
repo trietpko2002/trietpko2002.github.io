@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         .profile-user-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid #adb5bd; border-radius: 50%; }
         .list-group-item { background-color: transparent; }
@@ -188,7 +187,12 @@
                                             </div>
                                             <div class="form-group row">
                                                 <div class="offset-sm-3 col-sm-9">
-                                                    <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-profile"></div>
+                                                    <label>Mã xác nhận</label>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span id="captcha_code_profile" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_profile')"><i class="fas fa-sync"></i></button>
+                                                    </div>
+                                                    <input type="text" id="captcha_input_profile" class="form-control" placeholder="Nhập mã xác nhận">
                                                 </div>
                                             </div>
                                             <div class="form-group row">
@@ -281,7 +285,18 @@
         $('#inputUsername').val(user.username);
         $('#inputEmail').val(user.email || ''); // Email mới thêm
         $('#inputPhone').val(user.phone || ''); // Phone mới thêm
+        
+        generateCaptcha('captcha_code_profile');
     });
+
+    function generateCaptcha(elementId) {
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let result = '';
+        for (let i = 0; i < 5; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById(elementId).innerText = result;
+    }
 
     // Xử lý Avatar
     $('#avatarInput').change(function() {
@@ -330,7 +345,9 @@
         const newEmail = $('#inputEmail').val().trim();
         const newPhone = $('#inputPhone').val().trim();
 
-        if (!turnstile.getResponse('#cf-profile')) return toastr.error("Vui lòng xác thực Captcha!");
+        const captchaInput = $('#captcha_input_profile').val().trim();
+        const captchaCode = $('#captcha_code_profile').text().trim();
+        if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
         if(!newName || !newUsername) return toastr.warning("Tên và Username không được để trống!");
 
         Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
@@ -345,8 +362,7 @@
                         new_username: newUsername,
                         fullname: newName,
                         email: newEmail,
-                        phone: newPhone,
-                        token: turnstile.getResponse('#cf-profile')
+                        phone: newPhone
                     } 
                 }) 
             });
@@ -368,12 +384,12 @@
                     sessionStorage.setItem('user', JSON.stringify(user));
                     $('#displayFullname').text(newName);
                 }
-                if (window.turnstile) turnstile.reset('#cf-profile');
+                generateCaptcha('captcha_code_profile');
+                $('#captcha_input_profile').val('');
             } else {
                 Swal.fire('Lỗi', res.message, 'error');
-                if (window.turnstile) turnstile.reset('#cf-profile');
             }
-        } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-profile'); }
+        } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     }
 
     async function changePassword() {

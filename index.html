@@ -11,7 +11,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         .info-box-content { justify-content: center; }
@@ -151,6 +151,7 @@
         if ('Notification' in window && Notification.permission !== 'granted') {
             Notification.requestPermission();
         }
+        if(typeof generateCaptcha === 'function') generateCaptcha('captcha_code_fb');
     })();
     function logout() { sessionStorage.clear(); window.location.replace('login.html'); }
 </script>
@@ -181,6 +182,7 @@
                     </div>
                     <span class="d-none d-md-inline font-weight-bold text-white" id="managerDisplayName">Quản lý</span>
                 </a>
+                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning mr-3" title="Thông tin"><i class="fas fa-info-circle"></i></a>
             </li>
             <li class="nav-item d-flex align-items-center">
                 <a href="javascript:void(0)" onclick="logout()" class="btn btn-sm btn-danger font-weight-bold">
@@ -506,7 +508,12 @@
                                     <input type="text" id="fb_title" class="form-control" placeholder="VD: Lỗi điểm danh...">
                                 </div>
                                 <div class="form-group">
-                                    <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-fb"></div>
+                                    <label>Mã xác nhận</label>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span id="captcha_code_fb" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_fb')"><i class="fas fa-sync"></i></button>
+                                    </div>
+                                    <input type="text" id="captcha_input_fb" class="form-control" placeholder="Nhập mã xác nhận">
                                 </div>
                                 <div class="form-group">
                                     <label>Nội dung / Khó khăn</label>
@@ -554,6 +561,10 @@
             </div>
         </div>
     </div>
+    
+    <footer class="main-footer text-center text-sm">
+        <strong>Copyright &copy; 2025 Hệ thống Quản lý SHH.</strong> All rights reserved.
+    </footer>
 </div>
 
 <!-- Modal Student -->
@@ -772,6 +783,24 @@
     </div>
 </div>
 
+<!-- Modal Easter Egg -->
+<div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white text-center" style="border: 2px solid #ffd700;">
+            <div class="modal-header border-0"><h5 class="modal-title font-weight-bold text-warning"><i class="fas fa-crown mr-2"></i>CREDITS</h5><button type="button" class="close text-white" onclick="stopEasterEgg()"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <h4 class="text-primary font-weight-bold">Tổ Công nghệ Đoàn phường Phan Rang 2025</h4>
+                <p class="lead">Người làm: <span class="text-warning font-weight-bold">Triết Võ</span></p>
+                <p class="small text-muted">Hỗ trợ AI: Gemini Code Assist (VS Code)</p>
+                <hr class="bg-secondary">
+                <p><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
+                <p><i class="fas fa-phone mr-2"></i>0396385579</p>
+            </div>
+        </div>
+    </div>
+</div>
+<audio id="eggAudio" loop><source src="music/easter_egg.mp3" type="audio/mpeg"></audio>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
@@ -829,6 +858,10 @@ document.addEventListener("DOMContentLoaded", function() {
     if (localStorage.getItem('darkMode') === 'true') {
         $('body').addClass('dark-mode');
     }
+
+    generateCaptcha('captcha_code_fb');
+    
+    // Render VIP Honors
     
     // Render VIP Honors
     try {
@@ -932,6 +965,16 @@ async function pollForNotifications() {
             }
         }
     } catch(e) { console.log("Polling error", e); }
+}
+
+function generateCaptcha(elementId) {
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const el = document.getElementById(elementId);
+    if(el) el.innerText = result;
 }
 
 // --- MAINTENANCE CHECK ---
@@ -1620,8 +1663,10 @@ async function sendFeedback() {
     if (!difficulty && !suggestion) {
         return toastr.warning("Vui lòng nhập nội dung phản ánh hoặc kiến nghị!");
     }
-    if (!turnstile.getResponse('#cf-fb')) {
-        toastr.error("Vui lòng xác thực Captcha!");
+    const captchaInput = $('#captcha_input_fb').val().trim();
+    const captchaCode = $('#captcha_code_fb').text().trim();
+    if (captchaInput.toUpperCase() !== captchaCode) {
+        toastr.error("Mã xác nhận không đúng!");
         return;
     }
 
@@ -1633,8 +1678,7 @@ async function sendFeedback() {
         title: title,
         difficulty: difficulty,
         suggestion: suggestion,
-        drive_link: driveLink,
-        token: turnstile.getResponse('#cf-fb')
+        drive_link: driveLink
     };
 
     const send = async (finalPayload) => {
@@ -1644,11 +1688,11 @@ async function sendFeedback() {
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công!', 'Đã gửi yêu cầu/file.', 'success');
-                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file').val('');
-                if (window.turnstile) turnstile.reset('#cf-fb');
+                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file, #captcha_input_fb').val('');
+                generateCaptcha('captcha_code_fb');
                 loadFeedbackHistory();
-            } else { Swal.fire('Lỗi', res.message, 'error'); if (window.turnstile) turnstile.reset('#cf-fb'); }
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-fb'); }
+            } else { Swal.fire('Lỗi', res.message, 'error'); }
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     };
 
     if (fileInput.files.length > 0) {
@@ -2441,6 +2485,21 @@ async function regeneratePass(id) {
     const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
     const res = await response.json();
     if(res.status === 'success') { toastr.success('Mật khẩu mới: ' + res.new_pass); loadRegistrations(); }
+}
+
+// Easter Egg Logic
+var fireworksInterval;
+function startEasterEgg() {
+    $('#modalCredits').modal('show');
+    const audio = document.getElementById('eggAudio');
+    if(audio) audio.play().catch(e => console.log("Audio play failed", e));
+    var duration = 15 * 1000; var animationEnd = Date.now() + duration; var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+    function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+    fireworksInterval = setInterval(function() { var timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) { return clearInterval(fireworksInterval); } var particleCount = 50 * (timeLeft / duration); confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })); confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })); }, 250);
+}
+function stopEasterEgg() {
+    $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
+    clearInterval(fireworksInterval); confetti.reset();
 }
 </script>
 

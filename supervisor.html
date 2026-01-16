@@ -11,6 +11,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
         .small-box:hover { transform: translateY(-5px); }
@@ -59,6 +60,7 @@
                 <a href="supervisor_profile.html" class="nav-link font-weight-bold text-primary">
                     <i class="fas fa-user-circle mr-1"></i> <span id="adminNameDisplay">Supervisor</span>
                 </a>
+                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-2" style="position: absolute; top: 12px; right: 120px;"><i class="fas fa-info-circle"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)" onclick="openSettingsModal()" title="Cài đặt">
@@ -364,6 +366,9 @@
             </div>
         </div>
     </div>
+    <footer class="main-footer text-center text-sm">
+        <strong>Copyright &copy; 2025 Hệ thống Quản lý SHH.</strong> All rights reserved.
+    </footer>
 </div>
 
 <!-- Modal Settings -->
@@ -394,6 +399,12 @@
                 <div class="form-group"><label>Link YouTube</label><input type="text" id="troll_youtube" class="form-control"></div>
                 <div class="form-group"><label>File đính kèm</label><input type="file" id="troll_file" class="form-control-file border p-1">
                     <input type="hidden" id="troll_image_base64"><input type="hidden" id="troll_file_name">
+                </div>
+                <hr>
+                <h6 class="text-warning font-weight-bold"><i class="fas fa-database mr-2"></i>Sao lưu & Khôi phục</h6>
+                <div class="d-flex">
+                    <button class="btn btn-outline-warning flex-grow-1 mr-2" onclick="backupSystem()"><i class="fas fa-download mr-2"></i>Sao lưu</button>
+                    <button class="btn btn-outline-danger flex-grow-1" onclick="checkRestoreAuth()"><i class="fas fa-upload mr-2"></i>Khôi phục</button>
                 </div>
                 <button class="btn btn-danger btn-block" onclick="saveTrollConfig()">Lưu Cấu hình Khẩn</button>
             </div>
@@ -463,6 +474,30 @@
     </div>
 </div>
 
+<!-- Modal Restore System -->
+<div class="modal fade" id="modalRestore" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-undo-alt mr-2"></i>Phục hồi Hệ thống từ Backup</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <strong>CẢNH BÁO!</strong> Hành động này sẽ <strong>XÓA SẠCH</strong> toàn bộ dữ liệu hiện tại và thay thế bằng dữ liệu từ file backup. Hãy chắc chắn bạn đã chọn đúng file.
+                </div>
+                <div class="form-group">
+                    <label>Chọn file Backup (.xlsx)</label>
+                    <input type="file" id="file_restore" class="form-control-file border p-2" accept=".xlsx">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="processRestore()">Bắt đầu Phục hồi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Honor Management -->
 <div class="modal fade" id="modalHonor" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -494,6 +529,24 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Easter Egg -->
+<div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white text-center" style="border: 2px solid #ffd700;">
+            <div class="modal-header border-0"><h5 class="modal-title font-weight-bold text-warning"><i class="fas fa-crown mr-2"></i>CREDITS</h5><button type="button" class="close text-white" onclick="stopEasterEgg()"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <h4 class="text-primary font-weight-bold">Tổ Công nghệ Đoàn phường Phan Rang 2025</h4>
+                <p class="lead">Người làm: <span class="text-warning font-weight-bold">Triết Võ</span></p>
+                <p class="small text-muted">Hỗ trợ AI: Gemini Code Assist (VS Code)</p>
+                <hr class="bg-secondary">
+                <p><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
+                <p><i class="fas fa-phone mr-2"></i>0396385579</p>
+            </div>
+        </div>
+    </div>
+</div>
+<audio id="eggAudio" loop><source src="music/easter_egg.mp3" type="audio/mpeg"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
@@ -546,7 +599,10 @@ async function loadStudents() {
                     <td><span class="badge badge-info badge-group">${st.group_display}</span></td>
                     <td><small>${st.school}</small></td>
                     <td>${st.phone || '-'}</td>
-                    <td><small>${st.address || '-'}</small></td>
+                    <td>
+                        <small class="d-block mb-1">${st.address || '-'}</small>
+                        <button class="btn btn-xs btn-warning" onclick="changeStudentPass('${st.id}')"><i class="fas fa-key mr-1"></i>Đổi Pass</button>
+                    </td>
                 </tr>`;
             });
             if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
@@ -590,7 +646,10 @@ function filterStudents() {
 function renderStudentTable(data) {
     let html = '';
     data.forEach(st => {
-        html += `<tr><td class="font-weight-bold">${st.fullname}</td><td class="text-dob">${st.dob}</td><td>${st.class_name || '-'}</td><td><span class="badge badge-info badge-group">${st.group_display}</span></td><td><small>${st.school}</small></td><td>${st.phone || '-'}</td><td><small>${st.address || '-'}</small></td></tr>`;
+        html += `<tr><td class="font-weight-bold">${st.fullname}</td><td class="text-dob">${st.dob}</td><td>${st.class_name || '-'}</td><td><span class="badge badge-info badge-group">${st.group_display}</span></td><td><small>${st.school}</small></td><td>${st.phone || '-'}</td><td>
+            <small class="d-block mb-1">${st.address || '-'}</small>
+            <button class="btn btn-xs btn-warning" onclick="changeStudentPass('${st.id}')"><i class="fas fa-key mr-1"></i>Đổi Pass</button>
+        </td></tr>`;
     });
     if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
     $('#studentData').html(html);
@@ -601,6 +660,26 @@ function resetStudentFilter() {
     $('#st_filter_name, #st_filter_group, #st_filter_school, #st_filter_from, #st_filter_to').val('');
     currentStudentView = globalStudentsData;
     renderStudentTable(currentStudentView);
+}
+
+async function changeStudentPass(studentId) {
+    const { value: newPass } = await Swal.fire({
+        title: 'Đổi mật khẩu học sinh',
+        input: 'text',
+        inputLabel: `Nhập mật khẩu mới cho ID: ${studentId}`,
+        inputPlaceholder: 'Mật khẩu mới...',
+        showCancelButton: true
+    });
+
+    if (newPass) {
+        Swal.fire({ title: 'Đang cập nhật...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CHANGE_STUDENT_PASS", payload: { student_id: studentId, new_pass: newPass } }) });
+            const res = await response.json();
+            if (res.status === 'success') Swal.fire('Thành công', 'Đã đổi mật khẩu!', 'success');
+            else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    }
 }
 
 function populateStudentFilters() {
@@ -900,6 +979,21 @@ function exportExcelHistory() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Lich_Su");
     XLSX.writeFile(wb, `Lich_Su_Diem_Danh.xlsx`);
+}
+
+// Easter Egg Logic
+var fireworksInterval;
+function startEasterEgg() {
+    $('#modalCredits').modal('show');
+    const audio = document.getElementById('eggAudio');
+    if(audio) audio.play().catch(e => console.log("Audio play failed", e));
+    var duration = 15 * 1000; var animationEnd = Date.now() + duration; var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+    function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+    fireworksInterval = setInterval(function() { var timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) { return clearInterval(fireworksInterval); } var particleCount = 50 * (timeLeft / duration); confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })); confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })); }, 250);
+}
+function stopEasterEgg() {
+    $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
+    clearInterval(fireworksInterval); confetti.reset();
 }
 </script>
 </body>
