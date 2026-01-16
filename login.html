@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     /* Youth Union Theme */
     .login-page { background: #e3f2fd; }
@@ -113,25 +114,6 @@
         100% { transform: translateY(-20px); opacity: 0; }
     }
 
-    /* Cloudflare Turnstile Simulation */
-    .cf-turnstile {
-        background-color: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px;
-        padding: 10px; display: flex; align-items: center; width: 100%;
-        margin-bottom: 15px; cursor: pointer; user-select: none;
-    }
-    .cf-checkbox {
-        width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px;
-        margin-right: 10px; background: #fff; display: flex; align-items: center; justify-content: center;
-    }
-    .cf-checkbox.loading {
-        border: 2px solid #f2f2f2; border-top: 2px solid #3498db; border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-    .cf-checkbox.checked { border: none; }
-    .cf-checkbox.checked::after { content: '✓'; color: #00b900; font-size: 20px; font-weight: bold; }
-    .cf-label { font-family: sans-serif; font-size: 14px; color: #333; flex-grow: 1; }
-    .cf-logo { width: 20px; height: 20px; background: url('https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg') no-repeat center/contain; opacity: 0.5; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -167,12 +149,7 @@
         </div>
         
         <!-- Cloudflare Turnstile -->
-        <div class="cf-turnstile" onclick="verifyTurnstile('login')">
-            <div class="cf-checkbox" id="cf-checkbox-login"></div>
-            <div class="cf-label">Xác thực bạn là con người</div>
-            <div class="cf-logo"></div>
-            <input type="hidden" id="cf-verified-login" value="false">
-        </div>
+        <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" data-response-field-name="cf-turnstile-response" id="cf-login"></div>
 
         <div class="login-progress-container" id="loginProgress">
             <div class="status-text-container" id="statusText"></div>
@@ -221,11 +198,7 @@
                 <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
                 <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
                 
-                <div class="cf-turnstile" onclick="verifyTurnstile('reg')">
-                    <div class="cf-checkbox" id="cf-checkbox-reg"></div>
-                    <div class="cf-label">Xác thực bạn là con người</div>
-                    <input type="hidden" id="cf-verified-reg" value="false">
-                </div>
+                <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" id="cf-reg"></div>
 
                 <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
                 <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" placeholder="VD: Tháng 6 - Tháng 8"></div>
@@ -275,11 +248,7 @@
                     <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
                     <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
                     
-                    <div class="cf-turnstile" onclick="verifyTurnstile('update')">
-                        <div class="cf-checkbox" id="cf-checkbox-update"></div>
-                        <div class="cf-label">Xác thực bạn là con người</div>
-                        <input type="hidden" id="cf-verified-update" value="false">
-                    </div>
+                    <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" id="cf-update"></div>
 
                     <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
                         <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
@@ -293,6 +262,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="mock-api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -308,17 +278,6 @@
         });
     };
 
-    // Cloudflare Simulation
-    function verifyTurnstile(id) {
-        const box = $(`#cf-checkbox-${id}`);
-        const input = $(`#cf-verified-${id}`);
-        if(input.val() === 'true') return;
-        box.addClass('loading');
-        setTimeout(() => {
-            box.removeClass('loading').addClass('checked');
-            input.val('true');
-        }, 1500);
-    }
 
     // Sync Logic
     function simulateSync() {
@@ -351,10 +310,10 @@
         const btn = document.getElementById('submitBtn');
         const user = $('#username').val().trim();
         const pass = $('#password').val().trim();
-        const isVerified = $('#cf-verified-login').val();
+        const turnstileResponse = turnstile.getResponse('#cf-login');
         const progressBox = $('#loginProgress');
         
-        if (isVerified !== 'true') {
+        if (!turnstileResponse) {
             toastr.error("Vui lòng xác thực bạn là con người!");
             return;
         }
@@ -439,7 +398,7 @@
         const name = $('#reg_name').val().trim();
         if (!name) return toastr.warning("Vui lòng nhập họ tên!");
         
-        if ($('#cf-verified-reg').val() !== 'true') return toastr.error("Vui lòng xác thực Captcha!");
+        if (!turnstile.getResponse('#cf-reg')) return toastr.error("Vui lòng xác thực Captcha!");
 
         const payload = {
             fullname: name,
@@ -527,7 +486,7 @@
         const group = $('#conf_group').val();
         if(!group) return toastr.warning("Vui lòng chọn Nhóm sinh hoạt!");
         
-        if ($('#cf-verified-update').val() !== 'true') return toastr.error("Vui lòng xác thực Captcha!");
+        if (!turnstile.getResponse('#cf-update')) return toastr.error("Vui lòng xác thực Captcha!");
 
         const payload = {
             temp_id: $('#conf_temp_id').val(),

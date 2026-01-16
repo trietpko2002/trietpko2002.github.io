@@ -4,6 +4,7 @@ const urlsToCache = [
   './index.html',
   './profile.html',
   './login.html',
+  './mock-api.js',
   'https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
