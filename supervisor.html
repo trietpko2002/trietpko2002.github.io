@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cấp Quản lý - Hệ thống Quản lý SHH</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <style>
+        .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
+        .small-box:hover { transform: translateY(-5px); }
+        .text-dob { color: #007bff; font-weight: bold; }
+        .badge-group { font-size: 0.85rem; padding: 4px 8px; }
+        .table-history { font-size: 0.9rem; }
+        .history-card-body { max-height: 600px; overflow-y: auto; }
+        .btn-action { padding: 2px 5px; font-size: 0.8rem; }
+        .nav-link p { font-weight: 500; }
+        /* Supervisor Theme - Purple/Indigo */
+        .navbar-primary { background-color: #6f42c1 !important; }
+        .brand-link.bg-primary { background-color: #6f42c1 !important; }
+        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #6f42c1; color: #fff; }
+        .btn-primary { background-color: #6f42c1; border-color: #59359a; }
+        .btn-primary:hover { background-color: #59359a; border-color: #4c2f7a; }
+        
+        body.dark-mode .modal-content { background-color: #343a40; color: #fff; }
+        body.dark-mode .form-control { background-color: #454d55; color: #fff; border-color: #6c757d; }
+        
+        @media print { .no-print, .main-sidebar, .main-header { display: none !important; } .content-wrapper { margin-left: 0 !important; } }
+        
+        /* Chart Container */
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .nav-pills .nav-link.active, .nav-pills .show>.nav-link { background-color: #6f42c1; color: #fff; }
+    </style>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+<script>
+    (function checkSecurity() {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        if (!user || user.role.toLowerCase() !== 'supervisor') {
+            window.location.replace('login.html');
+        }
+    })();
+    function logout() { sessionStorage.clear(); window.location.replace('login.html'); }
+</script>
+
+<div class="wrapper">
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a href="supervisor_profile.html" class="nav-link font-weight-bold text-primary">
+                    <i class="fas fa-user-circle mr-1"></i> <span id="adminNameDisplay">Supervisor</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)" onclick="openSettingsModal()" title="Cài đặt">
+                    <i class="fas fa-cog"></i>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="javascript:void(0)" onclick="logout()">
+                    <i class="fas fa-power-off"></i> Thoát
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <aside class="main-sidebar sidebar-light-primary elevation-4">
+        <div class="brand-link bg-primary text-center">
+            <span class="brand-text font-weight-bold text-white">CẤP QUẢN LÝ</span>
+        </div>
+        <div class="sidebar">
+            <nav class="mt-3">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist">
+                    <li class="nav-item">
+                        <a href="#tab-dashboard" class="nav-link active" data-toggle="pill">
+                            <i class="nav-icon fas fa-chart-pie"></i> <p>Tổng quan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-students-list" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-id-card"></i> <p>Dữ liệu học sinh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-upload" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-folder-open"></i> <p>Quản lý file</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-notifications" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-bell"></i> <p>Thông báo</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-feedbacks" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-comments"></i> <p>Phản ánh kiến nghị</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-evaluations" class="nav-link" data-toggle="pill">
+                            <i class="nav-icon fas fa-star"></i> <p>Đánh giá</p>
+                        </a>
+                    </li>
+                    <li class="nav-header">XUẤT BÁO CÁO</li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
+                            <i class="nav-icon fas fa-file-excel"></i> <p>Xuất Lịch Sử (.xlsx)</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
+                            <i class="nav-icon fas fa-file-download"></i> <p>Xuất DS Học Sinh (.xlsx)</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="content-wrapper">
+        <div class="tab-content">
+            <!-- Dashboard -->
+            <div class="tab-pane fade show active" id="tab-dashboard">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Tổng quan & Thống kê</h1>
+                        <div>
+                            <button onclick="refreshAll()" class="btn btn-primary"><i class="fas fa-sync"></i> Tải lại dữ liệu</button>
+                        </div>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <!-- Stats Cards -->
+                        <div class="row">
+                            <div class="col-lg-3 col-6"><div class="small-box bg-info"><div class="inner"><h3 id="countHS">0</h3><p>Học sinh</p></div><div class="icon"><i class="fas fa-users"></i></div></div></div>
+                            <div class="col-lg-3 col-6"><div class="small-box bg-success"><div class="inner"><h3 id="countPresent">0</h3><p>Có mặt</p></div><div class="icon"><i class="fas fa-check"></i></div></div></div>
+                            <div class="col-lg-3 col-6"><div class="small-box bg-warning text-white"><div class="inner"><h3 id="countAbsentP">0</h3><p>Vắng (P)</p></div><div class="icon"><i class="fas fa-envelope"></i></div></div></div>
+                            <div class="col-lg-3 col-6"><div class="small-box bg-danger"><div class="inner"><h3 id="countAbsent">0</h3><p>Vắng (K)</p></div><div class="icon"><i class="fas fa-times"></i></div></div></div>
+                        </div>
+                        
+                        <!-- Dashboard Tabs -->
+                        <div class="card card-primary card-outline card-outline-tabs shadow">
+                            <div class="card-header p-0 border-bottom-0">
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#dash-charts"><i class="fas fa-chart-pie mr-2"></i>Biểu đồ Thống kê</a></li>
+                                    <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#dash-attendance"><i class="fas fa-history mr-2"></i>Lịch sử & Thống kê Điểm danh</a></li>
+                                </ul>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content">
+                                    <!-- Charts Tab -->
+                                    <div class="tab-pane fade show active" id="dash-charts">
+                                        <div class="row">
+                                            <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Tỉ lệ Điểm danh (Tổng quát)</h3></div><div class="card-body"><div class="chart-container"><canvas id="chartAttendanceRatio"></canvas></div></div></div></div>
+                                            <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Biến động Điểm danh (7 ngày)</h3></div><div class="card-body"><div class="chart-container"><canvas id="chartAttendanceTrend"></canvas></div></div></div></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Attendance List Tab -->
+                                    <div class="tab-pane fade" id="dash-attendance">
+                                        <div class="row mb-2">
+                                            <div class="col-md-3"><input type="date" id="filter_from" class="form-control form-control-sm" title="Từ ngày"></div>
+                                            <div class="col-md-3"><input type="date" id="filter_to" class="form-control form-control-sm" title="Đến ngày"></div>
+                                            <div class="col-md-3">
+                                                <select id="filter_status" class="form-control form-control-sm">
+                                                    <option value="">-- Tất cả trạng thái --</option>
+                                                    <option value="present">Có mặt</option><option value="absent_perm">Vắng (P)</option><option value="absent">Vắng (K)</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3"><button class="btn btn-sm btn-primary btn-block" onclick="filterHistory()"><i class="fas fa-filter"></i> Lọc dữ liệu</button></div>
+                                        </div>
+                                        <div class="table-responsive history-card-body">
+                                            <table class="table table-head-fixed table-hover table-history text-nowrap table-striped">
+                                                <thead><tr><th>Thời gian</th><th>Học sinh</th><th>Nhóm</th><th>Trạng thái</th><th>Người thực hiện</th></tr></thead>
+                                                <tbody id="historyAttendanceData"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Students List -->
+            <div class="tab-pane fade" id="tab-students-list">
+                <section class="content-header">
+                    <div class="container-fluid"><h1>Dữ liệu Học sinh</h1></div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#subtab-official">Học sinh Chính thức</a></li>
+                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#subtab-pending" onclick="loadRegistrations()">Đăng ký Chờ duyệt</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="subtab-official">
+                                <!-- Student Charts -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6"><div class="card card-info"><div class="card-header"><h3 class="card-title">Phân bố theo Nhóm</h3></div><div class="card-body"><div class="chart-container" style="height:200px"><canvas id="chartStGroup"></canvas></div></div></div></div>
+                                    <div class="col-md-6"><div class="card card-success"><div class="card-header"><h3 class="card-title">Tăng trưởng Học sinh</h3></div><div class="card-body"><div class="chart-container" style="height:200px"><canvas id="chartStTrend"></canvas></div></div></div></div>
+                                </div>
+                                <!-- Student Filters -->
+                                <div class="card card-outline card-info shadow mb-3">
+                                    <div class="card-body p-2">
+                                        <div class="row">
+                                            <div class="col-md-3 mb-1"><input type="text" id="st_filter_name" class="form-control form-control-sm" placeholder="Tên học sinh..."></div>
+                                            <div class="col-md-2 mb-1"><select id="st_filter_group" class="form-control form-control-sm"><option value="">-- Tất cả Nhóm --</option></select></div>
+                                            <div class="col-md-3 mb-1"><select id="st_filter_school" class="form-control form-control-sm"><option value="">-- Tất cả Trường --</option></select></div>
+                                            <div class="col-md-2 mb-1"><input type="date" id="st_filter_from" class="form-control form-control-sm" title="Ngày thêm (Từ)"></div>
+                                            <div class="col-md-2 mb-1"><input type="date" id="st_filter_to" class="form-control form-control-sm" title="Ngày thêm (Đến)"></div>
+                                            <div class="col-12 text-right">
+                                                <button class="btn btn-primary mr-1" onclick="filterStudents()"><i class="fas fa-search mr-2"></i>Tìm kiếm</button>
+                                                <button class="btn btn-secondary" onclick="resetStudentFilter()"><i class="fas fa-undo mr-2"></i>Đặt lại</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card shadow">
+                                    <div class="card-body table-responsive">
+                                        <table id="studentTable" class="table table-striped table-bordered w-100">
+                                            <thead class="thead-dark"><tr><th>Họ tên</th><th>Ngày sinh</th><th>Lớp</th><th>Nhóm</th><th>Trường học</th><th>SĐT</th><th>Địa chỉ</th></tr></thead>
+                                            <tbody id="studentData"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="subtab-pending">
+                                <div class="card shadow">
+                                    <div class="card-header bg-warning"><h3 class="card-title">Danh sách đăng ký tạm</h3></div>
+                                    <div class="card-body table-responsive">
+                                        <table class="table table-bordered w-100">
+                                            <thead><tr><th>ID Tạm</th><th>Mật khẩu</th><th>Họ tên</th><th>Lớp</th><th>Trường</th><th>Thao tác</th></tr></thead>
+                                            <tbody id="regData"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Upload -->
+            <div class="tab-pane fade" id="tab-upload">
+                <section class="content-header"><div class="container-fluid"><h1>Quản lý file</h1></div></section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-header bg-primary"><h3 class="card-title">Tài nguyên & Tệp tin</h3></div>
+                            <div class="card-body">
+                                <div class="form-group bg-light p-3 border rounded">
+                                    <label class="text-info"><i class="fas fa-upload mr-2"></i>Tải lên file (Quyền Admin - Hệ thống)</label>
+                                    <input type="file" id="file_upload_generic" class="form-control-file border p-2 bg-white">
+                                    <button type="button" class="btn btn-info mt-2" onclick="uploadFileGeneric()"><i class="fas fa-upload mr-2"></i>Tải lên</button>
+                                </div>
+                                <div class="table-responsive mt-2" style="max-height: 500px;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="bg-light"><tr><th>Thời gian</th><th>Người gửi</th><th>Nhóm</th><th>Tên file</th><th>Thao tác</th></tr></thead>
+                                        <tbody id="uploadedFilesList"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Notifications -->
+            <div class="tab-pane fade" id="tab-notifications">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Thông báo hệ thống</h1>
+                        <div>
+                            <button class="btn btn-warning mr-2" onclick="openPollModal()"><i class="fas fa-poll"></i> Tạo Bình chọn</button>
+                            <button class="btn btn-success" onclick="openNotiModal()"><i class="fas fa-paper-plane"></i> Tạo thông báo</button>
+                        </div>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="notiTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-warning"><tr><th>ID</th><th>Tiêu đề</th><th>Nội dung</th><th>Thời gian</th><th>Người xem</th><th>Thao tác</th></tr></thead>
+                                    <tbody id="notiData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Feedbacks -->
+            <div class="tab-pane fade" id="tab-feedbacks">
+                <section class="content-header"><div class="container-fluid"><h1>Phản ánh & Kiến nghị</h1></div></section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="feedbackTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-info"><tr><th>Thời gian</th><th>Người gửi</th><th>Nội dung</th><th>Phản hồi</th><th>Thao tác</th></tr></thead>
+                                    <tbody id="feedbackData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Evaluations -->
+            <div class="tab-pane fade" id="tab-evaluations">
+                <section class="content-header">
+                    <div class="container-fluid d-flex justify-content-between">
+                        <h1>Đánh giá & Xếp loại</h1>
+                        <div>
+                            <button class="btn btn-warning mr-2" onclick="openEvalConfigModal()"><i class="fas fa-cogs"></i> Cấu hình</button>
+                            <button class="btn btn-primary mr-2" onclick="loadEvaluations()"><i class="fas fa-sync"></i> Tải lại</button>
+                            <button class="btn btn-success" onclick="exportExcelEvaluations()"><i class="fas fa-file-excel"></i> Xuất Báo Cáo</button>
+                        </div>
+                    </div>
+                </section>
+                <section class="content">
+                    <div class="container-fluid">
+                        <!-- Evaluation Chart -->
+                        <div class="row mb-3">
+                            <div class="col-12"><div class="card card-purple"><div class="card-header"><h3 class="card-title">Thống kê Kết quả</h3></div><div class="card-body"><div class="chart-container" style="height:250px"><canvas id="chartEvaluation"></canvas></div></div></div></div>
+                        </div>
+                        <!-- Evaluation Filters -->
+                        <div class="card card-outline card-purple shadow mb-3">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-md-3 mb-1"><input type="text" id="eval_filter_name" class="form-control form-control-sm" placeholder="Tên học sinh..."></div>
+                                    <div class="col-md-3 mb-1"><select id="eval_filter_group" class="form-control form-control-sm"><option value="">-- Tất cả Nhóm --</option></select></div>
+                                    <div class="col-md-3 mb-1"><select id="eval_filter_class" class="form-control form-control-sm"><option value="">-- Xếp loại --</option><option value="Xuất sắc">Xuất sắc</option><option value="Tốt">Tốt</option><option value="Trung bình">Trung bình</option><option value="Yếu">Yếu</option></select></div>
+                                    <div class="col-md-3 mb-1 text-right">
+                                        <button class="btn btn-primary mr-1" onclick="filterEvaluations()"><i class="fas fa-search mr-2"></i>Lọc</button>
+                                        <button class="btn btn-secondary" onclick="resetEvaluationFilter()"><i class="fas fa-undo"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card shadow">
+                            <div class="card-body table-responsive">
+                                <table id="evalTable" class="table table-hover table-bordered w-100">
+                                    <thead class="bg-purple text-white"><tr><th>Học sinh</th><th>Nhóm</th><th>Kỷ luật</th><th>Tích cực</th><th>Tình nguyện</th><th>Xếp loại</th></tr></thead>
+                                    <tbody id="evalData"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Settings -->
+<div class="modal fade" id="modalSettings" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white"><h5 class="modal-title">Cài đặt</h5><button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <div class="form-group d-flex justify-content-between align-items-center">
+                    <label class="mb-0">Chế độ Tối (Dark Mode)</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="darkModeSwitch" onchange="toggleDarkMode()">
+                        <label class="custom-control-label" for="darkModeSwitch"></label>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-danger font-weight-bold"><i class="fas fa-bullhorn mr-2"></i>Cấu hình Thông báo Khẩn (Troll)</h6>
+                <div class="form-group d-flex justify-content-between align-items-center bg-light p-2 rounded">
+                    <label class="mb-0">Kích hoạt</label>
+                    <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="troll_enabled"><label class="custom-control-label" for="troll_enabled"></label></div>
+                </div>
+                <div class="form-group d-flex justify-content-between align-items-center bg-light p-2 rounded mt-2">
+                    <label class="mb-0">Chế độ Banner điện thoại</label>
+                    <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="troll_mode"><label class="custom-control-label" for="troll_mode"></label></div>
+                </div>
+                <div class="form-group"><label>Tiêu đề</label><input type="text" id="troll_title" class="form-control"></div>
+                <div class="form-group"><label>Nội dung</label><textarea id="troll_content" class="form-control" rows="2"></textarea></div>
+                <div class="form-group"><label>Link YouTube</label><input type="text" id="troll_youtube" class="form-control"></div>
+                <div class="form-group"><label>File đính kèm</label><input type="file" id="troll_file" class="form-control-file border p-1">
+                    <input type="hidden" id="troll_image_base64"><input type="hidden" id="troll_file_name">
+                </div>
+                <button class="btn btn-danger btn-block" onclick="saveTrollConfig()">Lưu Cấu hình Khẩn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Notification -->
+<div class="modal fade" id="modalNoti" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning"><h5 class="modal-title">Tạo thông báo</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="n_id">
+                <div class="form-group"><label>Tiêu đề</label><input type="text" id="n_title" class="form-control"></div>
+                <div class="form-group"><label>Nội dung</label><textarea id="n_content" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label>Thời gian</label><input type="datetime-local" id="n_datetime" class="form-control"></div>
+                <div class="form-group"><label>Loại</label><select id="n_type" class="form-control"><option value="normal">Thường</option><option value="online">Online</option></select></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-primary" onclick="saveNotification()">Lưu</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reply -->
+<div class="modal fade" id="modalReply" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info"><h5 class="modal-title">Phản hồi</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="reply_id">
+                <div class="form-group"><label>Nội dung phản hồi:</label><textarea id="reply_content" class="form-control" rows="4"></textarea></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-primary" onclick="submitReply()">Gửi</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create Poll -->
+<div class="modal fade" id="modalPoll" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning"><h5 class="modal-title"><i class="fas fa-poll mr-2"></i>Tạo Bình chọn Mới</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>Câu hỏi / Chủ đề</label><input type="text" id="poll_question" class="form-control" placeholder="VD: Chọn trò chơi..."></div>
+                <div class="form-group"><label>Các lựa chọn (Ngăn cách bằng dấu phẩy)</label><textarea id="poll_options" class="form-control" rows="3" placeholder="A, B, C..."></textarea></div>
+                <div class="form-group"><label>Hạn chót</label><input type="datetime-local" id="poll_deadline" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-primary" onclick="createPoll()">Phát hành</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eval Config -->
+<div class="modal fade" id="modalEvalConfig" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-purple text-white"><h5 class="modal-title"><i class="fas fa-cogs mr-2"></i>Cấu hình Đánh giá</h5><button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>Trạng thái đánh giá</label>
+                    <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_eval_enabled"><label class="custom-control-label" for="conf_eval_enabled">Cho phép đánh giá</label></div>
+                </div>
+                <div class="form-group"><label>Hạn chót (Deadline)</label><input type="date" id="conf_eval_deadline" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-purple" onclick="saveEvalConfig()">Lưu cấu hình</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Honor Management -->
+<div class="modal fade" id="modalHonor" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning"><h5 class="modal-title"><i class="fas fa-crown mr-2"></i>Cấp Danh hiệu & VIP</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Chọn Quản lý</label>
+                    <select id="honor_user_select" class="form-control" onchange="loadUserHonors()"><option value="">-- Chọn tài khoản --</option></select>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label>Cấp độ VIP (Khung Avatar)</label>
+                    <select id="honor_level" class="form-control">
+                        <option value="">-- Không --</option>
+                        <option value="vip1">VIP 1 (Khung Bạc)</option>
+                        <option value="vip2">VIP 2 (Khung Vàng + Vương miện)</option>
+                        <option value="vip3">VIP 3 (Khung Kim Cương + Hiệu ứng)</option>
+                        <option value="vip4">VIP 4 (Bạch Kim - Supervisor)</option>
+                        <option value="vip5">VIP 5 (Hoàng Kim - Supervisor)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Danh hiệu (Mạ vàng)</label>
+                    <div class="d-flex flex-wrap" id="honor_titles_container"></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-warning" onclick="saveUserHonors()">Lưu Danh hiệu</button></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+let globalStudentsData = [], globalGroupsData = [], globalNotisData = [], globalEvaluationsData = [], globalHistoryData = [], globalManagersData = [];
+let currentStudentView = [], currentHistoryView = [], currentEvaluationView = [];
+let chartAttRatio, chartAttTrend, chartEval, chartStGroup, chartStTrend;
+
+$(document).ready(function() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if(user) $('#adminNameDisplay').text(user.fullname);
+    if (localStorage.getItem('darkMode') === 'true') $('body').addClass('dark-mode');
+    refreshAll();
+});
+
+async function refreshAll() {
+    await loadStudents();
+    updateAttendanceStats();
+    loadExtraData();
+    loadUploadedFiles();
+    loadFeedbacks();
+    loadEvaluations();
+    loadSystemSettings();
+}
+
+function getLoadingRowHtml(colspan) { return `<tr><td colspan="${colspan}" class="text-center p-3"><i class="fas fa-spinner fa-spin"></i> Đang tải...</td></tr>`; }
+
+async function loadStudents() {
+    $('#studentData').html(getLoadingRowHtml(7));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_USERS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            globalStudentsData = res.data.students;
+            $('#countHS').text(res.data.totalStudents);
+            populateStudentFilters();
+            let html = '';
+            globalStudentsData.forEach(st => {
+                html += `<tr>
+                    <td class="font-weight-bold">${st.fullname}</td>
+                    <td class="text-dob">${st.dob}</td>
+                    <td>${st.class_name || '-'}</td>
+                    <td><span class="badge badge-info badge-group">${st.group_display}</span></td>
+                    <td><small>${st.school}</small></td>
+                    <td>${st.phone || '-'}</td>
+                    <td><small>${st.address || '-'}</small></td>
+                </tr>`;
+            });
+            if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
+            $('#studentData').html(html);
+            $('#studentTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
+            currentStudentView = globalStudentsData;
+        }
+    } catch (e) { toastr.error("Lỗi tải danh sách học sinh."); }
+}
+
+function filterStudents() {
+    const name = $('#st_filter_name').val().toLowerCase();
+    const group = $('#st_filter_group').val();
+    const school = $('#st_filter_school').val();
+    const from = $('#st_filter_from').val();
+    const to = $('#st_filter_to').val();
+
+    let d1, d2;
+    if (from) { d1 = new Date(from); d1.setHours(0,0,0,0); }
+    if (to) { d2 = new Date(to); d2.setHours(23,59,59,999); }
+
+    currentStudentView = globalStudentsData.filter(st => {
+        const matchName = !name || (st.fullname && st.fullname.toLowerCase().includes(name));
+        const matchGroup = !group || (st.group_display && st.group_display === group);
+        const matchSchool = !school || (st.school && st.school === school);
+        
+        let matchDate = true;
+        if (d1 || d2) {
+            const ts = parseInt(st.id.replace('ST', ''));
+            if (!isNaN(ts)) {
+                const dateAdded = new Date(ts);
+                if (d1 && dateAdded.getTime() < d1.getTime()) matchDate = false;
+                if (d2 && dateAdded.getTime() > d2.getTime()) matchDate = false;
+            }
+        }
+        return matchName && matchGroup && matchSchool && matchDate;
+    });
+    renderStudentTable(currentStudentView);
+}
+
+function renderStudentTable(data) {
+    let html = '';
+    data.forEach(st => {
+        html += `<tr><td class="font-weight-bold">${st.fullname}</td><td class="text-dob">${st.dob}</td><td>${st.class_name || '-'}</td><td><span class="badge badge-info badge-group">${st.group_display}</span></td><td><small>${st.school}</small></td><td>${st.phone || '-'}</td><td><small>${st.address || '-'}</small></td></tr>`;
+    });
+    if ($.fn.DataTable.isDataTable('#studentTable')) $('#studentTable').DataTable().destroy();
+    $('#studentData').html(html);
+    $('#studentTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
+}
+
+function resetStudentFilter() {
+    $('#st_filter_name, #st_filter_group, #st_filter_school, #st_filter_from, #st_filter_to').val('');
+    currentStudentView = globalStudentsData;
+    renderStudentTable(currentStudentView);
+}
+
+function populateStudentFilters() {
+    const groups = [...new Set(globalStudentsData.map(s => s.group_display))].sort();
+    const schools = [...new Set(globalStudentsData.map(s => s.school).filter(s => s))].sort();
+    let gHtml = '<option value="">-- Tất cả Nhóm --</option>';
+    groups.forEach(g => gHtml += `<option value="${g}">${g}</option>`);
+    $('#st_filter_group').html(gHtml);
+    let sHtml = '<option value="">-- Tất cả Trường --</option>';
+    schools.forEach(s => sHtml += `<option value="${s}">${s}</option>`);
+    $('#st_filter_school').html(sHtml);
+}
+
+async function loadRegistrations() {
+    $('#regData').html(getLoadingRowHtml(6));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_REGISTRATIONS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            let html = '';
+            res.data.forEach(r => {
+                html += `<tr>
+                    <td><code>${r.id}</code></td>
+                    <td class="font-weight-bold text-danger">${r.pass}</td>
+                    <td>${r.fullname}</td>
+                    <td>${r.class_name}</td>
+                    <td>${r.school}</td>
+                    <td><button class="btn btn-sm btn-warning" onclick="regeneratePass('${r.id}')"><i class="fas fa-sync mr-1"></i>Đổi Pass</button></td>
+                </tr>`;
+            });
+            $('#regData').html(html || '<tr><td colspan="6" class="text-center">Không có đăng ký chờ duyệt.</td></tr>');
+        }
+    } catch (e) { $('#regData').html('<tr><td colspan="6" class="text-center text-danger">Lỗi tải dữ liệu</td></tr>'); }
+}
+
+async function regeneratePass(id) {
+    if(!confirm('Tạo lại mật khẩu ngẫu nhiên cho ID này?')) return;
+    const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
+    const res = await response.json();
+    if(res.status === 'success') { toastr.success('Mật khẩu mới: ' + res.new_pass); loadRegistrations(); }
+}
+
+async function loadExtraData() {
+    $('#notiData').html(getLoadingRowHtml(6));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            globalGroupsData = res.data.groups;
+            globalManagersData = res.data.managers; // Store for Honor modal
+            globalNotisData = res.data.notifications || [];
+            
+            // Notifications
+            let nHtml = '';
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            globalNotisData.forEach(n => {
+                let readers = n.read_by || [];
+                if (typeof readers === 'string') readers = readers.split(',').filter(x => x);
+                
+                // Allow delete if uploader is current user (assuming notifications have uploader field, if not, restrict all or allow all based on policy. Here allowing delete for simplicity as requested "loại bỏ tính năng admin có..."). 
+                // Actually prompt said "không thêm sửa xóa danh sách học sinh...". It didn't forbid notification management.
+                // But let's assume they can delete what they created. Since backend doesn't track creator for notis explicitly in GET_ADMIN_EXTRAS (it does in DB), we might just allow delete for now or hide it.
+                // Let's allow delete for Supervisor for now.
+                
+                nHtml += `<tr>
+                    <td>${n.id}</td>
+                    <td class="font-weight-bold">${n.title}</td>
+                    <td><small>${n.content}</small></td>
+                    <td><code>${n.datetime}</code></td>
+                    <td><span class="badge badge-info">${readers.length}</span></td>
+                    <td><button class="btn btn-danger btn-action" onclick="deleteData('notifications', '${n.id}')"><i class="fas fa-trash"></i></button></td>
+                </tr>`;
+            });
+            $('#notiData').html(nHtml);
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function loadUploadedFiles() {
+    try {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_UPLOADS" }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            let html = '';
+            res.data.forEach(f => {
+                // Allow delete if uploader is current user OR if user is Supervisor (acting as admin for files)
+                const deleteBtn = (f.uploader === user.username || user.role === 'supervisor') ? `<button class="btn btn-xs btn-danger" onclick="deleteData('uploads', '${f.id}')"><i class="fas fa-trash"></i></button>` : '';
+                html += `<tr>
+                    <td><small>${f.timestamp}</small></td>
+                    <td class="font-weight-bold text-primary">${f.uploader}</td>
+                    <td><span class="badge badge-secondary">${f.group_id}</span></td>
+                    <td><a href="${f.data}" download="${f.filename}" class="font-weight-bold text-truncate d-inline-block" style="max-width: 200px;">${f.filename}</a></td>
+                    <td>${deleteBtn}</td>
+                </tr>`;
+            });
+            $('#uploadedFilesList').html(html || '<tr><td colspan="5" class="text-center">Chưa có dữ liệu</td></tr>');
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function uploadFileGeneric() {
+    const fileInput = document.getElementById('file_upload_generic');
+    const file = fileInput.files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file!");
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result;
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    action: "UPLOAD_FILE", 
+                    payload: { uploader: user.username, group_id: 'ADMIN', filename: file.name, size: (file.size/1024/1024).toFixed(2)+' MB', data: base64, type: 'FILE' } 
+                }) 
+            });
+            const res = await response.json();
+            if (res.status === 'success') { Swal.fire('Thành công', 'File đã được tải lên!', 'success'); fileInput.value = ''; loadUploadedFiles(); }
+            else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    };
+    reader.readAsDataURL(file);
+}
+
+async function loadFeedbacks() {
+    $('#feedbackData').html(getLoadingRowHtml(5));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FEEDBACKS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            let html = '';
+            res.data.forEach(fb => {
+                html += `<tr>
+                    <td><small>${fb.timestamp}</small></td>
+                    <td><b>${fb.fullname}</b><br><small>${fb.phone}</small></td>
+                    <td>${fb.difficulty || fb.suggestion}</td>
+                    <td>${fb.reply || '<i class="text-muted">Chưa có</i>'}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="openReply('${fb.id}')"><i class="fas fa-reply"></i></button></td>
+                </tr>`;
+            });
+            $('#feedbackData').html(html || '<tr><td colspan="5" class="text-center">Trống</td></tr>');
+        }
+    } catch (e) { console.error(e); }
+}
+
+function openReply(id) {
+    $('#reply_id').val(id);
+    $('#reply_content').val('');
+    $('#modalReply').modal('show');
+}
+
+async function submitReply() {
+    const id = $('#reply_id').val();
+    const content = $('#reply_content').val();
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if(!content) return toastr.warning("Nhập nội dung!");
+    
+    const fullReply = `${content}<br><br>-- <b>${user.fullname}</b> (Supervisor) --`;
+    Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'REPLY_FEEDBACK', payload: { id: id, reply: fullReply } }) });
+        const res = await response.json();
+        if (res.status === 'success') { Swal.fire('Thành công', 'Đã gửi phản hồi', 'success'); $('#modalReply').modal('hide'); loadFeedbacks(); }
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+async function loadEvaluations() {
+    $('#evalData').html(getLoadingRowHtml(6));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_EVALUATIONS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            const rawEvaluations = res.data;
+            globalEvaluationsData = globalStudentsData.map(st => {
+                const evalItem = rawEvaluations.find(e => String(e[0]) === String(st.id));
+                return {
+                    name: st.fullname, group: st.group_display,
+                    disc: evalItem ? evalItem[3] : '-', pos: evalItem ? evalItem[4] : '-',
+                    vol: evalItem ? evalItem[5] : '-', class: evalItem ? evalItem[6] : 'Chưa đánh giá'
+                };
+            });
+            let html = '';
+            globalEvaluationsData.forEach(e => {
+                let badgeClass = e.class === 'Xuất sắc' ? 'success' : (e.class === 'Tốt' ? 'primary' : (e.class === 'Chưa đánh giá' ? 'light border' : 'warning'));
+                html += `<tr><td class="font-weight-bold">${e.name}</td><td>${e.group}</td><td>${e.disc}</td><td>${e.pos}</td><td>${e.vol}</td><td><span class="badge badge-${badgeClass}">${e.class}</span></td></tr>`;
+            });
+            if ($.fn.DataTable.isDataTable('#evalTable')) $('#evalTable').DataTable().destroy();
+            $('#evalData').html(html);
+            $('#evalTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" } });
+        }
+    } catch (e) { console.error(e); }
+}
+
+async function updateAttendanceStats() {
+    $('#historyAttendanceData').html(getLoadingRowHtml(5));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_STATS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            const s = res.data;
+            $('#countPresent').text(s.present); $('#countAbsentP').text(s.absent_perm); $('#countAbsent').text(s.absent);
+            globalHistoryData = s.history || [];
+            let html = '';
+            globalHistoryData.forEach(row => {
+                let statusBadge = row.status === 'present' ? '<span class="badge badge-success">Có mặt</span>' : (row.status === 'absent_perm' ? '<span class="badge badge-warning">Vắng (P)</span>' : '<span class="badge badge-danger">Vắng</span>');
+                html += `<tr><td><small>${row.timestamp}</small></td><td><b>${row.student_name}</b></td><td>${row.group_id}</td><td>${statusBadge}</td><td><small>${row.recorded_by}</small></td></tr>`;
+            });
+            $('#historyAttendanceData').html(html);
+            currentHistoryView = globalHistoryData;
+            renderCharts(s);
+        }
+    } catch (e) { console.error(e); }
+}
+
+function deleteData(type, id) {
+    Swal.fire({ title: 'Xóa dữ liệu?', text: "Hành động này không thể hoàn tác!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Xóa' }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: type, id: id } }) });
+                const res = await response.json();
+                if (res.status === 'success') { Swal.fire('Đã xóa!', res.message, 'success'); refreshAll(); }
+            } catch (e) { toastr.error("Lỗi xóa dữ liệu"); }
+        }
+    });
+}
+
+function openNotiModal() { $('#modalNoti').modal('show'); $('#n_id').val('NOTI'+new Date().getTime()); $('#n_title, #n_content, #n_datetime').val(''); }
+async function saveNotification() {
+    const dataArr = [$('#n_id').val(), $('#n_title').val(), $('#n_content').val(), $('#n_datetime').val().replace('T', ' '), 'FALSE', new Date().toLocaleString(), "", $('#n_type').val(), '', '', ''];
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "ADD_DATA", payload: { type: 'notifications', data: dataArr } }) });
+        const res = await response.json();
+        if (res.status === 'success') { Swal.fire('Thành công', 'Đã tạo thông báo', 'success'); $('#modalNoti').modal('hide'); refreshAll(); }
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+function openPollModal() {
+    $('#modalPoll').modal('show');
+    $('#poll_question, #poll_options, #poll_deadline').val('');
+}
+
+async function createPoll() {
+    const question = $('#poll_question').val().trim();
+    const optionsStr = $('#poll_options').val().trim();
+    const deadline = $('#poll_deadline').val();
+    if (!question || !optionsStr || !deadline) return toastr.warning("Vui lòng nhập đầy đủ thông tin!");
+    const options = optionsStr.split(',').map(s => s.trim()).filter(s => s);
+    if (options.length < 2) return toastr.warning("Cần ít nhất 2 lựa chọn!");
+    const pollContent = JSON.stringify({ question: question, options: options, deadline: deadline });
+    const pollId = 'POLL' + new Date().getTime();
+    const dataArr = [pollId, question, pollContent, deadline, 'FALSE', new Date().toLocaleString(), "", 'poll', '', '', ''];
+    Swal.fire({ title: 'Đang tạo bình chọn...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "ADD_DATA", payload: { type: 'notifications', data: dataArr } }) });
+        const res = await response.json();
+        if (res.status === 'success') { $('#modalPoll').modal('hide'); Swal.fire('Thành công', 'Đã tạo bình chọn!', 'success'); refreshAll(); }
+        else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+function openEvalConfigModal() { $('#modalEvalConfig').modal('show'); }
+async function saveEvalConfig() {
+    const enabled = $('#conf_eval_enabled').is(':checked') ? 'TRUE' : 'FALSE';
+    const deadline = $('#conf_eval_deadline').val();
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { evaluation_enabled: enabled, evaluation_deadline: deadline } }) });
+        const res = await response.json();
+        if (res.status === 'success') { Swal.fire('Thành công', 'Đã lưu cấu hình đánh giá!', 'success'); $('#modalEvalConfig').modal('hide'); }
+        else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+function openSettingsModal() { $('#modalSettings').modal('show'); $('#darkModeSwitch').prop('checked', $('body').hasClass('dark-mode')); }
+function toggleDarkMode() {
+    if ($('#darkModeSwitch').is(':checked')) { $('body').addClass('dark-mode'); localStorage.setItem('darkMode', 'true'); }
+    else { $('body').removeClass('dark-mode'); localStorage.setItem('darkMode', 'false'); }
+}
+
+function exportExcelStudents() {
+    if (globalStudentsData.length === 0) return toastr.warning("Không có dữ liệu!");
+    const data = globalStudentsData.map(st => ({ "Họ Tên": st.fullname, "Ngày Sinh": st.dob, "Lớp": st.class_name, "Nhóm": st.group_display, "Trường": st.school, "SĐT": st.phone, "Địa chỉ": st.address }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DSHS");
+    XLSX.writeFile(wb, `Danh_Sach_Hoc_Sinh.xlsx`);
+}
+
+function exportExcelHistory() {
+    if (globalHistoryData.length === 0) return toastr.warning("Không có dữ liệu!");
+    const data = globalHistoryData.map(item => ({ "Thời Gian": item.timestamp, "Học Sinh": item.student_name, "Nhóm": item.group_id, "Trạng Thái": item.status, "Người Thực Hiện": item.recorded_by }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Lich_Su");
+    XLSX.writeFile(wb, `Lich_Su_Diem_Danh.xlsx`);
+}
+</script>
+</body>
+</html>

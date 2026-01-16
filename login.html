@@ -429,7 +429,11 @@
     function handleLoginSuccess(user) {
         sessionStorage.setItem('user', JSON.stringify(user));
         toastr.success("Đăng nhập thành công!");
-        setTimeout(() => window.location.replace(user.role === 'admin' ? 'admin.html' : 'index.html'), 800);
+        setTimeout(() => {
+            if (user.role === 'admin') window.location.replace('admin.html');
+            else if (user.role === 'supervisor') window.location.replace('supervisor.html');
+            else window.location.replace('index.html');
+        }, 800);
     }
 
     // --- LOGIC ĐĂNG KÝ ---

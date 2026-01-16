@@ -205,28 +205,40 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-lg-3 col-6">
-                                <div class="small-box bg-info">
+                                <div class="small-box bg-info" style="cursor: pointer;" onclick="showChartsFor('students')">
                                     <div class="inner"><h3 id="countHS">0</h3><p>Học sinh</p></div>
                                     <div class="icon"><i class="fas fa-users"></i></div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-6">
-                                <div class="small-box bg-success">
+                                <div class="small-box bg-success" style="cursor: pointer;" onclick="showChartsFor('attendance')">
                                     <div class="inner"><h3 id="countPresent">0</h3><p>Có mặt</p></div>
                                     <div class="icon"><i class="fas fa-check"></i></div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-6">
-                                <div class="small-box bg-warning text-white">
+                                <div class="small-box bg-warning text-white" style="cursor: pointer;" onclick="showChartsFor('attendance')">
                                     <div class="inner"><h3 id="countAbsentP">0</h3><p>Vắng (P)</p></div>
                                     <div class="icon"><i class="fas fa-envelope"></i></div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-6">
-                                <div class="small-box bg-danger">
+                                <div class="small-box bg-danger" style="cursor: pointer;" onclick="showChartsFor('attendance')">
                                     <div class="inner"><h3 id="countAbsent">0</h3><p>Vắng (K)</p></div>
                                     <div class="icon"><i class="fas fa-times"></i></div>
                                 </div>
+                            </div>
+                            <div class="col-lg-3 col-6">
+                                <div class="small-box bg-purple" style="cursor: pointer;" onclick="showChartsFor('managers')"><div class="inner"><h3 id="countManagers">0</h3><p>Quản lý</p></div><div class="icon"><i class="fas fa-user-shield"></i></div></div>
+                            </div>
+                            <div class="col-lg-3 col-6">
+                                <div class="small-box bg-indigo" style="cursor: pointer;" onclick="showChartsFor('groups')"><div class="inner"><h3 id="countGroups">0</h3><p>Nhóm SHH</p></div><div class="icon"><i class="fas fa-layer-group"></i></div></div>
+                            </div>
+                            <div class="col-lg-3 col-6">
+                                <div class="small-box bg-orange text-white" style="cursor: pointer;" onclick="showChartsFor('notifications')"><div class="inner"><h3 id="countNotis">0</h3><p>Thông báo</p></div><div class="icon"><i class="fas fa-bell"></i></div></div>
+                            </div>
+                            <div class="col-lg-3 col-6">
+                                <div class="small-box bg-teal" style="cursor: pointer;" onclick="showChartsFor('feedbacks')"><div class="inner"><h3 id="countFeedbacks">0</h3><p>Phản ánh</p></div><div class="icon"><i class="fas fa-comments"></i></div></div>
                             </div>
                         </div>
 
@@ -292,6 +304,16 @@
                         </ul>
                         
                         <div class="tab-content">
+                        <!-- Charts Section for Students -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="card card-info"><div class="card-header"><h3 class="card-title">Phân bố Học sinh theo Nhóm</h3></div><div class="card-body"><div class="chart-container" style="height: 250px;"><canvas id="chartStGroup"></canvas></div></div></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card card-success"><div class="card-header"><h3 class="card-title">Biểu đồ Tăng trưởng Học sinh</h3></div><div class="card-body"><div class="chart-container" style="height: 250px;"><canvas id="chartStTrend"></canvas></div></div></div>
+                            </div>
+                        </div>
+
                         <!-- Subtab Official -->
                         <div class="tab-pane fade show active" id="subtab-official">
                         <div class="card card-outline card-info shadow mb-3">
@@ -543,6 +565,12 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
+                        <!-- Evaluation Chart -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="card card-purple"><div class="card-header"><h3 class="card-title">Thống kê Kết quả Đánh giá</h3></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="chartEvaluation"></canvas></div></div></div>
+                            </div>
+                        </div>
                         <!-- Cấu hình đánh giá -->
                         <div class="card card-outline card-purple shadow mb-3">
                             <div class="card-header"><h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc Đánh giá</h3></div>
@@ -1018,6 +1046,35 @@
     </div>
 </div>
 
+<!-- Modal Charts -->
+<div class="modal fade" id="modalCharts" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title" id="chartModalTitle">Thống kê chi tiết</h5>
+                <div class="d-flex align-items-center ml-auto">
+                    <div id="chartFilterContainer" class="mr-2" style="display:none;">
+                        <select id="chartGroupFilter" class="form-control form-control-sm" onchange="updateModalCharts()">
+                            <option value="">-- Tất cả Nhóm --</option>
+                        </select>
+                    </div>
+                    <button type="button" class="close text-white ml-2" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+            </div>
+            <div class="modal-body bg-light">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm"><div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title font-weight-bold" id="chartTitle1">Phân bố</h3><button class="btn btn-xs btn-outline-secondary" onclick="downloadChartImage('modalChart1', 'Bieu_do_phan_bo.png')"><i class="fas fa-download"></i> PNG</button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart1"></canvas></div></div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow-sm"><div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title font-weight-bold" id="chartTitle2">Biến động</h3><button class="btn btn-xs btn-outline-secondary" onclick="downloadChartImage('modalChart2', 'Bieu_do_bien_dong.png')"><i class="fas fa-download"></i> PNG</button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart2"></canvas></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
@@ -1029,6 +1086,8 @@
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 let globalHistoryData = [], globalStudentsData = [], globalUsersData = [], globalGroupsData = [], globalNotisData = [];
+let chartEval, chartStGroup, chartStTrend;
+let modalChart1, modalChart2, currentChartCategory = '';
 let currentHistoryView = []; // Dữ liệu lịch sử đang hiển thị (đã lọc)
 let currentStudentView = []; // Dữ liệu học sinh đang hiển thị
 let currentEvaluationView = []; // Dữ liệu đánh giá đang hiển thị
@@ -1063,6 +1122,7 @@ async function refreshAll() {
     loadEvaluations();
     loadSystemSettings(); // Load config (Eval + Troll)
     loadEvalConfig();
+    setTimeout(renderDashboardStats, 1000);
 }
 
 async function loadStudents() {
@@ -1773,6 +1833,269 @@ async function updateAttendanceStats() {
     } catch (e) { 
         toastr.error("Không thể kết nối Server."); 
         $('#historyAttendanceData').html(getErrorRowHtml(5));
+    }
+}
+
+function renderDashboardStats() {
+    $('#countManagers').text(globalUsersData.length);
+    $('#countGroups').text(globalGroupsData.length);
+    $('#countNotis').text(globalNotisData.length);
+    $('#countFeedbacks').text(globalFeedbacksData.length);
+}
+
+function showChartsFor(category) {
+    currentChartCategory = category;
+    $('#modalCharts').modal('show');
+    
+    // Populate Group Filter
+    const groupSelect = $('#chartGroupFilter');
+    groupSelect.empty().append('<option value="">-- Tất cả Nhóm --</option>');
+    
+    if (['students', 'attendance', 'feedbacks'].includes(category)) {
+        $('#chartFilterContainer').show();
+        if(globalGroupsData) {
+            globalGroupsData.forEach(g => {
+                groupSelect.append(`<option value="${g.group_name}">${g.group_name}</option>`);
+            });
+        }
+    } else {
+        $('#chartFilterContainer').hide();
+    }
+    
+    updateModalCharts();
+}
+
+function updateModalCharts() {
+    const groupFilter = $('#chartGroupFilter').val();
+    const ctx1 = document.getElementById('modalChart1').getContext('2d');
+    const ctx2 = document.getElementById('modalChart2').getContext('2d');
+    
+    if (modalChart1) modalChart1.destroy();
+    if (modalChart2) modalChart2.destroy();
+    
+    let data1 = {}, data2 = {};
+    let type1 = 'pie', type2 = 'line';
+    let title1 = 'Phân bố', title2 = 'Biến động';
+
+    if (currentChartCategory === 'students') {
+        title1 = 'Phân bố Học sinh'; title2 = 'Tăng trưởng Học sinh';
+        let filtered = globalStudentsData;
+        if (groupFilter) filtered = filtered.filter(s => s.group_display === groupFilter);
+        
+        // Chart 1: Group Distribution (or Class if filtered)
+        const counts = {};
+        filtered.forEach(s => { 
+            const key = groupFilter ? (s.class_name || 'Khác') : s.group_display;
+            counts[key] = (counts[key] || 0) + 1; 
+        });
+        data1 = { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de'] }] };
+        
+        // Chart 2: Growth
+        const growth = {};
+        filtered.forEach(s => {
+            const ts = parseInt(s.id.replace('ST', ''));
+            if(!isNaN(ts)) {
+                const d = new Date(ts);
+                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                growth[key] = (growth[key] || 0) + 1;
+            }
+        });
+        const keys = Object.keys(growth).sort();
+        let acc = 0;
+        const vals = keys.map(k => { acc += growth[k]; return acc; });
+        data2 = { labels: keys, datasets: [{ label: 'Tổng HS', data: vals, borderColor: '#17a2b8', fill: true }] };
+
+    } else if (currentChartCategory === 'attendance') {
+        title1 = 'Tỉ lệ Điểm danh'; title2 = 'Xu hướng 7 ngày';
+        let filtered = globalHistoryData;
+        if (groupFilter) filtered = filtered.filter(h => h.group_id === groupFilter);
+        
+        // Chart 1
+        let p=0, ap=0, a=0;
+        filtered.forEach(h => { if(h.status==='present') p++; else if(h.status==='absent_perm') ap++; else a++; });
+        data1 = { labels: [`Có mặt (${p})`, `Vắng P (${ap})`, `Vắng K (${a})`], datasets: [{ data: [p, ap, a], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }] };
+        type1 = 'doughnut';
+
+        // Chart 2
+        const trend = {};
+        filtered.forEach(h => {
+            const d = h.timestamp.split(' ')[0];
+            if(!trend[d]) trend[d] = {p:0, ap:0, a:0};
+            if(h.status==='present') trend[d].p++; else if(h.status==='absent_perm') trend[d].ap++; else trend[d].a++;
+        });
+        const dates = Object.keys(trend).sort((a,b) => { const [d1,m1,y1]=a.split('/'); const [d2,m2,y2]=b.split('/'); return new Date(`${y1}-${m1}-${d1}`) - new Date(`${y2}-${m2}-${d2}`); }).slice(-7);
+        data2 = {
+            labels: dates,
+            datasets: [
+                { label: 'Có mặt', data: dates.map(d=>trend[d].p), borderColor: '#28a745', fill: false },
+                { label: 'Vắng P', data: dates.map(d=>trend[d].ap), borderColor: '#ffc107', fill: false },
+                { label: 'Vắng K', data: dates.map(d=>trend[d].a), borderColor: '#dc3545', fill: false }
+            ]
+        };
+
+    } else if (currentChartCategory === 'managers') {
+        title1 = 'Phân bố Quyền hạn'; title2 = 'Quản lý theo Nhóm';
+        // Chart 1
+        const roles = {};
+        globalUsersData.forEach(u => { roles[u.role] = (roles[u.role]||0)+1; });
+        data1 = { labels: Object.keys(roles), datasets: [{ data: Object.values(roles), backgroundColor: ['#dc3545', '#ffc107', '#007bff'] }] };
+        
+        // Chart 2
+        const groups = {};
+        globalUsersData.forEach(u => { groups[u.group_id] = (groups[u.group_id]||0)+1; });
+        data2 = { labels: Object.keys(groups), datasets: [{ label: 'Số lượng', data: Object.values(groups), backgroundColor: '#6f42c1' }] };
+        type2 = 'bar';
+
+    } else if (currentChartCategory === 'groups') {
+        title1 = 'Học sinh theo Nhóm'; title2 = 'Số lượng Quản lý';
+        // Chart 1 (Same as Students Dist)
+        const counts = {};
+        globalStudentsData.forEach(s => { counts[s.group_display] = (counts[s.group_display] || 0) + 1; });
+        data1 = { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc'] }] };
+        
+        // Chart 2
+        const mgrs = {};
+        globalUsersData.forEach(u => { mgrs[u.group_id] = (mgrs[u.group_id]||0)+1; });
+        data2 = { labels: Object.keys(mgrs), datasets: [{ label: 'Quản lý', data: Object.values(mgrs), backgroundColor: '#17a2b8' }] };
+        type2 = 'bar';
+
+    } else if (currentChartCategory === 'notifications') {
+        title1 = 'Loại Thông báo'; title2 = 'Lịch sử tạo';
+        const types = {};
+        globalNotisData.forEach(n => { types[n.type] = (types[n.type]||0)+1; });
+        data1 = { labels: Object.keys(types), datasets: [{ data: Object.values(types), backgroundColor: ['#6c757d', '#007bff', '#28a745', '#ffc107'] }] };
+        
+        const dates = {};
+        globalNotisData.forEach(n => { const d = n.datetime.split(' ')[0]; dates[d] = (dates[d]||0)+1; });
+        const sorted = Object.keys(dates).sort();
+        data2 = { labels: sorted, datasets: [{ label: 'Số TB', data: sorted.map(d=>dates[d]), borderColor: '#fd7e14', fill: false }] };
+
+    } else if (currentChartCategory === 'feedbacks') {
+        title1 = 'Trạng thái Phản hồi'; title2 = 'Lịch sử Gửi';
+        let filtered = globalFeedbacksData;
+        if (groupFilter) filtered = filtered.filter(f => f.group_id == groupFilter); // Loose equality for ID vs Name match attempt
+        
+        const status = { 'Đã trả lời': 0, 'Chờ xử lý': 0 };
+        filtered.forEach(f => { f.reply ? status['Đã trả lời']++ : status['Chờ xử lý']++; });
+        data1 = { labels: Object.keys(status), datasets: [{ data: Object.values(status), backgroundColor: ['#28a745', '#ffc107'] }] };
+        
+        const dates = {};
+        filtered.forEach(f => { const d = f.timestamp.split(' ')[0]; dates[d] = (dates[d]||0)+1; });
+        const sorted = Object.keys(dates).sort((a,b) => { const [d1,m1,y1]=a.split('/'); const [d2,m2,y2]=b.split('/'); return new Date(`${y1}-${m1}-${d1}`) - new Date(`${y2}-${m2}-${d2}`); });
+        data2 = { labels: sorted, datasets: [{ label: 'Số phản ánh', data: sorted.map(d=>dates[d]), backgroundColor: '#17a2b8' }] };
+        type2 = 'bar';
+    }
+
+    $('#chartTitle1').text(title1);
+    $('#chartTitle2').text(title2);
+    
+    modalChart1 = new Chart(ctx1, { type: type1, data: data1, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+    modalChart2 = new Chart(ctx2, { type: type2, data: data2, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+}
+
+function downloadChartImage(canvasId, filename) {
+    const canvas = document.getElementById(canvasId);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
+function renderCharts(data) {
+    // 1. Attendance Ratio (Doughnut)
+    const ctxAttRatio = document.getElementById('chartAttendanceRatio').getContext('2d');
+    if (chartAttRatio) chartAttRatio.destroy();
+    chartAttRatio = new Chart(ctxAttRatio, {
+        type: 'doughnut',
+        data: {
+            labels: [`Có mặt (${data.present})`, `Vắng P (${data.absent_perm})`, `Vắng K (${data.absent})`],
+            datasets: [{ data: [data.present, data.absent_perm, data.absent], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }]
+        },
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // 2. Attendance Trend (Line) - Process History Data
+    const historyByDate = {};
+    (data.history || []).forEach(h => {
+        const date = h.timestamp.split(' ')[0]; // dd/mm/yyyy
+        if (!historyByDate[date]) historyByDate[date] = { p: 0, ap: 0, a: 0 };
+        if (h.status === 'present') historyByDate[date].p++;
+        else if (h.status === 'absent_perm') historyByDate[date].ap++;
+        else historyByDate[date].a++;
+    });
+    // Sort dates
+    const sortedDates = Object.keys(historyByDate).sort((a,b) => {
+        const [d1,m1,y1] = a.split('/'); const [d2,m2,y2] = b.split('/');
+        return new Date(`${y1}-${m1}-${d1}`) - new Date(`${y2}-${m2}-${d2}`);
+    }).slice(-7); // Last 7 days
+
+    const ctxAttTrend = document.getElementById('chartAttendanceTrend').getContext('2d');
+    if (chartAttTrend) chartAttTrend.destroy();
+    chartAttTrend = new Chart(ctxAttTrend, {
+        type: 'line',
+        data: {
+            labels: sortedDates,
+            datasets: [
+                { label: 'Có mặt', data: sortedDates.map(d => historyByDate[d].p), borderColor: '#28a745', fill: false, tension: 0.1 },
+                { label: 'Vắng (P)', data: sortedDates.map(d => historyByDate[d].ap), borderColor: '#ffc107', fill: false, tension: 0.1 },
+                { label: 'Vắng (K)', data: sortedDates.map(d => historyByDate[d].a), borderColor: '#dc3545', fill: false, tension: 0.1 }
+            ]
+        },
+        options: { maintainAspectRatio: false }
+    });
+
+    // 3. Evaluation Chart (Bar)
+    if(globalEvaluationsData.length > 0) {
+        const counts = { 'Xuất sắc': 0, 'Tốt': 0, 'Trung bình': 0, 'Yếu': 0, 'Chưa đánh giá': 0 };
+        globalEvaluationsData.forEach(e => { counts[e.class] = (counts[e.class] || 0) + 1; });
+        const ctxEval = document.getElementById('chartEvaluation').getContext('2d');
+        if (chartEval) chartEval.destroy();
+        chartEval = new Chart(ctxEval, {
+            type: 'bar',
+            data: { labels: Object.keys(counts), datasets: [{ label: 'Số lượng', data: Object.values(counts), backgroundColor: '#007bff' }] },
+            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+    // 4. Student Charts (Group & Trend)
+    if(globalStudentsData.length > 0) {
+        // Group Distribution
+        const groupCounts = {};
+        globalStudentsData.forEach(s => { groupCounts[s.group_display] = (groupCounts[s.group_display] || 0) + 1; });
+        
+        const ctxStGroup = document.getElementById('chartStGroup').getContext('2d');
+        if (chartStGroup) chartStGroup.destroy();
+        chartStGroup = new Chart(ctxStGroup, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(groupCounts),
+                datasets: [{ data: Object.values(groupCounts), backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de', '#605ca8', '#ff851b'] }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+
+        // Student Growth Trend (Based on ID timestamp)
+        const growth = {};
+        globalStudentsData.forEach(s => {
+            const ts = parseInt(s.id.replace('ST', ''));
+            if(!isNaN(ts)) {
+                const d = new Date(ts);
+                const key = `${d.getDate()}/${d.getMonth()+1}`;
+                growth[key] = (growth[key] || 0) + 1;
+            }
+        });
+        // Sort keys roughly (simple sort for dd/mm might fail across years but ok for demo)
+        const growthKeys = Object.keys(growth).sort((a,b) => a.localeCompare(b)); // Simple sort
+        let cumulative = 0;
+        const growthData = growthKeys.map(k => { cumulative += growth[k]; return cumulative; });
+
+        const ctxStTrend = document.getElementById('chartStTrend').getContext('2d');
+        if (chartStTrend) chartStTrend.destroy();
+        chartStTrend = new Chart(ctxStTrend, {
+            type: 'line',
+            data: { labels: growthKeys, datasets: [{ label: 'Tổng học sinh', data: growthData, borderColor: '#17a2b8', backgroundColor: 'rgba(23, 162, 184, 0.2)', fill: true }] },
+            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
     }
 }
 
