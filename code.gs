@@ -17,7 +17,14 @@ function doPost(e) {
     if (action === 'GET_USERS') return handleGetAdminData(); 
     if (action === 'GET_STUDENTS_BY_GROUP') return handleGetStudentsByGroup(payload);
     if (action === 'GET_GROUPS_PUBLIC') return handleGetGroupsPublic();
-    if (action === 'REGISTER_STUDENT') return handleRegisterStudent(payload);
+    
+    // --- REGISTRATION FLOW ---
+    if (action === 'REGISTER_TEMP') return handleRegisterTemp(payload);
+    if (action === 'LOGIN_TEMP') return handleLoginTemp(payload);
+    if (action === 'CONFIRM_REGISTRATION') return handleConfirmRegistration(payload);
+    if (action === 'GET_REGISTRATIONS') return handleGetRegistrations(payload);
+    if (action === 'REGENERATE_PASS') return handleRegeneratePass(payload);
+
     if (action === 'SAVE_ATTENDANCE') return handleSaveAttendance(payload);
     if (action === 'GET_ADMIN_STATS') return handleGetAdminStats();
     if (action === 'GET_ADMIN_EXTRAS') return handleGetAdminExtras(payload);
@@ -52,6 +59,7 @@ function doPost(e) {
     if (action === 'SAVE_EXPENSE_LOG') return handleSaveExpenseLog(payload);
     if (action === 'GET_FUND_LOGS') return handleGetFundLogs(payload);
     if (action === 'CHANGE_PASSWORD') return handleUserChangePassword(payload);
+    if (action === 'UPDATE_AVATAR') return handleUserUpdateAvatar(payload);
     if (action === 'UPDATE_AVATAR') return handleUserUpdateAvatar(payload);
     if (action === 'UPDATE_PROFILE') return handleUpdateProfile(payload);
     if (action === 'SAVE_USER_ADMIN') return handleSaveUserAdmin(payload);
@@ -158,7 +166,7 @@ function handleSendFeedback(payload) {
       payload.attachment || '', payload.attachment_name || '', payload.drive_link || ''
     ]);
     
-    return response({ status: 'success', message: 'Đã gửi góp ý thành công!' });
+    return response({ status: 'success', message: 'Đã gửi phản ánh thành công!' });
   } catch (e) { return response({ status: 'error', message: 'Lỗi gửi góp ý: ' + e.toString() }); }
 }
 
@@ -541,6 +549,22 @@ function handleUserUpdateAvatar(payload) {
   } catch (e) { return response({ status: 'error', message: e.toString() }); }
 }
 
+function handleUserUpdateAvatar(payload) {
+  try {
+    const sheet = ss.getSheetByName('users');
+    const rows = sheet.getDataRange().getValues();
+    const username = String(payload.username).trim();
+    const avatar = payload.avatar;
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0].toString().trim() === username) {
+        sheet.getRange(i + 1, 6).setValue(avatar);
+        return response({ status: 'success', message: 'Cập nhật ảnh đại diện thành công!' });
+      }
+    }
+    return response({ status: 'error', message: 'User not found' });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
 function handleImportStudents(payload) {
   try {
     const sheet = ss.getSheetByName('students');
@@ -572,16 +596,17 @@ function handleImportStudents(payload) {
 
       const newId = 'ST' + (baseTime + index);
       
-      // Cấu trúc: ID, Fullname, DOB, Address, Phone, GroupID, (Trống), School
+      // Cấu trúc Mới: ID, Fullname, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
       const newRow = [
         newId, 
         st.fullname, 
         st.dob, 
-        st.address || '', 
-        st.phone || '', 
-        st.group_id, 
-        "", // Cột G trống
-        st.school || ''
+        st.class_name || '',
+        st.school || '',
+        st.address || '',
+        st.phone || '',
+        st.group_id,
+        st.reg_time || '', st.reg_loc || '', st.reg_act || ''
       ];
       rowsToAdd.push(newRow);
       addedCount++;
@@ -652,7 +677,7 @@ function handleGetFundLogs(payload) {
 
 function handleBackupSystem(payload) {
   try {
-    const sheetNames = ['students', 'users', 'groups', 'attendance', 'notifications', 'notification_reads', 'feedback', 'evaluations', 'logs', 'fund_logs', 'settings'];
+    const sheetNames = ['students', 'registrations', 'users', 'groups', 'attendance', 'notifications', 'notification_reads', 'feedback', 'evaluations', 'logs', 'fund_logs', 'settings'];
     const backupData = {};
     
     sheetNames.forEach(name => {
@@ -720,21 +745,115 @@ function handleGetGroupsPublic() {
   } catch (e) { return response({ status: "error", message: e.toString() }); }
 }
 
-function handleRegisterStudent(payload) {
+function handleRegisterTemp(payload) {
   try {
-    const sheet = ss.getSheetByName('students');
-    const rows = sheet.getDataRange().getValues();
+    let sheet = ss.getSheetByName('registrations');
+    if (!sheet) {
+      sheet = ss.insertSheet('registrations');
+      // ID, Pass, Name, DOB, Class, School, Address, Phone, Time, Location, Activities, Timestamp
+      sheet.appendRow(['ID', 'Pass', 'Fullname', 'DOB', 'Class', 'School', 'Address', 'Phone', 'Time', 'Location', 'Activities', 'Timestamp']);
+    }
     
-    // Auto Generate ID: ST + timestamp
-    const newId = 'ST' + new Date().getTime(); 
+    const newId = 'REG' + Math.floor(100000 + Math.random() * 900000); // Random ID 6 số cho gọn hoặc timestamp
+    const randomPass = Math.floor(100000 + Math.random() * 900000).toString(); // 6 số ngẫu nhiên
     
-    // Structure: ID, Fullname, DOB, Address, Phone, GroupID, (Empty), School
-    const newRow = [newId, payload.fullname, payload.dob, payload.address, payload.phone, payload.group_id, "", payload.school];
+    const newRow = [
+      newId, randomPass, payload.fullname, payload.dob, payload.class_name, 
+      payload.school, payload.address, payload.phone, 
+      payload.reg_time, payload.reg_loc, payload.reg_act, new Date()
+    ];
     
     sheet.appendRow(newRow);
-    writeLog("System", "REGISTER_STUDENT", "Đăng ký mới: " + payload.fullname + " vào nhóm " + payload.group_id);
-    return response({ status: "success", message: "Đăng ký thành công!" });
+    return response({ 
+      status: "success", 
+      message: "Đăng ký tạm thành công!", 
+      data: { id: newId, pass: randomPass } 
+    });
   } catch (e) { return response({ status: "error", message: "Lỗi đăng ký: " + e.toString() }); }
+}
+
+function handleLoginTemp(payload) {
+  try {
+    const sheet = ss.getSheetByName('registrations');
+    if (!sheet) return response({ status: "error", message: "Chưa có dữ liệu đăng ký." });
+    const data = sheet.getDataRange().getValues();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(payload.id) && String(data[i][1]) === String(payload.pass)) {
+        return response({ 
+          status: "success", 
+          data: {
+            id: data[i][0], fullname: data[i][2], dob: data[i][3], class_name: data[i][4],
+            school: data[i][5], address: data[i][6], phone: data[i][7],
+            reg_time: data[i][8], reg_loc: data[i][9], reg_act: data[i][10]
+          }
+        });
+      }
+    }
+    return response({ status: "error", message: "ID hoặc Mật khẩu không đúng!" });
+  } catch (e) { return response({ status: "error", message: e.toString() }); }
+}
+
+function handleConfirmRegistration(payload) {
+  try {
+    const regSheet = ss.getSheetByName('registrations');
+    const stSheet = ss.getSheetByName('students');
+    
+    // 1. Thêm vào Students
+    // Structure Students: ID, Fullname, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
+    const newStId = 'ST' + new Date().getTime();
+    const stRow = [
+      newStId, payload.fullname, payload.dob, payload.class_name, 
+      payload.school, payload.address, payload.phone, payload.group_id,
+      payload.reg_time, payload.reg_loc, payload.reg_act
+    ];
+    stSheet.appendRow(stRow);
+
+    // 2. Xóa khỏi Registrations
+    const regData = regSheet.getDataRange().getValues();
+    for (let i = 1; i < regData.length; i++) {
+      if (String(regData[i][0]) === String(payload.temp_id)) {
+        regSheet.deleteRow(i + 1);
+        break;
+      }
+    }
+    
+    writeLog("System", "CONFIRM_REG", `Đã duyệt/hoàn tất HS: ${payload.fullname} vào nhóm ${payload.group_id}`);
+    return response({ status: "success", message: "Cập nhật thông tin và vào nhóm thành công!" });
+  } catch (e) { return response({ status: "error", message: e.toString() }); }
+}
+
+function handleGetRegistrations(payload) {
+  try {
+    const sheet = ss.getSheetByName('registrations');
+    if (!sheet) return response({ status: "success", data: [] });
+    const data = sheet.getDataRange().getValues();
+    const list = [];
+    for (let i = 1; i < data.length; i++) {
+      list.push({
+        id: data[i][0], pass: data[i][1], fullname: data[i][2], dob: formatDateVN(data[i][3]),
+        class_name: data[i][4], school: data[i][5], address: data[i][6], phone: data[i][7],
+        reg_time: data[i][8], reg_loc: data[i][9], reg_act: data[i][10]
+      });
+    }
+    return response({ status: "success", data: list });
+  } catch (e) { return response({ status: "error", message: e.toString() }); }
+}
+
+function handleRegeneratePass(payload) {
+  try {
+    const sheet = ss.getSheetByName('registrations');
+    const data = sheet.getDataRange().getValues();
+    const newPass = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(payload.id)) {
+        sheet.getRange(i + 1, 2).setValue(newPass);
+        return response({ status: "success", message: "Đã cấp lại mật khẩu mới.", new_pass: newPass });
+      }
+    }
+    return response({ status: "error", message: "Không tìm thấy ID đăng ký." });
+  } catch (e) { return response({ status: "error", message: e.toString() }); }
 }
 
 function handleLogin(payload) {
@@ -902,9 +1021,15 @@ function handleGetStudentsByGroup(payload) {
   const rows = ss.getSheetByName('students').getDataRange().getValues();
   const list = [];
   const realGroupName = getGroupName(payload.group_id.toString());
+  // Structure Students: ID(0), Fullname(1), DOB(2), Class(3), School(4), Address(5), Phone(6), GroupID(7), Time(8), Location(9), Activities(10)
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][5].toString() === payload.group_id.toString()) {
-      list.push({ id: rows[i][0], fullname: rows[i][1], dob: formatDateVN(rows[i][2]), address: rows[i][3], phone: rows[i][4], school: rows[i][7], group_name: realGroupName });
+    if (rows[i][7].toString() === payload.group_id.toString()) {
+      list.push({ 
+        id: rows[i][0], fullname: rows[i][1], dob: formatDateVN(rows[i][2]), 
+        class_name: rows[i][3], school: rows[i][4], address: rows[i][5], phone: rows[i][6],
+        reg_time: rows[i][8], reg_loc: rows[i][9], reg_act: rows[i][10],
+        group_name: realGroupName 
+      });
     }
   }
   return response({ status: "success", data: list });
@@ -981,17 +1106,22 @@ function handleGetAdminData() {
   const studentSheet = ss.getSheetByName('students');
   const studentValues = studentSheet.getDataRange().getValues();
   const students = [];
+  // Structure Students: ID(0), Fullname(1), DOB(2), Class(3), School(4), Address(5), Phone(6), GroupID(7), Time(8), Location(9), Activities(10)
   for (let j = 1; j < studentValues.length; j++) {
     if (studentValues[j][1]) {
       students.push({
         id: studentValues[j][0],
         fullname: studentValues[j][1],
         dob: formatDateVN(studentValues[j][2]),
-        group_id: studentValues[j][5],
-        group_display: getGroupName(studentValues[j][5]), 
-        school: studentValues[j][7],
-        address: studentValues[j][3],
-        phone: studentValues[j][4]
+        class_name: studentValues[j][3],
+        school: studentValues[j][4],
+        address: studentValues[j][5],
+        phone: studentValues[j][6],
+        group_id: studentValues[j][7],
+        group_display: getGroupName(studentValues[j][7]),
+        reg_time: studentValues[j][8],
+        reg_loc: studentValues[j][9],
+        reg_act: studentValues[j][10]
       });
     }
   }

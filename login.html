@@ -178,14 +178,90 @@
     <div class="card-footer bg-white text-center pt-3">
         <p class="mb-1 text-muted">Chưa có thông tin sinh hoạt hè học sinh?</p>
         <button type="button" class="btn btn-success btn-block font-weight-bold shadow-sm" onclick="openRegisterModal()">
-            <i class="fas fa-user-plus mr-2"></i> ĐĂNG KÝ THÔNG TIN MỚI
+            <i class="fas fa-user-plus mr-2"></i> ĐĂNG KÝ THÔNG TIN
+        </button>
+        <button type="button" class="btn btn-warning btn-block font-weight-bold shadow-sm mt-2" onclick="openUpdateInfoModal()">
+            <i class="fas fa-edit mr-2"></i> ĐỔI THÔNG TIN
         </button>
     </div>
   </div>
 </div>
 
-<!-- Modal Register Student (Giữ nguyên, chỉ xóa Modal PIN cũ) -->
-<!-- ... (Code Modal Register giữ nguyên như cũ) ... -->
+<!-- Modal Register Student -->
+<div class="modal fade" id="modalRegister" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title font-weight-bold">Đăng ký Thông tin Sinh hoạt hè</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle"></i> Sau khi đăng ký, bạn sẽ nhận được <b>Mã ID</b> và <b>Mật khẩu tạm</b>. Vui lòng lưu lại để cập nhật thông tin chi tiết sau.
+                </div>
+                <div class="form-group"><label>Họ và Tên học sinh <span class="text-danger">*</span></label><input type="text" id="reg_name" class="form-control" placeholder="Nguyễn Văn A"></div>
+                <div class="form-group"><label>Ngày sinh</label><input type="date" id="reg_dob" class="form-control"></div>
+                <div class="form-group"><label>Lớp hiện tại</label><input type="text" id="reg_class" class="form-control" placeholder="VD: 9A1"></div>
+                <div class="form-group"><label>Trường học</label><input type="text" id="reg_school" class="form-control" placeholder="THCS..."></div>
+                <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
+                <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
+                
+                <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
+                <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" placeholder="VD: Tháng 6 - Tháng 8"></div>
+                <div class="form-group"><label>Địa điểm đăng ký (Tổ chức/Địa phương)</label><input type="text" id="reg_loc" class="form-control"></div>
+                <div class="form-group"><label>Hoạt động dự định tham gia</label><textarea id="reg_act" class="form-control" rows="2" placeholder="Thể thao, văn nghệ, tình nguyện..."></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success" onclick="submitRegister()">Đăng ký ngay</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Update Info (Login Temp) -->
+<div class="modal fade" id="modalUpdateInfo" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title font-weight-bold">Đổi thông tin & Hoàn tất Hồ sơ</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <!-- Step 1: Login -->
+                <div id="update_step1">
+                    <p>Vui lòng nhập ID và Mật khẩu tạm (6 số) bạn nhận được khi đăng ký.</p>
+                    <div class="form-group"><label>Mã ID Đăng ký</label><input type="text" id="temp_id" class="form-control" placeholder="REG..."></div>
+                    <div class="form-group"><label>Mật khẩu tạm</label><input type="password" id="temp_pass" class="form-control" placeholder="6 chữ số"></div>
+                    <button class="btn btn-primary btn-block" onclick="loginTemp()">Tiếp tục <i class="fas fa-arrow-right"></i></button>
+                </div>
+
+                <!-- Step 2: Update Form -->
+                <div id="update_step2" style="display:none;">
+                    <div class="alert alert-success small">Xác thực thành công! Vui lòng chọn Nhóm và kiểm tra lại thông tin.</div>
+                    <input type="hidden" id="conf_temp_id">
+                    <div class="form-group">
+                        <label class="text-danger font-weight-bold">Chọn Nhóm sinh hoạt <span class="text-danger">*</span></label>
+                        <select id="conf_group" class="form-control font-weight-bold border-danger"></select>
+                    </div>
+                    <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control"></div>
+                    <div class="form-group"><label>Ngày sinh</label><input type="date" id="conf_dob" class="form-control"></div>
+                    <div class="form-group"><label>Lớp</label><input type="text" id="conf_class" class="form-control"></div>
+                    <div class="form-group"><label>Trường</label><input type="text" id="conf_school" class="form-control"></div>
+                    <div class="form-group"><label>Địa chỉ</label><input type="text" id="conf_address" class="form-control"></div>
+                    <div class="form-group"><label>SĐT</label><input type="text" id="conf_phone" class="form-control"></div>
+                    <div class="form-group"><label>Thời gian</label><input type="text" id="conf_time" class="form-control"></div>
+                    <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
+                    <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
+                    
+                    <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
+                        <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
@@ -359,43 +435,120 @@
     // --- LOGIC ĐĂNG KÝ ---
     async function openRegisterModal() {
         $('#modalRegister').modal('show');
-        // Load groups
+        $('#reg_name, #reg_dob, #reg_class, #reg_school, #reg_address, #reg_phone, #reg_time, #reg_loc, #reg_act').val('');
+    }
+
+    async function submitRegister() {
+        const name = $('#reg_name').val().trim();
+        if (!name) return toastr.warning("Vui lòng nhập họ tên!");
+
+        const payload = {
+            fullname: name,
+            dob: $('#reg_dob').val(),
+            class_name: $('#reg_class').val(),
+            school: $('#reg_school').val(),
+            address: $('#reg_address').val(),
+            phone: $('#reg_phone').val(),
+            reg_time: $('#reg_time').val(),
+            reg_loc: $('#reg_loc').val(),
+            reg_act: $('#reg_act').val()
+        };
+
+        Swal.fire({ title: 'Đang đăng ký...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGISTER_TEMP", payload: payload }) });
+            const res = await response.json();
+            if (res.status === "success") {
+                $('#modalRegister').modal('hide');
+                Swal.fire({
+                    title: 'Đăng ký thành công!',
+                    html: `Vui lòng chụp lại màn hình thông tin này để hoàn tất hồ sơ:<br><br>
+                           <b>ID:</b> <span class="text-danger h4">${res.data.id}</span><br>
+                           <b>Mật khẩu:</b> <span class="text-danger h4">${res.data.pass}</span>`,
+                    icon: 'success',
+                    confirmButtonText: 'Đã lưu'
+                });
+            } else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    }
+
+    // --- LOGIC CẬP NHẬT / HOÀN TẤT ---
+    function openUpdateInfoModal() {
+        $('#modalUpdateInfo').modal('show');
+        $('#update_step1').show();
+        $('#update_step2').hide();
+        $('#temp_id, #temp_pass').val('');
+    }
+
+    async function loginTemp() {
+        const id = $('#temp_id').val().trim();
+        const pass = $('#temp_pass').val().trim();
+        if(!id || !pass) return toastr.warning("Nhập đầy đủ ID và Mật khẩu!");
+
+        Swal.fire({ title: 'Đang kiểm tra...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "LOGIN_TEMP", payload: { id, pass } }) });
+            const res = await response.json();
+            if (res.status === "success") {
+                Swal.close();
+                const d = res.data;
+                $('#conf_temp_id').val(d.id);
+                $('#conf_name').val(d.fullname);
+                $('#conf_dob').val(d.dob ? new Date(d.dob).toISOString().split('T')[0] : '');
+                $('#conf_class').val(d.class_name);
+                $('#conf_school').val(d.school);
+                $('#conf_address').val(d.address);
+                $('#conf_phone').val(d.phone);
+                $('#conf_time').val(d.reg_time);
+                $('#conf_loc').val(d.reg_loc);
+                $('#conf_act').val(d.reg_act);
+                
+                // Load groups
+                loadGroupsForConfirm();
+                
+                $('#update_step1').hide();
+                $('#update_step2').show();
+            } else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    }
+
+    async function loadGroupsForConfirm() {
         try {
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_GROUPS_PUBLIC" }) });
             const res = await response.json();
             if (res.status === "success") {
                 let html = '<option value="">-- Chọn nhóm --</option>';
-                res.data.forEach(g => {
-                    html += `<option value="${g.id}">${g.name}</option>`;
-                });
-                $('#reg_group').html(html);
+                res.data.forEach(g => { html += `<option value="${g.id}">${g.name}</option>`; });
+                $('#conf_group').html(html);
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {}
     }
 
-    async function submitRegister() {
-        const name = $('#reg_name').val().trim();
-        const group = $('#reg_group').val();
-        
-        if (!name || !group) return toastr.warning("Vui lòng nhập tên và chọn nhóm!");
+    async function confirmRegistration() {
+        const group = $('#conf_group').val();
+        if(!group) return toastr.warning("Vui lòng chọn Nhóm sinh hoạt!");
 
         const payload = {
-            fullname: name,
-            dob: $('#reg_dob').val(),
+            temp_id: $('#conf_temp_id').val(),
             group_id: group,
-            school: $('#reg_school').val(),
-            address: $('#reg_address').val(),
-            phone: $('#reg_phone').val()
+            fullname: $('#conf_name').val(),
+            dob: $('#conf_dob').val(),
+            class_name: $('#conf_class').val(),
+            school: $('#conf_school').val(),
+            address: $('#conf_address').val(),
+            phone: $('#conf_phone').val(),
+            reg_time: $('#conf_time').val(),
+            reg_loc: $('#conf_loc').val(),
+            reg_act: $('#conf_act').val()
         };
 
-        Swal.fire({ title: 'Đang đăng ký...', didOpen: () => Swal.showLoading() });
+        Swal.fire({ title: 'Đang lưu hồ sơ...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGISTER_STUDENT", payload: payload }) });
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CONFIRM_REGISTRATION", payload: payload }) });
             const res = await response.json();
             if (res.status === "success") {
-                Swal.fire('Thành công!', 'Đăng ký thành công. Dữ liệu đã được lưu vào hệ thống.', 'success');
-                $('#modalRegister').modal('hide');
-                $('#reg_name, #reg_dob, #reg_school, #reg_address, #reg_phone').val('');
+                $('#modalUpdateInfo').modal('hide');
+                Swal.fire('Thành công', 'Hồ sơ đã được chuyển sang danh sách chính thức!', 'success');
             } else Swal.fire('Lỗi', res.message, 'error');
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     }
