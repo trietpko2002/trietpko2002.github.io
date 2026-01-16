@@ -93,6 +93,10 @@
         /* VIP 3 Styles */
         .vip-border-3 { border: 3px solid #00ffff !important; box-shadow: 0 0 15px #00ffff, 0 0 5px #fff inset; animation: pulseBorder 2s infinite; }
         @keyframes pulseBorder { 0% { border-color: #00ffff; box-shadow: 0 0 15px #00ffff; } 50% { border-color: #fff; box-shadow: 0 0 25px #00ffff; } 100% { border-color: #00ffff; box-shadow: 0 0 15px #00ffff; } }
+        
+        .vip-border-4 { border: 3px solid #e5e4e2 !important; box-shadow: 0 0 15px #e5e4e2; animation: shineBorder 3s infinite linear; }
+        .vip-border-5 { border: 3px solid #ffd700 !important; box-shadow: 0 0 20px #ffd700, 0 0 5px #fff inset; animation: pulseBorder 2s infinite; }
+        
         .vip-diamond {
             position: absolute; top: -25px; right: -10px; 
             font-size: 1.8rem; color: #00ffff; 
@@ -141,6 +145,9 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item d-flex align-items-center">
+                <a href="javascript:void(0)" class="nav-link" onclick="openNotificationModal()"><i class="fas fa-bell"></i><span class="badge badge-warning navbar-badge" id="notiBadge"></span></a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
                 <a href="profile.html" class="user-panel d-flex align-items-center mr-3" style="text-decoration: none;" title="Hồ sơ cá nhân">
                     <div class="vip-frame-container mr-2">
                         <img src="" class="img-circle elevation-2" id="userAvatar" alt="User" style="width: 35px; height: 35px; object-fit: cover;">
@@ -175,6 +182,11 @@
                     <li class="nav-item">
                         <a href="#tab-students" class="nav-link" data-toggle="pill">
                             <i class="nav-icon fas fa-user-friends"></i> <p>HS của nhóm</p>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none" id="nav-registrations">
+                        <a href="#tab-registrations" class="nav-link" data-toggle="pill" onclick="loadRegistrations()">
+                            <i class="nav-icon fas fa-user-plus"></i> <p>Duyệt Đăng Ký</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -230,8 +242,8 @@
                         </h3>
                         <div class="card-tools">
                             <button class="btn btn-default btn-sm shadow-sm mr-2" onclick="window.print()"><i class="fas fa-print"></i> In</button>
-                            <button class="btn btn-info btn-sm shadow-sm mr-2" onclick="openImportModal('manager')"><i class="fas fa-file-import"></i> Nhập từ Excel</button>
-                            <button class="btn btn-primary btn-sm shadow-sm mr-2" onclick="openStudentModal()">
+                            <button class="btn btn-info btn-sm shadow-sm mr-2 btn-manager-only" onclick="openImportModal('manager')"><i class="fas fa-file-import"></i> Nhập từ Excel</button>
+                            <button class="btn btn-primary btn-sm shadow-sm mr-2 btn-manager-only" onclick="openStudentModal()">
                                 <i class="fas fa-plus mr-1"></i> Thêm HS
                             </button>
                             <button class="btn btn-success btn-sm shadow-sm" onclick="exportExcel()">
@@ -256,6 +268,23 @@
                             <tbody id="groupStudentList">
                                 <!-- Data loaded by JS -->
                             </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-registrations">
+                <div class="card card-outline card-warning shadow">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-user-clock mr-2"></i>Danh sách Đăng ký Tạm thời</h3>
+                        <div class="card-tools"><button class="btn btn-tool" onclick="loadRegistrations()"><i class="fas fa-sync"></i></button></div>
+                    </div>
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover text-nowrap">
+                            <thead>
+                                <tr><th>ID</th><th>Mật khẩu</th><th>Họ tên</th><th>Lớp</th><th>Trường</th><th>Thao tác</th></tr>
+                            </thead>
+                            <tbody id="regListBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -794,6 +823,13 @@ document.addEventListener("DOMContentLoaded", function() {
             avatarNav.addClass('vip-border-3');
             $('#vipCrownArea').html('<i class="fas fa-gem vip-diamond"></i>');
         }
+        else if (honors.level === 'vip4') {
+            avatarNav.addClass('vip-border-4');
+            $('#vipCrownArea').html('<i class="fas fa-crown vip-crown" style="color: #e5e4e2;"></i>');
+        } else if (honors.level === 'vip5') {
+            avatarNav.addClass('vip-border-5');
+            $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>');
+        }
     } catch(e) {}
 
     fetchStudentsByGroup(user.group_id);
@@ -804,6 +840,12 @@ document.addEventListener("DOMContentLoaded", function() {
     loadFeedbackHistory();
     checkUrgentNotification(); // Kiểm tra thông báo khẩn
     generateFbCaptcha(); // Tạo captcha góp ý
+    
+    // Role specific UI
+    if (user.role === 'supervisor') {
+        $('.btn-manager-only').hide(); // Hide Add/Import buttons
+        $('#nav-registrations').removeClass('d-none'); // Show Registrations tab
+    }
     
     // Start Polling for Notifications (Push Simulation)
     setInterval(pollForNotifications, 60000); // Check every 60s
@@ -1150,6 +1192,7 @@ async function fetchStudentsByGroup(groupId) {
             let tableHtml = '';
 
             res.data.forEach((student, index) => {
+                const user = JSON.parse(sessionStorage.getItem('user'));
                 // Định dạng ngày sinh sang dd/mm/yyyy
                 const formattedDob = formatDate(student.dob);
 
@@ -1187,10 +1230,10 @@ async function fetchStudentsByGroup(groupId) {
                         <td class="text-center">
                             ${student.phone ? `<a href="tel:${student.phone}" class="btn btn-xs btn-link"><i class="fas fa-phone mr-1"></i>${student.phone}</a>` : '-'}
                         </td>
-                        <td class="text-center">
+                        <td class="text-center">${user.role !== 'supervisor' ? `
                             <button class="btn btn-xs btn-info" onclick="editStudent(${index})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-xs btn-danger" onclick="deleteStudent('${student.id}')"><i class="fas fa-trash"></i></button>
-                        </td>
+                        ` : '<span class="badge badge-secondary">Chỉ xem</span>'}</td>
                     </tr>`;
             });
 
@@ -2269,11 +2312,12 @@ function processAttendanceImport() {
 async function loadResources() {
     $('#resource_list').html(loadingSpinner);
     try {
+        const user = JSON.parse(sessionStorage.getItem('user'));
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_UPLOADS" }) });
         const res = await response.json();
         if (res.status === 'success') {
-            // Filter only ADMIN uploads
-            globalResources = res.data.filter(f => f.group_id === 'ADMIN');
+            // Filter ADMIN uploads AND User's Group uploads
+            globalResources = res.data.filter(f => f.group_id === 'ADMIN' || String(f.group_id) === String(user.group_id));
             filterResources('all');
         }
     } catch (e) { console.error(e); }
@@ -2292,6 +2336,7 @@ function filterResources(type) {
 
 function renderResources(list) {
     let html = '';
+    const user = JSON.parse(sessionStorage.getItem('user'));
     if (list.length === 0) html = '<div class="col-12 text-center text-muted mt-5">Không có tệp tin nào.</div>';
     
     list.forEach(f => {
@@ -2304,6 +2349,9 @@ function renderResources(list) {
         else if (f.filename.match(/\.(mp3|wav)$/i)) { icon = 'fa-music'; color = 'text-warning'; }
         else if (f.filename.match(/\.(mp4|avi)$/i)) { icon = 'fa-video'; color = 'text-danger'; }
 
+        // Allow delete if uploader is current user
+        const deleteBtn = (f.uploader === user.username) ? `<button class="btn btn-xs btn-danger ml-1" onclick="deleteResource('${f.id}')"><i class="fas fa-trash"></i></button>` : '';
+
         html += `
         <div class="col-6 col-md-4 col-lg-3 mb-3">
             <div class="card h-100 shadow-sm resource-card">
@@ -2315,6 +2363,7 @@ function renderResources(list) {
                 <div class="card-footer bg-white p-1 text-center">
                     <button class="btn btn-xs btn-primary" onclick="previewResource('${f.data}', '${f.filename}')"><i class="fas fa-eye"></i> Xem</button>
                     <a href="${f.data}" download="${f.filename}" class="btn btn-xs btn-success"><i class="fas fa-download"></i> Tải</a>
+                    ${deleteBtn}
                 </div>
             </div>
         </div>`;
@@ -2339,6 +2388,47 @@ function previewResource(url, filename) {
     
     $('#previewBody').html(content);
     $('#modalPreview').modal('show');
+}
+
+function deleteResource(id) {
+    Swal.fire({ title: 'Xóa file?', text: "Bạn có chắc muốn xóa file này?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Xóa' }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: 'uploads', id: id } }) });
+                const res = await response.json();
+                if (res.status === 'success') { toastr.success('Đã xóa file'); loadResources(); }
+            } catch (e) { toastr.error("Lỗi xóa file"); }
+        }
+    });
+}
+
+async function loadRegistrations() {
+    $('#regListBody').html(getLoadingRowHtml(6));
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_REGISTRATIONS" }) });
+        const res = await response.json();
+        if (res.status === "success") {
+            let html = '';
+            res.data.forEach(r => {
+                html += `<tr>
+                    <td><code>${r.id}</code></td>
+                    <td class="font-weight-bold text-danger">${r.pass}</td>
+                    <td>${r.fullname}</td>
+                    <td>${r.class_name}</td>
+                    <td>${r.school}</td>
+                    <td><button class="btn btn-sm btn-warning" onclick="regeneratePass('${r.id}')"><i class="fas fa-sync mr-1"></i>Đổi Pass</button></td>
+                </tr>`;
+            });
+            $('#regListBody').html(html || '<tr><td colspan="6" class="text-center">Không có đăng ký chờ duyệt.</td></tr>');
+        }
+    } catch (e) { $('#regListBody').html(getErrorRowHtml(6)); }
+}
+
+async function regeneratePass(id) {
+    if(!confirm('Tạo lại mật khẩu ngẫu nhiên cho ID này?')) return;
+    const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
+    const res = await response.json();
+    if(res.status === 'success') { toastr.success('Mật khẩu mới: ' + res.new_pass); loadRegistrations(); }
 }
 </script>
 

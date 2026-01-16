@@ -390,6 +390,7 @@
                                             <th>Nhóm phụ trách</th>
                                             <th>Quyền hạn</th>
                                             <th>Email</th>
+                                            <th>SĐT</th>
                                             <th>Lần đăng nhập cuối</th>
                                             <th>Thao tác</th>
                                         </tr>
@@ -730,11 +731,13 @@
                 <div class="form-group"><label>Phân quyền</label>
                     <select id="u_role" class="form-control">
                         <option value="manager">Quản lý (Manager)</option>
+                        <option value="supervisor">Cấp quản lý (Supervisor)</option>
                         <option value="admin">Quản trị (Admin)</option>
                     </select>
                 </div>
                 <div class="form-group"><label>Nhóm phụ trách</label><input type="text" id="u_group" class="form-control" placeholder="Để trống nếu là Admin"></div>
                 <div class="form-group"><label>Email</label><input type="email" id="u_email" class="form-control" placeholder="example@email.com"></div>
+                <div class="form-group"><label>Số điện thoại</label><input type="text" id="u_phone" class="form-control"></div>
                 <div class="form-group"><label>Link Avatar</label><input type="text" id="u_avatar" class="form-control"></div>
                 
                 <hr>
@@ -746,6 +749,8 @@
                         <option value="vip1">VIP 1 (Khung Bạc)</option>
                         <option value="vip2">VIP 2 (Khung Vàng + Vương miện)</option>
                         <option value="vip3">VIP 3 (Khung Kim Cương + Hiệu ứng)</option>
+                        <option value="vip4">VIP 4 (Bạch Kim - Supervisor)</option>
+                        <option value="vip5">VIP 5 (Hoàng Kim - Supervisor)</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1221,6 +1226,7 @@ async function loadExtraData() {
                     <td><span class="badge badge-warning">${m.group_id}</span></td>
                     <td><span class="badge badge-secondary">${m.role}</span></td>
                     <td><small>${m.email || '-'}</small></td>
+                    <td><small>${m.phone || '-'}</small></td>
                     <td><small>${m.last_login || '-'}</small></td>
                     <td>
                         <button class="btn btn-info btn-action" onclick="editUser('${m.username}')"><i class="fas fa-edit"></i></button>
@@ -1941,6 +1947,7 @@ function editUser(username) {
     $('#u_group').val(u.group_id);
     $('#u_fullname').val(u.fullname);
     $('#u_email').val(u.email || '');
+    $('#u_phone').val(u.phone || '');
     $('#u_avatar').val(u.avatar);
     
     // Load Honors
@@ -2037,13 +2044,20 @@ async function saveData(type) {
         $('.honor-check:checked').each(function() { titles.push($(this).val()); });
         const honorsJson = JSON.stringify({ level: $('#u_vip_level').val(), titles: titles });
 
+        // Check VIP exclusivity
+        const role = $('#u_role').val();
+        const vip = $('#u_vip_level').val();
+        if ((vip === 'vip4' || vip === 'vip5') && role !== 'supervisor') {
+            return Swal.fire('Lỗi', 'VIP 4 và VIP 5 chỉ dành cho Cấp quản lý (Supervisor)!', 'error');
+        }
+
         // Special handling for Users to preserve timestamps in backend
         const payload = {
             action: 'SAVE_USER_ADMIN',
             payload: {
                 is_add: !idOld,
                 id: idOld || $('#u_name').val(),
-                data: [$('#u_name').val(), $('#u_pass').val(), $('#u_role').val(), $('#u_group').val(), $('#u_fullname').val(), $('#u_avatar').val(), $('#u_email').val(), honorsJson],
+                data: [$('#u_name').val(), $('#u_pass').val(), $('#u_role').val(), $('#u_group').val(), $('#u_fullname').val(), $('#u_avatar').val(), $('#u_email').val(), honorsJson, $('#u_phone').val()],
                 admin_user: JSON.parse(sessionStorage.getItem('user')).username
             }
         };

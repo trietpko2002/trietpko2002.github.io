@@ -549,22 +549,6 @@ function handleUserUpdateAvatar(payload) {
   } catch (e) { return response({ status: 'error', message: e.toString() }); }
 }
 
-function handleUserUpdateAvatar(payload) {
-  try {
-    const sheet = ss.getSheetByName('users');
-    const rows = sheet.getDataRange().getValues();
-    const username = String(payload.username).trim();
-    const avatar = payload.avatar;
-    for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0].toString().trim() === username) {
-        sheet.getRange(i + 1, 6).setValue(avatar);
-        return response({ status: 'success', message: 'Cập nhật ảnh đại diện thành công!' });
-      }
-    }
-    return response({ status: 'error', message: 'User not found' });
-  } catch (e) { return response({ status: 'error', message: e.toString() }); }
-}
-
 function handleImportStudents(payload) {
   try {
     const sheet = ss.getSheetByName('students');
@@ -920,7 +904,8 @@ function handleLogin(payload) {
             avatar: rows[i][5] || 'https://via.placeholder.com/150', 
             email: rows[i][6] || '', // Cột G: Email
             is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
-            honors: rows[i][9] || '' // Cột J: Vinh danh (JSON)
+            honors: rows[i][9] || '', // Cột J: Vinh danh (JSON)
+            phone: rows[i][10] || '' // Cột K: SĐT
           } 
         });
       } else {
@@ -942,7 +927,7 @@ function handleGetAdminExtras(payload) {
     const managers = [];
     for (let i = 1; i < userValues.length; i++) {
       const role = userValues[i][2] ? userValues[i][2].toString().toLowerCase() : "";
-      if (role === 'manager' || role === 'admin') {
+      if (role === 'manager' || role === 'admin' || role === 'supervisor') {
         managers.push({
           username: userValues[i][0],
           role: userValues[i][2],
@@ -951,7 +936,8 @@ function handleGetAdminExtras(payload) {
           fullname: userValues[i][4],
           avatar: userValues[i][5] || 'https://via.placeholder.com/150',
           email: userValues[i][6] || '', // Cột G: Email
-          honors: userValues[i][9] || '' // Cột J: Vinh danh
+          honors: userValues[i][9] || '', // Cột J: Vinh danh
+          phone: userValues[i][10] || '' // Cột K: SĐT
         });
       }
     }
@@ -1158,6 +1144,7 @@ function handleUpdateProfile(payload) {
   const newUsername = payload.new_username;
   const newFullname = payload.fullname;
   const newEmail = payload.email;
+  const newPhone = payload.phone;
   const now = new Date();
 
   // Tìm user hiện tại
@@ -1204,8 +1191,9 @@ function handleUpdateProfile(payload) {
     // Trong thực tế cần cân nhắc kỹ hoặc dùng ID cố định.
   }
 
-  // 3. Cập nhật Email (Không giới hạn)
+  // 3. Cập nhật Email & Phone (Không giới hạn)
   sheet.getRange(rowIndex, 7).setValue(newEmail); // Cột G
+  sheet.getRange(rowIndex, 11).setValue(newPhone); // Cột K
 
   return response({ status: "success", message: "Cập nhật hồ sơ thành công!" });
 }
@@ -1251,12 +1239,12 @@ function handleSaveUserAdmin(payload) {
     const id = payload.id; // Username cũ (nếu update)
     const data = payload.data; // [User, Pass, Role, Group, Name, Avatar, Email, HonorsJSON]
     
-    // data từ client gửi lên: [u_name, u_pass, u_role, u_group, u_fullname, u_avatar, u_email, u_honors]
-    // Cấu trúc Sheet: A:User, B:Pass, C:Role, D:Group, E:Name, F:Avatar, G:Email, H:LastChangeName, I:LastChangeUser, J:Honors
+    // data từ client gửi lên: [u_name, u_pass, u_role, u_group, u_fullname, u_avatar, u_email, u_honors, u_phone]
+    // Cấu trúc Sheet: A:User, B:Pass, C:Role, D:Group, E:Name, F:Avatar, G:Email, H:LastChangeName, I:LastChangeUser, J:Honors, K:Phone
 
     if (payload.is_add) {
       // Thêm mới: Ghi đủ các cột, H và I để trống
-      sheet.appendRow([data[0], data[1], data[2], data[3], data[4], data[5], data[6], "", "", data[7]]);
+      sheet.appendRow([data[0], data[1], data[2], data[3], data[4], data[5], data[6], "", "", data[7], data[8]]);
       return response({ status: 'success', message: 'Thêm tài khoản thành công!' });
     } else {
       // Cập nhật: Tìm dòng và ghi đè các cột A-G và J, giữ nguyên H-I
@@ -1271,6 +1259,8 @@ function handleSaveUserAdmin(payload) {
           sheet.getRange(i + 1, 1, 1, 7).setValues([[data[0], newPassword, data[2], data[3], data[4], data[5], data[6]]]);
           // Ghi J (Cột 10)
           sheet.getRange(i + 1, 10).setValue(data[7]);
+          // Ghi K (Cột 11)
+          sheet.getRange(i + 1, 11).setValue(data[8]);
           
           writeLog(payload.admin_user, "UPDATE_USER", "Cập nhật user: " + id);
           return response({ status: 'success', message: 'Cập nhật tài khoản thành công!' });

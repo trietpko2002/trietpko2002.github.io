@@ -33,6 +33,10 @@
         
         .vip-border-3 { border: 5px solid #00ffff !important; box-shadow: 0 0 20px #00ffff, 0 0 10px #fff inset; animation: pulseBorder 2s infinite; }
         @keyframes pulseBorder { 0% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff; } 50% { border-color: #fff; box-shadow: 0 0 30px #00ffff; } 100% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff; } }
+        
+        .vip-border-4 { border: 5px solid #e5e4e2 !important; box-shadow: 0 0 20px #e5e4e2, 0 0 10px #fff inset; animation: shineBorder 3s infinite linear; }
+        .vip-border-5 { border: 5px solid #ffd700 !important; box-shadow: 0 0 25px #ffd700, 0 0 15px #fff inset; animation: pulseBorder 2s infinite; }
+        
         .vip-diamond {
             position: absolute; top: -35px; right: -15px; 
             font-size: 2.5rem; color: #00ffff; 
@@ -43,6 +47,7 @@
         @keyframes floatDiamond { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         
         .honor-tag { background: linear-gradient(45deg, #ff6b6b, #f06595); color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; margin: 2px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .honor-tag.gold { background: linear-gradient(45deg, #ffd700, #fdb931); color: #000; font-weight: bold; border: 1px solid #fff; box-shadow: 0 0 5px #ffd700; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -139,6 +144,12 @@
                                                 </div>
                                             </div>
                                             <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Số điện thoại</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="inputPhone" placeholder="0909...">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Email</label>
                                                 <div class="col-sm-9">
                                                     <input type="email" class="form-control" id="inputEmail" placeholder="example@email.com">
@@ -207,10 +218,13 @@
             if (honors.level === 'vip1') avatar.addClass('vip-border-1');
             else if (honors.level === 'vip2') { avatar.addClass('vip-border-2'); $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>'); }
             else if (honors.level === 'vip3') { avatar.addClass('vip-border-3'); $('#vipCrownArea').html('<i class="fas fa-gem vip-diamond"></i>'); }
+            else if (honors.level === 'vip4') { avatar.addClass('vip-border-4'); $('#vipCrownArea').html('<i class="fas fa-crown vip-crown" style="color: #e5e4e2;"></i>'); }
+            else if (honors.level === 'vip5') { avatar.addClass('vip-border-5'); $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>'); }
 
             if (honors.titles && honors.titles.length > 0) {
                 let tags = '';
-                honors.titles.forEach(t => tags += `<span class="honor-tag">${t}</span>`);
+                const tagClass = (honors.level === 'vip4' || honors.level === 'vip5') ? 'honor-tag gold' : 'honor-tag';
+                honors.titles.forEach(t => tags += `<span class="${tagClass}">${t}</span>`);
                 $('#honorTagsArea').html(tags);
             }
         } catch(e) {}
@@ -219,6 +233,7 @@
         $('#inputName').val(user.fullname);
         $('#inputUsername').val(user.username);
         $('#inputEmail').val(user.email || ''); // Email mới thêm
+        $('#inputPhone').val(user.phone || ''); // Phone mới thêm
     });
 
     // Xử lý Avatar
@@ -250,6 +265,7 @@
         const newName = $('#inputName').val().trim();
         const newUsername = $('#inputUsername').val().trim();
         const newEmail = $('#inputEmail').val().trim();
+        const newPhone = $('#inputPhone').val().trim();
 
         if(!newName || !newUsername) return toastr.warning("Tên và Username không được để trống!");
 
@@ -264,7 +280,8 @@
                         current_username: user.username,
                         new_username: newUsername,
                         fullname: newName,
-                        email: newEmail
+                        email: newEmail,
+                        phone: newPhone
                     } 
                 }) 
             });
@@ -275,6 +292,7 @@
                 // Cập nhật session
                 user.fullname = newName;
                 user.email = newEmail;
+                user.phone = newPhone;
                 if(user.username !== newUsername) {
                     user.username = newUsername;
                     Swal.fire('Thông báo', 'Bạn đã đổi Username. Vui lòng đăng nhập lại.', 'info').then(() => {
