@@ -60,7 +60,6 @@ function doPost(e) {
     if (action === 'GET_FUND_LOGS') return handleGetFundLogs(payload);
     if (action === 'CHANGE_PASSWORD') return handleUserChangePassword(payload);
     if (action === 'UPDATE_AVATAR') return handleUserUpdateAvatar(payload);
-    if (action === 'UPDATE_AVATAR') return handleUserUpdateAvatar(payload);
     if (action === 'UPDATE_PROFILE') return handleUpdateProfile(payload);
     if (action === 'SAVE_USER_ADMIN') return handleSaveUserAdmin(payload);
 
@@ -305,20 +304,6 @@ function handleResetEvaluations(payload) {
 // TÍNH NĂNG UPLOAD FILE (GENERIC)
 // ============================================================
 
-function handleUploadFile(payload) {
-  try {
-    let sheet = ss.getSheetByName('uploads');
-    if (!sheet) {
-      sheet = ss.insertSheet('uploads');
-      // ID, Timestamp, Uploader, Group, Filename, Size, Data
-      sheet.appendRow(['ID', 'Timestamp', 'Uploader', 'Group', 'Filename', 'Size', 'Data']);
-    }
-    const id = 'FILE' + new Date().getTime();
-    sheet.appendRow([id, new Date(), payload.uploader, payload.group_id, payload.filename, payload.size, payload.data]);
-    return response({ status: 'success', message: 'Upload file thành công!' });
-  } catch (e) { return response({ status: 'error', message: 'Lỗi upload: ' + e.toString() }); }
-}
-
 // Hàm tạo ID mã hóa (MD5 Hash)
 function generateSecureId(prefix) {
   const raw = prefix + new Date().getTime() + Math.random().toString();
@@ -527,22 +512,6 @@ function handleUserChangePassword(payload) {
         sheet.getRange(i + 1, 2).setValue(newPass);
         writeLog(username, "CHANGE_PASS", "Người dùng tự đổi mật khẩu");
         return response({ status: 'success', message: 'Đổi mật khẩu thành công!' });
-      }
-    }
-    return response({ status: 'error', message: 'User not found' });
-  } catch (e) { return response({ status: 'error', message: e.toString() }); }
-}
-
-function handleUserUpdateAvatar(payload) {
-  try {
-    const sheet = ss.getSheetByName('users');
-    const rows = sheet.getDataRange().getValues();
-    const username = String(payload.username).trim();
-    const avatar = payload.avatar;
-    for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0].toString().trim() === username) {
-        sheet.getRange(i + 1, 6).setValue(avatar);
-        return response({ status: 'success', message: 'Cập nhật ảnh đại diện thành công!' });
       }
     }
     return response({ status: 'error', message: 'User not found' });

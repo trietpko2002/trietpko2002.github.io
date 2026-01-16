@@ -149,7 +149,7 @@
         </div>
         
         <!-- Cloudflare Turnstile -->
-        <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" data-response-field-name="cf-turnstile-response" id="cf-login"></div>
+        <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" data-response-field-name="cf-turnstile-response" id="cf-login"></div>
 
         <div class="login-progress-container" id="loginProgress">
             <div class="status-text-container" id="statusText"></div>
@@ -162,7 +162,7 @@
             <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY
         </button>
 
-        <button type="button" class="btn btn-outline-info btn-block btn-sm mt-2" onclick="simulateSync()">
+        <button type="button" class="btn btn-outline-info btn-block btn-sm mt-2" onclick="syncData()">
             <i class="fas fa-sync mr-1"></i> Đồng bộ dữ liệu 
         </button>
       </form>
@@ -198,7 +198,7 @@
                 <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
                 <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
                 
-                <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" id="cf-reg"></div>
+                <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-reg"></div>
 
                 <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
                 <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" placeholder="VD: Tháng 6 - Tháng 8"></div>
@@ -248,7 +248,7 @@
                     <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
                     <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
                     
-                    <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" id="cf-update"></div>
+                    <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-update"></div>
 
                     <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
                         <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
@@ -262,7 +262,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="mock-api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -280,29 +279,11 @@
 
 
     // Sync Logic
-    function simulateSync() {
-        const btn = document.querySelector('button[onclick="simulateSync()"]');
-        const progressBox = $('#loginProgress');
+    function syncData() {
+        const btn = document.querySelector('button[onclick="syncData()"]');
         
         $(btn).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang đồng bộ...');
-        progressBox.show();
-        
-        let width = 0;
-        updateStatus("Đang kết nối máy chủ...", 10);
-        
-        const interval = setInterval(() => {
-            width += Math.floor(Math.random() * 20);
-            if(width > 30 && width < 60) updateStatus("Đang tải cấu hình mới...", width);
-            if(width > 60 && width < 90) updateStatus("Cập nhật dữ liệu...", width);
-            
-            if (width >= 100) {
-                clearInterval(interval);
-                updateStatus("Hoàn tất! Đang tải lại...", 100);
-                setTimeout(() => window.location.reload(true), 800);
-            } else {
-                $('.progress-bar').css('width', width + '%');
-            }
-        }, 300);
+        setTimeout(() => window.location.reload(true), 500);
     }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -328,10 +309,11 @@
             await new Promise(r => setTimeout(r, 500));
             updateStatus("Đang xác thực thông tin...", 50);
 
-            const payload = { username: user, password: pass };
+            const payload = { username: user, password: pass, token: turnstileResponse };
 
             const response = await fetch(API_URL, {
                 method: "POST",
+                redirect: "follow",
                 body: JSON.stringify({ 
                     action: "LOGIN", 
                     payload: payload
@@ -369,6 +351,7 @@
     function resetLoginForm() {
         setTimeout(() => {
             $('#loginProgress').hide();
+            if (window.turnstile) turnstile.reset('#cf-login');
             $('.progress-bar').css('width', '0%');
             $('#statusText').empty();
             const btn = document.getElementById('submitBtn');
@@ -409,7 +392,8 @@
             phone: $('#reg_phone').val(),
             reg_time: $('#reg_time').val(),
             reg_loc: $('#reg_loc').val(),
-            reg_act: $('#reg_act').val()
+            reg_act: $('#reg_act').val(),
+            token: turnstile.getResponse('#cf-reg')
         };
 
         Swal.fire({ title: 'Đang đăng ký...', didOpen: () => Swal.showLoading() });
@@ -426,8 +410,9 @@
                     icon: 'success',
                     confirmButtonText: 'Đã lưu'
                 });
-            } else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+                if (window.turnstile) turnstile.reset('#cf-reg');
+            } else { Swal.fire('Lỗi', res.message, 'error'); if (window.turnstile) turnstile.reset('#cf-reg'); }
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-reg'); }
     }
 
     // --- LOGIC CẬP NHẬT / HOÀN TẤT ---
@@ -499,7 +484,8 @@
             phone: $('#conf_phone').val(),
             reg_time: $('#conf_time').val(),
             reg_loc: $('#conf_loc').val(),
-            reg_act: $('#conf_act').val()
+            reg_act: $('#conf_act').val(),
+            token: turnstile.getResponse('#cf-update')
         };
 
         Swal.fire({ title: 'Đang lưu hồ sơ...', didOpen: () => Swal.showLoading() });
@@ -509,8 +495,9 @@
             if (res.status === "success") {
                 $('#modalUpdateInfo').modal('hide');
                 Swal.fire('Thành công', 'Hồ sơ đã được chuyển sang danh sách chính thức!', 'success');
-            } else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+                if (window.turnstile) turnstile.reset('#cf-update');
+            } else { Swal.fire('Lỗi', res.message, 'error'); if (window.turnstile) turnstile.reset('#cf-update'); }
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-update'); }
     }
 </script>
 </body>

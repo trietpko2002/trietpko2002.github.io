@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         .profile-user-img { width: 120px; height: 120px; object-fit: cover; border: 3px solid #adb5bd; border-radius: 50%; }
         .list-group-item { background-color: transparent; }
@@ -35,16 +36,6 @@
         .vip-wing-left { left: -35px; transform: rotate(-20deg); }
         .vip-wing-right { right: -35px; transform: rotate(20deg); }
         .vip-crown-10 { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); font-size: 3rem; color: #ffd700; filter: drop-shadow(0 0 10px #ffd700); animation: floatCrown 2s ease-in-out infinite; z-index: 11; }
-
-        /* Cloudflare Turnstile Simulation */
-        .cf-turnstile { background-color: #f9f9f9; border: 1px solid #d3d3d3; border-radius: 3px; padding: 10px; display: flex; align-items: center; width: 100%; margin-bottom: 15px; cursor: pointer; user-select: none; }
-        .cf-checkbox { width: 24px; height: 24px; border: 2px solid #c1c1c1; border-radius: 2px; margin-right: 10px; background: #fff; display: flex; align-items: center; justify-content: center; }
-        .cf-checkbox.loading { border: 2px solid #f2f2f2; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
-        .cf-checkbox.checked { border: none; }
-        .cf-checkbox.checked::after { content: '✓'; color: #00b900; font-size: 20px; font-weight: bold; }
-        .cf-label { font-family: sans-serif; font-size: 14px; color: #333; flex-grow: 1; }
-        .cf-logo { width: 20px; height: 20px; background: url('https://upload.wikimedia.org/wikipedia/commons/4/4b/Cloudflare_Logo.svg') no-repeat center/contain; opacity: 0.5; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .honor-tag { background: linear-gradient(45deg, #ff6b6b, #f06595); color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; margin: 2px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .honor-tag.gold { background: linear-gradient(45deg, #ffd700, #fdb931); color: #000; font-weight: bold; border: 1px solid #fff; box-shadow: 0 0 5px #ffd700; }
@@ -142,7 +133,7 @@
                                             <div class="form-group row"><label class="col-sm-3 col-form-label">Email</label><div class="col-sm-9"><input type="email" class="form-control" id="inputEmail"></div></div>
                                             <div class="form-group row">
                                                 <div class="offset-sm-3 col-sm-9">
-                                                    <div class="cf-turnstile" onclick="verifyTurnstile('profile')"><div class="cf-checkbox" id="cf-checkbox-profile"></div><div class="cf-label">Xác thực bạn là con người</div><input type="hidden" id="cf-verified-profile" value="false"></div>
+                                                    <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-profile"></div>
                                                 </div>
                                             </div>
                                             <div class="form-group row"><div class="offset-sm-3 col-sm-9"><button type="button" class="btn btn-primary" onclick="updateProfile()">Lưu thay đổi</button></div></div>
@@ -240,17 +231,6 @@
         reader.readAsDataURL(file);
     }
 
-    function verifyTurnstile(id) {
-        const box = $(`#cf-checkbox-${id}`);
-        const input = $(`#cf-verified-${id}`);
-        if(input.val() === 'true') return;
-        box.addClass('loading');
-        setTimeout(() => {
-            box.removeClass('loading').addClass('checked');
-            input.val('true');
-        }, 1500);
-    }
-
     async function updateAvatar(base64) {
         const user = JSON.parse(sessionStorage.getItem('user'));
         try {
@@ -268,20 +248,22 @@
         const newEmail = $('#inputEmail').val().trim();
         const newPhone = $('#inputPhone').val().trim();
 
-        if ($('#cf-verified-profile').val() !== 'true') return toastr.error("Vui lòng xác thực Captcha!");
+        const token = turnstile.getResponse('#cf-profile');
+        if (!token) return toastr.error("Vui lòng xác thực Captcha!");
         if(!newName || !newUsername) return toastr.warning("Tên và Username không được để trống!");
 
         Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_PROFILE", payload: { current_username: user.username, new_username: newUsername, fullname: newName, email: newEmail, phone: newPhone } }) });
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_PROFILE", payload: { current_username: user.username, new_username: newUsername, fullname: newName, email: newEmail, phone: newPhone, token: token } }) });
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công', res.message, 'success');
                 user.fullname = newName; user.email = newEmail; user.phone = newPhone;
                 if(user.username !== newUsername) { user.username = newUsername; Swal.fire('Thông báo', 'Vui lòng đăng nhập lại.', 'info').then(() => { sessionStorage.clear(); window.location.replace('login.html'); }); } 
                 else { sessionStorage.setItem('user', JSON.stringify(user)); $('#displayFullname').text(newName); }
-            } else Swal.fire('Lỗi', res.message, 'error');
-        } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+                if (window.turnstile) turnstile.reset('#cf-profile');
+            } else { Swal.fire('Lỗi', res.message, 'error'); if (window.turnstile) turnstile.reset('#cf-profile'); }
+        } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-profile'); }
     }
 
     async function changePassword() {

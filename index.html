@@ -506,7 +506,7 @@
                                     <input type="text" id="fb_title" class="form-control" placeholder="VD: Lỗi điểm danh...">
                                 </div>
                                 <div class="form-group">
-                                    <div class="cf-turnstile mb-3" data-sitekey="1x00000000000000000000AA" id="cf-fb"></div>
+                                    <div class="cf-turnstile mb-3" data-sitekey="0x4AAAAAACMy1EBQkY1DD4si" id="cf-fb"></div>
                                 </div>
                                 <div class="form-group">
                                     <label>Nội dung / Khó khăn</label>
@@ -776,7 +776,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="mock-api.js"></script>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
@@ -1634,7 +1633,8 @@ async function sendFeedback() {
         title: title,
         difficulty: difficulty,
         suggestion: suggestion,
-        drive_link: driveLink
+        drive_link: driveLink,
+        token: turnstile.getResponse('#cf-fb')
     };
 
     const send = async (finalPayload) => {
@@ -1645,9 +1645,10 @@ async function sendFeedback() {
             if (res.status === 'success') {
                 Swal.fire('Thành công!', 'Đã gửi yêu cầu/file.', 'success');
                 $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file').val('');
+                if (window.turnstile) turnstile.reset('#cf-fb');
                 loadFeedbackHistory();
-            } else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+            } else { Swal.fire('Lỗi', res.message, 'error'); if (window.turnstile) turnstile.reset('#cf-fb'); }
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); if (window.turnstile) turnstile.reset('#cf-fb'); }
     };
 
     if (fileInput.files.length > 0) {
