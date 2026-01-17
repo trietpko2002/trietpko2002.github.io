@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <style>
         .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
         .small-box:hover { transform: translateY(-5px); }
@@ -32,6 +34,9 @@
         .btn-primary { background-color: #1e88e5; border-color: #1976d2; }
         .btn-primary:hover { background-color: #1565c0; border-color: #0d47a1; }
         /* Dark Mode Full Coverage */
+        body { color: #212529; }
+        body.dark-mode { background-color: #454d55 !important; color: #fff !important; }
+        body.dark-mode .content-wrapper { background-color: #343a40; color: #fff; }
         body.dark-mode .modal-content { background-color: #343a40; color: #fff; }
         body.dark-mode .modal-header { border-bottom-color: #454d55; }
         body.dark-mode .modal-footer { border-top-color: #454d55; }
@@ -101,6 +106,17 @@
             .info-box { min-height: 80px; }
             .info-box-icon { font-size: 1.5rem; width: 60px; }
         }
+        /* Mobile Optimization */
+        @media (max-width: 576px) {
+            .table td, .table th { white-space: nowrap; font-size: 0.85rem; }
+            .modal-dialog { margin: 0.5rem; }
+            .content-header h1 { font-size: 1.2rem; }
+        }
+        /* Chart Wrapper for Responsiveness */
+        .chart-wrapper { position: relative; height: 250px; width: 100%; margin-bottom: 1rem; }
+        /* Cat Paw Cursor Default */
+        body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
+        a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
     </style>
 </head>
 
@@ -128,8 +144,6 @@
             <li class="nav-item">
             <li class="nav-item d-flex align-items-center">
                 <span class="nav-link">Xin chào, <b id="adminNameDisplay" class="text-primary">Admin</b></span>
-                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-2" style="position: absolute; top: 12px; right: 120px;"><i class="fas fa-info-circle"></i></a>
-                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-2 mr-2"><i class="fas fa-info-circle"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)" onclick="openSettingsModal()" title="Cài đặt hệ thống">
@@ -200,6 +214,11 @@
                     <li class="nav-item">
                         <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
                             <i class="nav-icon fas fa-file-excel"></i> <p>Xuất Lịch Sử (.xlsx)</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="exportPdfHistory()" class="nav-link text-danger">
+                            <i class="nav-icon fas fa-file-pdf"></i> <p>Xuất Lịch Sử (.pdf)</p>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -274,17 +293,16 @@
                                     <div class="card-header d-flex p-2 align-items-center">
                                         <h3 class="card-title font-weight-bold pl-2">Nhật ký điểm danh</h3>
                                         <div class="ml-auto d-flex">
-                                            <select id="filter_status" class="form-control form-control-sm mr-1" style="width: 120px;">
+                                            <select id="filter_status" class="form-control form-control-sm mr-1" style="width: 120px;" onchange="filterHistory()">
                                                 <option value="">Tất cả trạng thái</option>
                                                 <option value="present">Có mặt</option>
                                                 <option value="absent_perm">Vắng có phép</option>
                                                 <option value="absent">Vắng không phép</option>
                                             </select>
-                                            <input type="text" id="filter_history_name" class="form-control form-control-sm mr-1" style="width: 150px;" placeholder="Tên học sinh...">
-                                            <input type="date" id="filter_from" class="form-control form-control-sm mr-1" style="width: 130px;" title="Từ ngày">
+                                            <input type="text" id="filter_history_name" class="form-control form-control-sm mr-1" style="width: 150px;" placeholder="Tên học sinh..." onkeyup="filterHistory()">
+                                            <input type="date" id="filter_from" class="form-control form-control-sm mr-1" style="width: 130px;" title="Từ ngày" onchange="filterHistory()">
                                             <span class="align-self-center mr-1">-</span>
-                                            <input type="date" id="filter_to" class="form-control form-control-sm mr-1" style="width: 130px;" title="Đến ngày">
-                                            <button class="btn btn-sm btn-primary" onclick="filterHistory()"><i class="fas fa-filter"></i></button>
+                                            <input type="date" id="filter_to" class="form-control form-control-sm mr-1" style="width: 130px;" title="Đến ngày" onchange="filterHistory()">
                                             <button class="btn btn-sm btn-secondary ml-1" onclick="resetFilter()" title="Xóa lọc"><i class="fas fa-undo"></i></button>
                                         </div>
                                     </div>
@@ -332,27 +350,30 @@
                         <div class="tab-content">
                         <!-- Subtab Official -->
                         <div class="tab-pane fade show active" id="subtab-official">
+                        <div class="row">
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Nhóm</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStGroup"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Trường</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStSchool"></canvas></div></div></div></div>
+                        </div>
                         <div class="card card-outline card-info shadow mb-3">
                             <div class="card-header"><h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc tìm kiếm</h3></div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-2">
-                                        <input type="text" id="st_filter_name" class="form-control" placeholder="Họ tên...">
+                                        <input type="text" id="st_filter_name" class="form-control" placeholder="Họ tên..." onkeyup="filterStudents()">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <select id="st_filter_group" class="form-control"><option value="">-- Tất cả Nhóm --</option></select>
+                                        <select id="st_filter_group" class="form-control" onchange="filterStudents()"><option value="">-- Tất cả Nhóm --</option></select>
                                     </div>
                                     <div class="col-md-3 mb-2">
-                                        <select id="st_filter_school" class="form-control"><option value="">-- Tất cả Trường --</option></select>
+                                        <select id="st_filter_school" class="form-control" onchange="filterStudents()"><option value="">-- Tất cả Trường --</option></select>
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <input type="date" id="st_filter_from" class="form-control" title="Ngày thêm (Từ)">
+                                        <input type="date" id="st_filter_from" class="form-control" title="Ngày thêm (Từ)" onchange="filterStudents()">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <input type="date" id="st_filter_to" class="form-control" title="Ngày thêm (Đến)">
+                                        <input type="date" id="st_filter_to" class="form-control" title="Ngày thêm (Đến)" onchange="filterStudents()">
                                     </div>
                                     <div class="col-12 text-right">
-                                        <button class="btn btn-primary" onclick="filterStudents()"><i class="fas fa-search mr-2"></i>Tìm kiếm</button>
                                         <button class="btn btn-secondary" onclick="resetStudentFilter()"><i class="fas fa-undo mr-2"></i>Đặt lại</button>
                                     </div>
                                 </div>
@@ -417,6 +438,10 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Phân quyền</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartMgrRole"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Phụ trách Nhóm</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartMgrGroup"></canvas></div></div></div></div>
+                        </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
                                 <table id="managerTable" class="table table-hover table-bordered w-100">
@@ -512,6 +537,10 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Loại Thông báo</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartNotiType"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Tương tác (Lượt xem)</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartNotiRead"></canvas></div></div></div></div>
+                        </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
                                 <table id="notiTable" class="table table-hover table-bordered w-100">
@@ -546,6 +575,9 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Trạng thái Phản hồi</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartFbStatus"></canvas></div></div></div></div>
+                        </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
                                 <table id="feedbackTable" class="table table-hover table-bordered w-100">
@@ -581,11 +613,8 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
-                        <!-- Evaluation Chart -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <div class="card card-purple"><div class="card-header"><h3 class="card-title">Thống kê Kết quả Đánh giá</h3></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="chartEvaluation"></canvas></div></div></div>
-                            </div>
+                        <div class="row mb-2">
+                            <div class="col-12"><div class="card"><div class="card-header py-1"><h3 class="card-title">Thống kê Xếp loại</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartEvalClass"></canvas></div></div></div></div>
                         </div>
                         <!-- Cấu hình đánh giá -->
                         <div class="card card-outline card-purple shadow mb-3">
@@ -593,20 +622,20 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-2">
-                                        <input type="text" id="eval_filter_name" class="form-control" placeholder="Tên học sinh...">
+                                        <input type="text" id="eval_filter_name" class="form-control" placeholder="Tên học sinh..." onkeyup="filterEvaluations()">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <select id="eval_filter_group" class="form-control"><option value="">-- Tất cả Nhóm --</option></select>
+                                        <select id="eval_filter_group" class="form-control" onchange="filterEvaluations()"><option value="">-- Tất cả Nhóm --</option></select>
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <select id="eval_filter_status" class="form-control">
+                                        <select id="eval_filter_status" class="form-control" onchange="filterEvaluations()">
                                             <option value="">-- Trạng thái --</option>
                                             <option value="evaluated">Đã đánh giá</option>
                                             <option value="not_evaluated">Chưa đánh giá</option>
                                         </select>
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <select id="eval_filter_class" class="form-control">
+                                        <select id="eval_filter_class" class="form-control" onchange="filterEvaluations()">
                                             <option value="">-- Xếp loại --</option>
                                             <option value="Xuất sắc">Xuất sắc</option>
                                             <option value="Tốt">Tốt</option>
@@ -615,7 +644,6 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3 mb-2 text-right">
-                                        <button class="btn btn-primary" onclick="filterEvaluations()"><i class="fas fa-search mr-2"></i>Lọc</button>
                                         <button class="btn btn-secondary" onclick="resetEvaluationFilter()"><i class="fas fa-undo"></i></button>
                                     </div>
                                 </div>
@@ -834,6 +862,7 @@
                 <div class="form-group"><label>Tiêu đề</label><input type="text" id="n_title" class="form-control"></div>
                 <div class="form-group"><label>Nội dung</label><textarea id="n_content" class="form-control" rows="3"></textarea></div>
                 <div class="form-group"><label>Thời gian sinh hoạt</label><input type="datetime-local" id="n_datetime" class="form-control"></div>
+                <div class="form-group"><label>Link liên kết (Tùy chọn)</label><input type="text" id="n_link" class="form-control" placeholder="https://..."></div>
                 <div class="form-group"><button class="btn btn-sm btn-info" onclick="previewNotification()"><i class="fas fa-eye mr-1"></i>Xem trước hiển thị</button></div>
                 <div class="form-group"><label>Cho phép điểm danh sớm?</label>
                     <select id="n_early" class="form-control">
@@ -997,6 +1026,7 @@
                         </div>
                         <div class="form-group"><label>Tiêu đề Thông báo</label><input type="text" id="troll_title" class="form-control" placeholder="VD: THÔNG BÁO KHẨN..."></div>
                         <div class="form-group"><label>Nội dung</label><textarea id="troll_content" class="form-control" rows="3" placeholder="Nội dung hiển thị..."></textarea></div>
+                        <div class="form-group"><label>Link liên kết (Nút bấm)</label><input type="text" id="troll_link" class="form-control" placeholder="https://..."></div>
                         <div class="form-group"><label>Link YouTube (Tùy chọn)</label><input type="text" id="troll_youtube" class="form-control" placeholder="https://youtu.be/..."></div>
                         <div class="form-group">
                             <label>File đính kèm (Ảnh/Word/Excel/Zip...)</label>
@@ -1018,6 +1048,12 @@
                             <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_marquee_enabled"><label class="custom-control-label" for="conf_marquee_enabled"></label></div>
                         </div>
                         <div class="form-group"><label>Nội dung hiển thị</label><input type="text" id="conf_marquee_text" class="form-control" placeholder="VD: Chúc mừng năm mới..."></div>
+                        <div class="form-group"><label>Chiều chạy chữ</label>
+                            <select id="conf_marquee_direction" class="form-control">
+                                <option value="right">Từ Trái sang Phải (Mặc định)</option>
+                                <option value="left">Từ Phải sang Trái</option>
+                            </select>
+                        </div>
                         <hr>
                         <h6 class="text-danger font-weight-bold"><i class="fas fa-tools mr-2"></i>Bảo trì từng tính năng (Manager)</h6>
                         <p class="small text-muted">Bật switch để ĐÓNG (Bảo trì) tính năng đó.</p>
@@ -1037,6 +1073,14 @@
                             <div class="col-6"><label>Giờ mở (HH:MM)</label><input type="time" id="conf_att_start" class="form-control"></div>
                             <div class="col-6"><label>Giờ đóng (HH:MM)</label><input type="time" id="conf_att_end" class="form-control"></div>
                         </div>
+                        <div class="form-group d-flex justify-content-between align-items-center bg-light p-2 rounded mt-2 border">
+                            <div><label class="mb-0 text-danger">CHẶN ĐIỂM DANH (Thủ công)</label><br><small class="text-muted">Khóa toàn bộ điểm danh, bất kể giờ giấc.</small></div>
+                            <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_att_blocked"><label class="custom-control-label" for="conf_att_blocked"></label></div>
+                        </div>
+                        <div class="form-group d-flex justify-content-between align-items-center bg-light p-2 rounded mt-1 border">
+                            <div><label class="mb-0 text-success">Ưu tiên mở theo Thông báo</label><br><small class="text-muted">Nếu có thông báo họp/SH, tự động mở khóa vào giờ đó (dù đang Chặn).</small></div>
+                            <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_noti_override"><label class="custom-control-label" for="conf_noti_override"></label></div>
+                        </div>
                         <small class="text-muted">Ngoài khung giờ này, hệ thống sẽ khóa điểm danh (trừ khi có thông báo cho phép sớm).</small>
                         
                         <hr>
@@ -1046,6 +1090,49 @@
                             <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_student_import_locked"><label class="custom-control-label" for="conf_student_import_locked"></label></div>
                         </div>
                         <div class="form-group"><label>Hạn chót nhập liệu (Tự động khóa sau ngày này)</label><input type="date" id="conf_student_import_deadline" class="form-control"></div>
+                        
+                        <div class="form-group mt-2 border-top pt-2">
+                            <label><i class="fas fa-image mr-2"></i>Ảnh bìa Điểm danh (Tab Index)</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="file_cover_image" accept="image/*">
+                                    <label class="custom-file-label" for="file_cover_image">Chọn ảnh (Tỉ lệ Banner Youtube)...</label>
+                                </div>
+                                <div class="input-group-append">
+                                    <button class="btn btn-info" type="button" onclick="uploadCoverImage()">Upload</button>
+                                </div>
+                            </div>
+                            <input type="text" id="conf_cover_image" class="form-control mt-2" placeholder="Link ảnh hiện tại..." readonly>
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label><i class="fas fa-palette mr-2"></i>Màu nền Chữ chạy (Marquee)</label>
+                            <input type="text" id="conf_theme_color" class="form-control" placeholder="VD: #ff0000 hoặc linear-gradient(...)">
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label><i class="fas fa-cloud-sun-rain mr-2"></i>Hiệu ứng Thời tiết (Giao diện)</label>
+                            <select id="conf_weather_effect" class="form-control">
+                                <option value="">-- Không --</option>
+                                <option value="snow">Tuyết rơi (Mùa đông)</option>
+                                <option value="rain">Mưa rơi</option>
+                                <option value="sunny">Trời nắng (Hiệu ứng sáng)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mt-2 border-top pt-2">
+                            <label><i class="fas fa-music mr-2"></i>Nhạc nền Bảo trì (Upload MP3)</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="file_maint_music" accept="audio/mp3,audio/mpeg">
+                                    <label class="custom-file-label" for="file_maint_music">Chọn file MP3...</label>
+                                </div>
+                                <div class="input-group-append">
+                                    <button class="btn btn-info" type="button" onclick="uploadMaintMusic()">Upload</button>
+                                </div>
+                            </div>
+                            <input type="text" id="conf_maint_music" class="form-control mt-2" placeholder="Link nhạc hiện tại..." readonly>
+                        </div>
 
                         <div class="form-group mt-2 border-top pt-2">
                             <label>Giới hạn dung lượng file Upload (MB)</label>
@@ -1117,6 +1204,42 @@
     </div>
 </div>
 
+<!-- Modal Eval Config -->
+<div class="modal fade" id="modalEvalConfig" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-cogs mr-2"></i>Cấu hình Đợt đánh giá</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Trạng thái đánh giá</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="conf_eval_enabled">
+                        <label class="custom-control-label font-weight-bold" for="conf_eval_enabled">Cho phép đánh giá</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hạn chót (Deadline)</label>
+                    <input type="date" id="conf_eval_deadline" class="form-control">
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label class="text-danger font-weight-bold">Khu vực nguy hiểm</label>
+                    <button class="btn btn-warning btn-block font-weight-bold" onclick="resetEvaluations()">
+                        <i class="fas fa-redo-alt mr-2"></i>Reset Đợt Mới (Xóa hết đánh giá)
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="saveEvalConfig()">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Easter Egg -->
 <div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -1183,6 +1306,23 @@ $(document).ready(function() {
     refreshAll();
 });
 
+// Helper: Render Chart
+let charts = {};
+function renderChart(id, type, labels, data, label, colors) {
+    const ctx = document.getElementById(id);
+    if(!ctx) return;
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(ctx, {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{ label: label, data: data, backgroundColor: colors || ['#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6610f2', '#fd7e14', '#e83e8c'], borderWidth: 1 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
+    });
+}
+
+
 async function refreshAll() {
     await loadStudents();
     updateAttendanceStats();
@@ -1210,6 +1350,14 @@ async function loadStudents() {
             // Render Table
             currentStudentView = globalStudentsData;
             renderStudentTable(currentStudentView);
+
+            // Render Charts
+            const groupCounts = {};
+            const schoolCounts = {};
+            globalStudentsData.forEach(s => { groupCounts[s.group_display] = (groupCounts[s.group_display]||0)+1; schoolCounts[s.school] = (schoolCounts[s.school]||0)+1; });
+            
+            renderChart('chartStGroup', 'pie', Object.keys(groupCounts), Object.values(groupCounts), 'Học sinh');
+            renderChart('chartStSchool', 'bar', Object.keys(schoolCounts), Object.values(schoolCounts), 'Học sinh');
         }
     } catch (e) { 
         toastr.error("Lỗi tải danh sách học sinh."); 
@@ -1375,6 +1523,13 @@ async function loadExtraData() {
             }
             $('#managerData').html(mHtml);
             $('#managerTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }});
+
+            // Manager Charts
+            const roleCounts = {};
+            const mgrGroupCounts = {};
+            res.data.managers.forEach(m => { roleCounts[m.role] = (roleCounts[m.role]||0)+1; mgrGroupCounts[m.group_id] = (mgrGroupCounts[m.group_id]||0)+1; });
+            renderChart('chartMgrRole', 'doughnut', Object.keys(roleCounts), Object.values(roleCounts), 'Số lượng');
+            renderChart('chartMgrGroup', 'bar', Object.keys(mgrGroupCounts), Object.values(mgrGroupCounts), 'Số lượng');
  
             // Groups View
             let gHtml = '';
@@ -1435,6 +1590,13 @@ async function loadExtraData() {
                 </tr>`;
             });
             $('#notiData').html(nHtml);
+
+            // Notification Charts
+            const notiTypes = {};
+            let totalReads = 0;
+            globalNotisData.forEach(n => { notiTypes[n.type] = (notiTypes[n.type]||0)+1; totalReads += (n.read_by && Array.isArray(n.read_by) ? n.read_by.length : 0); });
+            renderChart('chartNotiType', 'pie', Object.keys(notiTypes), Object.values(notiTypes), 'Số lượng');
+            renderChart('chartNotiRead', 'bar', ['Tổng lượt xem'], [totalReads], 'Lượt xem', ['#17a2b8']);
         }
     } catch (e) { 
         console.error("Error loading extra data", e); 
@@ -1497,6 +1659,11 @@ async function loadFeedbacks() {
             let html = '';
             globalFeedbacksData = res.data || [];
             renderFeedbacks(globalFeedbacksData);
+            
+            // Feedback Chart
+            const fbStatus = { 'Đã trả lời': 0, 'Chờ xử lý': 0 };
+            globalFeedbacksData.forEach(f => { f.reply ? fbStatus['Đã trả lời']++ : fbStatus['Chờ xử lý']++; });
+            renderChart('chartFbStatus', 'doughnut', Object.keys(fbStatus), Object.values(fbStatus), 'Số lượng', ['#28a745', '#ffc107']);
         }
     } catch (e) { console.error("Feedback error", e); $('#feedbackData').html(getErrorRowHtml(5)); }
 }
@@ -1590,6 +1757,10 @@ async function loadEvalConfig() {
             // Load Marquee Config
             $('#conf_marquee_enabled').prop('checked', String(res.data.marquee_enabled).toUpperCase() === 'TRUE');
             $('#conf_marquee_text').val(res.data.marquee_text || '');
+            $('#conf_marquee_direction').val(res.data.marquee_direction || 'right');
+            $('#conf_cover_image').val(res.data.cover_image || '');
+            $('#conf_theme_color').val(res.data.theme_color || '');
+            $('#conf_weather_effect').val(res.data.weather_effect || '');
 
             // Load Feature Maintenance Config
             $('#maint_attendance').prop('checked', String(res.data.maint_attendance).toUpperCase() === 'TRUE');
@@ -1604,6 +1775,9 @@ async function loadEvalConfig() {
             // Attendance Time
             $('#conf_att_start').val(res.data.attendance_start_time || '');
             $('#conf_att_end').val(res.data.attendance_end_time || '');
+            $('#conf_att_blocked').prop('checked', String(res.data.att_blocked).toUpperCase() === 'TRUE');
+            $('#conf_noti_override').prop('checked', String(res.data.noti_override).toUpperCase() === 'TRUE');
+            $('#conf_maint_music').val(res.data.maint_music || '');
 
             // Student Import Lock
             $('#conf_student_import_locked').prop('checked', String(res.data.student_import_locked).toUpperCase() === 'TRUE');
@@ -1707,6 +1881,7 @@ async function saveTrollConfig() {
         troll_mode: $('#troll_mode').is(':checked') ? 'TRUE' : 'FALSE',
         troll_title: $('#troll_title').val(),
         troll_content: $('#troll_content').val(),
+        troll_link: $('#troll_link').val(),
         troll_youtube: $('#troll_youtube').val(),
         troll_file_name: $('#troll_file_name').val()
     };
@@ -1729,6 +1904,10 @@ async function saveFeatureConfig() {
     const payload = {
         marquee_enabled: $('#conf_marquee_enabled').is(':checked') ? 'TRUE' : 'FALSE',
         marquee_text: $('#conf_marquee_text').val(),
+        marquee_direction: $('#conf_marquee_direction').val(),
+        cover_image: $('#conf_cover_image').val(),
+        theme_color: $('#conf_theme_color').val(),
+        weather_effect: $('#conf_weather_effect').val(),
         maint_attendance: $('#maint_attendance').is(':checked') ? 'TRUE' : 'FALSE',
         maint_students: $('#maint_students').is(':checked') ? 'TRUE' : 'FALSE',
         maint_funds: $('#maint_funds').is(':checked') ? 'TRUE' : 'FALSE',
@@ -1739,6 +1918,9 @@ async function saveFeatureConfig() {
         maint_calendar: $('#maint_calendar').is(':checked') ? 'TRUE' : 'FALSE',
         attendance_start_time: $('#conf_att_start').val(),
         attendance_end_time: $('#conf_att_end').val(),
+        att_blocked: $('#conf_att_blocked').is(':checked') ? 'TRUE' : 'FALSE',
+        noti_override: $('#conf_noti_override').is(':checked') ? 'TRUE' : 'FALSE',
+        maint_music: $('#conf_maint_music').val(),
         student_import_locked: $('#conf_student_import_locked').is(':checked') ? 'TRUE' : 'FALSE',
         student_import_deadline: $('#conf_student_import_deadline').val(),
         max_upload_size: $('#conf_max_upload_size').val() || '200'
@@ -1750,6 +1932,46 @@ async function saveFeatureConfig() {
         if (res.status === 'success') { Swal.fire('Thành công', 'Đã lưu cấu hình tính năng!', 'success'); loadEvalConfig(); }
         else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+async function uploadCoverImage() {
+    const file = document.getElementById('file_cover_image').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file ảnh!");
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result;
+        Swal.fire({ title: 'Đang upload ảnh...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'cover_image' } }) });
+            const res = await response.json();
+            if (res.status === 'success') {
+                $('#conf_cover_image').val(res.url);
+                Swal.fire('Thành công', 'Đã upload ảnh bìa! Nhớ nhấn "Lưu Cấu hình Tính năng".', 'success');
+            } else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    };
+    reader.readAsDataURL(file);
+}
+
+async function uploadMaintMusic() {
+    const file = document.getElementById('file_maint_music').files[0];
+    if (!file) return toastr.warning("Vui lòng chọn file MP3!");
+    
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result;
+        Swal.fire({ title: 'Đang upload nhạc...', didOpen: () => Swal.showLoading() });
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'maint_music' } }) });
+            const res = await response.json();
+            if (res.status === 'success') {
+                $('#conf_maint_music').val(res.url);
+                Swal.fire('Thành công', 'Đã upload nhạc! Nhớ nhấn "Lưu Cấu hình Tính năng" để áp dụng.', 'success');
+            } else Swal.fire('Lỗi', res.message, 'error');
+        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    };
+    reader.readAsDataURL(file);
 }
 
 async function resetPushNotification() {
@@ -1764,7 +1986,7 @@ async function resetPushNotification() {
     }).then(async (result) => {
         if (result.isConfirmed) {
             $('#troll_enabled').prop('checked', false);
-            $('#troll_title, #troll_content, #troll_youtube, #troll_file, #troll_image_base64, #troll_file_name').val(''); $('#troll_mode').prop('checked', false);
+            $('#troll_title, #troll_content, #troll_link, #troll_youtube, #troll_file, #troll_image_base64, #troll_file_name').val(''); $('#troll_mode').prop('checked', false);
 
             const payload = { troll_enabled: 'FALSE', troll_title: '', troll_content: '', troll_youtube: '', troll_image: '', troll_file_name: '' };
 
@@ -1859,6 +2081,11 @@ async function loadEvaluations() {
 
             // Render Default
             filterEvaluations();
+
+            // Evaluation Chart
+            const evalCounts = { 'Xuất sắc': 0, 'Tốt': 0, 'Trung bình': 0, 'Yếu': 0, 'Chưa đánh giá': 0 };
+            mergedList.forEach(e => { evalCounts[e.class] = (evalCounts[e.class]||0)+1; });
+            renderChart('chartEvalClass', 'bar', Object.keys(evalCounts), Object.values(evalCounts), 'Số lượng', ['#28a745', '#007bff', '#ffc107', '#dc3545', '#6c757d']);
         }
     } catch (e) { console.error("Eval error", e); $('#evalData').html(getErrorRowHtml(6)); }
 }
@@ -2312,7 +2539,7 @@ function openNotiModal() {
     $('#modalNoti').modal('show'); 
     $('#noti_id_old').val(''); 
     $('#n_id').val(getNextId(globalNotisData, 'id', 'NOTI')); 
-    $('#n_title, #n_content, #n_datetime, #n_location, #n_file, #n_attachment_base64, #n_file_name').val(''); 
+    $('#n_title, #n_content, #n_datetime, #n_link, #n_location, #n_file, #n_attachment_base64, #n_file_name').val(''); 
     $('#n_type').val('normal');
     toggleLocationInput();
 }
@@ -2509,8 +2736,8 @@ async function saveData(type) {
     } else if (type === 'notifications') {
         idOld = $('#noti_id_old').val();
         let dt = $('#n_datetime').val().replace('T', ' '); // Format lại: bỏ chữ T ở giữa
-        // Cấu trúc: ID, Title, Content, DateTime, Early, CreatedAt, Readers(Auto), Type, Location, Attachment, AttachmentName
-        dataArr = [$('#n_id').val(), $('#n_title').val(), $('#n_content').val(), dt, $('#n_early').val(), new Date().toLocaleString(), "", $('#n_type').val(), $('#n_location').val(), $('#n_attachment_base64').val(), $('#n_file_name').val()];
+        // Cấu trúc: ID, Title, Content, DateTime, Early, CreatedAt, Readers(Auto), Type, Location, Attachment, AttachmentName, Link
+        dataArr = [$('#n_id').val(), $('#n_title').val(), $('#n_content').val(), dt, $('#n_early').val(), new Date().toLocaleString(), "", $('#n_type').val(), $('#n_location').val(), $('#n_attachment_base64').val(), $('#n_file_name').val(), $('#n_link').val()];
     }
 
     if (idOld) action = 'UPDATE_DATA';
@@ -2575,6 +2802,46 @@ function exportExcelHistory() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Lịch Sử");
     XLSX.writeFile(wb, `Lich_Su_Diem_Danh.xlsx`);
+}
+
+function exportPdfHistory() {
+    if (currentHistoryView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
+
+    const body = [
+        [
+            { text: 'Thời gian', bold: true, style: 'tableHeader' },
+            { text: 'Học sinh', bold: true, style: 'tableHeader' },
+            { text: 'Nhóm', bold: true, style: 'tableHeader' },
+            { text: 'Trạng thái', bold: true, style: 'tableHeader' },
+            { text: 'Lý do', bold: true, style: 'tableHeader' },
+            { text: 'Người thực hiện', bold: true, style: 'tableHeader' }
+        ]
+    ];
+
+    currentHistoryView.forEach(item => {
+        let st = "Vắng KP";
+        if (item.status === 'present') st = "Có mặt";
+        else if (item.status === 'absent_perm') st = "Vắng CP";
+
+        body.push([
+            { text: item.timestamp, fontSize: 9 },
+            { text: item.student_name, fontSize: 9 },
+            { text: item.group_id, fontSize: 9, alignment: 'center' },
+            { text: st, fontSize: 9 },
+            { text: item.reason || "", fontSize: 9 },
+            { text: item.recorded_by, fontSize: 9 }
+        ]);
+    });
+
+    const docDefinition = {
+        content: [
+            { text: 'BÁO CÁO LỊCH SỬ ĐIỂM DANH', style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
+            { text: `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, alignment: 'right', fontSize: 9, margin: [0, 0, 0, 10] },
+            { table: { headerRows: 1, widths: ['auto', '*', 'auto', 'auto', '*', 'auto'], body: body } }
+        ],
+        styles: { header: { fontSize: 16, bold: true }, tableHeader: { fontSize: 10, fillColor: '#eeeeee' } }
+    };
+    pdfMake.createPdf(docDefinition).download(`Lich_Su_Diem_Danh_${new Date().getTime()}.pdf`);
 }
 
 function exportExcelStudents() {

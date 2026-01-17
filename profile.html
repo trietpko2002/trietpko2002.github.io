@@ -78,6 +78,28 @@
             margin: 2px;
         }
         @keyframes shineText { to { background-position: 200% center; } }/* Hacker Title Effect */
+
+        /* Settings & Effects */
+        .settings-btn { position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #007bff; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
+        .settings-btn:hover { transform: rotate(90deg); background: #0056b3; }
+        .weather-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; }
+        .weather-snow { background-image: url('https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/ajax-loader.gif'); background-size: 500px; animation: snow 10s linear infinite; opacity: 0.5; }
+        @keyframes snow { 0% { background-position: 0 0, 0 0; } 100% { background-position: 500px 1000px, 400px 400px; } }
+        .weather-rain { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 100%); background-size: 2px 20px; animation: rain 0.5s linear infinite; }
+        @keyframes rain { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        .weather-sunny { background: radial-gradient(circle at 90% 10%, rgba(255,255,0,0.3) 0%, rgba(255,255,0,0) 50%); mix-blend-mode: screen; animation: sunny 5s ease-in-out infinite alternate; }
+        @keyframes sunny { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 0.8; transform: scale(1.1); } }
+        .weather-dandelion { background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Dandelion_seed.png/640px-Dandelion_seed.png'); background-size: 50px; animation: dandelion 15s linear infinite; pointer-events: none; opacity: 0.6; }
+        @keyframes dandelion { 0% { background-position: 0% 100%; } 100% { background-position: 100% 0%; } }
+        .weather-starry { background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%); overflow: hidden; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
+        @keyframes twinkle { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .firefly { position: fixed; width: 6px; height: 6px; background: #ffff00; border-radius: 50%; box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; animation: fly 10s infinite alternate; pointer-events: none; z-index: 9998; }
+        @keyframes fly { 0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translate(100vw, -50vh); opacity: 0; } }
+        /* Cat Paw Cursor Default */
+        body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
+        a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
+        body.jack-mode { background-color: #000 !important; color: #fff !important; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -88,6 +110,7 @@
     })();
 </script>
 <div class="wrapper">
+    <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
         <ul class="navbar-nav">
@@ -235,6 +258,50 @@
     </div>
 </div>
 
+<!-- Modal User Settings -->
+<div class="modal fade" id="modalUserSettings" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-magic mr-2"></i>Cài đặt Giao diện & Hiệu ứng</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group d-flex justify-content-between align-items-center">
+                    <label class="mb-0">Chế độ Tối (Dark Mode)</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="user_dark_mode" onchange="toggleUserDarkMode()">
+                        <label class="custom-control-label" for="user_dark_mode"></label>
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label><i class="fas fa-cloud-sun mr-2"></i>Chọn Hiệu ứng nền</label>
+                    <select id="user_effect" class="form-control" onchange="previewUserEffect()">
+                        <option value="">-- Mặc định (Theo Admin) --</option>
+                        <option value="snow">Tuyết rơi (Mùa đông)</option>
+                        <option value="rain">Mưa rơi</option>
+                        <option value="sunny">Trời nắng (Hiệu ứng sáng)</option>
+                        <option value="dandelion">Bồ công anh bay</option>
+                        <option value="starry">Đêm tối có sao</option>
+                        <option value="jack97">Đom đóm + Chân mèo (Jack J97)</option>
+                    </select>
+                    <small class="text-muted mt-2 d-block" id="effect_desc"></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveUserSettings()">Lưu Cài đặt</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Jack J97 Audio -->
+<audio id="jackAudio">
+    <source src="https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/dom_dom.mp3" type="audio/mpeg">
+</audio>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
@@ -286,6 +353,7 @@
         $('#inputEmail').val(user.email || ''); // Email mới thêm
         $('#inputPhone').val(user.phone || ''); // Phone mới thêm
         
+        loadUserSettings();
         generateCaptcha('captcha_code_profile');
     });
 
@@ -411,6 +479,65 @@
                 $('#oldPass, #newPass, #confirmPass').val('');
             } else Swal.fire('Lỗi', res.message, 'error');
         } catch(e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+    }
+
+    // --- USER SETTINGS ---
+    function openUserSettings() {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        const settings = JSON.parse(localStorage.getItem(`userSettings_${user.username}`) || '{}');
+        $('#user_dark_mode').prop('checked', settings.darkMode === true);
+        $('#user_effect').val(settings.effect || '');
+        $('#modalUserSettings').modal('show');
+    }
+
+    function toggleUserDarkMode() {
+        if ($('#user_dark_mode').is(':checked')) $('body').addClass('dark-mode');
+        else $('body').removeClass('dark-mode');
+    }
+
+    function previewUserEffect() {
+        const effect = $('#user_effect').val();
+        const desc = $('#effect_desc');
+        if (effect === 'jack97') desc.text('Chế độ Fan Jack: Nhạc Đom Đóm + Chân mèo + Dark Mode.');
+        else desc.text('');
+    }
+
+    function saveUserSettings() {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        const settings = { darkMode: $('#user_dark_mode').is(':checked'), effect: $('#user_effect').val() };
+        localStorage.setItem(`userSettings_${user.username}`, JSON.stringify(settings));
+        applyUserSettings(settings);
+        $('#modalUserSettings').modal('hide');
+        toastr.success('Đã lưu cài đặt cá nhân!');
+    }
+
+    function loadUserSettings() {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        if (!user) return;
+        const settings = JSON.parse(localStorage.getItem(`userSettings_${user.username}`) || '{}');
+        applyUserSettings(settings);
+    }
+
+    function applyUserSettings(settings) {
+        if (settings.darkMode) $('body').addClass('dark-mode'); else $('body').removeClass('dark-mode');
+        $('.weather-overlay').remove(); $('.firefly').remove(); $('.star').remove(); $('body').removeClass('cursor-cat jack-mode');
+        const audio = document.getElementById('jackAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
+        const effect = settings.effect;
+        if (!effect) return;
+        const weatherDiv = document.createElement('div'); weatherDiv.className = `weather-overlay weather-${effect}`;
+        if (effect === 'snow') {
+            weatherDiv.style.backgroundImage = "url('data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIj48Y2lyY2xlIGN4PSI1IiBjeT0iNSIgcj0iMiIgZmlsbD0id2hpdGUiIG9wYWNpdHk9IjAuNSIvPjwvc3ZnPg==')";
+            document.body.appendChild(weatherDiv);
+        } else if (effect === 'dandelion' || effect === 'rain' || effect === 'sunny') {
+            document.body.appendChild(weatherDiv);
+        } else if (effect === 'starry') {
+            document.body.appendChild(weatherDiv);
+            for(let i=0; i<50; i++) { const star = document.createElement('div'); star.className = 'star'; star.style.top = Math.random() * 100 + '%'; star.style.left = Math.random() * 100 + '%'; star.style.animationDelay = Math.random() * 2 + 's'; weatherDiv.appendChild(star); }
+        } else if (effect === 'jack97') {
+            $('body').addClass('jack-mode');
+            for(let i=0; i<20; i++) { const f = document.createElement('div'); f.className = 'firefly'; f.style.top = Math.random() * 100 + 'vh'; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's'; f.style.animationDelay = Math.random() * 5 + 's'; document.body.appendChild(f); }
+            if(audio) audio.play().catch(e => console.log("Autoplay blocked", e));
+        }
     }
 </script>
 </body>

@@ -29,10 +29,11 @@
         /* Poll Styles */
         .student-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 5px; border-radius: 4px; margin-bottom: 10px; }
         /* Maintenance Overlay */
-        #maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #343a40; color: white; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         #topMarquee { background: #d81b60; color: #fff; padding: 5px; font-weight: bold; display: none; z-index: 1040; position: relative; }
         
         /* Dark Mode Full Coverage */
+        body { color: #212529; }
         body.dark-mode { background-color: #454d55 !important; color: #fff; }
         body.dark-mode .content-wrapper { background-color: #343a40; color: #fff; }
         body.dark-mode .card { background-color: #343a40; color: #fff; }
@@ -129,8 +130,51 @@
             display: inline-block;
             margin: 2px;
         }
+        /* Default Theme Animation */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body.default-theme {
+            background: linear-gradient(-45deg, #007bff, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+        }
         @keyframes shineText { to { background-position: 200% center; } }
 
+        /* Weather Effects */
+        .weather-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; }
+        
+        /* Youtube Banner Ratio */
+        #img-cover {
+            width: 100%;
+            aspect-ratio: 6/1; /* Tỉ lệ Banner Youtube TV/Desktop */
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* Fireflies */
+        .firefly { position: fixed; width: 6px; height: 6px; background: #ffff00; border-radius: 50%; box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; animation: fly 10s infinite alternate; pointer-events: none; z-index: 9998; }
+        @keyframes fly { 
+            0% { transform: translate(0, 0); opacity: 0; } 
+            10% { opacity: 1; } 
+            90% { opacity: 1; } 
+            100% { transform: translate(100vw, -50vh); opacity: 0; } 
+        }
+
+        /* Cat Paw Cursor */
+        /* Default for all */
+        body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
+        a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
+
+        /* Settings Btn */
+        .settings-btn { position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #007bff; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
+        .settings-btn:hover { transform: rotate(90deg); background: #0056b3; }
+
+        /* Jack J97 Troll Mode */
+        body.jack-mode {
+            background-color: #000 !important;
+            color: #fff !important;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
@@ -157,6 +201,7 @@
 </script>
 
 <div class="wrapper">
+    <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
     <div id="phone-notification">
         <img id="pn-img" src="" style="display:none;">
         <div class="content">
@@ -248,6 +293,7 @@
             <div class="container-fluid pt-3">
                 <div class="tab-content">
             <div class="tab-pane fade show active" id="tab-attendance">
+                <div id="attendance-cover" class="mb-3 shadow-sm rounded overflow-hidden" style="display:none;"><img id="img-cover" src=""></div>
                 <div class="callout callout-info mb-3 shadow-sm">
                     <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
                     <p class="text-muted mb-0">Chọn trạng thái cho từng học sinh và nhấn "Lưu kết quả".</p>
@@ -783,6 +829,51 @@
     </div>
 </div>
 
+<!-- Modal User Settings -->
+<div class="modal fade" id="modalUserSettings" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-magic mr-2"></i>Cài đặt Giao diện & Hiệu ứng</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group d-flex justify-content-between align-items-center">
+                    <label class="mb-0">Chế độ Tối (Dark Mode)</label>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="user_dark_mode" onchange="toggleUserDarkMode()">
+                        <label class="custom-control-label" for="user_dark_mode"></label>
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label><i class="fas fa-cloud-sun mr-2"></i>Chọn Hiệu ứng nền</label>
+                    <select id="user_effect" class="form-control" onchange="previewUserEffect()">
+                        <option value="">-- Mặc định (Theo Admin) --</option>
+                        <option value="jack97">Đom đóm + Chân mèo (Jack J97)</option>
+                    </select>
+                    <small class="text-muted mt-2 d-block" id="effect_desc"></small>
+                </div>
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle"></i> Cài đặt này sẽ được lưu riêng cho tài khoản của bạn.
+                    <br>Tự động đăng xuất sau 5 phút không hoạt động.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveUserSettings()">Lưu Cài đặt</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Jack J97 Audio -->
+<audio id="jackAudio">
+    <!-- Placeholder link for Dom Dom - Jack J97. Replace with actual file if available -->
+    <source src="music/jack_j97_dom_dom.mp3" type="audio/mpeg">
+    <source src="https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/dom_dom.mp3" type="audio/mpeg">
+</audio>
+
 <!-- Modal Easter Egg -->
 <div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -814,6 +905,7 @@ let globalFundLogs = [];
 let globalMaxUploadSize = 200; // Default 200MB
 let globalDriveLink = "";
 let globalResources = [];
+let autoLogoutTimer;
 
 // --- HELPER FUNCTIONS FOR LOADING/ERROR STATES ---
 function getLoadingRowHtml(colspan) {
@@ -854,10 +946,11 @@ document.addEventListener("DOMContentLoaded", function() {
     
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
-    // Dark Mode Init
-    if (localStorage.getItem('darkMode') === 'true') {
-        $('body').addClass('dark-mode');
-    }
+    // Load User Settings (Dark Mode & Effects)
+    loadUserSettings();
+    
+    // Init Auto Logout
+    initAutoLogout();
 
     generateCaptcha('captcha_code_fb');
     
@@ -932,6 +1025,109 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+// --- USER SETTINGS & AUTO LOGOUT ---
+
+function initAutoLogout() {
+    const resetTimer = () => {
+        clearTimeout(autoLogoutTimer);
+        autoLogoutTimer = setTimeout(() => {
+            Swal.fire({
+                title: 'Hết phiên làm việc',
+                text: 'Bạn đã không hoạt động trong 5 phút. Hệ thống sẽ tự động đăng xuất.',
+                icon: 'warning',
+                timer: 5000,
+                timerProgressBar: true,
+                willClose: () => logout()
+            });
+        }, 5 * 60 * 1000); // 5 minutes
+    };
+
+    window.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onkeypress = resetTimer;
+    document.onclick = resetTimer;
+    document.onscroll = resetTimer;
+}
+
+function openUserSettings() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const settings = JSON.parse(localStorage.getItem(`userSettings_${user.username}`) || '{}');
+    
+    $('#user_dark_mode').prop('checked', settings.darkMode === true);
+    $('#user_effect').val(settings.effect || '');
+    $('#modalUserSettings').modal('show');
+}
+
+function toggleUserDarkMode() {
+    // Preview only
+    if ($('#user_dark_mode').is(':checked')) $('body').addClass('dark-mode');
+    else $('body').removeClass('dark-mode');
+}
+
+function previewUserEffect() {
+    const effect = $('#user_effect').val();
+    const desc = $('#effect_desc');
+    if (effect === 'jack97') desc.text('Chế độ Fan Jack: Nhạc Đom Đóm + Chân mèo + Dark Mode.');
+    else desc.text('');
+}
+
+function saveUserSettings() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const settings = {
+        darkMode: $('#user_dark_mode').is(':checked'),
+        effect: $('#user_effect').val()
+    };
+    
+    localStorage.setItem(`userSettings_${user.username}`, JSON.stringify(settings));
+    applyUserSettings(settings);
+    $('#modalUserSettings').modal('hide');
+    toastr.success('Đã lưu cài đặt cá nhân!');
+}
+
+function loadUserSettings() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user) return;
+    
+    const settings = JSON.parse(localStorage.getItem(`userSettings_${user.username}`) || '{}');
+    applyUserSettings(settings);
+}
+
+function applyUserSettings(settings) {
+    // 1. Dark Mode
+    if (settings.darkMode) $('body').addClass('dark-mode');
+    else $('body').removeClass('dark-mode');
+
+    // 2. Effects
+    $('.weather-overlay').remove();
+    $('.firefly').remove();
+    $('.star').remove();
+    $('body').removeClass('jack-mode');
+    const audio = document.getElementById('jackAudio');
+    if(audio) { audio.pause(); audio.currentTime = 0; }
+
+    const effect = settings.effect;
+    if (!effect) return; // Use default (Admin config will take over in loadGlobalConfig if no user effect)
+
+    if (effect === 'jack97') {
+        $('body').addClass('jack-mode');
+        // Fireflies
+        for(let i=0; i<20; i++) {
+            const f = document.createElement('div');
+            f.className = 'firefly';
+            f.style.top = Math.random() * 100 + 'vh';
+            f.style.left = Math.random() * 100 + 'vw';
+            f.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            f.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(f);
+        }
+        // Play Music
+        if(audio && !sessionStorage.getItem('jack_music_played')) {
+            audio.play().catch(e => console.log("Autoplay blocked", e));
+            sessionStorage.setItem('jack_music_played', 'true');
+        }
+    }
+}
 
 // --- PUSH NOTIFICATION LOGIC (POLLING) ---
 async function pollForNotifications() {
@@ -1011,16 +1207,42 @@ async function loadGlobalConfig() {
             }
 
             if (isMaintenance) {
-                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null);
+                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null, conf.maint_music);
                 return;
             }
 
             // 2. Marquee (Chữ chạy)
             if (String(conf.marquee_enabled).toUpperCase() === 'TRUE' && conf.marquee_text) {
                 $('#marqueeText').text(conf.marquee_text);
+                // Set direction (default right: left-to-right)
+                $('#marqueeText').parent().attr('direction', conf.marquee_direction || 'right');
                 $('#topMarquee').show();
+                
+                // Apply Theme Color to Marquee Background
+                if (conf.theme_color) {
+                    $('#topMarquee').css('background', conf.theme_color);
+                }
             } else {
                 $('#topMarquee').hide();
+            }
+            
+            // Cover Image
+            if (conf.cover_image) {
+                $('#img-cover').attr('src', conf.cover_image);
+                $('#attendance-cover').show();
+            }
+
+            // Weather Effect (Global) - Only if user hasn't set custom
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            const userSettings = JSON.parse(localStorage.getItem(`userSettings_${user.username}`) || '{}');
+            
+            if (!userSettings.effect) {
+                $('.weather-overlay').remove(); // Clear old
+                if (conf.weather_effect) {
+                    const weatherDiv = document.createElement('div');
+                    weatherDiv.className = `weather-overlay weather-${conf.weather_effect}`;
+                    document.body.appendChild(weatherDiv);
+                }
             }
 
             // Load Max Upload Size
@@ -1058,7 +1280,7 @@ async function loadGlobalConfig() {
     } catch(e) {}
 }
 
-function showMaintenanceOverlay(startTime, endTime) {
+function showMaintenanceOverlay(startTime, endTime, musicUrl) {
     const overlay = document.createElement('div');
     overlay.id = 'maintenance-overlay';
     
@@ -1068,10 +1290,16 @@ function showMaintenanceOverlay(startTime, endTime) {
             <div class="w-75 mt-4" style="max-width: 500px;">
                 <h4 id="maint-timer" class="font-weight-bold mb-3 text-warning" style="font-family: monospace; font-size: 2.5rem; text-shadow: 0 0 10px rgba(0,0,0,0.5);">00:00:00</h4>
                 <div class="progress" style="height: 25px; background-color: rgba(255,255,255,0.2);">
-                    <div id="maint-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width: 0%; font-weight: bold; color: #000;">0%</div>
+                    <div id="maint-progress" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%; font-weight: bold; color: #fff; background-color: #00d2ff;">0%</div>
                 </div>
                 <p class="mt-2 text-light"><small>Hệ thống sẽ tự động mở lại vào: ${endTime.toLocaleString('vi-VN')}</small></p>
             </div>`;
+    }
+    
+    let audioHtml = '';
+    if (musicUrl) {
+        audioHtml = `<audio autoplay loop id="maint-audio"><source src="${musicUrl}" type="audio/mpeg"></audio>
+        <button class="btn btn-sm btn-outline-light mt-3" onclick="document.getElementById('maint-audio').paused ? document.getElementById('maint-audio').play() : document.getElementById('maint-audio').pause()"><i class="fas fa-music mr-2"></i>Bật/Tắt Nhạc</button>`;
     }
 
     overlay.innerHTML = `
@@ -1079,6 +1307,7 @@ function showMaintenanceOverlay(startTime, endTime) {
         <h1 class="font-weight-bold">HỆ THỐNG ĐANG BẢO TRÌ</h1>
         <p class="lead">Chúng tôi đang nâng cấp hệ thống để phục vụ tốt hơn.</p>
         ${timeHtml}
+        ${audioHtml}
         <button class="btn btn-outline-light mt-4 font-weight-bold" onclick="logout()"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</button>
     `;
     document.body.appendChild(overlay);
@@ -1411,6 +1640,11 @@ async function loadNotifications() {
                             </div>`;
                     }
 
+                    let linkHtml = '';
+                    if (n.link) {
+                        linkHtml = `<div class="mt-2"><a href="${n.link}" target="_blank" class="btn btn-sm btn-info"><i class="fas fa-link mr-1"></i>Truy cập liên kết</a></div>`;
+                    }
+
                     let attachHtml = '';
                     if (n.attachment) {
                         // Kiểm tra loại file để hiển thị icon/text phù hợp
@@ -1436,6 +1670,7 @@ async function loadNotifications() {
                             </span>
                             ${pollHtml}
                             ${attachHtml}
+                            ${linkHtml}
                             ${meetingInfo}
                             ${n.early === 'TRUE' ? '<span class="badge badge-success mt-1">Điểm danh sớm</span>' : ''}
                         </div>
@@ -1458,6 +1693,7 @@ function checkAttendanceLock() {
     const currentHour = now.getHours();
     const submitBtn = document.querySelector('button[onclick="submitAttendance()"]');
     const inputs = document.querySelectorAll('input[name^="st_"]');
+    const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
     
     // VIP Member Bypass
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -1476,6 +1712,9 @@ function checkAttendanceLock() {
     
     // Xóa thông báo cũ nếu có
     $('.attendance-alert').remove();
+    
+    // Xóa cảnh báo sắp khóa cũ
+    $('.attendance-warning-timer').remove();
 
     let isLocked = false;
     let message = "";
@@ -1513,6 +1752,33 @@ function checkAttendanceLock() {
         inputs.forEach(inp => inp.disabled = true);
         $('#attendanceList').prepend(`<div class="col-12 attendance-alert"><div class="alert alert-warning font-weight-bold"><i class="fas fa-exclamation-triangle mr-2"></i>${message}</div></div>`);
     } else {
+        // Logic cảnh báo sắp khóa (Trước 1 tiếng)
+        let closingTime = null;
+        // Xác định giờ đóng
+        if (String(conf.noti_override).toUpperCase() === 'TRUE' && todayNoti) {
+             const meetingTime = new Date(todayNoti.datetime.replace(" ", "T"));
+             
+             const closeHour = conf.attendance_end_time ? parseInt(conf.attendance_end_time.split(':')[0]) : 24;
+             const closeMinute = conf.attendance_end_time ? parseInt(conf.attendance_end_time.split(':')[1]) : 0;
+             const endOfDay = new Date(now);
+             endOfDay.setHours(closeHour, closeMinute, 0, 0);
+             if (closeHour === 24) endOfDay.setHours(23, 59, 59, 999);
+             
+             const finalEndTime = meetingTime > endOfDay ? new Date(now.setHours(23,59,59,999)) : endOfDay;
+             if (now <= finalEndTime) closingTime = finalEndTime;
+        }
+        if (!closingTime) {
+             const closeHour = conf.attendance_end_time ? parseInt(conf.attendance_end_time.split(':')[0]) : 20;
+             closingTime = new Date(); closingTime.setHours(closeHour, 0, 0, 0);
+        }
+
+        if (closingTime && closingTime > now) {
+            const diffMins = (closingTime - now) / 60000;
+            if (diffMins <= 60) {
+                $('#attendanceList').prepend(`<div class="col-12 attendance-warning-timer"><div class="alert alert-warning text-center font-weight-bold"><i class="fas fa-clock mr-2"></i>Hệ thống sẽ khóa điểm danh trong ${Math.ceil(diffMins)} phút nữa!</div></div>`);
+            }
+        }
+
         // Mở khóa nếu hợp lệ
         if(submitBtn) {
             submitBtn.disabled = false;
@@ -1858,6 +2124,9 @@ async function checkUrgentNotification() {
                     // Link download file trong banner
                     if (conf.troll_image && conf.troll_file_name) { $('#pn-link').html(`<a href="${conf.troll_image}" download="${conf.troll_file_name}" class="btn btn-xs btn-light text-dark font-weight-bold"><i class="fas fa-download mr-1"></i>Tải: ${conf.troll_file_name}</a>`); } else { $('#pn-link').empty(); }
 
+                    // Link liên kết trong banner
+                    if (conf.troll_link) { $('#pn-link').append(`<a href="${conf.troll_link}" target="_blank" class="btn btn-xs btn-primary ml-1"><i class="fas fa-link mr-1"></i>Xem ngay</a>`); }
+
                     $('#phone-notification').addClass('show');
                     if (!conf.troll_youtube) setTimeout(closePhoneNotification, 10000); // Auto hide if no video
                     return;
@@ -1886,6 +2155,9 @@ async function checkUrgentNotification() {
                 let footerHtml = '';
                 if (conf.troll_image && conf.troll_file_name) {
                     footerHtml = `<a href="${conf.troll_image}" download="${conf.troll_file_name}" class="btn btn-success"><i class="fas fa-download mr-2"></i>Tải file đính kèm: ${conf.troll_file_name}</a>`;
+                }
+                if (conf.troll_link) {
+                    footerHtml += `<a href="${conf.troll_link}" target="_blank" class="btn btn-primary ml-2"><i class="fas fa-link mr-2"></i>Truy cập liên kết</a>`;
                 }
 
                 Swal.fire({

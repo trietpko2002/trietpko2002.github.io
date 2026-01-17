@@ -42,6 +42,7 @@ function doPost(e) {
     if (action === 'GET_CONFIG') return handleGetConfig();
     if (action === 'SAVE_CONFIG') return handleSaveConfig(payload);
     if (action === 'RESET_EVALUATIONS') return handleResetEvaluations(payload);
+    if (action === 'UPLOAD_MUSIC') return handleUploadMusic(payload);
 
     // --- 2.1. FILE UPLOAD ---
     if (action === 'UPLOAD_FILE') return handleUploadFile(payload);
@@ -349,6 +350,27 @@ function handleGetUploads(payload) {
     }
     return response({ status: 'success', data: files.reverse() }); // Mới nhất lên đầu
   } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+function handleUploadMusic(payload) { // Dùng chung cho Upload Setting File (Music, Cover Image...)
+  try {
+    // Yêu cầu: Mã hóa data không phải Drive -> Lưu trực tiếp Base64
+    // Lưu ý: Google Sheet giới hạn ký tự, file lớn sẽ bị lỗi.
+    const url = payload.data; 
+    
+    // Lưu URL vào settings
+    const settingKey = payload.setting_key || 'maint_music'; // Mặc định là nhạc nếu không truyền key
+    let sheet = ss.getSheetByName('settings');
+    if (!sheet) sheet = ss.insertSheet('settings');
+    const dataRange = sheet.getDataRange().getValues();
+    let found = false;
+    for (let i = 1; i < dataRange.length; i++) {
+      if (dataRange[i][0] === settingKey) { sheet.getRange(i + 1, 2).setValue(url); found = true; break; }
+    }
+    if (!found) sheet.appendRow([settingKey, url]);
+
+    return response({ status: 'success', url: url, message: 'Đã upload nhạc thành công!' });
+  } catch (e) { return response({ status: 'error', message: 'Lỗi upload nhạc: ' + e.toString() }); }
 }
 
 // ============================================================
@@ -961,7 +983,8 @@ function handleGetAdminExtras(payload) {
              type: notiValues[k][7] || 'normal', // Cột H: Loại (normal, online, offline)
              location: notiValues[k][8] || '',   // Cột I: Link hoặc Địa điểm
              attachment: notiValues[k][9] || '', // Cột J: File đính kèm (Base64)
-             attachment_name: notiValues[k][10] || '', // Cột K: Tên file
+             attachment_name: notiValues[k][10] || '', // Cột K: Tên file 
+             link: notiValues[k][11] || '',      // Cột L: Link liên kết (Mới)
              read_by: readMap[nId] || [] // Vẫn lấy từ readMap để đảm bảo chính xác nhất
            });
         }
