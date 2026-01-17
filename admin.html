@@ -210,6 +210,11 @@
                             <i class="nav-icon fas fa-history"></i> <p>Log hệ thống</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="about.html" target="_blank" class="nav-link">
+                            <i class="nav-icon fas fa-question-circle"></i> <p>Hướng dẫn sử dụng</p>
+                        </a>
+                    </li>
                     <li class="nav-header">XUẤT BÁO CÁO</li>
                     <li class="nav-item">
                         <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
@@ -712,7 +717,7 @@
         </div>
     </div>
     <footer class="main-footer text-center text-sm">
-        <strong>Copyright &copy; 2025 Hệ thống Quản lý SHH.</strong> All rights reserved.
+        <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong> All rights reserved.
     </footer>
 </div>
 
@@ -1246,12 +1251,14 @@
         <div class="modal-content bg-dark text-white text-center" style="border: 2px solid #ffd700;">
             <div class="modal-header border-0"><h5 class="modal-title font-weight-bold text-warning"><i class="fas fa-crown mr-2"></i>CREDITS</h5><button type="button" class="close text-white" onclick="stopEasterEgg()"><span>&times;</span></button></div>
             <div class="modal-body">
-                <h4 class="text-primary font-weight-bold">Tổ Công nghệ Đoàn phường Phan Rang 2025</h4>
-                <p class="lead">Người làm: <span class="text-warning font-weight-bold">Triết Võ</span></p>
-                <p class="small text-muted">Hỗ trợ AI: Gemini Code Assist (VS Code)</p>
+                <h4 class="text-primary font-weight-bold">Sản phẩm bởi Tổ Công nghệ Đoàn phường Phan Rang</h4>
+                <p class="lead mb-1">Code by <span class="text-warning font-weight-bold">Triết Võ</span></p>
+                <p class="mb-1">Sử dụng AI là Gemini Code Assist by Google</p>
+                <p class="mb-1">Phần mềm Visual Studio Code</p>
+                <p class="mb-3"><a href="https://github.com/trietpko2002" target="_blank" class="text-info">https://github.com/trietpko2002</a></p>
                 <hr class="bg-secondary">
-                <p><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
-                <p><i class="fas fa-phone mr-2"></i>0396385579</p>
+                <p class="mb-1"><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
+                <p class="mb-0"><i class="fas fa-phone mr-2"></i>0396385579</p>
             </div>
         </div>
     </div>
@@ -1338,7 +1345,7 @@ async function refreshAll() {
 async function loadStudents() {
     $('#studentData').html(getLoadingRowHtml(7));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_USERS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_USERS" }) });
         const res = await response.json();
         if (res.status === "success") {
             globalStudentsData = res.data.students;
@@ -1450,7 +1457,7 @@ function resetStudentFilter() {
 async function loadRegistrations() {
     $('#regData').html(getLoadingRowHtml(6));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_REGISTRATIONS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_REGISTRATIONS" }) });
         const res = await response.json();
         if (res.status === "success") {
             let html = '';
@@ -1473,7 +1480,7 @@ async function loadRegistrations() {
 
 async function regeneratePass(id) {
     if(!confirm('Tạo lại mật khẩu ngẫu nhiên cho ID này?')) return;
-    const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
+    const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
     const res = await response.json();
     if(res.status === 'success') { toastr.success('Mật khẩu mới: ' + res.new_pass); loadRegistrations(); }
 }
@@ -1482,7 +1489,7 @@ async function loadExtraData() {
     $('#managerData').html(getLoadingRowHtml(8));
     $('#notiData').html(getLoadingRowHtml(8));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS" }) });
         const res = await response.json();
         if (res.status === "success") {
             globalUsersData = res.data.managers;
@@ -1608,7 +1615,7 @@ async function loadExtraData() {
 async function loadLogs() {
     $('#logData').html(getLoadingRowHtml(4));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_LOGS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_LOGS" }) });
         const res = await response.json();
         if (res.status === "success") {
             globalLogsData = res.data;
@@ -1653,7 +1660,7 @@ let globalFeedbacksData = [];
 async function loadFeedbacks() {
     $('#feedbackData').html(getLoadingRowHtml(5));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FEEDBACKS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_FEEDBACKS" }) });
         const res = await response.json();
         if (res.status === "success") {
             let html = '';
@@ -1721,7 +1728,7 @@ function renderFeedbacks(data) {
 // Load config cho cả Eval và Troll
 async function loadEvalConfig() {
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_CONFIG" }) });
         const res = await response.json();
         if (res.status === "success") {
             $('#conf_eval_enabled').prop('checked', String(res.data.evaluation_enabled).toUpperCase() === 'TRUE');
@@ -1796,7 +1803,7 @@ async function saveEvalConfig() {
     
     Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { evaluation_enabled: enabled, evaluation_deadline: deadline } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { evaluation_enabled: enabled, evaluation_deadline: deadline } }) });
         const res = await response.json();
         if (res.status === 'success') {
             Swal.fire('Thành công', 'Đã lưu cấu hình đánh giá!', 'success');
@@ -1833,7 +1840,7 @@ async function toggleMaintenance() {
     }
 
     try {
-        await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { maintenance_mode: enabled } }) });
+        await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { maintenance_mode: enabled } }) });
         toastr.success("Đã cập nhật trạng thái bảo trì!");
     } catch (e) { toastr.error("Lỗi kết nối"); }
 }
@@ -1848,7 +1855,7 @@ async function saveMaintenanceSchedule() {
 
     Swal.fire({ title: 'Đang lưu lịch...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { maintenance_start: start, maintenance_end: end } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_CONFIG", payload: { maintenance_start: start, maintenance_end: end } }) });
         const res = await response.json();
         if (res.status === 'success') Swal.fire('Thành công', 'Đã lưu lịch bảo trì!', 'success');
         else Swal.fire('Lỗi', res.message, 'error');
@@ -1893,7 +1900,7 @@ async function saveTrollConfig() {
 
     Swal.fire({ title: 'Đang lưu cấu hình...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
         const res = await response.json();
         if (res.status === 'success') Swal.fire('Thành công', 'Đã cập nhật cấu hình Thông báo Khẩn!', 'success');
         else Swal.fire('Lỗi', res.message, 'error');
@@ -1927,7 +1934,7 @@ async function saveFeatureConfig() {
     };
     Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
         const res = await response.json();
         if (res.status === 'success') { Swal.fire('Thành công', 'Đã lưu cấu hình tính năng!', 'success'); loadEvalConfig(); }
         else Swal.fire('Lỗi', res.message, 'error');
@@ -1943,7 +1950,7 @@ async function uploadCoverImage() {
         const base64 = e.target.result;
         Swal.fire({ title: 'Đang upload ảnh...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'cover_image' } }) });
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'cover_image' } }) });
             const res = await response.json();
             if (res.status === 'success') {
                 $('#conf_cover_image').val(res.url);
@@ -1963,7 +1970,7 @@ async function uploadMaintMusic() {
         const base64 = e.target.result;
         Swal.fire({ title: 'Đang upload nhạc...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'maint_music' } }) });
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'maint_music' } }) });
             const res = await response.json();
             if (res.status === 'success') {
                 $('#conf_maint_music').val(res.url);
@@ -1992,7 +1999,7 @@ async function resetPushNotification() {
 
             Swal.fire({ title: 'Đang reset...', didOpen: () => Swal.showLoading() });
             try {
-                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
+                const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_CONFIG", payload: payload }) });
                 const res = await response.json();
                 if (res.status === 'success') Swal.fire('Đã Reset', 'Thông báo khẩn đã được xóa và tắt.', 'success');
                 else Swal.fire('Lỗi', res.message, 'error');
@@ -2023,6 +2030,7 @@ function resetEvaluations() {
             try {
                 const response = await fetch(API_URL, { 
                     method: "POST", 
+                    redirect: "follow",
                     body: JSON.stringify({ 
                         action: "RESET_EVALUATIONS", 
                         payload: { admin_user: user.username } 
@@ -2043,7 +2051,7 @@ async function loadEvaluations() {
     $('#evalData').html(getLoadingRowHtml(6));
     $('#eval_filter_group').html('<option value="">-- Tất cả Nhóm --</option>'); // Reset filter nhóm
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_EVALUATIONS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_EVALUATIONS" }) });
         const res = await response.json();
         if (res.status === "success") {
             const rawEvaluations = res.data; // [ID, Name, Group, Disc, Pos, Vol, Class, By, Time]
@@ -2151,7 +2159,7 @@ function resetEvaluationFilter() {
 async function updateAttendanceStats() {
     $('#historyAttendanceData').html(getLoadingRowHtml(5));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_STATS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_ADMIN_STATS" }) });
         const res = await response.json();
         if (res.status === "success") {
             const s = res.data;
@@ -2658,7 +2666,7 @@ async function submitReply() {
     
     Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'REPLY_FEEDBACK', payload: { id: id, reply: fullReply } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: 'REPLY_FEEDBACK', payload: { id: id, reply: fullReply } }) });
         const res = await response.json();
         if (res.status === 'success') { Swal.fire('Thành công', 'Đã gửi phản hồi', 'success'); $('#modalReply').modal('hide'); loadFeedbacks(); }
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
@@ -2680,7 +2688,7 @@ async function resetPassword(username) {
     if (result.isConfirmed) {
         Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'RESET_PASSWORD', payload: { username: username, admin_user: JSON.parse(sessionStorage.getItem('user')).username } }) });
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: 'RESET_PASSWORD', payload: { username: username, admin_user: JSON.parse(sessionStorage.getItem('user')).username } }) });
             const res = await response.json();
             if (res.status === 'success') Swal.fire('Thành công!', res.message, 'success');
             else Swal.fire('Lỗi', res.message, 'error');
@@ -2742,12 +2750,12 @@ async function saveData(type) {
 
     if (idOld) action = 'UPDATE_DATA';
     Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
-    callApiAndRefresh({ action: action, payload: { type: type, id: idOld, data: dataArr } });
+    callApiAndRefresh({ action: action, payload: { type: type, id: idOld, data: dataArr } }); // Note: callApiAndRefresh needs update too
 }
 
 async function callApiAndRefresh(bodyData) {
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify(bodyData) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify(bodyData) });
         const res = await response.json();
         if (res.status === 'success') {
             $('.modal').modal('hide');
@@ -2780,7 +2788,7 @@ function deleteData(type, id) {
     Swal.fire({ title: 'Xóa dữ liệu?', text: "Hành động này không thể hoàn tác!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Xóa' }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: type, id: id } }) });
+                const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: type, id: id } }) });
                 const res = await response.json();
                 if (res.status === 'success') { Swal.fire('Đã xóa!', res.message, 'success'); refreshAll(); }
             } catch (e) { toastr.error("Lỗi xóa dữ liệu"); }
@@ -2892,6 +2900,7 @@ async function backupSystem() {
     try {
         const response = await fetch(API_URL, { 
             method: "POST", 
+            redirect: "follow",
             body: JSON.stringify({ 
                 action: "BACKUP_SYSTEM", 
                 payload: { admin_user: user.username } 
@@ -2952,6 +2961,7 @@ async function uploadFileGeneric(source) {
         try {
             const response = await fetch(API_URL, { 
                 method: "POST", 
+                redirect: "follow",
                 body: JSON.stringify({ 
                     action: "UPLOAD_FILE", 
                     payload: { 
@@ -2977,7 +2987,7 @@ async function uploadFileGeneric(source) {
 
 async function loadUploadedFiles() {
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_UPLOADS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_UPLOADS" }) });
         const res = await response.json();
         if (res.status === 'success') {
             let html = '';
@@ -3047,6 +3057,7 @@ function processImportAdminTab() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         fetch(API_URL, {
             method: "POST",
+            redirect: "follow",
             body: JSON.stringify({ 
                 action: "IMPORT_STUDENTS", 
                 payload: { students: mappedData, admin_user: user.username } 
@@ -3119,6 +3130,7 @@ function processRestore() {
                     const user = JSON.parse(sessionStorage.getItem('user'));
                     fetch(API_URL, {
                         method: "POST",
+                        redirect: "follow",
                         body: JSON.stringify({ 
                             action: "RESTORE_SYSTEM", 
                             payload: { data: restoreData, admin_user: user.username } 
@@ -3167,7 +3179,7 @@ async function createPoll() {
 
     Swal.fire({ title: 'Đang tạo bình chọn...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "ADD_DATA", payload: { type: 'notifications', data: dataArr } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "ADD_DATA", payload: { type: 'notifications', data: dataArr } }) });
         const res = await response.json();
         if (res.status === 'success') {
             $('#modalPoll').modal('hide');
@@ -3180,7 +3192,7 @@ async function createPoll() {
 async function viewPollResults(pollId) {
     Swal.fire({ title: 'Đang tải kết quả...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_POLL_RESULTS", payload: { poll_id: pollId } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_POLL_RESULTS", payload: { poll_id: pollId } }) });
         const res = await response.json();
         if (res.status === 'success') {
             const counts = res.data;
@@ -3203,7 +3215,7 @@ async function viewPollResults(pollId) {
 async function exportPollExcel(pollId, title) {
     Swal.fire({ title: 'Đang xuất Excel...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_POLL_VOTES", payload: { poll_id: pollId } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_POLL_VOTES", payload: { poll_id: pollId } }) });
         const res = await response.json();
         if (res.status === 'success') {
             const data = res.data.map(v => ({

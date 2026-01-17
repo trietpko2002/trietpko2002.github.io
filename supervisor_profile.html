@@ -82,6 +82,7 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column">
                     <li class="nav-item"><a href="supervisor.html" class="nav-link"><i class="nav-icon fas fa-home"></i><p>Trang chủ</p></a></li>
+                    <li class="nav-item"><a href="about.html" target="_blank" class="nav-link"><i class="nav-icon fas fa-question-circle"></i><p>Hướng dẫn sử dụng</p></a></li>
                     <li class="nav-item"><a href="#" class="nav-link active"><i class="nav-icon fas fa-id-card"></i><p>Hồ sơ cá nhân</p></a></li>
                 </ul>
             </nav>
@@ -251,7 +252,7 @@
     async function updateAvatar(base64) {
         const user = JSON.parse(sessionStorage.getItem('user'));
         try {
-            await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_AVATAR", payload: { username: user.username, avatar: base64 } }) });
+            await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPDATE_AVATAR", payload: { username: user.username, avatar: base64 } }) });
             user.avatar = base64;
             sessionStorage.setItem('user', JSON.stringify(user));
             toastr.success("Đã cập nhật ảnh đại diện!");
@@ -273,7 +274,7 @@
 
         Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_PROFILE", payload: { current_username: user.username, new_username: newUsername, fullname: newName, email: newEmail, phone: newPhone } }) });
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPDATE_PROFILE", payload: { current_username: user.username, new_username: newUsername, fullname: newName, email: newEmail, phone: newPhone } }) });
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công', res.message, 'success');
@@ -294,7 +295,7 @@
         if(newPass !== confirmPass) return toastr.error("Mật khẩu không khớp!");
         Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CHANGE_PASSWORD", payload: { username: user.username, old_pass: oldPass, new_pass: newPass } }) });
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "CHANGE_PASSWORD", payload: { username: user.username, old_pass: oldPass, new_pass: newPass } }) });
             const res = await response.json();
             if (res.status === 'success') { Swal.fire('Thành công', 'Đổi mật khẩu thành công!', 'success'); $('#oldPass, #newPass, #confirmPass').val(''); } 
             else Swal.fire('Lỗi', res.message, 'error');

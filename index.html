@@ -283,6 +283,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="about.html" target="_blank" class="nav-link"><i class="nav-icon fas fa-question-circle"></i><p>Hướng dẫn sử dụng</p></a>
+                    </li>
+                </ul>
             </nav>
         </div>
     </aside>
@@ -609,7 +612,7 @@
     </div>
     
     <footer class="main-footer text-center text-sm">
-        <strong>Copyright &copy; 2025 Hệ thống Quản lý SHH.</strong> All rights reserved.
+        <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong> All rights reserved.
     </footer>
 </div>
 
@@ -880,12 +883,14 @@
         <div class="modal-content bg-dark text-white text-center" style="border: 2px solid #ffd700;">
             <div class="modal-header border-0"><h5 class="modal-title font-weight-bold text-warning"><i class="fas fa-crown mr-2"></i>CREDITS</h5><button type="button" class="close text-white" onclick="stopEasterEgg()"><span>&times;</span></button></div>
             <div class="modal-body">
-                <h4 class="text-primary font-weight-bold">Tổ Công nghệ Đoàn phường Phan Rang 2025</h4>
-                <p class="lead">Người làm: <span class="text-warning font-weight-bold">Triết Võ</span></p>
-                <p class="small text-muted">Hỗ trợ AI: Gemini Code Assist (VS Code)</p>
+                <h4 class="text-primary font-weight-bold">Sản phẩm bởi Tổ Công nghệ Đoàn phường Phan Rang</h4>
+                <p class="lead mb-1">Code by <span class="text-warning font-weight-bold">Triết Võ</span></p>
+                <p class="mb-1">Sử dụng AI là Gemini Code Assist by Google</p>
+                <p class="mb-1">Phần mềm Visual Studio Code</p>
+                <p class="mb-3"><a href="https://github.com/trietpko2002" target="_blank" class="text-info">https://github.com/trietpko2002</a></p>
                 <hr class="bg-secondary">
-                <p><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
-                <p><i class="fas fa-phone mr-2"></i>0396385579</p>
+                <p class="mb-1"><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
+                <p class="mb-0"><i class="fas fa-phone mr-2"></i>0396385579</p>
             </div>
         </div>
     </div>
@@ -1136,7 +1141,7 @@ async function pollForNotifications() {
     
     try {
         // Fetch latest notifications (lightweight check if possible, here reusing existing API)
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS", payload: { username: user.username } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS", payload: { username: user.username } }) });
         const res = await response.json();
         
         if (res.status === "success" && res.data.notifications && res.data.notifications.length > 0) {
@@ -1176,7 +1181,7 @@ function generateCaptcha(elementId) {
 // --- MAINTENANCE CHECK ---
 async function loadGlobalConfig() {
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_CONFIG" }) });
         const res = await response.json();
         if (res.status === "success") {
             const conf = res.data;
@@ -1356,7 +1361,7 @@ async function submitChangePass() {
 
     Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CHANGE_PASSWORD", payload: { username: user.username, old_pass: oldPass, new_pass: newPass } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "CHANGE_PASSWORD", payload: { username: user.username, old_pass: oldPass, new_pass: newPass } }) });
         const res = await response.json();
         if (res.status === 'success') {
             Swal.fire('Thành công', 'Vui lòng đăng nhập lại!', 'success').then(() => logout());
@@ -1386,6 +1391,7 @@ async function submitChangePin() {
     try {
         const response = await fetch(API_URL, { 
             method: "POST", 
+            redirect: "follow",
             body: JSON.stringify({ 
                 action: "CHANGE_PIN", 
                 payload: { username: user.username, current_pin: currentPin, new_pin: newPin } 
@@ -1442,7 +1448,7 @@ async function submitAvatar() {
     if (!avatarBase64) return toastr.warning("Vui lòng chọn ảnh!");
     Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "UPDATE_AVATAR", payload: { username: user.username, avatar: avatarBase64 } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPDATE_AVATAR", payload: { username: user.username, avatar: avatarBase64 } }) });
         const res = await response.json();
         if (res.status === 'success') {
             user.avatar = avatarBase64;
@@ -1458,7 +1464,7 @@ async function submitAvatar() {
 let globalGroupsList = [];
 async function loadGroupsForSelect() {
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_GROUPS_PUBLIC" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_GROUPS_PUBLIC" }) });
         const res = await response.json();
         if (res.status === "success") {
             globalGroupsList = res.data;
@@ -1479,6 +1485,7 @@ async function fetchStudentsByGroup(groupId) {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
+            redirect: "follow",
             body: JSON.stringify({
                 action: "GET_STUDENTS_BY_GROUP",
                 payload: { group_id: groupId }
@@ -1558,7 +1565,7 @@ async function loadNotifications() {
     notiList.html(loadingSpinner);
     try {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS", payload: { username: user.username } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_ADMIN_EXTRAS", payload: { username: user.username } }) });
         const res = await response.json();
         
         if (res.status === "success" && res.data.notifications) {
@@ -1793,7 +1800,7 @@ function checkAttendanceLock() {
 async function markRead(id) {
     const user = JSON.parse(sessionStorage.getItem('user'));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "MARK_READ", payload: { username: user.username, notification_id: id } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "MARK_READ", payload: { username: user.username, notification_id: id } }) });
         const res = await response.json();
         if (res.status === 'success') {
             loadNotifications(); // Tải lại để cập nhật trạng thái
@@ -1846,7 +1853,7 @@ async function saveStudent() {
 
     Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: action, payload: { type: 'students', id: idOld, data: dataArr } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: action, payload: { type: 'students', id: idOld, data: dataArr } }) });
         const res = await response.json();
         if (res.status === 'success') {
             $('#modalStudent').modal('hide');
@@ -1865,7 +1872,7 @@ function deleteStudent(id) {
         if (result.isConfirmed) {
             const user = JSON.parse(sessionStorage.getItem('user'));
             try {
-                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: 'students', id: id } }) });
+                const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: 'students', id: id } }) });
                 const res = await response.json();
                 if (res.status === 'success') { Swal.fire('Đã xóa!', res.message, 'success'); fetchStudentsByGroup(user.group_id); }
             } catch (e) { toastr.error("Lỗi xóa dữ liệu"); }
@@ -1890,6 +1897,7 @@ async function submitAttendance() {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
+            redirect: "follow",
             body: JSON.stringify({
                 action: "SAVE_ATTENDANCE",
                 payload: { group_id: user.group_id, recorded_by: user.fullname, attendance: attendanceData }
@@ -1950,7 +1958,7 @@ async function sendFeedback() {
     const send = async (finalPayload) => {
         Swal.fire({ title: 'Đang gửi...', didOpen: () => Swal.showLoading() });
         try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SEND_FEEDBACK", payload: finalPayload }) });
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SEND_FEEDBACK", payload: finalPayload }) });
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công!', 'Đã gửi yêu cầu/file.', 'success');
@@ -1993,7 +2001,7 @@ async function loadFeedbackHistory() {
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "GET_FEEDBACKS", payload: { username: user.username } })
+            redirect: "follow", body: JSON.stringify({ action: "GET_FEEDBACKS", payload: { username: user.username } })
         });
         const res = await response.json();
         if (res.status === 'success') {
@@ -2049,8 +2057,8 @@ async function loadEvaluationUI() {
     try {
         // 1. Lấy cấu hình và danh sách đánh giá song song
         const [configRes, evalRes] = await Promise.all([
-            fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) }).then(r => r.json()),
-            fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_EVALUATIONS" }) }).then(r => r.json())
+            fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_CONFIG" }) }).then(r => r.json()),
+            fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_EVALUATIONS" }) }).then(r => r.json())
         ]);
 
         // 2. Kiểm tra trạng thái khóa
@@ -2110,7 +2118,7 @@ async function loadEvaluationUI() {
 // --- TROLL PUSH LOGIC ---
 async function checkUrgentNotification() {
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_CONFIG" }) });
         const res = await response.json();
         if (res.status === "success") {
             const conf = res.data;
@@ -2217,7 +2225,7 @@ async function submitEvaluation() {
 
     Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_EVALUATION", payload: payload }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_EVALUATION", payload: payload }) });
         const res = await response.json();
         if (res.status === 'success') {
             Swal.fire('Thành công', 'Đã lưu phiếu đánh giá!', 'success');
@@ -2307,7 +2315,7 @@ async function saveFundLog() {
     Swal.fire({ title: 'Đang lưu sổ quỹ...', didOpen: () => Swal.showLoading() });
     try {
 
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_FUND_LOG", payload: payload }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_FUND_LOG", payload: payload }) });
 
         const res = await response.json();
         if (res.status === 'success') {
@@ -2335,7 +2343,7 @@ async function saveExpenseLog() {
 
     Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "SAVE_EXPENSE_LOG", payload: payload }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_EXPENSE_LOG", payload: payload }) });
         const res = await response.json();
         if (res.status === 'success') {
             Swal.fire('Thành công', 'Đã lưu khoản chi!', 'success');
@@ -2351,7 +2359,7 @@ async function loadFundHistory() {
     historyTable.html(getLoadingRowHtml(3));
     const user = JSON.parse(sessionStorage.getItem('user'));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_FUND_LOGS", payload: { group_id: user.group_id } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_FUND_LOGS", payload: { group_id: user.group_id } }) });
         const res = await response.json();
         if (res.status === 'success') {
             globalFundLogs = res.data; // Lưu dữ liệu để xuất Excel
@@ -2434,6 +2442,7 @@ async function uploadFileIndex() {
         try {
             const response = await fetch(API_URL, { 
                 method: "POST", 
+                redirect: "follow",
                 body: JSON.stringify({ 
                     action: "UPLOAD_FILE", 
                     payload: { uploader: user.username, group_id: user.group_id, filename: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', data: base64, type: 'FILE' } 
@@ -2457,6 +2466,7 @@ async function submitDriveLink() {
     try {
         const response = await fetch(API_URL, { 
             method: "POST", 
+            redirect: "follow",
             body: JSON.stringify({ 
                 action: "UPLOAD_FILE", 
                 payload: { uploader: user.username, group_id: user.group_id, filename: "Google Drive Link", size: "Link", data: link, type: 'LINK' } 
@@ -2506,7 +2516,7 @@ function processImportManagerTab() {
         const mappedData = jsonData.map(row => ({ fullname: row["Họ và Tên"], dob: row["Ngày sinh"], group_id: user.group_id, school: row["Trường học"], phone: row["SĐT"], address: row["Địa chỉ"] })).filter(i => i.fullname);
         
         Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
-        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "IMPORT_STUDENTS", payload: { students: mappedData } }) })
+        fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "IMPORT_STUDENTS", payload: { students: mappedData } }) })
         .then(r => r.json()).then(res => { if(res.status==='success'){ Swal.fire('Xong', `Thêm ${res.count} HS`, 'success'); fetchStudentsByGroup(user.group_id); } else Swal.fire('Lỗi', res.message, 'error'); });
     };
     reader.readAsArrayBuffer(file);
@@ -2550,7 +2560,7 @@ async function submitVote(pollId) {
 
     Swal.fire({ title: 'Đang gửi bình chọn...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "VOTE_POLL", payload: payload }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "VOTE_POLL", payload: payload }) });
         const res = await response.json();
         if (res.status === 'success') {
             Swal.fire('Thành công', res.message, 'success');
@@ -2563,7 +2573,7 @@ async function submitVote(pollId) {
 async function viewPollResults(pollId) {
     Swal.fire({ title: 'Đang tải kết quả...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_POLL_RESULTS", payload: { poll_id: pollId } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_POLL_RESULTS", payload: { poll_id: pollId } }) });
         const res = await response.json();
         if (res.status === 'success') {
             const counts = res.data;
@@ -2641,7 +2651,7 @@ async function loadResources() {
     $('#resource_list').html(loadingSpinner);
     try {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_UPLOADS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_UPLOADS" }) });
         const res = await response.json();
         if (res.status === 'success') {
             // Filter ADMIN uploads AND User's Group uploads
@@ -2722,7 +2732,7 @@ function deleteResource(id) {
     Swal.fire({ title: 'Xóa file?', text: "Bạn có chắc muốn xóa file này?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Xóa' }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: 'uploads', id: id } }) });
+                const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: 'DELETE_DATA', payload: { type: 'uploads', id: id } }) });
                 const res = await response.json();
                 if (res.status === 'success') { toastr.success('Đã xóa file'); loadResources(); }
             } catch (e) { toastr.error("Lỗi xóa file"); }
@@ -2733,7 +2743,7 @@ function deleteResource(id) {
 async function loadRegistrations() {
     $('#regListBody').html(getLoadingRowHtml(6));
     try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_REGISTRATIONS" }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_REGISTRATIONS" }) });
         const res = await response.json();
         if (res.status === "success") {
             let html = '';
@@ -2754,7 +2764,7 @@ async function loadRegistrations() {
 
 async function regeneratePass(id) {
     if(!confirm('Tạo lại mật khẩu ngẫu nhiên cho ID này?')) return;
-    const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
+    const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "REGENERATE_PASS", payload: { id } }) });
     const res = await response.json();
     if(res.status === 'success') { toastr.success('Mật khẩu mới: ' + res.new_pass); loadRegistrations(); }
 }
