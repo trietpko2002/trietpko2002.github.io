@@ -1197,13 +1197,8 @@ async function loadGlobalConfig() {
 
             // Check Manual
             if (String(conf.maintenance_mode).toUpperCase() === 'TRUE') {
-                const overlay = document.createElement('div');
-                overlay.id = 'maintenance-overlay';
-                overlay.innerHTML = '<i class="fas fa-tools fa-4x mb-3 text-warning"></i><h1 class="font-weight-bold">HỆ THỐNG ĐANG BẢO TRÌ</h1><p class="lead">Vui lòng quay lại sau.</p><button class="btn btn-outline-light mt-3 font-weight-bold" onclick="logout()"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</button>';
-                document.body.appendChild(overlay);
-                document.body.style.overflow = 'hidden';
-                return; // Dừng tải các thành phần khác
-                isMaintenance = true;
+                showMaintenanceOverlay(null, null, 'music/bao_tri.mp3');
+                return;
             } 
             // Check Schedule
             else if (start && end && now >= start && now <= end) {
@@ -1212,7 +1207,7 @@ async function loadGlobalConfig() {
             }
 
             if (isMaintenance) {
-                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null, conf.maint_music);
+                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null, 'music/bao_tri.mp3');
                 return;
             }
 

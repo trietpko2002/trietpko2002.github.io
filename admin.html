@@ -1126,20 +1126,6 @@
                         </div>
 
                         <div class="form-group mt-2 border-top pt-2">
-                            <label><i class="fas fa-music mr-2"></i>Nhạc nền Bảo trì (Upload MP3)</label>
-                            <div class="input-group">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="file_maint_music" accept="audio/mp3,audio/mpeg">
-                                    <label class="custom-file-label" for="file_maint_music">Chọn file MP3...</label>
-                                </div>
-                                <div class="input-group-append">
-                                    <button class="btn btn-info" type="button" onclick="uploadMaintMusic()">Upload</button>
-                                </div>
-                            </div>
-                            <input type="text" id="conf_maint_music" class="form-control mt-2" placeholder="Link nhạc hiện tại..." readonly>
-                        </div>
-
-                        <div class="form-group mt-2 border-top pt-2">
                             <label>Giới hạn dung lượng file Upload (MB)</label>
                             <input type="number" id="conf_max_upload_size" class="form-control" placeholder="Mặc định: 200" value="200">
                         </div>
@@ -1784,7 +1770,6 @@ async function loadEvalConfig() {
             $('#conf_att_end').val(res.data.attendance_end_time || '');
             $('#conf_att_blocked').prop('checked', String(res.data.att_blocked).toUpperCase() === 'TRUE');
             $('#conf_noti_override').prop('checked', String(res.data.noti_override).toUpperCase() === 'TRUE');
-            $('#conf_maint_music').val(res.data.maint_music || '');
 
             // Student Import Lock
             $('#conf_student_import_locked').prop('checked', String(res.data.student_import_locked).toUpperCase() === 'TRUE');
@@ -1927,7 +1912,7 @@ async function saveFeatureConfig() {
         attendance_end_time: $('#conf_att_end').val(),
         att_blocked: $('#conf_att_blocked').is(':checked') ? 'TRUE' : 'FALSE',
         noti_override: $('#conf_noti_override').is(':checked') ? 'TRUE' : 'FALSE',
-        maint_music: $('#conf_maint_music').val(),
+        maint_music: 'music/bao_tri.mp3',
         student_import_locked: $('#conf_student_import_locked').is(':checked') ? 'TRUE' : 'FALSE',
         student_import_deadline: $('#conf_student_import_deadline').val(),
         max_upload_size: $('#conf_max_upload_size').val() || '200'
@@ -1955,26 +1940,6 @@ async function uploadCoverImage() {
             if (res.status === 'success') {
                 $('#conf_cover_image').val(res.url);
                 Swal.fire('Thành công', 'Đã upload ảnh bìa! Nhớ nhấn "Lưu Cấu hình Tính năng".', 'success');
-            } else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
-    };
-    reader.readAsDataURL(file);
-}
-
-async function uploadMaintMusic() {
-    const file = document.getElementById('file_maint_music').files[0];
-    if (!file) return toastr.warning("Vui lòng chọn file MP3!");
-    
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-        const base64 = e.target.result;
-        Swal.fire({ title: 'Đang upload nhạc...', didOpen: () => Swal.showLoading() });
-        try {
-            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'maint_music' } }) });
-            const res = await response.json();
-            if (res.status === 'success') {
-                $('#conf_maint_music').val(res.url);
-                Swal.fire('Thành công', 'Đã upload nhạc! Nhớ nhấn "Lưu Cấu hình Tính năng" để áp dụng.', 'success');
             } else Swal.fire('Lỗi', res.message, 'error');
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     };
@@ -2170,6 +2135,8 @@ async function updateAttendanceStats() {
             currentHistoryView = globalHistoryData; // Mặc định hiển thị tất cả
             renderHistoryTable(currentHistoryView);
             renderCharts(s);
+        } else {
+            $('#historyAttendanceData').html(getErrorRowHtml(5, res.message || "Lỗi tải dữ liệu từ Server."));
         }
     } catch (e) { 
         toastr.error("Không thể kết nối Server."); 
