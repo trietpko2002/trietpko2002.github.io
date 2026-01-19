@@ -15,9 +15,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <style>
-        .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
+        .small-box { border-radius: 20px; overflow: hidden; transition: transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .small-box:hover { transform: translateY(-5px); }
-        .info-box { transition: transform 0.3s; border-radius: 10px; }
+        .info-box { transition: transform 0.3s; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .info-box:hover { transform: translateY(-5px); }
         .text-dob { color: #007bff; font-weight: bold; }
         .badge-group { font-size: 0.85rem; padding: 4px 8px; }
@@ -30,14 +30,15 @@
         /* Youth Union Theme */
         .navbar-primary { background-color: #1e88e5 !important; }
         .brand-link.bg-primary { background-color: #1e88e5 !important; }
-        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #1e88e5; color: #fff; }
-        .btn-primary { background-color: #1e88e5; border-color: #1976d2; }
+        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #1e88e5; color: #fff; border-radius: 10px; box-shadow: 0 4px 6px rgba(30, 136, 229, 0.4); }
+        .btn-primary { background-color: #1e88e5; border-color: #1976d2; border-radius: 50px; }
         .btn-primary:hover { background-color: #1565c0; border-color: #0d47a1; }
         /* Dark Mode Full Coverage */
         body { color: #212529; }
         body.dark-mode { background-color: #454d55 !important; color: #fff !important; }
         body.dark-mode .content-wrapper { background-color: #343a40; color: #fff; }
         body.dark-mode .modal-content { background-color: #343a40; color: #fff; }
+        body.dark-mode .card { background: linear-gradient(135deg, #343a40, #2b3035); color: #fff; }
         body.dark-mode .modal-header { border-bottom-color: #454d55; }
         body.dark-mode .modal-footer { border-top-color: #454d55; }
         body.dark-mode .close { color: #fff; text-shadow: none; }
@@ -117,6 +118,26 @@
         /* Cat Paw Cursor Default */
         body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
         a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
+
+        /* Modern Rounded UI Overrides */
+        .card { border-radius: 20px; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.05); background: linear-gradient(135deg, #ffffff 0%, #f4f6f9 100%); }
+        .card-header { border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .btn { border-radius: 50px; }
+        .form-control { border-radius: 15px; }
+        .modal-content { border-radius: 25px; border: none; }
+        .nav-pills .nav-link { border-radius: 50px; }
+        .nav-sidebar .nav-link { border-radius: 10px; }
+        .custom-select { border-radius: 15px; }
+
+        /* Table Row Hover Effect */
+        #studentTable tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        #studentTable tbody tr:hover {
+            transform: scale(1.005);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+            background-color: #fff !important;
+        }
     </style>
 </head>
 
@@ -215,21 +236,41 @@
                             <i class="nav-icon fas fa-question-circle"></i> <p>Hướng dẫn sử dụng</p>
                         </a>
                     </li>
-                    <li class="nav-header">XUẤT BÁO CÁO</li>
                     <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
-                            <i class="nav-icon fas fa-file-excel"></i> <p>Xuất Lịch Sử (.xlsx)</p>
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-file-export"></i>
+                            <p>
+                                Xuất Báo Cáo
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="exportPdfHistory()" class="nav-link text-danger">
-                            <i class="nav-icon fas fa-file-pdf"></i> <p>Xuất Lịch Sử (.pdf)</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
-                            <i class="nav-icon fas fa-file-download"></i> <p>Xuất DS Học Sinh (.xlsx)</p>
-                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
+                                    <i class="nav-icon fas fa-file-excel"></i> <p>Lịch Sử (.xlsx)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportPdfHistory()" class="nav-link text-danger">
+                                    <i class="nav-icon fas fa-file-pdf"></i> <p>Lịch Sử (.pdf)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
+                                    <i class="nav-icon fas fa-file-download"></i> <p>DS Học Sinh (.xlsx)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportExcelEvaluations()" class="nav-link text-warning">
+                                    <i class="nav-icon fas fa-star"></i> <p>Đánh Giá (.xlsx)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportExcelLogs()" class="nav-link text-secondary">
+                                    <i class="nav-icon fas fa-history"></i> <p>Logs (.xlsx)</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </nav>
@@ -738,7 +779,16 @@
                 <div class="form-group"><label>Địa chỉ</label><input type="text" id="st_address" class="form-control"></div>
                 <div class="form-group"><label>Số điện thoại học sinh</label><input type="text" id="st_phone" class="form-control"></div>
                 <div class="form-group"><label>Mã Nhóm</label><input type="text" id="st_group" class="form-control" placeholder="VD: 1, 2, 3..."></div>
-                <div class="form-group"><label>Trường học</label><input type="text" id="st_school" class="form-control"></div>
+                <div class="form-group">
+                    <label>Trường học</label>
+                    <select id="st_school_select" class="form-control" onchange="toggleOtherSchool('st_school_select', 'st_school_other_div')">
+                        <!-- Options loaded by JS -->
+                    </select>
+                </div>
+                <div class="form-group" id="st_school_other_div" style="display:none;">
+                    <label>Tên trường khác</label>
+                    <input type="text" id="st_school_other" class="form-control" placeholder="Nhập tên trường...">
+                </div>
                 <h6 class="text-info border-top pt-2 mt-2">Thông tin đăng ký</h6>
                 <div class="form-group"><label>Thời gian</label><input type="text" id="st_reg_time" class="form-control"></div>
                 <div class="form-group"><label>Địa điểm</label><input type="text" id="st_reg_loc" class="form-control"></div>
@@ -868,6 +918,10 @@
                 <div class="form-group"><label>Nội dung</label><textarea id="n_content" class="form-control" rows="3"></textarea></div>
                 <div class="form-group"><label>Thời gian sinh hoạt</label><input type="datetime-local" id="n_datetime" class="form-control"></div>
                 <div class="form-group"><label>Link liên kết (Tùy chọn)</label><input type="text" id="n_link" class="form-control" placeholder="https://..."></div>
+                <div class="form-group">
+                    <label>Gửi tới (Đối tượng)</label>
+                    <select id="n_target_group" class="form-control"><option value="ALL">Tất cả mọi người</option></select>
+                </div>
                 <div class="form-group"><button class="btn btn-sm btn-info" onclick="previewNotification()"><i class="fas fa-eye mr-1"></i>Xem trước hiển thị</button></div>
                 <div class="form-group"><label>Cho phép điểm danh sớm?</label>
                     <select id="n_early" class="form-control">
@@ -1231,6 +1285,24 @@
     </div>
 </div>
 
+<!-- Modal Upload Progress -->
+<div class="modal fade" id="modalUploadProgress" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-cloud-upload-alt mr-2"></i>Tiến trình tải lên</h5>
+            </div>
+            <div class="modal-body text-center p-4">
+                <h5 class="font-weight-bold mb-3 text-truncate" id="uploadFileName">Filename</h5>
+                <div class="progress mb-2" style="height: 25px; border-radius: 15px;">
+                    <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-weight: bold;">0%</div>
+                </div>
+                <p class="text-muted mb-0" id="uploadProgressText">Đang chuẩn bị...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Easter Egg -->
 <div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -1317,15 +1389,20 @@ function renderChart(id, type, labels, data, label, colors) {
 
 
 async function refreshAll() {
-    await loadStudents();
-    updateAttendanceStats();
-    loadExtraData();
-    loadLogs();
-    loadFeedbacks();
-    loadEvaluations();
-    loadSystemSettings(); // Load config (Eval + Troll)
-    loadEvalConfig();
-    setTimeout(renderDashboardStats, 1000);
+    // Tối ưu load dữ liệu song song (Parallel)
+    const p1 = loadStudents();
+    const p2 = updateAttendanceStats();
+    const p3 = loadExtraData();
+    const p4 = loadLogs();
+    const p5 = loadFeedbacks();
+    const p6 = loadEvaluations();
+    const p7 = loadEvalConfig(); // Load config (Eval + Troll + Features)
+    const p8 = loadUploadedFiles();
+
+    await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
+    
+    renderDashboardStats();
+    toastr.success("Dữ liệu đã được cập nhật!");
 }
 
 async function loadStudents() {
@@ -1569,15 +1646,20 @@ async function loadExtraData() {
                 let locationInfo = n.location ? `<br><small class="text-muted">${n.type === 'online' ? 'Link: ' : 'ĐĐ: '}${n.location}</small>` : '';
                 let attachIcon = n.attachment ? `<br><span class="badge badge-warning"><i class="fas fa-paperclip"></i> Có file</span>` : '';
 
+                let targetInfo = (n.target_group && n.target_group !== 'ALL') 
+                    ? `<br><span class="badge badge-info mt-1"><i class="fas fa-users mr-1"></i>Nhóm ${n.target_group}</span>` 
+                    : `<br><span class="badge badge-light border mt-1">Tất cả</span>`;
+
                 nHtml += `<tr>
                     <td class="d-none d-md-table-cell">${n.id}</td>
                     <td class="font-weight-bold">${n.title}</td>
                     <td class="d-none d-md-table-cell"><small>${n.content}</small></td>
                     <td><code>${n.datetime}</code></td>
                     <td class="d-none d-md-table-cell"><span class="badge badge-${n.early === 'TRUE' ? 'success' : 'secondary'}">${n.early}</span></td>
-                    <td class="d-none d-md-table-cell">${typeBadge}${locationInfo}${attachIcon}</td>
+                    <td class="d-none d-md-table-cell">${typeBadge}${locationInfo}${attachIcon}${targetInfo}</td>
                     <td class="d-none d-md-table-cell">${readersHtml}${pollActions}</td>
                     <td>
+                        <button class="btn btn-info btn-action" onclick="editNotification('${n.id}')"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-danger btn-action" onclick="deleteData('notifications', '${n.id}')"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
@@ -1800,7 +1882,7 @@ async function saveEvalConfig() {
 
 // --- SETTINGS & TROLL FUNCTIONS ---
 function openSettingsModal() {
-    $('#modalSettings').modal('show');
+    $('#modalSettings').modal('show'); 
     $('#darkModeSwitch').prop('checked', $('body').hasClass('dark-mode'));
     loadEvalConfig(); // Reload config để lấy dữ liệu mới nhất
 }
@@ -1926,22 +2008,35 @@ async function saveFeatureConfig() {
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 
-async function uploadCoverImage() {
+function uploadCoverImage() {
     const file = document.getElementById('file_cover_image').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file ảnh!");
     
+    // Show Modal
+    $('#uploadFileName').text(file.name);
+    $('#uploadProgressBar').css('width', '0%').text('0%');
+    $('#uploadProgressText').text('Đang đọc file...');
+    $('#modalUploadProgress').modal('show');
+
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    reader.onload = function(e) {
         const base64 = e.target.result;
-        Swal.fire({ title: 'Đang upload ảnh...', didOpen: () => Swal.showLoading() });
-        try {
-            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPLOAD_MUSIC", payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'cover_image' } }) });
-            const res = await response.json();
+        
+        const payload = { 
+            action: "UPLOAD_MUSIC", 
+            payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'cover_image' } 
+        };
+
+        uploadFileWithProgress(payload, (res) => {
+            $('#modalUploadProgress').modal('hide');
             if (res.status === 'success') {
                 $('#conf_cover_image').val(res.url);
                 Swal.fire('Thành công', 'Đã upload ảnh bìa! Nhớ nhấn "Lưu Cấu hình Tính năng".', 'success');
             } else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+        }, (err) => {
+            $('#modalUploadProgress').modal('hide');
+            Swal.fire('Lỗi', err, 'error');
+        });
     };
     reader.readAsDataURL(file);
 }
@@ -1971,12 +2066,6 @@ async function resetPushNotification() {
             } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối khi reset.', 'error'); }
         }
     });
-}
-
-// Alias function để load config chung
-function loadSystemSettings() {
-    // Đã gộp vào loadEvalConfig nhưng giữ hàm này nếu cần mở rộng
-    loadEvalConfig();
 }
 
 function resetEvaluations() {
@@ -2132,15 +2221,30 @@ async function updateAttendanceStats() {
             $('#countAbsentP').text(s.absent_perm);
             $('#countAbsent').text(s.absent);
             globalHistoryData = s.history || [];
-            currentHistoryView = globalHistoryData; // Mặc định hiển thị tất cả
-            renderHistoryTable(currentHistoryView);
+            
+            // Giữ lại bộ lọc nếu đang có
+            if ($('#filter_from').val() || $('#filter_to').val() || $('#filter_status').val() || $('#filter_history_name').val()) {
+                filterHistory(true);
+            } else {
+                currentHistoryView = globalHistoryData;
+                renderHistoryTable(currentHistoryView);
+            }
             renderCharts(s);
         } else {
-            $('#historyAttendanceData').html(getErrorRowHtml(5, res.message || "Lỗi tải dữ liệu từ Server."));
+            if (globalHistoryData.length > 0) {
+                toastr.warning("Lỗi tải mới. Đang hiển thị dữ liệu cũ.");
+                filterHistory(true);
+            } else {
+                $('#historyAttendanceData').html(getErrorRowHtml(5, res.message || "Lỗi tải dữ liệu từ Server."));
+            }
         }
     } catch (e) { 
         toastr.error("Không thể kết nối Server."); 
-        $('#historyAttendanceData').html(getErrorRowHtml(5));
+        if (globalHistoryData.length > 0) {
+            filterHistory(true);
+        } else {
+            $('#historyAttendanceData').html(getErrorRowHtml(5));
+        }
     }
 }
 
@@ -2429,7 +2533,7 @@ function renderHistoryTable(history) {
     $('#historyAttendanceData').html(html || '<tr><td colspan="5" class="text-center">Trống</td></tr>');
 }
 
-function filterHistory() {
+function filterHistory(silent = false) {
     const from = $('#filter_from').val();
     const to = $('#filter_to').val();
     const status = $('#filter_status').val();
@@ -2461,7 +2565,7 @@ function filterHistory() {
         return dateMatch && statusMatch && nameMatch;
     });
     renderHistoryTable(currentHistoryView);
-    toastr.success(`Đã lọc: ${currentHistoryView.length} bản ghi`);
+    if (!silent) toastr.success(`Đã lọc: ${currentHistoryView.length} bản ghi`);
 }
 
 function resetFilter() {
@@ -2488,9 +2592,50 @@ function getNextId(list, prop, prefix = '') {
 }
 
 // OPEN MODAL FUNCTIONS
-function openStudentModal() { $('#modalStudent').modal('show'); $('#student_id_old').val(''); $('#st_id').prop('readonly', false).val(getNextId(globalStudentsData, 'id', '')); $('#st_name, #st_dob, #st_class, #st_address, #st_phone, #st_group, #st_school, #st_reg_time, #st_reg_loc, #st_reg_act').val(''); }
+async function openStudentModal() { 
+    $('#modalStudent').modal('show'); 
+    $('#student_id_old').val(''); 
+    $('#st_id').prop('readonly', false).val(getNextId(globalStudentsData, 'id', '')); 
+    $('#st_name, #st_dob, #st_class, #st_address, #st_phone, #st_group, #st_reg_time, #st_reg_loc, #st_reg_act').val(''); 
+    
+    // New school logic
+    $('#st_school_other').val('');
+    await loadSchoolList();
+    populateSchoolDropdown('st_school_select');
+    $('#st_school_select').val('');
+    toggleOtherSchool('st_school_select', 'st_school_other_div');
+}
 
 const HONOR_TITLES = ["Năng nổ nhất", "Siêng năng nhất", "Chăm chỉ nhất", "Ý tưởng sáng tạo", "Lầy lội nhất", "Văn nghệ tuyệt nhất", "Đoàn kết nhất"];
+
+let schoolList = [];
+async function loadSchoolList() {
+    if (schoolList.length > 0) return;
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_SCHOOL_LIST" }) });
+        const res = await response.json();
+        if (res.status === 'success') schoolList = res.data;
+    } catch(e) { console.error("Failed to load school list", e); }
+}
+
+function populateSchoolDropdown(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select || schoolList.length === 0) return;
+    let html = '<option value="">-- Vui lòng chọn trường --</option>';
+    schoolList.forEach(school => { html += `<option value="${school}">${school}</option>`; });
+    html += '<option value="other">Trường khác...</option>';
+    select.innerHTML = html;
+}
+
+function toggleOtherSchool(selectId, otherDivId) {
+    const otherDiv = document.getElementById(otherDivId);
+    otherDiv.style.display = (document.getElementById(selectId).value === 'other') ? 'block' : 'none';
+}
+
+function getSelectedSchool(selectId, otherInputId) {
+    const select = document.getElementById(selectId);
+    return (select.value === 'other') ? document.getElementById(otherInputId).value.trim() : select.value;
+}
 
 function renderHonorCheckboxes(selected = []) {
     let html = '';
@@ -2516,7 +2661,60 @@ function openNotiModal() {
     $('#n_id').val(getNextId(globalNotisData, 'id', 'NOTI')); 
     $('#n_title, #n_content, #n_datetime, #n_link, #n_location, #n_file, #n_attachment_base64, #n_file_name').val(''); 
     $('#n_type').val('normal');
+    
+    let groupHtml = '<option value="ALL">Tất cả mọi người</option>';
+    if(globalGroupsData) {
+        globalGroupsData.forEach(g => {
+            groupHtml += `<option value="${g.group_id}">Nhóm ${g.group_name} (${g.group_id})</option>`;
+        });
+    }
+    $('#n_target_group').html(groupHtml).val('ALL');
+    
     toggleLocationInput();
+}
+
+function editNotification(id) {
+    const n = globalNotisData.find(x => String(x.id) === String(id));
+    if (!n) return;
+    $('#noti_id_old').val(n.id);
+    $('#n_id').val(n.id).prop('readonly', true);
+    $('#n_title').val(n.title);
+    $('#n_content').val(n.content);
+    $('#n_datetime').val(n.datetime.replace(' ', 'T'));
+    $('#n_early').val(n.early);
+    $('#n_type').val(n.type || 'normal');
+    $('#n_location').val(n.location);
+    $('#n_link').val(n.link);
+    $('#n_file_name').val(n.attachment_name);
+    // Giữ nguyên base64 cũ nếu không chọn file mới (xử lý trong saveData)
+    
+    let groupHtml = '<option value="ALL">Tất cả mọi người</option>';
+    if(globalGroupsData) {
+        globalGroupsData.forEach(g => {
+            groupHtml += `<option value="${g.group_id}">Nhóm ${g.group_name} (${g.group_id})</option>`;
+        });
+    }
+    $('#n_target_group').html(groupHtml);
+    $('#n_target_group').val(n.target_group || 'ALL');
+    
+    toggleLocationInput();
+    $('#modalNoti').modal('show');
+}
+
+function previewNotification() {
+    const title = $('#n_title').val();
+    const content = $('#n_content').val();
+    const target = $('#n_target_group option:selected').text();
+    
+    Swal.fire({
+        title: 'Xem trước hiển thị',
+        html: `<div class="text-left">
+            <h5 class="text-primary font-weight-bold">${title}</h5>
+            <p class="text-muted small">Gửi tới: ${target}</p>
+            <p>${content.replace(/\n/g, '<br>')}</p>
+        </div>`,
+        icon: 'info'
+    });
 }
 
 function toggleLocationInput() {
@@ -2552,7 +2750,7 @@ $('#n_file').change(function() {
 });
 
 // EDIT FUNCTIONS
-function editStudent(studentId) {
+async function editStudent(studentId) {
     const s = globalStudentsData.find(st => String(st.id) === String(studentId));
     if (!s) {
         return toastr.error("Không tìm thấy học sinh để sửa!");
@@ -2565,10 +2763,23 @@ function editStudent(studentId) {
     $('#st_address').val(s.address);
     $('#st_phone').val(s.phone);
     $('#st_group').val(s.group_id);
-    $('#st_school').val(s.school);
     $('#st_reg_time').val(s.reg_time);
     $('#st_reg_loc').val(s.reg_loc);
     $('#st_reg_act').val(s.reg_act);
+
+    // New school logic
+    await loadSchoolList();
+    populateSchoolDropdown('st_school_select');
+    if (schoolList.includes(s.school)) {
+        $('#st_school_select').val(s.school);
+    } else if (s.school) {
+        $('#st_school_select').val('other');
+        $('#st_school_other').val(s.school);
+    } else {
+        $('#st_school_select').val('');
+    }
+    toggleOtherSchool('st_school_select', 'st_school_other_div');
+
     $('#modalStudent').modal('show');
 }
 
@@ -2668,8 +2879,11 @@ async function saveData(type) {
     let action = 'ADD_DATA', idOld = "", dataArr = [];
     if (type === 'students') {
         idOld = $('#student_id_old').val();
+        const schoolName = getSelectedSchool('st_school_select', 'st_school_other');
+        if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
+
         dataArr = [
-            $('#st_id').val(), $('#st_name').val(), $('#st_dob').val(), $('#st_class').val(), $('#st_school').val(), 
+            $('#st_id').val(), $('#st_name').val(), $('#st_dob').val(), $('#st_class').val(), schoolName, 
             $('#st_address').val(), $('#st_phone').val(), $('#st_group').val(), 
             $('#st_reg_time').val(), $('#st_reg_loc').val(), $('#st_reg_act').val()
         ];
@@ -2711,8 +2925,25 @@ async function saveData(type) {
     } else if (type === 'notifications') {
         idOld = $('#noti_id_old').val();
         let dt = $('#n_datetime').val().replace('T', ' '); // Format lại: bỏ chữ T ở giữa
-        // Cấu trúc: ID, Title, Content, DateTime, Early, CreatedAt, Readers(Auto), Type, Location, Attachment, AttachmentName, Link
-        dataArr = [$('#n_id').val(), $('#n_title').val(), $('#n_content').val(), dt, $('#n_early').val(), new Date().toLocaleString(), "", $('#n_type').val(), $('#n_location').val(), $('#n_attachment_base64').val(), $('#n_file_name').val(), $('#n_link').val()];
+        
+        // Giữ lại danh sách người đã xem và file đính kèm nếu đang sửa
+        let readers = "";
+        let attach = $('#n_attachment_base64').val();
+        let attachName = $('#n_file_name').val();
+        
+        if (idOld) {
+            const oldN = globalNotisData.find(x => String(x.id) === String(idOld));
+            if (oldN) {
+                readers = oldN.read_by || "";
+                if (!attach && oldN.attachment) {
+                    attach = oldN.attachment;
+                    attachName = oldN.attachment_name;
+                }
+            }
+        }
+
+        // Cấu trúc: ID, Title, Content, DateTime, Early, CreatedAt, Readers(Auto), Type, Location, Attachment, AttachmentName, Link, TargetGroup
+        dataArr = [$('#n_id').val(), $('#n_title').val(), $('#n_content').val(), dt, $('#n_early').val(), new Date().toLocaleString(), readers, $('#n_type').val(), $('#n_location').val(), attach, attachName, $('#n_link').val(), $('#n_target_group').val()];
     }
 
     if (idOld) action = 'UPDATE_DATA';
@@ -2910,8 +3141,8 @@ function downloadTemplateAdmin() {
     XLSX.writeFile(wb, `Mau_Nhap_Lieu_Admin_Full.xlsx`);
 }
  
-async function uploadFileGeneric(source) {
-    const fileInput = document.getElementById(source === 'admin' ? 'file_upload_generic' : 'file_upload_generic');
+function uploadFileGeneric(source) {
+    const fileInput = document.getElementById('file_upload_generic');
     const file = fileInput.files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
     
@@ -2919,37 +3150,80 @@ async function uploadFileGeneric(source) {
         return toastr.warning(`File quá lớn! Giới hạn: ${globalMaxUploadSize}MB`);
     }
 
+    // Show Modal
+    $('#uploadFileName').text(file.name);
+    $('#uploadProgressBar').css('width', '0%').text('0%');
+    $('#uploadProgressText').text('Đang đọc file...');
+    $('#modalUploadProgress').modal('show');
+
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    
+    reader.onprogress = function(e) {
+        if (e.lengthComputable) {
+            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang đọc dữ liệu...');
+        }
+    };
+
+    reader.onload = function(e) {
         const base64 = e.target.result;
         const user = JSON.parse(sessionStorage.getItem('user'));
         
-        Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
-        try {
-            const response = await fetch(API_URL, { 
-                method: "POST", 
-                redirect: "follow",
-                body: JSON.stringify({ 
-                    action: "UPLOAD_FILE", 
-                    payload: { 
-                        uploader: user.username, 
-                        group_id: 'ADMIN', 
-                        filename: file.name, 
-                        size: (file.size / 1024 / 1024).toFixed(2) + ' MB', 
-                        data: base64,
-                        type: 'FILE'
-                    } 
-                }) 
-            });
-            const res = await response.json();
+        const payload = { 
+            action: "UPLOAD_FILE", 
+            payload: { 
+                uploader: user.username, 
+                group_id: 'ADMIN', 
+                filename: file.name, 
+                size: (file.size / 1024 / 1024).toFixed(2) + ' MB', 
+                data: base64,
+                type: 'FILE'
+            } 
+        };
+
+        uploadFileWithProgress(payload, (res) => {
+            $('#modalUploadProgress').modal('hide');
             if (res.status === 'success') {
                 Swal.fire('Thành công', 'File đã được tải lên!', 'success');
                 fileInput.value = '';
                 loadUploadedFiles();
             } else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+        }, (err) => {
+            $('#modalUploadProgress').modal('hide');
+            Swal.fire('Lỗi', err, 'error');
+        });
     };
     reader.readAsDataURL(file);
+}
+
+function uploadFileWithProgress(payload, onSuccess, onError) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_URL, true);
+    
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang tải lên server...');
+        }
+    };
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const res = JSON.parse(xhr.responseText);
+                onSuccess(res);
+            } catch (e) { onError("Lỗi phản hồi JSON"); }
+        } else { onError("Lỗi HTTP: " + xhr.status); }
+    };
+    
+    xhr.onerror = function() { onError("Lỗi kết nối mạng"); };
+    xhr.send(JSON.stringify(payload));
+}
+
+function updateUploadModal(percent, loaded, total, statusText) {
+    const p = Math.round(percent);
+    $('#uploadProgressBar').css('width', p + '%').text(p + '%');
+    const loadedMB = (loaded / 1024 / 1024).toFixed(2);
+    const totalMB = (total / 1024 / 1024).toFixed(2);
+    $('#uploadProgressText').html(`${statusText}<br><b>${loadedMB} MB</b> / <b>${totalMB} MB</b>`);
 }
 
 async function loadUploadedFiles() {
@@ -2978,13 +3252,6 @@ async function loadUploadedFiles() {
         }
     } catch (e) { console.error(e); }
 }
-
-// Add loadUploadedFiles to refreshAll
-const originalRefreshAll = refreshAll;
-refreshAll = async function() {
-    await originalRefreshAll();
-    loadUploadedFiles();
-};
 
 function processImportAdminTab() {
     const file = document.getElementById('file_import').files[0];

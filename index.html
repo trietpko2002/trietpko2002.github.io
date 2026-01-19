@@ -175,6 +175,39 @@
             background-color: #000 !important;
             color: #fff !important;
         }
+
+        /* Modern Rounded UI Overrides */
+        .card { border-radius: 20px; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.05); background: linear-gradient(135deg, #ffffff 0%, #f4f6f9 100%); }
+        .card-header { border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .btn { border-radius: 50px; }
+        .form-control { border-radius: 15px; }
+        .modal-content { border-radius: 25px; border: none; }
+        .nav-pills .nav-link { border-radius: 50px; }
+        .nav-sidebar .nav-link { border-radius: 10px; }
+        .custom-select { border-radius: 15px; }
+        .info-box { border-radius: 20px; }
+
+        /* Dark Mode Card Gradient */
+        body.dark-mode .card { background: linear-gradient(135deg, #343a40, #2b3035); color: #fff; }
+        
+        /* Table Row Hover Effect */
+        .table-hover tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .table-hover tbody tr:hover {
+            transform: scale(1.005);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+            background-color: #fff !important;
+        }
+        body.dark-mode .table-hover tbody tr:hover {
+            background-color: #3f474e !important;
+        }
+
+        /* Music Visualizer */
+        .music-visualizer { display: flex; justify-content: center; align-items: flex-end; height: 60px; gap: 6px; margin: 20px 0; }
+        .music-bar { width: 8px; background: linear-gradient(to top, #007bff, #00d2ff); border-radius: 5px; animation: bounce 1s infinite ease-in-out; opacity: 0.8; }
+        @keyframes bounce { 0%, 100% { height: 10%; } 50% { height: 100%; } }
+        .music-bar:nth-child(odd) { animation-duration: 0.8s; } .music-bar:nth-child(even) { animation-duration: 1.1s; } .music-bar:nth-child(3n) { animation-duration: 1.3s; } .music-bar:nth-child(4n) { animation-duration: 0.9s; } .music-bar:nth-child(5n) { animation-duration: 1.2s; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
@@ -632,7 +665,16 @@
                 <div class="form-group"><label>Lớp</label><input type="text" id="st_class" class="form-control"></div>
                 <div class="form-group"><label>Địa chỉ</label><input type="text" id="st_address" class="form-control"></div>
                 <div class="form-group"><label>Số điện thoại học sinh</label><input type="text" id="st_phone" class="form-control"></div>
-                <div class="form-group"><label>Trường học</label><input type="text" id="st_school" class="form-control"></div>
+                <div class="form-group">
+                    <label>Trường học</label>
+                    <select id="st_school_select" class="form-control" onchange="toggleOtherSchool('st_school_select', 'st_school_other_div')">
+                        <!-- Options loaded by JS -->
+                    </select>
+                </div>
+                <div class="form-group" id="st_school_other_div" style="display:none;">
+                    <label>Tên trường khác</label>
+                    <input type="text" id="st_school_other" class="form-control" placeholder="Nhập tên trường...">
+                </div>
                 <div class="form-group bg-light p-2 border rounded">
                     <label class="text-primary"><i class="fas fa-exchange-alt mr-1"></i>Chuyển Nhóm (Nếu cần)</label>
                     <select id="st_group_select" class="form-control">
@@ -870,6 +912,24 @@
     </div>
 </div>
 
+<!-- Modal Upload Progress -->
+<div class="modal fade" id="modalUploadProgress" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-cloud-upload-alt mr-2"></i>Tiến trình tải lên</h5>
+            </div>
+            <div class="modal-body text-center p-4">
+                <h5 class="font-weight-bold mb-3 text-truncate" id="uploadFileName">Filename</h5>
+                <div class="progress mb-2" style="height: 25px; border-radius: 15px;">
+                    <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-weight: bold;">0%</div>
+                </div>
+                <p class="text-muted mb-0" id="uploadProgressText">Đang chuẩn bị...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Jack J97 Audio -->
 <audio id="jackAudio">
     <!-- Placeholder link for Dom Dom - Jack J97. Replace with actual file if available -->
@@ -906,6 +966,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 let globalGroupStudents = [];
 let globalNotifications = [];
+let schoolList = [];
 let globalFundLogs = [];
 let globalMaxUploadSize = 200; // Default 200MB
 let globalDriveLink = "";
@@ -921,6 +982,39 @@ function getErrorRowHtml(colspan, message = "Không thể tải dữ liệu.") {
 }
 const loadingSpinner = `<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Đang tải dữ liệu...</p></div>`;
 const errorAlert = (message = "Không thể tải dữ liệu.") => `<div class="text-center p-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x"></i><p class="mt-2">${message}</p></div>`;
+
+async function loadSchoolList() {
+    if (schoolList.length > 0) return;
+    try {
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_SCHOOL_LIST" }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            schoolList = res.data;
+        }
+    } catch(e) { console.error("Failed to load school list", e); }
+}
+
+function populateSchoolDropdown(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select || schoolList.length === 0) return;
+    
+    let html = '<option value="">-- Vui lòng chọn trường --</option>';
+    schoolList.forEach(school => {
+        html += `<option value="${school}">${school}</option>`;
+    });
+    html += '<option value="other">Trường khác...</option>';
+    select.innerHTML = html;
+}
+
+function toggleOtherSchool(selectId, otherDivId) {
+    const otherDiv = document.getElementById(otherDivId);
+    otherDiv.style.display = (document.getElementById(selectId).value === 'other') ? 'block' : 'none';
+}
+
+function getSelectedSchool(selectId, otherInputId) {
+    const select = document.getElementById(selectId);
+    return (select.value === 'other') ? document.getElementById(otherInputId).value.trim() : select.value;
+}
 
 
 // Hàm hỗ trợ định dạng ngày tháng dd/mm/yyyy
@@ -993,12 +1087,15 @@ document.addEventListener("DOMContentLoaded", function() {
     } catch(e) {}
 
     fetchStudentsByGroup(user.group_id);
-    loadGlobalConfig(); // Tải cấu hình hệ thống (Bảo trì, Marquee...)
-    loadNotifications();
-    loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
-    loadResources(); // Tải tài nguyên
-    loadFeedbackHistory();
-    checkUrgentNotification(); // Kiểm tra thông báo khẩn
+    
+    // Delay background tasks to prioritize attendance loading
+    setTimeout(() => {
+        loadGlobalConfig(); // Tải cấu hình hệ thống (Bảo trì, Marquee...)
+        loadNotifications();
+        loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
+        loadResources(); // Tải tài nguyên
+        loadFeedbackHistory();
+    }, 800);
     
     // Role specific UI
     if (user.role === 'supervisor') {
@@ -1197,7 +1294,7 @@ async function loadGlobalConfig() {
 
             // Check Manual
             if (String(conf.maintenance_mode).toUpperCase() === 'TRUE') {
-                showMaintenanceOverlay(null, null, 'music/bao_tri.mp3');
+                showMaintenanceOverlay(null, null, 'https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/bao_tri.mp3');
                 return;
             } 
             // Check Schedule
@@ -1207,7 +1304,7 @@ async function loadGlobalConfig() {
             }
 
             if (isMaintenance) {
-                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null, 'music/bao_tri.mp3');
+                showMaintenanceOverlay(showTimer ? start : null, showTimer ? end : null, 'https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/bao_tri.mp3');
                 return;
             }
 
@@ -1276,6 +1373,7 @@ async function loadGlobalConfig() {
                     $(`#${tabId}`).html('<div class="text-center p-5 text-muted"><i class="fas fa-tools fa-3x mb-3 text-warning"></i><h4>Tính năng đang bảo trì</h4><p>Vui lòng quay lại sau.</p></div>');
                 }
             }
+            checkUrgentNotification(conf);
         }
     } catch(e) {}
 }
@@ -1296,10 +1394,17 @@ function showMaintenanceOverlay(startTime, endTime, musicUrl) {
             </div>`;
     }
     
+    let visualizerHtml = '';
     let audioHtml = '';
     if (musicUrl) {
+        visualizerHtml = `<div class="music-visualizer">
+            <div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div>
+            <div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div>
+            <div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div>
+        </div>`;
+        
         audioHtml = `<audio autoplay loop id="maint-audio"><source src="${musicUrl}" type="audio/mpeg"></audio>
-        <button class="btn btn-sm btn-outline-light mt-3" onclick="document.getElementById('maint-audio').paused ? document.getElementById('maint-audio').play() : document.getElementById('maint-audio').pause()"><i class="fas fa-music mr-2"></i>Bật/Tắt Nhạc</button>`;
+        <button class="btn btn-sm btn-outline-light mt-3 rounded-pill px-4" onclick="const a=document.getElementById('maint-audio'); if(a.paused){a.play(); $('.music-visualizer').css('opacity','1');}else{a.pause(); $('.music-visualizer').css('opacity','0.2');}"><i class="fas fa-music mr-2"></i>Bật/Tắt Nhạc</button>`;
     }
 
     overlay.innerHTML = `
@@ -1307,6 +1412,7 @@ function showMaintenanceOverlay(startTime, endTime, musicUrl) {
         <h1 class="font-weight-bold">HỆ THỐNG ĐANG BẢO TRÌ</h1>
         <p class="lead">Chúng tôi đang nâng cấp hệ thống để phục vụ tốt hơn.</p>
         ${timeHtml}
+        ${visualizerHtml}
         ${audioHtml}
         <button class="btn btn-outline-light mt-4 font-weight-bold" onclick="logout()"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</button>
     `;
@@ -1470,12 +1576,14 @@ async function loadGroupsForSelect() {
     } catch (e) { console.error(e); }
 }
 
-async function fetchStudentsByGroup(groupId) {
+async function fetchStudentsByGroup(groupId, retry = 0) {
     const attContainer = document.getElementById('attendanceList');
     const tableBody = document.getElementById('groupStudentList');
     
-    attContainer.innerHTML = loadingSpinner;
-    tableBody.innerHTML = getLoadingRowHtml(7);
+    if (retry === 0) {
+        attContainer.innerHTML = loadingSpinner;
+        tableBody.innerHTML = getLoadingRowHtml(7);
+    }
 
     try {
         const response = await fetch(API_URL, {
@@ -1545,9 +1653,17 @@ async function fetchStudentsByGroup(groupId) {
             loadEvaluationUI(); // Tải đánh giá sau khi đã có danh sách học sinh
         }
     } catch (error) {
-        toastr.error("Lỗi kết nối máy chủ.");
-        attContainer.innerHTML = errorAlert();
-        tableBody.innerHTML = getErrorRowHtml(7);
+        if (retry < 2) {
+            console.warn("Retrying fetchStudentsByGroup...", retry);
+            setTimeout(() => fetchStudentsByGroup(groupId, retry + 1), 1500);
+        } else {
+            toastr.error("Lỗi kết nối máy chủ.");
+            attContainer.innerHTML = errorAlert(`
+                <div>Không thể tải dữ liệu.</div>
+                <button class="btn btn-primary mt-2" onclick="fetchStudentsByGroup('${groupId}')"><i class="fas fa-sync"></i> Thử lại</button>
+            `);
+            tableBody.innerHTML = getErrorRowHtml(7, `Lỗi kết nối. <a href="javascript:void(0)" onclick="fetchStudentsByGroup('${groupId}')">Thử lại</a>`);
+        }
     }
 }
 
@@ -1831,13 +1947,16 @@ async function saveStudent() {
     const selectedGroup = $('#st_group_select').val();
     
     if (!selectedGroup) return toastr.warning("Vui lòng chọn nhóm!");
+
+    const schoolName = getSelectedSchool('st_school_select', 'st_school_other');
+    if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
     
     const dataArr = [
         $('#st_id').val(), 
         $('#st_name').val(), 
         $('#st_dob').val(), 
         $('#st_class').val(),
-        $('#st_school').val(),
+        schoolName,
         $('#st_address').val(), 
         $('#st_phone').val(), 
         selectedGroup, 
@@ -2111,13 +2230,16 @@ async function loadEvaluationUI() {
 }
 
 // --- TROLL PUSH LOGIC ---
-async function checkUrgentNotification() {
+async function checkUrgentNotification(configData = null) {
     try {
-        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_CONFIG" }) });
-        const res = await response.json();
-        if (res.status === "success") {
-            const conf = res.data;
-            if (String(conf.troll_enabled).toUpperCase() === 'TRUE') {
+        let conf = configData;
+        if (!conf) {
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_CONFIG" }) });
+            const res = await response.json();
+            if (res.status === "success") conf = res.data;
+        }
+
+        if (conf && String(conf.troll_enabled).toUpperCase() === 'TRUE') {
                 // Check Mode: Phone Notification vs Popup
                 if (String(conf.troll_mode).toUpperCase() === 'TRUE') {
                     $('#pn-title').text(conf.troll_title || 'Thông báo');
@@ -2174,7 +2296,6 @@ async function checkUrgentNotification() {
                     confirmButtonText: 'Đã hiểu',
                     allowOutsideClick: false
                 });
-            }
         }
     } catch (e) { console.error("Urgent notification check error", e); }
 }
@@ -2411,7 +2532,7 @@ function downloadTemplateIndex() {
     XLSX.writeFile(wb, `Mau_DS_Nhom_${user.group_id}.xlsx`);
 }
 
-async function uploadFileIndex() {
+function uploadFileIndex() {
     const fileInput = document.getElementById('file_upload_index');
     const file = fileInput.files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
@@ -2429,26 +2550,65 @@ async function uploadFileIndex() {
         return toastr.error(msg);
     }
 
+    // Show Modal
+    $('#uploadFileName').text(file.name);
+    $('#uploadProgressBar').css('width', '0%').text('0%');
+    $('#uploadProgressText').text('Đang đọc file...');
+    $('#modalUploadProgress').modal('show');
+
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    
+    reader.onprogress = function(e) {
+        if (e.lengthComputable) {
+            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang đọc dữ liệu...');
+        }
+    };
+
+    reader.onload = function(e) {
         const base64 = e.target.result;
         
-        Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
-        try {
-            const response = await fetch(API_URL, { 
-                method: "POST", 
-                redirect: "follow",
-                body: JSON.stringify({ 
-                    action: "UPLOAD_FILE", 
-                    payload: { uploader: user.username, group_id: user.group_id, filename: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', data: base64, type: 'FILE' } 
-                }) 
-            });
-            const res = await response.json();
+        const payload = { 
+            action: "UPLOAD_FILE", 
+            payload: { uploader: user.username, group_id: user.group_id, filename: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', data: base64, type: 'FILE' } 
+        };
+
+        uploadFileWithProgress(payload, (res) => {
+            $('#modalUploadProgress').modal('hide');
             if (res.status === 'success') { Swal.fire('Thành công', 'File đã được tải lên!', 'success'); fileInput.value = ''; }
             else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+        }, (err) => {
+            $('#modalUploadProgress').modal('hide');
+            Swal.fire('Lỗi', err, 'error');
+        });
     };
     reader.readAsDataURL(file);
+}
+
+function uploadFileWithProgress(payload, onSuccess, onError) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_URL, true);
+    
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang tải lên server...');
+        }
+    };
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try { onSuccess(JSON.parse(xhr.responseText)); } catch (e) { onError("Lỗi phản hồi JSON"); }
+        } else { onError("Lỗi HTTP: " + xhr.status); }
+    };
+    xhr.onerror = function() { onError("Lỗi kết nối mạng"); };
+    xhr.send(JSON.stringify(payload));
+}
+
+function updateUploadModal(percent, loaded, total, statusText) {
+    const p = Math.round(percent);
+    $('#uploadProgressBar').css('width', p + '%').text(p + '%');
+    const loadedMB = (loaded / 1024 / 1024).toFixed(2);
+    const totalMB = (total / 1024 / 1024).toFixed(2);
+    $('#uploadProgressText').html(`${statusText}<br><b>${loadedMB} MB</b> / <b>${totalMB} MB</b>`);
 }
 
 async function submitDriveLink() {

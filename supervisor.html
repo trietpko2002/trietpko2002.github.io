@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
+        .small-box { border-radius: 20px; overflow: hidden; transition: transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .small-box:hover { transform: translateY(-5px); }
         .text-dob { color: #007bff; font-weight: bold; }
         .badge-group { font-size: 0.85rem; padding: 4px 8px; }
@@ -25,7 +25,7 @@
         .navbar-primary { background-color: #6f42c1 !important; }
         .brand-link.bg-primary { background-color: #6f42c1 !important; }
         .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #6f42c1; color: #fff; }
-        .btn-primary { background-color: #6f42c1; border-color: #59359a; }
+        .btn-primary { background-color: #6f42c1; border-color: #59359a; border-radius: 50px; }
         .btn-primary:hover { background-color: #59359a; border-color: #4c2f7a; }
         
         body.dark-mode .modal-content { background-color: #343a40; color: #fff; }
@@ -39,6 +39,33 @@
         /* Cat Paw Cursor Default */
         body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
         a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
+
+        /* Modern Rounded UI Overrides */
+        .card { border-radius: 20px; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.05); background: linear-gradient(135deg, #ffffff 0%, #f4f6f9 100%); }
+        .card-header { border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .btn { border-radius: 50px; }
+        .form-control { border-radius: 15px; }
+        .modal-content { border-radius: 25px; border: none; }
+        .nav-pills .nav-link { border-radius: 50px; }
+        .nav-sidebar .nav-link { border-radius: 10px; }
+        .custom-select { border-radius: 15px; }
+        .info-box { border-radius: 20px; }
+
+        /* Dark Mode Card Gradient */
+        body.dark-mode .card { background: linear-gradient(135deg, #343a40, #2b3035); color: #fff; }
+        
+        /* Table Row Hover Effect */
+        .table-hover tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .table-hover tbody tr:hover {
+            transform: scale(1.005);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+            background-color: #fff !important;
+        }
+        body.dark-mode .table-hover tbody tr:hover {
+            background-color: #3f474e !important;
+        }
     </style>
 </head>
 
@@ -120,16 +147,26 @@
                             <i class="nav-icon fas fa-question-circle"></i> <p>Hướng dẫn sử dụng</p>
                         </a>
                     </li>
-                    <li class="nav-header">XUẤT BÁO CÁO</li>
                     <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
-                            <i class="nav-icon fas fa-file-excel"></i> <p>Xuất Lịch Sử (.xlsx)</p>
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-file-export"></i>
+                            <p>
+                                Xuất Báo Cáo
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
-                            <i class="nav-icon fas fa-file-download"></i> <p>Xuất DS Học Sinh (.xlsx)</p>
-                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
+                                    <i class="nav-icon fas fa-file-excel"></i> <p>Lịch Sử (.xlsx)</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
+                                    <i class="nav-icon fas fa-file-download"></i> <p>DS Học Sinh (.xlsx)</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </nav>
@@ -538,6 +575,24 @@
     </div>
 </div>
 
+<!-- Modal Upload Progress -->
+<div class="modal fade" id="modalUploadProgress" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-cloud-upload-alt mr-2"></i>Tiến trình tải lên</h5>
+            </div>
+            <div class="modal-body text-center p-4">
+                <h5 class="font-weight-bold mb-3 text-truncate" id="uploadFileName">Filename</h5>
+                <div class="progress mb-2" style="height: 25px; border-radius: 15px;">
+                    <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%; font-weight: bold;">0%</div>
+                </div>
+                <p class="text-muted mb-0" id="uploadProgressText">Đang chuẩn bị...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Easter Egg -->
 <div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -789,31 +844,71 @@ async function loadUploadedFiles() {
     } catch (e) { console.error(e); }
 }
 
-async function uploadFileGeneric() {
+function uploadFileGeneric() {
     const fileInput = document.getElementById('file_upload_generic');
     const file = fileInput.files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
     
+    // Show Modal
+    $('#uploadFileName').text(file.name);
+    $('#uploadProgressBar').css('width', '0%').text('0%');
+    $('#uploadProgressText').text('Đang đọc file...');
+    $('#modalUploadProgress').modal('show');
+
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    
+    reader.onprogress = function(e) {
+        if (e.lengthComputable) {
+            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang đọc dữ liệu...');
+        }
+    };
+
+    reader.onload = function(e) {
         const base64 = e.target.result;
         const user = JSON.parse(sessionStorage.getItem('user'));
-        Swal.fire({ title: 'Đang tải lên...', didOpen: () => Swal.showLoading() });
-        try {
-            const response = await fetch(API_URL, { 
-                method: "POST", 
-                redirect: "follow",
-                body: JSON.stringify({ 
-                    action: "UPLOAD_FILE", 
-                    payload: { uploader: user.username, group_id: 'ADMIN', filename: file.name, size: (file.size/1024/1024).toFixed(2)+' MB', data: base64, type: 'FILE' } 
-                }) 
-            });
-            const res = await response.json();
+        
+        const payload = { 
+            action: "UPLOAD_FILE", 
+            payload: { uploader: user.username, group_id: 'ADMIN', filename: file.name, size: (file.size/1024/1024).toFixed(2)+' MB', data: base64, type: 'FILE' } 
+        };
+
+        uploadFileWithProgress(payload, (res) => {
+            $('#modalUploadProgress').modal('hide');
             if (res.status === 'success') { Swal.fire('Thành công', 'File đã được tải lên!', 'success'); fileInput.value = ''; loadUploadedFiles(); }
             else Swal.fire('Lỗi', res.message, 'error');
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+        }, (err) => {
+            $('#modalUploadProgress').modal('hide');
+            Swal.fire('Lỗi', err, 'error');
+        });
     };
     reader.readAsDataURL(file);
+}
+
+function uploadFileWithProgress(payload, onSuccess, onError) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_URL, true);
+    
+    xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang tải lên server...');
+        }
+    };
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try { onSuccess(JSON.parse(xhr.responseText)); } catch (e) { onError("Lỗi phản hồi JSON"); }
+        } else { onError("Lỗi HTTP: " + xhr.status); }
+    };
+    xhr.onerror = function() { onError("Lỗi kết nối mạng"); };
+    xhr.send(JSON.stringify(payload));
+}
+
+function updateUploadModal(percent, loaded, total, statusText) {
+    const p = Math.round(percent);
+    $('#uploadProgressBar').css('width', p + '%').text(p + '%');
+    const loadedMB = (loaded / 1024 / 1024).toFixed(2);
+    const totalMB = (total / 1024 / 1024).toFixed(2);
+    $('#uploadProgressText').html(`${statusText}<br><b>${loadedMB} MB</b> / <b>${totalMB} MB</b>`);
 }
 
 async function loadFeedbacks() {

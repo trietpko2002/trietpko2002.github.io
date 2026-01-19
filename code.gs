@@ -6,6 +6,27 @@
 const SPREADSHEET_ID = "1ebzd0DRukRVtInH7srEqOBeX7NntSkbHsqFcHlEe7hU";
 const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
+const SCHOOL_LIST = [
+  "THPT Chuyên Lê Quý Đôn",
+  "THPT Nguyễn Trãi",
+  "THPT Chu Văn An",
+  "THPT Tháp Chàm",
+  "THPT Dân tộc Nội trú Ninh Thuận",
+  "Trường THCS - THPT Trần Hưng Đạo",
+  "Trường iSchool Ninh Thuận",
+  "Trường Liên cấp Hoa Sen",
+  "THCS Trần Phú",
+  "THCS Lý Tự Trọng",
+  "THCS Võ Thị Sáu",
+  "THCS Lê Hồng Phong",
+  "THCS Nguyễn Văn Trỗi",
+  "TH&THCS Trần Thi",
+  "TH&THCS Lê Đình Chinh",
+  "TH&THCS Võ Nguyên Giáp",
+  "THPT Ninh Hải",
+  "THCS Lê Văn Tám"
+];
+
 function doPost(e) {
   try {
     const request = JSON.parse(e.postData.contents);
@@ -17,6 +38,7 @@ function doPost(e) {
     if (action === 'GET_USERS') return handleGetAdminData(); 
     if (action === 'GET_STUDENTS_BY_GROUP') return handleGetStudentsByGroup(payload);
     if (action === 'GET_GROUPS_PUBLIC') return handleGetGroupsPublic();
+    if (action === 'GET_SCHOOL_LIST') return getSchoolList();
     
     // --- REGISTRATION FLOW ---
     if (action === 'REGISTER_TEMP') return handleRegisterTemp(payload);
@@ -73,6 +95,10 @@ function doPost(e) {
   } catch (err) {
     return response({ status: 'error', message: 'Lỗi server: ' + err.toString() });
   }
+}
+
+function getSchoolList() {
+  return response({ status: 'success', data: SCHOOL_LIST });
 }
 
 // ============================================================

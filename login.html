@@ -11,11 +11,59 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     /* Youth Union Theme */
-    .login-page { background: #e3f2fd; }
-    .card-primary.card-outline { border-top: 3px solid #1e88e5; }
-    .btn-primary { background-color: #1e88e5; border-color: #1976d2; }
-    .btn-primary:hover { background-color: #1565c0; border-color: #0d47a1; }
-    .login-logo b { color: #1e88e5; }
+    body {
+        background: linear-gradient(-45deg, #004e92, #000428, #004e92, #2b5876);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Source Sans Pro', sans-serif;
+        overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .login-box {
+        width: 400px;
+        max-width: 90%;
+        position: relative;
+        z-index: 10;
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        padding: 30px;
+        color: white;
+    }
+
+    .form-control { background: rgba(255, 255, 255, 0.2) !important; border: 1px solid rgba(255, 255, 255, 0.1); color: white !important; }
+    .form-control::placeholder { color: rgba(255,255,255,0.7); }
+    .input-group-text { background: rgba(255, 255, 255, 0.2) !important; border: 1px solid rgba(255, 255, 255, 0.1); color: white !important; }
+    
+    .btn-primary { background-color: rgba(30, 136, 229, 0.8); border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; }
+    .btn-primary:hover { background-color: rgba(21, 101, 192, 0.9); box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4); }
+
+    .action-links a {
+        color: #ffeb3b;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    .action-links a:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
 
     /* Welcome Screen Animation */
     #welcome-screen {
@@ -48,26 +96,25 @@
     }
     #welcome-screen p {
       font-size: 1.2rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
       animation: fadeInUp 1s ease-out 0.3s;
       animation-fill-mode: backwards;
     }
-    #start-btn {
-      font-size: 1.1rem;
-      padding: 12px 40px;
-      border-radius: 50px;
-      background-color: #fff;
-      color: #1e88e5;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      animation: zoomIn 1s ease-out 0.6s;
-      animation-fill-mode: backwards;
+    .welcome-loading-box {
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.2);
+        padding: 10px 25px;
+        border-radius: 50px;
+        margin-top: 20px;
+        animation: fadeInUp 1s ease-out 0.6s backwards;
     }
-    #start-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    .welcome-spinner { width: 1.5rem; height: 1.5rem; border-width: 0.2em; margin-right: 15px; }
+    .welcome-text { font-weight: bold; font-size: 1.1rem; }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeInDown {
@@ -83,35 +130,62 @@
       to { opacity: 1; transform: scale(1); }
     }
 
-    /* Login Progress Styles */
-    .login-progress-container { display: none; margin-top: 15px; }
-    .progress { height: 6px; border-radius: 3px; background-color: #e9ecef; overflow: hidden; }
-    .progress-bar { background-color: #1e88e5; transition: width 0.4s ease; }
-    
-    .status-text-container {
-        height: 25px;
-        overflow: hidden;
-        position: relative;
-        margin-bottom: 5px;
+    /* Login Loading Styles */
+    .login-loading-container {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        background: rgba(255,255,255,0.1);
+        padding: 10px;
+        border-radius: 10px;
     }
-    .status-msg {
+
+    /* Rain Effect */
+    .rain {
         position: absolute;
         width: 100%;
-        text-align: center;
-        font-size: 0.9rem;
-        color: #1e88e5;
-        font-weight: bold;
-        animation: slideUpIn 0.5s forwards;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 1;
     }
-    .status-msg.out { animation: slideUpOut 0.5s forwards; }
-    
-    @keyframes slideUpIn {
-        0% { transform: translateY(20px); opacity: 0; }
-        100% { transform: translateY(0); opacity: 1; }
+    .rain-drop {
+        position: absolute;
+        width: 1px;
+        height: 15px;
+        background: rgba(255, 255, 255, 0.4);
+        top: -20px;
+        animation: rainFall 0.7s linear infinite;
     }
-    @keyframes slideUpOut {
-        0% { transform: translateY(0); opacity: 1; }
-        100% { transform: translateY(-20px); opacity: 0; }
+    @keyframes rainFall {
+        to { transform: translateY(100vh); }
+    }
+
+    /* Toggle Rain Button */
+    .toggle-rain-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        cursor: pointer;
+    }
+    .toggle-rain-btn:hover {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.4);
     }
 
     /* Cat Paw Cursor Default */
@@ -124,70 +198,73 @@
 <div id="welcome-screen">
   <h1>Chào mừng bạn!</h1>
   <p>Đến với Hệ thống Quản lý Sinh hoạt hè</p>
-  <button id="start-btn">
-    <i class="fas fa-rocket mr-2"></i> BẮT ĐẦU
-  </button>
+  <div class="welcome-loading-box">
+      <div class="spinner-border text-white welcome-spinner" role="status"></div>
+      <span class="welcome-text" id="welcome-status">Đang khởi động...</span>
+  </div>
 </div>
 
-<div class="login-box">
-  <div class="card card-outline card-primary shadow-lg">
-    <div class="card-header text-center">
-      <h2 class="mb-0"><b>Đăng nhập</b><br> Hệ thống sinh hoạt hè <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-1" style="font-size: 1rem;"><i class="fas fa-info-circle"></i></a></h2>
-    </div>
-    <div class="card-body text-center">
-      <p class="login-box-msg">Vui lòng đăng nhập vào hệ thống!</p>
+<!-- Rain Container -->
+<div id="rain" class="rain"></div>
 
-      <form id="loginForm">
+<button id="toggleRainBtn" class="toggle-rain-btn" onclick="toggleRain()" title="Bật/Tắt hiệu ứng mưa">
+    <i class="fas fa-cloud-rain"></i>
+</button>
+
+<div class="login-box">
+  <div class="card-glass">
+    <div class="text-center mb-4">
+      <h2 class="font-weight-bold">ĐĂNG NHẬP</h2>
+      <p class="small">Hệ thống quản lý sinh hoạt hè <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-1"><i class="fas fa-info-circle"></i></a></p>
+    </div>
+
+    <form id="loginForm">
         <div class="input-group mb-3">
-          <input type="text" id="username" class="form-control" placeholder="Tên đăng nhập" required>
-          <div class="input-group-append">
-            <div class="input-group-text"><span class="fas fa-user"></span></div>
-          </div>
+            <input type="text" id="username" class="form-control rounded-pill" placeholder="Tên đăng nhập" required style="padding-left: 20px;">
+            <div class="input-group-append">
+                <div class="input-group-text border-0 bg-transparent"><span class="fas fa-user text-white"></span></div>
+            </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" id="password" class="form-control" placeholder="Mật khẩu" required>
-          <div class="input-group-append">
-            <div class="input-group-text"><span class="fas fa-lock"></span></div>
-          </div>
+            <input type="password" id="password" class="form-control rounded-pill" placeholder="Mật khẩu" required style="padding-left: 20px;">
+            <div class="input-group-append">
+                <div class="input-group-text border-0 bg-transparent"><span class="fas fa-lock text-white"></span></div>
+            </div>
         </div>
         
         <!-- Simple Captcha -->
         <div class="form-group mb-3">
-            <div class="d-flex align-items-center mb-2">
-                <span id="captcha_code_login" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_login')"><i class="fas fa-sync"></i></button>
+            <div class="d-flex align-items-center mb-2 justify-content-center">
+                <span id="captcha_code_login" class="bg-white text-dark border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
+                <button type="button" class="btn btn-sm btn-light" onclick="generateCaptcha('captcha_code_login')"><i class="fas fa-sync"></i></button>
             </div>
-            <input type="text" id="captcha_input_login" class="form-control" placeholder="Nhập mã xác nhận trên" required>
+            <input type="text" id="captcha_input_login" class="form-control rounded-pill text-center" placeholder="Nhập mã xác nhận trên" required>
         </div>
 
-        <div class="login-progress-container" id="loginProgress">
-            <div class="status-text-container" id="statusText"></div>
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-            </div>
+        <div class="login-loading-container" id="loginLoading">
+            <div class="spinner-border text-white" role="status"></div>
+            <span class="loading-text text-white" id="loadingText">Đang kết nối...</span>
         </div>
 
-        <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
+        <button type="submit" id="submitBtn" class="btn btn-primary btn-block shadow-sm mt-3">
             <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY
         </button>
 
-        <button type="button" class="btn btn-outline-info btn-block btn-sm mt-2" onclick="syncData()">
+        <button type="button" class="btn btn-outline-light btn-block btn-sm mt-3 rounded-pill" onclick="syncData()">
             <i class="fas fa-sync mr-1"></i> Đồng bộ dữ liệu 
         </button>
-      </form>
+    </form>
+
+    <div class="text-center mt-4 action-links">
+        <p class="mb-1 small">Chưa có thông tin học sinh?</p>
+        <a href="javascript:void(0)" onclick="openRegisterModal()"><i class="fas fa-user-plus mr-1"></i> Đăng ký ngay</a>
+        <span class="mx-2">|</span>
+        <a href="javascript:void(0)" onclick="openUpdateInfoModal()"><i class="fas fa-edit mr-1"></i> Cập nhật</a>
     </div>
-    <div class="card-footer bg-white text-center pt-3">
-        <p class="mb-1 text-muted">Chưa có thông tin sinh hoạt hè học sinh?</p>
-        <button type="button" class="btn btn-success btn-block font-weight-bold shadow-sm" onclick="openRegisterModal()">
-            <i class="fas fa-user-plus mr-2"></i> ĐĂNG KÝ THÔNG TIN
-        </button>
-        <button type="button" class="btn btn-warning btn-block font-weight-bold shadow-sm mt-2" onclick="openUpdateInfoModal()">
-            <i class="fas fa-edit mr-2"></i> ĐỔI THÔNG TIN
-        </button>
+    
+    <div class="text-center mt-4 small" style="opacity: 0.7;">
+        <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong>
     </div>
-  </div>
-  <div class="text-center mt-3 text-muted small">
-      <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong>
   </div>
 </div>
 
@@ -205,8 +282,17 @@
                 </div>
                 <div class="form-group"><label>Họ và Tên học sinh <span class="text-danger">*</span></label><input type="text" id="reg_name" class="form-control" placeholder="Nguyễn Văn A"></div>
                 <div class="form-group"><label>Ngày sinh</label><input type="date" id="reg_dob" class="form-control"></div>
-                <div class="form-group"><label>Lớp hiện tại</label><input type="text" id="reg_class" class="form-control" placeholder="VD: 9A1"></div>
-                <div class="form-group"><label>Trường học</label><input type="text" id="reg_school" class="form-control" placeholder="THCS..."></div>
+                <div class="form-group"><label>Lớp hiện tại</label><input type="text" id="reg_class" class="form-control" placeholder="VD: 9A1"></div>                
+                <div class="form-group">
+                    <label>Trường học</label>
+                    <select id="reg_school_select" class="form-control" onchange="toggleOtherSchool('reg_school_select', 'reg_school_other_div')">
+                        <option value="">-- Vui lòng chọn trường --</option>
+                    </select>
+                </div>
+                <div class="form-group" id="reg_school_other_div" style="display:none;">
+                    <label>Tên trường khác</label>
+                    <input type="text" id="reg_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
+                </div>
                 <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
                 <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
                 
@@ -259,8 +345,17 @@
                     </div>
                     <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control"></div>
                     <div class="form-group"><label>Ngày sinh</label><input type="date" id="conf_dob" class="form-control"></div>
-                    <div class="form-group"><label>Lớp</label><input type="text" id="conf_class" class="form-control"></div>
-                    <div class="form-group"><label>Trường</label><input type="text" id="conf_school" class="form-control"></div>
+                    <div class="form-group"><label>Lớp</label><input type="text" id="conf_class" class="form-control"></div>                    
+                    <div class="form-group">
+                        <label>Trường</label>
+                        <select id="conf_school_select" class="form-control" onchange="toggleOtherSchool('conf_school_select', 'conf_school_other_div')">
+                            <option value="">-- Vui lòng chọn trường --</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="conf_school_other_div" style="display:none;">
+                        <label>Tên trường khác</label>
+                        <input type="text" id="conf_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
+                    </div>
                     <div class="form-group"><label>Địa chỉ</label><input type="text" id="conf_address" class="form-control"></div>
                     <div class="form-group"><label>SĐT</label><input type="text" id="conf_phone" class="form-control"></div>
                     <div class="form-group"><label>Thời gian</label><input type="text" id="conf_time" class="form-control"></div>
@@ -311,16 +406,79 @@
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 
+    let schoolList = [];
     let tempUser = "";
 
     window.onload = () => { 
         sessionStorage.clear(); 
-        // Add event listener for the welcome screen button
-        document.getElementById('start-btn').addEventListener('click', () => {
-            document.getElementById('welcome-screen').classList.add('hidden');
-            generateCaptcha('captcha_code_login');
-        });
+        
+        // Auto Loading Sequence (5 trạng thái)
+        const states = [
+            "Đang kết nối máy chủ...",
+            "Đang kiểm tra phiên bản...",
+            "Đang tải tài nguyên...",
+            "Đang thiết lập bảo mật...",
+            "Hoàn tất! Đang vào hệ thống..."
+        ];
+        
+        let step = 0;
+        const statusEl = document.getElementById('welcome-status');
+        
+        const interval = setInterval(() => {
+            if (step < states.length) {
+                statusEl.innerText = states[step];
+                step++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.getElementById('welcome-screen').classList.add('hidden');
+                    generateCaptcha('captcha_code_login');
+                }, 500);
+            }
+        }, 800); // 800ms mỗi trạng thái
+        
+        // Check rain preference
+        const rainPref = localStorage.getItem('rainEffect');
+        if (rainPref === 'false') {
+            document.getElementById('rain').style.display = 'none';
+            document.querySelector('#toggleRainBtn i').className = 'fas fa-sun';
+        }
+        createRain();
     };
+
+    async function loadSchoolList() {
+        if (schoolList.length > 0) return;
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_SCHOOL_LIST" }) });
+            const res = await response.json();
+            if (res.status === 'success') {
+                schoolList = res.data;
+            }
+        } catch(e) { console.error("Failed to load school list", e); }
+    }
+
+    function populateSchoolDropdown(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select || schoolList.length === 0) return;
+        
+        let html = '<option value="">-- Vui lòng chọn trường --</option>';
+        schoolList.forEach(school => {
+            html += `<option value="${school}">${school}</option>`;
+        });
+        html += '<option value="other">Trường khác...</option>';
+        select.innerHTML = html;
+    }
+
+    function toggleOtherSchool(selectId, otherDivId) {
+        const select = document.getElementById(selectId);
+        const otherDiv = document.getElementById(otherDivId);
+        otherDiv.style.display = (select.value === 'other') ? 'block' : 'none';
+    }
+
+    function getSelectedSchool(selectId, otherInputId) {
+        const select = document.getElementById(selectId);
+        return (select.value === 'other') ? document.getElementById(otherInputId).value.trim() : select.value;
+    }
 
     function generateCaptcha(elementId) {
         const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -346,7 +504,7 @@
         const pass = $('#password').val().trim();
         const captchaInput = $('#captcha_input_login').val().trim();
         const captchaCode = $('#captcha_code_login').text().trim();
-        const progressBox = $('#loginProgress');
+        const loadingBox = $('#loginLoading');
         
         if (captchaInput.toUpperCase() !== captchaCode) {
             toastr.error("Mã xác nhận không đúng!");
@@ -355,13 +513,13 @@
         
         // UI Reset
         btn.style.display = 'none';
-        progressBox.show();
-        updateStatus("Đang kết nối máy chủ...", 10);
+        loadingBox.css('display', 'flex');
+        updateStatus("Đang kết nối máy chủ...");
 
         try {
             // Giả lập delay nhẹ để hiệu ứng mượt hơn
             await new Promise(r => setTimeout(r, 500));
-            updateStatus("Đang xác thực thông tin...", 50);
+            updateStatus("Đang xác thực thông tin...");
 
             const payload = { username: user, password: pass }; // Removed token
 
@@ -376,7 +534,7 @@
             const res = await response.json();
 
             if (res.status === "success") {
-                updateStatus("Đăng nhập thành công! Đang đăng nhập vào...", 100);
+                updateStatus("Đăng nhập thành công! Đang vào...");
                 handleLoginSuccess(res.user);
             } else {
                 toastr.error(res.message);
@@ -388,27 +546,15 @@
         }
     });
 
-    function updateStatus(text, percent) {
-        $('.progress-bar').css('width', percent + '%');
-        
-        const container = $('#statusText');
-        const oldMsg = container.find('.status-msg');
-        if(oldMsg.length) {
-            oldMsg.addClass('out');
-            setTimeout(() => oldMsg.remove(), 450);
-        }
-        
-        const newMsg = $(`<div class="status-msg">${text}</div>`);
-        container.append(newMsg);
+    function updateStatus(text) {
+        $('#loadingText').text(text);
     }
 
     function resetLoginForm() {
         setTimeout(() => {
-            $('#loginProgress').hide();
+            $('#loginLoading').hide();
             generateCaptcha('captcha_code_login');
             $('#captcha_input_login').val('');
-            $('.progress-bar').css('width', '0%');
-            $('#statusText').empty();
             const btn = document.getElementById('submitBtn');
             btn.style.display = 'block';
             btn.disabled = false;
@@ -429,14 +575,21 @@
     // --- LOGIC ĐĂNG KÝ ---
     async function openRegisterModal() {
         $('#modalRegister').modal('show');
-        $('#reg_name, #reg_dob, #reg_class, #reg_school, #reg_address, #reg_phone, #reg_time, #reg_loc, #reg_act, #captcha_input_reg').val('');
+        $('#reg_name, #reg_dob, #reg_class, #reg_address, #reg_phone, #reg_time, #reg_loc, #reg_act, #captcha_input_reg, #reg_school_other').val('');
         generateCaptcha('captcha_code_reg');
+        await loadSchoolList();
+        populateSchoolDropdown('reg_school_select');
+        $('#reg_school_select').val('');
+        toggleOtherSchool('reg_school_select', 'reg_school_other_div');
     }
 
     async function submitRegister() {
         const name = $('#reg_name').val().trim();
         if (!name) return toastr.warning("Vui lòng nhập họ tên!");
         
+        const schoolName = getSelectedSchool('reg_school_select', 'reg_school_other');
+        if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
+
         const captchaInput = $('#captcha_input_reg').val().trim();
         const captchaCode = $('#captcha_code_reg').text().trim();
         if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
@@ -445,7 +598,7 @@
             fullname: name,
             dob: $('#reg_dob').val(),
             class_name: $('#reg_class').val(),
-            school: $('#reg_school').val(),
+            school: schoolName,
             address: $('#reg_address').val(),
             phone: $('#reg_phone').val(),
             reg_time: $('#reg_time').val(),
@@ -495,17 +648,26 @@
                 const d = res.data;
                 $('#conf_temp_id').val(d.id);
                 $('#conf_name').val(d.fullname);
-                $('#conf_dob').val(d.dob ? new Date(d.dob).toISOString().split('T')[0] : '');
+                $('#conf_dob').val(d.dob ? new Date(d.dob).toISOString().split('T')[0] : ''); // Format YYYY-MM-DD for input
                 $('#conf_class').val(d.class_name);
-                $('#conf_school').val(d.school);
                 $('#conf_address').val(d.address);
                 $('#conf_phone').val(d.phone);
                 $('#conf_time').val(d.reg_time);
                 $('#conf_loc').val(d.reg_loc);
                 $('#conf_act').val(d.reg_act);
                 
-                // Load groups
-                loadGroupsForConfirm();
+                // Load groups and schools
+                await Promise.all([loadGroupsForConfirm(), loadSchoolList()]);
+                populateSchoolDropdown('conf_school_select');
+
+                // Set school value
+                if (schoolList.includes(d.school)) {
+                    $('#conf_school_select').val(d.school);
+                } else if (d.school) {
+                    $('#conf_school_select').val('other');
+                    $('#conf_school_other').val(d.school);
+                }
+                toggleOtherSchool('conf_school_select', 'conf_school_other_div');
                 
                 $('#update_step1').hide();
                 $('#update_step2').show();
@@ -529,6 +691,9 @@
         const group = $('#conf_group').val();
         if(!group) return toastr.warning("Vui lòng chọn Nhóm sinh hoạt!");
         
+        const schoolName = getSelectedSchool('conf_school_select', 'conf_school_other');
+        if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
+
         const captchaInput = $('#captcha_input_update').val().trim();
         const captchaCode = $('#captcha_code_update').text().trim();
         if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
@@ -537,9 +702,9 @@
             temp_id: $('#conf_temp_id').val(),
             group_id: group,
             fullname: $('#conf_name').val(),
-            dob: $('#conf_dob').val(),
+            dob: $('#conf_dob').val(), // Already in YYYY-MM-DD
             class_name: $('#conf_class').val(),
-            school: $('#conf_school').val(),
+            school: schoolName,
             address: $('#conf_address').val(),
             phone: $('#conf_phone').val(),
             reg_time: $('#conf_time').val(),
@@ -571,6 +736,33 @@
     function stopEasterEgg() {
         $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
         clearInterval(fireworksInterval); confetti.reset();
+    }
+
+    function createRain() {
+        const rainContainer = document.getElementById('rain');
+        for (let i = 0; i < 80; i++) {
+            const drop = document.createElement('div');
+            drop.classList.add('rain-drop');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.animationDuration = Math.random() * 0.5 + 0.5 + 's';
+            drop.style.animationDelay = Math.random() * 2 + 's';
+            rainContainer.appendChild(drop);
+        }
+    }
+
+    function toggleRain() {
+        const rainContainer = document.getElementById('rain');
+        const btnIcon = document.querySelector('#toggleRainBtn i');
+        
+        if (rainContainer.style.display === 'none') {
+            rainContainer.style.display = 'block';
+            btnIcon.className = 'fas fa-cloud-rain';
+            localStorage.setItem('rainEffect', 'true');
+        } else {
+            rainContainer.style.display = 'none';
+            btnIcon.className = 'fas fa-sun';
+            localStorage.setItem('rainEffect', 'false');
+        }
     }
 </script>
 </body>
