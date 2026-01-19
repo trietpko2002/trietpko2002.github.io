@@ -202,6 +202,23 @@
         body.dark-mode .table-hover tbody tr:hover {
             background-color: #3f474e !important;
         }
+        
+        /* Matrix Theme */
+        body.theme-matrix #matrix-canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
+        body.theme-matrix .content-wrapper { background: rgba(0, 0, 0, 0.85) !important; position: relative; z-index: 1; }
+        body.theme-matrix .main-header, body.theme-matrix .main-sidebar, body.theme-matrix .main-footer { background-color: #000 !important; border-color: #0f0 !important; }
+        body.theme-matrix .card { background: rgba(0, 20, 0, 0.8) !important; border: 1px solid #0f0 !important; box-shadow: 0 0 5px #0f0; }
+        body.theme-matrix, body.theme-matrix .nav-link, body.theme-matrix .card-title { color: #0f0 !important; }
+        body.theme-matrix .btn-primary { background: #000; border: 1px solid #0f0; color: #0f0; }
+        body.theme-matrix .btn-primary:hover { background: #0f0; color: #000; }
+        
+        /* Neon Theme */
+        body.theme-neon .content-wrapper { background: #050505 !important; }
+        body.theme-neon .main-header { background: #111 !important; border-bottom: 2px solid #ff00de !important; }
+        body.theme-neon .main-sidebar { background: #0a0a0a !important; border-right: 1px solid #00ffff !important; }
+        body.theme-neon .card { background: #111 !important; border: 1px solid transparent; box-shadow: 0 0 10px #ff00de, inset 0 0 5px #00ffff; }
+        body.theme-neon .btn-primary { background: linear-gradient(45deg, #ff00de, #00ffff); border: none; color: #fff; font-weight: bold; }
+        body.theme-neon .nav-pills .nav-link.active { background: #ff00de; box-shadow: 0 0 10px #ff00de; }
 
         /* Music Visualizer */
         .music-visualizer { display: flex; justify-content: center; align-items: flex-end; height: 60px; gap: 6px; margin: 20px 0; }
@@ -235,6 +252,7 @@
 
 <div class="wrapper">
     <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
+    <canvas id="matrix-canvas" style="display:none;"></canvas>
     <div id="phone-notification">
         <img id="pn-img" src="" style="display:none;">
         <div class="content">
@@ -896,6 +914,8 @@
                     <select id="user_effect" class="form-control" onchange="previewUserEffect()">
                         <option value="">-- Mặc định (Theo Admin) --</option>
                         <option value="jack97">Đom đóm + Chân mèo (Jack J97)</option>
+                        <option value="matrix">Hacker Matrix (Xanh lá)</option>
+                        <option value="neon">Neon Cyberpunk (Hồng & Xanh)</option>
                     </select>
                     <small class="text-muted mt-2 d-block" id="effect_desc"></small>
                 </div>
@@ -1171,6 +1191,8 @@ function previewUserEffect() {
     const effect = $('#user_effect').val();
     const desc = $('#effect_desc');
     if (effect === 'jack97') desc.text('Chế độ Fan Jack: Nhạc Đom Đóm + Chân mèo + Dark Mode.');
+    else if (effect === 'matrix') desc.text('Giao diện Hacker với mưa code xanh lá.');
+    else if (effect === 'neon') desc.text('Giao diện đèn Neon rực rỡ.');
     else desc.text('');
 }
 
@@ -1204,9 +1226,14 @@ function applyUserSettings(settings) {
     $('.weather-overlay').remove();
     $('.firefly').remove();
     $('.star').remove();
-    $('body').removeClass('jack-mode');
+    $('body').removeClass('jack-mode theme-matrix theme-neon');
+    $('#matrix-canvas').hide();
+    
     const audio = document.getElementById('jackAudio');
     if(audio) { audio.pause(); audio.currentTime = 0; }
+    
+    // Stop Matrix Interval if exists
+    if (window.matrixInterval) clearInterval(window.matrixInterval);
 
     const effect = settings.effect;
     if (!effect) return; // Use default (Admin config will take over in loadGlobalConfig if no user effect)
@@ -2585,22 +2612,29 @@ function uploadFileIndex() {
 }
 
 function uploadFileWithProgress(payload, onSuccess, onError) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', API_URL, true);
-    
-    xhr.upload.onprogress = function(e) {
-        if (e.lengthComputable) {
-            updateUploadModal((e.loaded / e.total) * 100, e.loaded, e.total, 'Đang tải lên server...');
-        }
-    };
-    
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            try { onSuccess(JSON.parse(xhr.responseText)); } catch (e) { onError("Lỗi phản hồi JSON"); }
-        } else { onError("Lỗi HTTP: " + xhr.status); }
-    };
-    xhr.onerror = function() { onError("Lỗi kết nối mạng"); };
-    xhr.send(JSON.stringify(payload));
+    // Sử dụng fetch thay vì XMLHttpRequest để tránh lỗi Network Error/CORS với Google Apps Script
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        if (progress > 90) progress = 90;
+        updateUploadModal(progress, 0, 0, 'Đang tải lên server...');
+    }, 500);
+
+    fetch(API_URL, {
+        method: "POST",
+        redirect: "follow",
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(res => {
+        clearInterval(interval);
+        updateUploadModal(100, 0, 0, 'Hoàn tất!');
+        onSuccess(res);
+    })
+    .catch(err => {
+        clearInterval(interval);
+        onError("Lỗi kết nối mạng hoặc file quá lớn.");
+    });
 }
 
 function updateUploadModal(percent, loaded, total, statusText) {

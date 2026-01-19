@@ -12,7 +12,7 @@
   <style>
     /* Youth Union Theme */
     body {
-        background: linear-gradient(-45deg, #004e92, #000428, #004e92, #2b5876);
+        background: linear-gradient(-45deg, #0052D4, #4364F7, #6FB1FC);
         background-size: 400% 400%;
         animation: gradientBG 15s ease infinite;
         height: 100vh;
@@ -22,6 +22,276 @@
         font-family: 'Source Sans Pro', sans-serif;
         overflow: hidden;
     }
+
+    /* Galaxy Theme */
+    body.theme-galaxy {
+        background: #000 url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2011&auto=format&fit=crop') no-repeat center center fixed;
+        background-size: cover;
+        overflow: hidden;
+    }
+
+    /* Sunny Theme */
+    body.theme-sunny {
+        background: linear-gradient(to top, #2980b9, #6dd5fa, #ffffff);
+    }
+    .sun {
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, #ffd200 20%, #f7971e 100%);
+        border-radius: 50%;
+        box-shadow: 0 0 40px #ff9800, 0 0 80px #ff5722;
+        animation: sunShine 4s infinite alternate;
+        z-index: 1;
+        display: none;
+    }
+    @keyframes sunShine { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+
+    /* Snow Theme */
+    body.theme-snow {
+        background: linear-gradient(to bottom, #203a43, #2c5364);
+    }
+    .snow-container {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none;
+    }
+    .snowflake {
+        position: absolute; top: -20px; color: #fff; font-size: 1.5em; opacity: 0.8; animation: fall linear infinite;
+    }
+    @keyframes fall { to { transform: translateY(105vh); } }
+
+    /* Matrix Theme */
+    body.theme-matrix {
+        background: #000;
+        animation: none;
+    }
+    #matrix-container {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: none;
+    }
+    #matrix-canvas { display: block; }
+    body.theme-matrix .card-glass {
+        background: rgba(0, 20, 0, 0.7);
+        border: 2px solid #0f0;
+        box-shadow: 0 0 20px #0f0, inset 0 0 10px rgba(0, 255, 0, 0.5);
+        animation: none; /* Override neon animation */
+    }
+    body.theme-matrix .form-control,
+    body.theme-matrix .input-group-text {
+        background: rgba(0, 255, 0, 0.1) !important;
+        border-color: rgba(0, 255, 0, 0.4) !important;
+        color: #0f0 !important;
+    }
+    body.theme-matrix .form-control::placeholder { color: rgba(0, 255, 0, 0.5); }
+    body.theme-matrix .btn-primary { background-color: #0f0; color: #000; }
+    body.theme-matrix .btn-primary:hover { background-color: #fff; box-shadow: 0 0 15px #0f0; }
+    body.theme-matrix .action-links a { color: #0f0; }
+
+    /* Neon Theme */
+    body.theme-neon {
+        background: #000;
+        animation: none;
+    }
+    body.theme-neon .card-glass {
+        background-color: rgba(0, 0, 0, 0.85);
+        border: 3px solid transparent;
+        border-radius: 20px;
+        background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 30px rgba(255, 0, 200, 0.6);
+        animation: neonRotate 2s linear infinite;
+    }
+    @keyframes neonRotate {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+    }
+    
+    /* Tet Nguyen Dan Theme */
+    body.theme-tet { background: linear-gradient(to bottom, #ff0000, #ffcc00); }
+    .flower-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
+    .flower { position: absolute; top: -10%; color: #ffeb3b; font-size: 20px; animation: fall-flower linear infinite; }
+    @keyframes fall-flower { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+
+    /* Mid-Autumn (Trung Thu) */
+    body.theme-midautumn { background: radial-gradient(circle at 50% 20%, #1a2a6c, #b21f1f, #fdbb2d); }
+    .moon { position: absolute; top: 50px; right: 50px; width: 100px; height: 100px; background: #ffeb3b; border-radius: 50%; box-shadow: 0 0 50px #ffeb3b; z-index: 1; }
+    .lantern { position: absolute; font-size: 40px; color: #ff5722; animation: float-lantern 5s ease-in-out infinite alternate; }
+    @keyframes float-lantern { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+
+    /* Noel Theme */
+    body.theme-noel { background: linear-gradient(to bottom, #165b33, #bb2528); }
+    /* Re-use snow container */
+
+    /* UIA Meme Theme */
+    body.theme-uia { 
+        background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff0000); 
+        background-size: 400% 400%; 
+        animation: uia-party 0.5s infinite; 
+    }
+    @keyframes uia-party { 
+        0% { background-position: 0% 50%; filter: hue-rotate(0deg); } 
+        50% { background-position: 100% 50%; } 
+        100% { background-position: 0% 50%; filter: hue-rotate(360deg); } 
+    }
+    .uia-img { position: absolute; width: 150px; animation: uia-spin 2s linear infinite; z-index: 2; }
+    @keyframes uia-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Summer Theme */
+    body.theme-summer { background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%); }
+    .summer-sun { position: absolute; top: 10%; right: 10%; width: 100px; height: 100px; background: #ffeb3b; border-radius: 50%; box-shadow: 0 0 50px #f39c12; animation: sun-pulse 2s infinite alternate; }
+    @keyframes sun-pulse { from { transform: scale(1); box-shadow: 0 0 50px #f39c12; } to { transform: scale(1.1); box-shadow: 0 0 80px #f39c12; } }
+    .cloud { position: absolute; color: rgba(255,255,255,0.8); font-size: 50px; animation: cloud-move linear infinite; }
+    @keyframes cloud-move { from { left: -100px; } to { left: 100vw; } }
+
+    /* Retro 80s Theme */
+    body.theme-retro80s {
+        background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff0000);
+        background-size: 400% 400%;
+        animation: retro-bg 8s ease infinite;
+    }
+    @keyframes retro-bg {
+        0% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; filter: hue-rotate(360deg); }
+    }
+    body.theme-retro80s .card-glass {
+        background: rgba(0, 0, 0, 0.7);
+        border: 3px solid transparent;
+        border-radius: 20px;
+        background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        animation: neonRotate 2s linear infinite;
+    }
+
+    /* Cat Paw Click Effect */
+    .cat-paw-click {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background-image: url('https://static.vecteezy.com/system/resources/previews/027/209/347/non_2x/cute-cat-paw-all-white-free-png.png');
+        background-size: cover;
+        pointer-events: none;
+        z-index: 9999;
+        animation: paw-fade 0.8s ease-out forwards;
+    }
+    @keyframes paw-fade { 0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.2) rotate(20deg); opacity: 0; } }
+
+    /* Halloween Theme */
+    body.theme-halloween { background: linear-gradient(to bottom, #2e003e 0%, #000000 100%); overflow: hidden; }
+    .pumpkin { position: absolute; font-size: 3rem; animation: pumpkin-bounce 3s ease-in-out infinite; bottom: -10px; z-index: 5; filter: drop-shadow(0 0 10px #ff6600); }
+    @keyframes pumpkin-bounce { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+    .bat { position: absolute; font-size: 2rem; animation: bat-fly 15s linear infinite; z-index: 6; color: #000; text-shadow: 0 0 5px #fff; }
+    @keyframes bat-fly { 
+        0% { transform: translateX(-10vw) translateY(10vh) scale(0.5); } 
+        50% { transform: translateX(50vw) translateY(40vh) scale(1); }
+        100% { transform: translateX(110vw) translateY(10vh) scale(0.5); } 
+    }
+
+    /* Cyberpunk Theme */
+    body.theme-cyberpunk {
+        background: radial-gradient(circle at center, #1a0b2e 0%, #000000 100%);
+        overflow: hidden;
+    }
+    body.theme-cyberpunk::before {
+        content: "";
+        position: absolute;
+        width: 200%; height: 200%;
+        top: -50%; left: -50%;
+        background: repeating-linear-gradient(transparent 0, transparent 40px, rgba(255, 0, 255, 0.3) 40px, rgba(255, 0, 255, 0.3) 41px),
+                    repeating-linear-gradient(90deg, transparent 0, transparent 40px, rgba(0, 255, 255, 0.3) 40px, rgba(0, 255, 255, 0.3) 41px);
+        transform: perspective(500px) rotateX(60deg);
+        animation: cyber-grid 5s linear infinite;
+        z-index: 0;
+        pointer-events: none;
+    }
+    @keyframes cyber-grid { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(41px); } }
+    body.theme-cyberpunk .card-glass { background: rgba(10, 10, 20, 0.85); border: 1px solid #00ffff; box-shadow: 0 0 15px #ff00ff, inset 0 0 10px #00ffff; z-index: 1; }
+    body.theme-cyberpunk .btn-primary { background: transparent; border: 2px solid #ff00ff; color: #ff00ff; text-shadow: 0 0 5px #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+    body.theme-cyberpunk .btn-primary:hover { background: #ff00ff; color: #000; box-shadow: 0 0 20px #ff00ff; }
+
+    /* Custom Theme */
+    #custom-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; }
+    #custom-bg-container img, #custom-bg-container video { width: 100%; height: 100%; object-fit: cover; }
+    .static-star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
+
+    /* Jack J97 Theme */
+    body.theme-jack97 {
+        background: #000 url('https://wallpaperaccess.com/full/6286375.jpg') no-repeat center center fixed;
+        background-size: cover;
+    }
+    .firefly {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background-color: #ffff00;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
+        animation: fly 10s infinite alternate;
+        pointer-events: none;
+        z-index: 5;
+    }
+    @keyframes fly { 
+        0% { transform: translate(0, 0); opacity: 0; } 
+        10% { opacity: 1; } 
+        90% { opacity: 1; } 
+        100% { transform: translate(100vw, -50vh); opacity: 0; } 
+    }
+
+    /* Click Firework Particle */
+    .click-firework-particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        box-shadow: 0 0 10px currentColor;
+    }
+
+    /* Click Text Effect */
+    .click-text-effect {
+        position: absolute;
+        color: #ffd700;
+        font-weight: bold;
+        font-size: 24px;
+        pointer-events: none;
+        z-index: 9999;
+        text-shadow: 0 0 10px #ff0000;
+        white-space: nowrap;
+        transform: translate(-50%, -50%);
+    }
+
+    /* Theme Modal Grid */
+    .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .theme-btn { 
+        border: none; border-radius: 10px; padding: 15px; color: white; font-weight: bold; 
+        cursor: pointer; transition: transform 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100px;
+    }
+    .theme-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .theme-btn i { font-size: 24px; margin-bottom: 5px; }
+    
+    /* Theme Button Colors */
+    .btn-ocean { background: linear-gradient(to right, #0052D4, #4364F7); }
+    .btn-galaxy { background: linear-gradient(to right, #1b2735, #090a0f); }
+    .btn-sunny { background: linear-gradient(to right, #2980b9, #f7971e); }
+    .btn-snow { background: linear-gradient(to right, #203a43, #2c5364); }
+    .btn-neon { background: #000; border: 2px solid #ff00de; color: #ff00de; }
+    .btn-matrix { background: #000; border: 2px solid #0f0; color: #0f0; }
+    .btn-tet { background: linear-gradient(to right, #ff0000, #ffcc00); }
+    .btn-midautumn { background: linear-gradient(to right, #1a2a6c, #b21f1f); }
+    .btn-noel { background: linear-gradient(to right, #165b33, #bb2528); }
+    .btn-uia { background: linear-gradient(45deg, #ff00ff, #00ffff); animation: uia-party 2s infinite; }
+    .btn-summer { background: linear-gradient(to right, #4facfe, #00f2fe); }
+    .btn-jack97 { background: #000; border: 2px solid #ffd700; color: #ffd700; }
+    .btn-halloween { background: linear-gradient(to right, #ff6600, #4a00e0); }
+    .btn-custom { background: #333; border: 1px dashed #fff; }
+    .btn-cyberpunk { background: linear-gradient(45deg, #2b002b, #000); border: 1px solid #00ffff; color: #00ffff; }
+    .btn-retro80s { background: linear-gradient(45deg, #ff00ff, #00ffff); color: white; }
 
     @keyframes gradientBG {
         0% { background-position: 0% 50%; }
@@ -37,7 +307,7 @@
     }
 
     .card-glass {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(0, 0, 0, 0.45);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border-radius: 20px;
@@ -163,6 +433,33 @@
         to { transform: translateY(100vh); }
     }
 
+    /* Shooting Star Effect */
+    .star-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+        pointer-events: none;
+        display: none;
+    }
+    .star {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 2px;
+        background: linear-gradient(-45deg, #fff, rgba(0, 0, 255, 0));
+        filter: drop-shadow(0 0 6px #fff);
+        animation: tail 3000ms ease-in-out infinite, shooting 3000ms ease-in-out infinite;
+    }
+    @keyframes tail { 0% { width: 0; } 30% { width: 100px; } 100% { width: 0; } }
+    @keyframes shooting {
+        0% { transform: translateX(0) translateY(0) rotateZ(45deg); }
+        100% { transform: translateX(300px) translateY(300px) rotateZ(45deg); }
+    }
+
     /* Toggle Rain Button */
     .toggle-rain-btn {
         position: fixed;
@@ -206,8 +503,23 @@
 
 <!-- Rain Container -->
 <div id="rain" class="rain"></div>
+<div id="stars" class="star-container"></div>
+<div id="snow" class="snow-container"></div>
+<div id="sun" class="sun"></div>
+<div id="matrix-container" style="display:none;"><canvas id="matrix-canvas"></canvas></div>
+<div id="flowers" class="flower-container"></div>
+<div id="midautumn" style="display:none;"><div class="moon"></div></div>
+<div id="uia-container" style="display:none;"></div>
+<div id="summer-container" style="display:none;"></div>
+<div id="jack97-container" style="display:none;"></div>
+<div id="halloween-container" style="display:none;"></div>
+<div id="custom-bg-container"></div>
+<input type="file" id="customFileInput" hidden accept="image/*,video/*">
 
-<button id="toggleRainBtn" class="toggle-rain-btn" onclick="toggleRain()" title="Bật/Tắt hiệu ứng mưa">
+<button id="resetEffectBtn" class="toggle-rain-btn" style="bottom: 80px; background: rgba(220, 53, 69, 0.3);" onclick="resetEffect()" title="Tắt hiệu ứng">
+    <i class="fas fa-power-off"></i>
+</button>
+<button id="toggleRainBtn" class="toggle-rain-btn" onclick="$('#modalThemeSelection').modal('show')" title="Đổi giao diện">
     <i class="fas fa-cloud-rain"></i>
 </button>
 
@@ -380,6 +692,43 @@
     </div>
 </div>
 
+<!-- Modal Theme Selection -->
+<div class="modal fade" id="modalThemeSelection" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-0">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-palette mr-2"></i>Chọn Giao Diện</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="theme-grid">
+                    <button class="theme-btn btn-ocean" onclick="selectTheme(0)"><i class="fas fa-water"></i>Mặc định</button>
+                    <button class="theme-btn btn-galaxy" onclick="selectTheme(1)"><i class="fas fa-star"></i>Galaxy</button>
+                    <button class="theme-btn btn-sunny" onclick="selectTheme(2)"><i class="fas fa-sun"></i>Nắng</button>
+                    <button class="theme-btn btn-snow" onclick="selectTheme(3)"><i class="fas fa-snowflake"></i>Tuyết</button>
+                    <button class="theme-btn btn-neon" onclick="selectTheme(4)"><i class="fas fa-bolt"></i>Neon</button>
+                    <button class="theme-btn btn-matrix" onclick="selectTheme(5)"><i class="fas fa-terminal"></i>Hacker</button>
+                    
+                    <button class="theme-btn btn-tet" onclick="selectTheme(6)"><i class="fas fa-fan"></i>Tết Nguyên Đán</button>
+                    <button class="theme-btn btn-midautumn" onclick="selectTheme(9)"><i class="fas fa-moon"></i>Trung Thu</button>
+                    <button class="theme-btn btn-noel" onclick="selectTheme(10)"><i class="fas fa-sleigh"></i>Noel</button>
+                    
+                    <button class="theme-btn btn-uia" onclick="selectTheme(12)"><i class="fas fa-music"></i>Meme UIA</button>
+                    
+                    <button class="theme-btn btn-summer" onclick="selectTheme(13)"><i class="fas fa-umbrella-beach"></i>Mùa Hè</button>
+                    
+                    <button class="theme-btn btn-jack97" onclick="selectTheme(16)"><i class="fas fa-fire"></i>Jack J97</button>
+                    
+                    <button class="theme-btn btn-halloween" onclick="selectTheme(17)"><i class="fas fa-ghost"></i>Halloween</button>
+                    <button class="theme-btn btn-cyberpunk" onclick="selectTheme(19)"><i class="fas fa-vr-cardboard"></i>Cyberpunk</button>
+                    <button class="theme-btn btn-retro80s" onclick="selectTheme(20)"><i class="fas fa-record-vinyl"></i>Retro 80s</button>
+                    <button class="theme-btn btn-custom" onclick="triggerCustomUpload()"><i class="fas fa-upload"></i>Custom (50MB)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Easter Egg -->
 <div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -397,6 +746,26 @@
     </div>
 </div>
 <audio id="eggAudio" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+<audio id="switchSfx" preload="auto">
+    <source src="https://cdn.freesound.org/previews/273/273122_5121236-lq.mp3" type="audio/mpeg">
+</audio>
+<audio id="fireworkSfx" preload="auto">
+    <source src="https://www.soundjay.com/misc/sounds/fireworks-01.mp3" type="audio/mpeg">
+</audio>
+<audio id="angrybirdSfx" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/angry-birds-red-bird-flying.mp3" type="audio/mpeg">
+</audio>
+<audio id="meowSfx" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/cat-meow-short.mp3" type="audio/mpeg">
+</audio>
+<audio id="halloweenSfx" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/spooky-scary-skeletons-song-hq.mp3" type="audio/mpeg">
+</audio>
+<!-- Theme Audios -->
+<audio id="audio-tet" loop><source src="https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/tet_music.mp3" type="audio/mpeg"></audio>
+<audio id="audio-nyan" loop><source src="https://www.myinstants.com/media/sounds/nyan-cat.mp3" type="audio/mpeg"></audio>
+<audio id="audio-uia" loop><source src="music/uia.mp3" type="audio/mpeg"></audio>
+<audio id="audio-jack" loop><source src="music/jack_j97_dom_dom.mp3" type="audio/mpeg"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
@@ -437,13 +806,8 @@
             }
         }, 800); // 800ms mỗi trạng thái
         
-        // Check rain preference
-        const rainPref = localStorage.getItem('rainEffect');
-        if (rainPref === 'false') {
-            document.getElementById('rain').style.display = 'none';
-            document.querySelector('#toggleRainBtn i').className = 'fas fa-sun';
-        }
-        createRain();
+        const effectState = parseInt(localStorage.getItem('bgEffect') || '0');
+        applyEffect(effectState);
     };
 
     async function loadSchoolList() {
@@ -750,20 +1114,391 @@
         }
     }
 
-    function toggleRain() {
-        const rainContainer = document.getElementById('rain');
-        const btnIcon = document.querySelector('#toggleRainBtn i');
-        
-        if (rainContainer.style.display === 'none') {
-            rainContainer.style.display = 'block';
-            btnIcon.className = 'fas fa-cloud-rain';
-            localStorage.setItem('rainEffect', 'true');
-        } else {
-            rainContainer.style.display = 'none';
-            btnIcon.className = 'fas fa-sun';
-            localStorage.setItem('rainEffect', 'false');
+    function createStars() {
+        const container = document.getElementById('stars');
+        container.innerHTML = '';
+        for (let i = 0; i < 50; i++) { // Increased for meteor shower effect
+            const star = document.createElement('div');
+            star.className = 'star';
+            const duration = Math.random() * 2000 + 3000;
+            const delay = Math.random() * 3000;
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = duration + 'ms';
+            star.style.animationDelay = delay + 'ms';
+            container.appendChild(star);
+        }
+        // Add static stars for Galaxy feel
+        for (let i = 0; i < 100; i++) {
+            const s = document.createElement('div'); s.className = 'static-star';
+            s.style.top = Math.random() * 100 + 'vh'; s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDelay = Math.random() * 3 + 's';
+            container.appendChild(s);
         }
     }
+
+    function createSnow() {
+        const container = document.getElementById('snow');
+        container.innerHTML = '';
+        for (let i = 0; i < 50; i++) {
+            const flake = document.createElement('div');
+            flake.className = 'snowflake';
+            flake.innerHTML = '❄';
+            flake.style.left = Math.random() * 100 + 'vw';
+            flake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            flake.style.animationDelay = Math.random() * 5 + 's';
+            flake.style.fontSize = Math.random() * 10 + 10 + 'px';
+            flake.style.opacity = Math.random();
+            container.appendChild(flake);
+        }
+    }
+
+    function createMatrix() {
+        const canvas = document.getElementById('matrix-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const characters = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        if (canvas.dataset.intervalId) clearInterval(parseInt(canvas.dataset.intervalId));
+        const intervalId = setInterval(draw, 33);
+        canvas.dataset.intervalId = intervalId;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }
+
+    function selectTheme(state) {
+        document.getElementById('switchSfx')?.play().catch(e => {});
+        applyEffect(state);
+        localStorage.setItem('bgEffect', state);
+        $('#modalThemeSelection').modal('hide');
+    }
+
+    function resetEffect() {
+        document.getElementById('switchSfx')?.play().catch(e => {});
+        applyEffect(-1);
+        localStorage.setItem('bgEffect', '-1');
+        toastr.info("Đã tắt toàn bộ hiệu ứng.");
+    }
+
+    function applyEffect(state) {
+        const body = document.body;
+        const rainContainer = document.getElementById('rain');
+        const starsContainer = document.getElementById('stars');
+        const snowContainer = document.getElementById('snow');
+        const sun = document.getElementById('sun');
+        const matrixContainer = document.getElementById('matrix-container');
+        const flowerContainer = document.getElementById('flowers');
+        const midAutumn = document.getElementById('midautumn');
+        const uiaContainer = document.getElementById('uia-container');
+        const summerContainer = document.getElementById('summer-container');
+        const jack97Container = document.getElementById('jack97-container');
+        const halloweenContainer = document.getElementById('halloween-container');
+        const customBgContainer = document.getElementById('custom-bg-container');
+        const btnIcon = document.querySelector('#toggleRainBtn i');
+        
+        // Reset
+        body.className = 'hold-transition login-page';
+        rainContainer.style.display = 'none';
+        starsContainer.style.display = 'none';
+        snowContainer.style.display = 'none';
+        sun.style.display = 'none';
+        matrixContainer.style.display = 'none';
+        flowerContainer.style.display = 'none';
+        midAutumn.style.display = 'none';
+        uiaContainer.style.display = 'none';
+        summerContainer.style.display = 'none';
+        jack97Container.style.display = 'none';
+        halloweenContainer.style.display = 'none';
+        customBgContainer.style.display = 'none';
+        
+        // Stop all theme audios
+        ['audio-tet', 'audio-nyan', 'audio-uia', 'audio-jack', 'meowSfx', 'angrybirdSfx', 'halloweenSfx'].forEach(id => {
+            const a = document.getElementById(id);
+            if(a) { a.pause(); a.currentTime = 0; }
+        });
+
+        btnIcon.className = 'fas fa-magic';
+        
+        // Clear intervals
+        if (window.catJumpInterval) clearInterval(window.catJumpInterval);
+
+        if (state === 0) { // Ocean + Rain
+            rainContainer.style.display = 'block'; btnIcon.className = 'fas fa-cloud-rain'; if(rainContainer.children.length === 0) createRain();
+        } else if (state === 1) { // Galaxy
+            body.classList.add('theme-galaxy');
+            starsContainer.style.display = 'block'; btnIcon.className = 'fas fa-star'; if(starsContainer.children.length === 0) createStars();
+        } else if (state === 2) { // Sunny
+            body.classList.add('theme-sunny');
+            sun.style.display = 'block'; btnIcon.className = 'fas fa-sun';
+        } else if (state === 3) { // Snow
+            body.classList.add('theme-snow');
+            snowContainer.style.display = 'block'; btnIcon.className = 'fas fa-snowflake'; if(snowContainer.children.length === 0) createSnow();
+        } else if (state === 4) { // Neon
+            body.classList.add('theme-neon');
+            btnIcon.className = 'fas fa-bolt';
+        } else if (state === 5) { // Matrix
+            body.classList.add('theme-matrix');
+            matrixContainer.style.display = 'block';
+            btnIcon.className = 'fas fa-terminal';
+            createMatrix();
+        } else if (state === 6) { // Tet
+            body.classList.add('theme-tet');
+            flowerContainer.style.display = 'block';
+            if(flowerContainer.children.length === 0) createFlowers();
+            document.getElementById('audio-tet')?.play().catch(e=>{});
+        } else if (state === 9) { // Trung Thu
+            body.classList.add('theme-midautumn');
+            midAutumn.style.display = 'block';
+            if(midAutumn.children.length === 1) createLanterns();
+        } else if (state === 10) { // Noel
+            body.classList.add('theme-noel');
+            snowContainer.style.display = 'block'; if(snowContainer.children.length === 0) createSnow();
+        } else if (state === 12) { // UIA Meme
+            body.classList.add('theme-uia');
+            uiaContainer.style.display = 'block';
+            if(uiaContainer.children.length === 0) createUiaMemes();
+            document.getElementById('audio-uia')?.play().catch(e=>{});
+        } else if (state === 13) { // Summer
+            body.classList.add('theme-summer');
+            summerContainer.style.display = 'block';
+            if(summerContainer.children.length === 0) createSummer();
+        } else if (state === 16) { // Jack J97
+            body.classList.add('theme-jack97');
+            jack97Container.style.display = 'block';
+            if(jack97Container.children.length === 0) createFireflies();
+            document.getElementById('audio-jack')?.play().catch(e=>{});
+        } else if (state === 17) { // Halloween
+            body.classList.add('theme-halloween');
+            halloweenContainer.style.display = 'block';
+            if(halloweenContainer.children.length === 0) createHalloween();
+            document.getElementById('halloweenSfx')?.play().catch(e=>{});
+        } else if (state === 18) { // Custom
+            customBgContainer.style.display = 'block';
+            loadCustomBg().then(file => {
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    customBgContainer.innerHTML = '';
+                    if (file.type.startsWith('video')) {
+                        const vid = document.createElement('video');
+                        vid.src = url; vid.autoplay = true; vid.loop = true; vid.muted = false; vid.playsInline = true;
+                        customBgContainer.appendChild(vid);
+                    } else {
+                        const img = document.createElement('img'); img.src = url;
+                        customBgContainer.appendChild(img);
+                    }
+                } else toastr.warning("Chưa có file custom nào được lưu.");
+            });
+            btnIcon.className = 'fas fa-user-cog';
+        } else if (state === 19) { // Cyberpunk
+            body.classList.add('theme-cyberpunk');
+        } else if (state === 20) { // Retro 80s
+            body.classList.add('theme-retro80s');
+        }
+    }
+
+    function createFlowers() {
+        const c = document.getElementById('flowers');
+        const icons = ['🌸', '🏵️', '🧧'];
+        for(let i=0; i<30; i++) {
+            const f = document.createElement('div'); f.className = 'flower';
+            f.innerHTML = icons[Math.floor(Math.random()*icons.length)];
+            f.style.left = Math.random()*100+'vw'; f.style.animationDuration = (Math.random()*5+5)+'s'; f.style.animationDelay = Math.random()*5+'s';
+            c.appendChild(f);
+        }
+    }
+    function createLanterns() {
+        const c = document.getElementById('midautumn');
+        for(let i=0; i<10; i++) {
+            const l = document.createElement('div'); l.className = 'lantern fas fa-lightbulb';
+            l.style.left = Math.random()*100+'vw'; l.style.top = (Math.random()*50+20)+'%'; l.style.animationDelay = Math.random()+'s';
+            c.appendChild(l);
+        }
+    }
+    function createUiaMemes() {
+        const c = document.getElementById('uia-container');
+        for(let i=0; i<30; i++) {
+            const m = document.createElement('img'); m.className = 'uia-img'; m.src = 'https://media.tenor.com/sbfBfp3FeY8AAAAj/oia-uia.gif';
+            m.style.left = Math.random()*80+'vw'; m.style.top = Math.random()*80+'vh';
+            c.appendChild(m);
+        }
+    }
+    function createSummer() {
+        const c = document.getElementById('summer-container');
+        const sun = document.createElement('div'); sun.className = 'summer-sun'; c.appendChild(sun);
+        for(let i=0; i<5; i++) {
+            const cloud = document.createElement('div'); cloud.className = 'cloud fas fa-cloud';
+            cloud.style.top = (Math.random()*30+5)+'%'; cloud.style.animationDuration = (Math.random()*20+20)+'s'; cloud.style.animationDelay = (Math.random()*10)+'s';
+            c.appendChild(cloud);
+        }
+    }
+    function createFireflies() {
+        const c = document.getElementById('jack97-container');
+        for(let i=0; i<30; i++) {
+            const f = document.createElement('div'); f.className = 'firefly';
+            f.style.top = Math.random() * 100 + 'vh';
+            f.style.left = Math.random() * 100 + 'vw';
+            f.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            f.style.animationDelay = Math.random() * 5 + 's';
+            c.appendChild(f);
+        }
+    }
+
+    const meowSounds = [
+        'https://www.myinstants.com/media/sounds/cat-meow-short.mp3'
+    ];
+
+    function playRandomMeow() {
+        const src = meowSounds[0];
+        const audio = new Audio(src);
+        audio.volume = 0.5;
+        audio.play().catch(e => {});
+    }
+
+    // Click Firework Effect
+    document.addEventListener('click', (e) => {
+        const body = document.body;
+        if (body.classList.contains('theme-tet')) {
+            createClickFirework(e.clientX, e.clientY);
+            createClickText(e.clientX, e.clientY);
+            
+            // Play sound
+            const audio = document.getElementById('fireworkSfx');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(() => {});
+            }
+        } else if (body.classList.contains('theme-jack97') || body.classList.contains('theme-uia')) {
+            // Cat Paw Effect + Random Meow
+            createPawEffect(e.clientX, e.clientY);
+            playRandomMeow();
+        }
+    });
+
+    function createClickFirework(x, y) {
+        const colors = ['#ff0000', '#ffd700', '#00ff00', '#00ffff', '#ff00ff', '#ffffff', '#ff4500'];
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'click-firework-particle';
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            p.style.color = p.style.backgroundColor;
+            document.body.appendChild(p);
+            const angle = Math.random() * Math.PI * 2, velocity = Math.random() * 150 + 50;
+            const anim = p.animate([{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(angle)*velocity}px, ${Math.sin(angle)*velocity}px) scale(0)`, opacity: 0 }], { duration: Math.random() * 600 + 400, easing: 'ease-out' });
+            anim.onfinish = () => p.remove();
+        }
+    }
+
+    function createClickText(x, y) {
+        const t = document.createElement('div');
+        t.className = 'click-text-effect';
+        t.innerText = "Chúc Mừng Năm Mới";
+        t.style.left = x + 'px';
+        t.style.top = y + 'px';
+        document.body.appendChild(t);
+        const anim = t.animate([
+            { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0 },
+            { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 1, offset: 0.2 },
+            { transform: 'translate(-50%, -150px) scale(1)', opacity: 0 }
+        ], { duration: 1500, easing: 'ease-out' });
+        anim.onfinish = () => t.remove();
+    }
+
+    function createPawEffect(x, y) {
+        const p = document.createElement('div');
+        p.className = 'cat-paw-click';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 800);
+    }
+
+    function createHalloween() {
+        const c = document.getElementById('halloween-container');
+        const pumpkins = ['🎃', '👻', '💀'];
+        for(let i=0; i<10; i++) {
+            const p = document.createElement('div'); p.className = 'pumpkin';
+            p.innerText = pumpkins[Math.floor(Math.random()*pumpkins.length)];
+            p.style.left = Math.random()*90 + 'vw';
+            p.style.animationDelay = Math.random()*2 + 's';
+            c.appendChild(p);
+        }
+        for(let i=0; i<5; i++) {
+            const b = document.createElement('div'); b.className = 'bat';
+            b.innerText = '🦇';
+            b.style.top = Math.random()*50 + 'vh';
+            b.style.animationDuration = (Math.random()*10 + 10) + 's';
+            b.style.animationDelay = Math.random()*5 + 's';
+            c.appendChild(b);
+        }
+    }
+
+    // IndexedDB for Custom Theme
+    const dbName = 'SHH_ThemeDB'; const storeName = 'custom_bg';
+    async function initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbName, 1);
+            request.onupgradeneeded = (e) => { if (!e.target.result.objectStoreNames.contains(storeName)) e.target.result.createObjectStore(storeName); };
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = (e) => reject(e.target.error);
+        });
+    }
+    async function saveCustomBg(file) {
+        const db = await initDB(); const tx = db.transaction(storeName, 'readwrite');
+        tx.objectStore(storeName).put(file, 'user_file');
+        return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    }
+    async function loadCustomBg() {
+        try { const db = await initDB(); return new Promise((res, rej) => { const req = db.transaction(storeName, 'readonly').objectStore(storeName).get('user_file'); req.onsuccess = () => res(req.result); req.onerror = rej; }); } catch(e){return null;}
+    }
+
+    function triggerCustomUpload() { document.getElementById('customFileInput').click(); }
+    document.getElementById('customFileInput').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 50 * 1024 * 1024) { toastr.error("File quá lớn! Giới hạn 50MB."); return; }
+        toastr.info("Đang lưu file vào bộ nhớ máy...");
+        await saveCustomBg(file);
+        toastr.success("Đã lưu giao diện custom!");
+        selectTheme(18);
+    });
 </script>
 </body>
 </html>
