@@ -102,14 +102,14 @@
         /* Mobile Optimization */
         @media (max-width: 768px) {
             .table td, .table th { padding: 0.5rem; font-size: 0.85rem; }
-            .btn-action { padding: 0.2rem 0.4rem; }
+            .btn-action { padding: 0.2rem 0.4rem; font-size: 0.75rem; }
             .card-title { font-size: 1.1rem; }
             .info-box { min-height: 80px; }
             .info-box-icon { font-size: 1.5rem; width: 60px; }
         }
         /* Mobile Optimization */
         @media (max-width: 576px) {
-            .table td, .table th { white-space: nowrap; font-size: 0.85rem; }
+            .table td, .table th { font-size: 0.8rem; } /* Remove nowrap to prevent overflow */
             .modal-dialog { margin: 0.5rem; }
             .content-header h1 { font-size: 1.2rem; }
         }
@@ -120,6 +120,16 @@
         a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
 
         /* Modern Rounded UI Overrides */
+        /* Click/Focus Effect - Rounded Border */
+        .btn:focus, .btn:active, .form-control:focus, .custom-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.25) !important;
+            border-color: #1e88e5 !important;
+            outline: none;
+        }
+        /* Streamlined Interface */
+        .content-header { padding: 10px 0.5rem; }
+        .card-header { padding: 0.75rem 1.25rem; background-color: transparent; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .card-body { padding: 1rem; }
         .card { border-radius: 20px; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.05); background: linear-gradient(135deg, #ffffff 0%, #f4f6f9 100%); }
         .card-header { border-top-left-radius: 20px; border-top-right-radius: 20px; }
         .btn { border-radius: 50px; }
@@ -139,10 +149,16 @@
             background-color: #fff !important;
         }
         /* Fix 1 Page Scroll */
-        html, body { height: 100vh; overflow: hidden; }
-        .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
-        .main-footer { height: 40px; line-height: 20px; }
-        .info-box { min-height: 90px; }
+        @media (min-width: 992px) { /* Apply fixed scroll only on desktop */
+            html, body { height: 100vh; overflow: hidden; }
+            .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
+            .main-footer { height: 40px; line-height: 20px; }
+        }
+        .info-box { min-height: 90px; } /* Keep for all sizes */
+        
+        /* Smooth Tab Transition */
+        .tab-pane.fade { transition: opacity 0.3s linear, transform 0.3s ease-out; transform: translateY(10px); }
+        .tab-pane.fade.show { transform: translateY(0); }
     </style>
 </head>
 
@@ -273,28 +289,23 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="javascript:void(0)" onclick="exportExcelHistory()" class="nav-link text-success">
-                                    <i class="nav-icon fas fa-file-excel"></i> <p>Lịch Sử (.xlsx)</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a href="javascript:void(0)" onclick="exportPdfHistory()" class="nav-link text-danger">
                                     <i class="nav-icon fas fa-file-pdf"></i> <p>Lịch Sử (.pdf)</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="javascript:void(0)" onclick="exportExcelStudents()" class="nav-link text-info">
-                                    <i class="nav-icon fas fa-file-download"></i> <p>DS Học Sinh (.xlsx)</p>
+                                <a href="javascript:void(0)" onclick="exportPdfStudents()" class="nav-link text-info">
+                                    <i class="nav-icon fas fa-file-pdf"></i> <p>DS Học Sinh (.pdf)</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="javascript:void(0)" onclick="exportExcelEvaluations()" class="nav-link text-warning">
-                                    <i class="nav-icon fas fa-star"></i> <p>Đánh Giá (.xlsx)</p>
+                                <a href="javascript:void(0)" onclick="exportPdfEvaluations()" class="nav-link text-warning">
+                                    <i class="nav-icon fas fa-file-pdf"></i> <p>Đánh Giá (.pdf)</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="javascript:void(0)" onclick="exportExcelLogs()" class="nav-link text-secondary">
-                                    <i class="nav-icon fas fa-history"></i> <p>Logs (.xlsx)</p>
+                                <a href="javascript:void(0)" onclick="exportPdfLogs()" class="nav-link text-secondary">
+                                    <i class="nav-icon fas fa-file-pdf"></i> <p>Logs (.pdf)</p>
                                 </a>
                             </li>
                         </ul>
@@ -379,20 +390,19 @@
                         <div class="row mt-3">
                             <div class="col-md-12">
                                 <div class="card card-outline card-success shadow">
-                                    <div class="card-header d-flex p-2 align-items-center">
-                                        <h3 class="card-title font-weight-bold pl-2">Nhật ký điểm danh</h3>
-                                        <div class="ml-auto d-flex">
-                                            <select id="filter_status" class="form-control form-control-sm mr-1" style="width: 120px;" onchange="filterHistory()">
+                                    <div class="card-header d-flex flex-wrap p-2 align-items-center">
+                                        <h3 class="card-title font-weight-bold pl-2 mr-auto mb-2 mb-md-0">Nhật ký điểm danh</h3>
+                                        <div class="d-flex flex-wrap justify-content-end">
+                                            <select id="filter_status" class="form-control form-control-sm m-1" style="width: auto;" onchange="filterHistory()">
                                                 <option value="">Tất cả trạng thái</option>
                                                 <option value="present">Có mặt</option>
                                                 <option value="absent_perm">Vắng có phép</option>
                                                 <option value="absent">Vắng không phép</option>
                                             </select>
-                                            <input type="text" id="filter_history_name" class="form-control form-control-sm mr-1" style="width: 150px;" placeholder="Tên học sinh..." onkeyup="filterHistory()">
-                                            <input type="date" id="filter_from" class="form-control form-control-sm mr-1" style="width: 130px;" title="Từ ngày" onchange="filterHistory()">
-                                            <span class="align-self-center mr-1">-</span>
-                                            <input type="date" id="filter_to" class="form-control form-control-sm mr-1" style="width: 130px;" title="Đến ngày" onchange="filterHistory()">
-                                            <button class="btn btn-sm btn-secondary ml-1" onclick="resetFilter()" title="Xóa lọc"><i class="fas fa-undo"></i></button>
+                                            <input type="text" id="filter_history_name" class="form-control form-control-sm m-1" style="width: auto;" placeholder="Tên học sinh..." onkeyup="filterHistory()">
+                                            <input type="date" id="filter_from" class="form-control form-control-sm m-1" style="width: auto;" title="Từ ngày" onchange="filterHistory()">
+                                            <input type="date" id="filter_to" class="form-control form-control-sm m-1" style="width: auto;" title="Đến ngày" onchange="filterHistory()">
+                                            <button class="btn btn-sm btn-secondary m-1" onclick="resetFilter()" title="Xóa lọc"><i class="fas fa-undo"></i></button>
                                         </div>
                                     </div>
                                     <div class="card-body p-0 table-responsive history-card-body">
@@ -474,6 +484,7 @@
                                     <thead class="thead-dark">
                                         <tr>
                                             <th>Họ tên</th>
+                                            <th>Giới tính</th>
                                             <th class="d-none d-md-table-cell">Ngày sinh</th>
                                             <th>Lớp</th>
                                             <th class="d-none d-md-table-cell">Nhóm</th>
@@ -696,7 +707,7 @@
                         <div>
                             <button class="btn btn-warning mr-2" onclick="openEvalConfigModal()"><i class="fas fa-cogs"></i> Cấu hình</button>
                             <button class="btn btn-primary mr-2" onclick="loadEvaluations()"><i class="fas fa-sync"></i> Tải lại</button>
-                            <button class="btn btn-success" onclick="exportExcelEvaluations()"><i class="fas fa-file-excel"></i> Xuất Báo Cáo</button>
+                            <button class="btn btn-danger" onclick="exportPdfEvaluations()"><i class="fas fa-file-pdf"></i> Xuất Báo Cáo (PDF)</button>
                         </div>
                     </div>
                 </section>
@@ -767,7 +778,7 @@
                     <div class="container-fluid">
                         <div class="d-flex justify-content-between align-items-center">
                             <h1>Nhật ký hoạt động (Logs)</h1>
-                            <button class="btn btn-success" onclick="exportExcelLogs()"><i class="fas fa-file-excel mr-2"></i>Xuất Excel Logs</button>
+                            <button class="btn btn-danger" onclick="exportPdfLogs()"><i class="fas fa-file-pdf mr-2"></i>Xuất PDF Logs</button>
                         </div>
                     </div>
                 </section>
@@ -817,6 +828,14 @@
                 <input type="hidden" id="student_id_old">
                 <div class="form-group"><label>Mã Học sinh (ID)</label><input type="text" id="st_id" class="form-control" placeholder="Nhập mã HS..."></div>
                 <div class="form-group"><label>Họ và Tên</label><input type="text" id="st_name" class="form-control" placeholder="Nguyễn Văn A"></div>
+                <div class="form-group"><label>Giới tính</label>
+                    <select id="st_gender" class="form-control">
+                        <option value="">-- Chọn --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
                 <div class="form-group"><label>Ngày sinh</label><input type="text" id="st_dob" class="form-control" placeholder="dd/mm/yyyy"></div>
                 <div class="form-group"><label>Lớp</label><input type="text" id="st_class" class="form-control"></div>
                 <div class="form-group"><label>Địa chỉ</label><input type="text" id="st_address" class="form-control"></div>
@@ -1469,6 +1488,7 @@ function renderStudentTable(data) {
     data.forEach((st, index) => {
         html += `<tr>
             <td class="font-weight-bold">${st.fullname}</td>
+            <td>${st.gender || ''}</td>
             <td class="text-dob d-none d-md-table-cell">${st.dob}</td>
             <td>${st.class_name || '-'}</td>
             <td class="d-none d-md-table-cell"><span class="badge badge-info badge-group">${st.group_display}</span></td>
@@ -1655,7 +1675,7 @@ async function loadExtraData() {
                     pollActions = `
                         <div class="mt-1">
                             <button class="btn btn-xs btn-outline-primary" onclick="viewPollDetail('${n.id}', '${n.title}')" title="Xem chi tiết"><i class="fas fa-list-ol"></i></button>
-                            <button class="btn btn-xs btn-outline-success" onclick="exportPollExcel('${n.id}', '${n.title}')" title="Xuất Excel"><i class="fas fa-file-excel"></i></button>
+                            <button class="btn btn-xs btn-outline-danger" onclick="exportPollPdf('${n.id}', '${n.title}')" title="Xuất PDF"><i class="fas fa-file-pdf"></i></button>
                         </div>`;
                 }
                 
@@ -1732,12 +1752,36 @@ function filterLogs() {
     $('#logData').html(html || '<tr><td colspan="4" class="text-center">Không tìm thấy log phù hợp</td></tr>');
 }
 
-function exportExcelLogs() {
+function exportPdfLogs() {
     if (globalLogsData.length === 0) return toastr.warning("Không có dữ liệu logs!");
-    const ws = XLSX.utils.json_to_sheet(globalLogsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "SystemLogs");
-    XLSX.writeFile(wb, `System_Logs_${new Date().getTime()}.xlsx`);
+    
+    const body = [
+        [
+            { text: 'Thời gian', bold: true, style: 'tableHeader' },
+            { text: 'Tài khoản', bold: true, style: 'tableHeader' },
+            { text: 'Hành động', bold: true, style: 'tableHeader' },
+            { text: 'Chi tiết', bold: true, style: 'tableHeader' }
+        ]
+    ];
+
+    globalLogsData.forEach(log => {
+        body.push([
+            { text: log.timestamp || "", fontSize: 9 },
+            { text: log.username || "", fontSize: 9 },
+            { text: log.action || "", fontSize: 9 },
+            { text: log.details || "", fontSize: 9 }
+        ]);
+    });
+
+    const docDefinition = {
+        content: [
+            { text: 'NHẬT KÝ HỆ THỐNG', style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
+            { text: `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, alignment: 'right', fontSize: 9, margin: [0, 0, 0, 10] },
+            { table: { headerRows: 1, widths: ['auto', 'auto', 'auto', '*'], body: body } }
+        ],
+        styles: { header: { fontSize: 16, bold: true }, tableHeader: { fontSize: 10, fillColor: '#eeeeee' } }
+    };
+    pdfMake.createPdf(docDefinition).download(`System_Logs_${new Date().getTime()}.pdf`);
 }
 
 let globalFeedbacksData = [];
@@ -2571,7 +2615,7 @@ async function openStudentModal() {
     $('#modalStudent').modal('show'); 
     $('#student_id_old').val(''); 
     $('#st_id').prop('readonly', false).val(getNextId(globalStudentsData, 'id', '')); 
-    $('#st_name, #st_dob, #st_class, #st_address, #st_phone, #st_group, #st_reg_time, #st_reg_loc, #st_reg_act').val(''); 
+    $('#st_name, #st_gender, #st_dob, #st_class, #st_address, #st_phone, #st_group, #st_reg_time, #st_reg_loc, #st_reg_act').val(''); 
     
     // New school logic
     $('#st_school_other').val('');
@@ -2733,6 +2777,7 @@ async function editStudent(studentId) {
     $('#student_id_old').val(s.id);
     $('#st_id').val(s.id).prop('readonly', true);
     $('#st_name').val(s.fullname);
+    $('#st_gender').val(s.gender);
     $('#st_dob').val(s.dob);
     $('#st_class').val(s.class_name);
     $('#st_address').val(s.address);
@@ -2858,7 +2903,7 @@ async function saveData(type) {
         if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
 
         dataArr = [
-            $('#st_id').val(), $('#st_name').val(), $('#st_dob').val(), $('#st_class').val(), schoolName, 
+            $('#st_id').val(), $('#st_name').val(), $('#st_gender').val(), $('#st_dob').val(), $('#st_class').val(), schoolName, 
             $('#st_address').val(), $('#st_phone').val(), $('#st_group').val(), 
             $('#st_reg_time').val(), $('#st_reg_loc').val(), $('#st_reg_act').val()
         ];
@@ -3025,39 +3070,78 @@ function exportPdfHistory() {
     pdfMake.createPdf(docDefinition).download(`Lich_Su_Diem_Danh_${new Date().getTime()}.pdf`);
 }
 
-function exportExcelStudents() {
+function exportPdfStudents() {
     if (currentStudentView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
     
-    const data = currentStudentView.map(st => {
-        let dateAdded = "";
-        const ts = parseInt(st.id.replace('ST', ''));
-        if (!isNaN(ts)) {
-            dateAdded = new Date(ts).toLocaleDateString('vi-VN');
-        }
-        return { "Họ Và Tên": st.fullname, "Ngày Sinh": st.dob, "Lớp": st.class_name, "Nhóm": st.group_display, "Trường": st.school, "SĐT": st.phone, "Địa chỉ": st.address, "Ngày thêm": dateAdded };
+    const body = [
+        [
+            { text: 'Họ và Tên', bold: true, style: 'tableHeader' },
+            { text: 'Giới tính', bold: true, style: 'tableHeader' },
+            { text: 'Ngày sinh', bold: true, style: 'tableHeader' },
+            { text: 'Lớp', bold: true, style: 'tableHeader' },
+            { text: 'Nhóm', bold: true, style: 'tableHeader' },
+            { text: 'Trường', bold: true, style: 'tableHeader' },
+            { text: 'SĐT', bold: true, style: 'tableHeader' }
+        ]
+    ];
+
+    currentStudentView.forEach(st => {
+        body.push([
+            { text: st.fullname || "", fontSize: 9 },
+            { text: st.gender || "", fontSize: 9 },
+            { text: st.dob || "", fontSize: 9 },
+            { text: st.class_name || "", fontSize: 9 },
+            { text: st.group_display || "", fontSize: 9 },
+            { text: st.school || "", fontSize: 9 },
+            { text: st.phone || "", fontSize: 9 }
+        ]);
     });
 
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "DSHS");
-    XLSX.writeFile(wb, `Danh_Sach_Hoc_Sinh.xlsx`);
+    const docDefinition = {
+        content: [
+            { text: 'DANH SÁCH HỌC SINH', style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
+            { text: `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, alignment: 'right', fontSize: 9, margin: [0, 0, 0, 10] },
+            { table: { headerRows: 1, widths: ['*', 'auto', 'auto', 'auto', 'auto', '*', 'auto'], body: body } }
+        ],
+        styles: { header: { fontSize: 16, bold: true }, tableHeader: { fontSize: 10, fillColor: '#eeeeee' } }
+    };
+    pdfMake.createPdf(docDefinition).download(`Danh_Sach_Hoc_Sinh_${new Date().getTime()}.pdf`);
 }
 
-function exportExcelEvaluations() {
+function exportPdfEvaluations() {
     if (currentEvaluationView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
     
-    const data = currentEvaluationView.map(e => ({
-        "Họ và Tên": e.name,
-        "Nhóm": e.group,
-        "Ý thức tổ chức kỷ luật": e.disc,
-        "Mức độ tích cực": e.pos,
-        "Hoạt động tình nguyện": e.vol,
-        "Xếp loại": e.class
-    }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "DanhGia");
-    XLSX.writeFile(wb, `Tong_Hop_Danh_Gia_SHH.xlsx`);
+    const body = [
+        [
+            { text: 'Họ và Tên', bold: true, style: 'tableHeader' },
+            { text: 'Nhóm', bold: true, style: 'tableHeader' },
+            { text: 'Kỷ luật', bold: true, style: 'tableHeader' },
+            { text: 'Tích cực', bold: true, style: 'tableHeader' },
+            { text: 'Tình nguyện', bold: true, style: 'tableHeader' },
+            { text: 'Xếp loại', bold: true, style: 'tableHeader' }
+        ]
+    ];
+
+    currentEvaluationView.forEach(e => {
+        body.push([
+            { text: e.name || "", fontSize: 9 },
+            { text: e.group || "", fontSize: 9 },
+            { text: e.disc || "", fontSize: 9 },
+            { text: e.pos || "", fontSize: 9 },
+            { text: e.vol || "", fontSize: 9 },
+            { text: e.class || "", fontSize: 9 }
+        ]);
+    });
+
+    const docDefinition = {
+        content: [
+            { text: 'TỔNG HỢP ĐÁNH GIÁ', style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
+            { text: `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, alignment: 'right', fontSize: 9, margin: [0, 0, 0, 10] },
+            { table: { headerRows: 1, widths: ['*', 'auto', '*', '*', '*', 'auto'], body: body } }
+        ],
+        styles: { header: { fontSize: 16, bold: true }, tableHeader: { fontSize: 10, fillColor: '#eeeeee' } }
+    };
+    pdfMake.createPdf(docDefinition).download(`Tong_Hop_Danh_Gia_${new Date().getTime()}.pdf`);
 }
 
 async function backupSystem() {
@@ -3107,8 +3191,8 @@ async function backupSystem() {
 
 function downloadTemplateAdmin() {
     const data = [
-        { "Họ và Tên": "Nguyễn Văn A", "Ngày sinh": "20/10/2010", "Nhóm": "1", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" },
-        { "Họ và Tên": "Trần Thị B", "Ngày sinh": "01/01/2011", "Nhóm": "2", "Trường học": "THCS B", "SĐT": "0909654321", "Địa chỉ": "456 Đường XYZ" }
+        { "Họ và Tên": "Nguyễn Văn A", "Giới tính": "Nam", "Ngày sinh": "20/10/2010", "Nhóm": "1", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" },
+        { "Họ và Tên": "Trần Thị B", "Giới tính": "Nữ", "Ngày sinh": "01/01/2011", "Nhóm": "2", "Trường học": "THCS B", "SĐT": "0909654321", "Địa chỉ": "456 Đường XYZ" }
     ];
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -3253,6 +3337,7 @@ function processImportAdminTab() {
         // Map data to standard format
         const mappedData = jsonData.map(row => ({
             fullname: row["Họ và Tên"] || "",
+            gender: row["Giới tính"] || "",
             dob: row["Ngày sinh"] || "",
             class_name: row["Lớp"] || "",
             group_id: String(row["Nhóm"] || "").trim(),
@@ -3425,26 +3510,44 @@ async function viewPollResults(pollId) {
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 
-async function exportPollExcel(pollId, title) {
-    Swal.fire({ title: 'Đang xuất Excel...', didOpen: () => Swal.showLoading() });
+async function exportPollPdf(pollId, title) {
+    Swal.fire({ title: 'Đang xuất PDF...', didOpen: () => Swal.showLoading() });
     try {
         const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_POLL_VOTES", payload: { poll_id: pollId } }) });
         const res = await response.json();
         if (res.status === 'success') {
-            const data = res.data.map(v => ({
-                "Thời gian": v.timestamp,
-                "Quản lý": v.manager,
-                "Nhóm": v.group_id,
-                "Học sinh": v.student_name,
-                "Lựa chọn": v.option
-            }));
-            
+            const data = res.data;
             if (data.length === 0) return Swal.fire('Thông báo', 'Chưa có dữ liệu bình chọn nào.', 'info');
             
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "KetQua");
-            XLSX.writeFile(wb, `Binh_Chon_${title.replace(/\s+/g, '_')}.xlsx`);
+            const body = [
+                [
+                    { text: 'Thời gian', bold: true, style: 'tableHeader' },
+                    { text: 'Quản lý', bold: true, style: 'tableHeader' },
+                    { text: 'Nhóm', bold: true, style: 'tableHeader' },
+                    { text: 'Học sinh', bold: true, style: 'tableHeader' },
+                    { text: 'Lựa chọn', bold: true, style: 'tableHeader' }
+                ]
+            ];
+
+            data.forEach(v => {
+                body.push([
+                    { text: v.timestamp || "", fontSize: 9 },
+                    { text: v.manager || "", fontSize: 9 },
+                    { text: v.group_id || "", fontSize: 9 },
+                    { text: v.student_name || "", fontSize: 9 },
+                    { text: v.option || "", fontSize: 9 }
+                ]);
+            });
+
+            const docDefinition = {
+                content: [
+                    { text: `KẾT QUẢ BÌNH CHỌN: ${title}`, style: 'header', alignment: 'center', margin: [0, 0, 0, 10] },
+                    { text: `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, alignment: 'right', fontSize: 9, margin: [0, 0, 0, 10] },
+                    { table: { headerRows: 1, widths: ['auto', 'auto', 'auto', '*', '*'], body: body } }
+                ],
+                styles: { header: { fontSize: 14, bold: true }, tableHeader: { fontSize: 10, fillColor: '#eeeeee' } }
+            };
+            pdfMake.createPdf(docDefinition).download(`Binh_Chon_${title.replace(/\s+/g, '_')}.pdf`);
             Swal.close();
         } else Swal.fire('Lỗi', 'Không thể tải dữ liệu', 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }

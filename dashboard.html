@@ -18,6 +18,13 @@
         body.dark-mode .content-wrapper { background-color: #343a40; color: #fff; }
         body.dark-mode .card { background-color: #343a40; color: white; }
         /* Cat Paw Cursor Default */
+        /* Click/Focus Effect - Rounded Border */
+        .btn:focus, .btn:active {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+            outline: none;
+        }
+        .card { border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: none; }
+        .content-header { padding: 10px 0.5rem; }
         body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
         a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
         /* Fix 1 Page Scroll */
@@ -158,6 +165,18 @@
                     </div>
                 </div>
 
+                <!-- Age Chart -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-info card-outline">
+                            <div class="card-header"><h3 class="card-title">Thống kê Độ tuổi Học sinh</h3></div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height: 300px;"><canvas id="chartAge"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- History Table -->
                 <div class="card card-outline card-secondary">
                     <div class="card-header">
@@ -188,7 +207,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
-    let chartAtt, chartEval;
+    let chartAtt, chartEval, chartAge;
 
     $(document).ready(function() {
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -229,6 +248,15 @@
                 renderCharts(s);
             }
         } catch (e) { console.error(e); }
+
+        // Load Age Stats (from GET_USERS)
+        try {
+            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_USERS" }) });
+            const res = await response.json();
+            if (res.status === "success") {
+                renderAgeChart(res.data.students);
+            }
+        } catch (e) { console.error(e); }
     }
 
     function renderCharts(data) {
@@ -254,6 +282,50 @@
                 datasets: [{ label: 'Số lượng', data: [data.eval_xs, data.eval_tot, data.eval_tb, data.eval_yeu, data.eval_none], backgroundColor: '#007bff' }]
             },
             options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+    function renderAgeChart(students) {
+        const ageCounts = {};
+        const currentYear = new Date().getFullYear();
+        students.forEach(st => {
+            if(st.dob) {
+                let d = new Date(st.dob);
+                // Xử lý trường hợp ngày tháng dạng DD/MM/YYYY nếu new Date() không hiểu
+                if (isNaN(d.getTime()) && typeof st.dob === 'string' && st.dob.includes('/')) {
+                    const parts = st.dob.split('/');
+                    if (parts.length === 3) d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                }
+                
+                if(!isNaN(d.getTime())) {
+                    const age = currentYear - d.getFullYear();
+                    if(age > 0 && age < 100) ageCounts[age] = (ageCounts[age] || 0) + 1;
+                }
+            }
+        });
+        
+        const labels = Object.keys(ageCounts).sort((a,b) => a-b);
+        const data = labels.map(l => ageCounts[l]);
+        
+        const ctx = document.getElementById('chartAge').getContext('2d');
+        if (chartAge) chartAge.destroy();
+        chartAge = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels.map(l => l + ' tuổi'),
+                datasets: [{
+                    label: 'Số lượng',
+                    data: data,
+                    backgroundColor: 'rgba(23, 162, 184, 0.7)',
+                    borderColor: 'rgba(23, 162, 184, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
         });
     }
 </script>

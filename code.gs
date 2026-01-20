@@ -7,20 +7,20 @@ const SPREADSHEET_ID = "1ebzd0DRukRVtInH7srEqOBeX7NntSkbHsqFcHlEe7hU";
 const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
 const SCHOOL_LIST = [
-  "THPT Chuyên Lê Quý Đôn",
-  "THPT Nguyễn Trãi",
+  "THPT Chuyên Lê Quý Đôn - Đông Hải",
+  "THPT Nguyễn Trãi - Phan Rang",
   "THPT Chu Văn An",
   "THPT Tháp Chàm",
   "THPT Dân tộc Nội trú Ninh Thuận",
   "Trường THCS - THPT Trần Hưng Đạo",
-  "Trường iSchool Ninh Thuận",
-  "Trường Liên cấp Hoa Sen",
+  "Trường HNQT iSchool Ninh Thuận",
+  "Trường TH-THCS-THPT Hoa Sen",
   "THCS Trần Phú",
   "THCS Lý Tự Trọng",
   "THCS Võ Thị Sáu",
   "THCS Lê Hồng Phong",
   "THCS Nguyễn Văn Trỗi",
-  "TH&THCS Trần Thi",
+  "TH&THCS Trần Thi - Phan Rang",
   "TH&THCS Lê Đình Chinh",
   "TH&THCS Võ Nguyên Giáp",
   "THPT Ninh Hải",
@@ -594,13 +594,14 @@ function handleImportStudents(payload) {
       const key = (String(st.fullname) + "_" + String(st.group_id)).toLowerCase().trim();
       if (existingSet.has(key)) return; // Bỏ qua nếu đã tồn tại
       existingSet.add(key);
-
+      
       const newId = 'ST' + (baseTime + index);
       
-      // Cấu trúc Mới: ID, Fullname, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
+      // Cấu trúc Mới: ID, Fullname, Gender, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
       const newRow = [
         newId, 
         st.fullname, 
+        st.gender || '',
         st.dob, 
         st.class_name || '',
         st.school || '',
@@ -751,15 +752,15 @@ function handleRegisterTemp(payload) {
     let sheet = ss.getSheetByName('registrations');
     if (!sheet) {
       sheet = ss.insertSheet('registrations');
-      // ID, Pass, Name, DOB, Class, School, Address, Phone, Time, Location, Activities, Timestamp
-      sheet.appendRow(['ID', 'Pass', 'Fullname', 'DOB', 'Class', 'School', 'Address', 'Phone', 'Time', 'Location', 'Activities', 'Timestamp']);
+      // ID, Pass, Name, Gender, DOB, Class, School, Address, Phone, Time, Location, Activities, Timestamp
+      sheet.appendRow(['ID', 'Pass', 'Fullname', 'Gender', 'DOB', 'Class', 'School', 'Address', 'Phone', 'Time', 'Location', 'Activities', 'Timestamp']);
     }
     
     const newId = 'REG' + Math.floor(100000 + Math.random() * 900000); // Random ID 6 số cho gọn hoặc timestamp
     const randomPass = Math.floor(100000 + Math.random() * 900000).toString(); // 6 số ngẫu nhiên
     
     const newRow = [
-      newId, randomPass, payload.fullname, payload.dob, payload.class_name, 
+      newId, randomPass, payload.fullname, payload.gender, payload.dob, payload.class_name, 
       payload.school, payload.address, payload.phone, 
       payload.reg_time, payload.reg_loc, payload.reg_act, new Date()
     ];
@@ -784,9 +785,9 @@ function handleLoginTemp(payload) {
         return response({ 
           status: "success", 
           data: {
-            id: data[i][0], fullname: data[i][2], dob: data[i][3], class_name: data[i][4],
-            school: data[i][5], address: data[i][6], phone: data[i][7],
-            reg_time: data[i][8], reg_loc: data[i][9], reg_act: data[i][10]
+            id: data[i][0], fullname: data[i][2], gender: data[i][3], dob: data[i][4], class_name: data[i][5],
+            school: data[i][6], address: data[i][7], phone: data[i][8],
+            reg_time: data[i][9], reg_loc: data[i][10], reg_act: data[i][11]
           }
         });
       }
@@ -801,10 +802,10 @@ function handleConfirmRegistration(payload) {
     const stSheet = ss.getSheetByName('students');
     
     // 1. Thêm vào Students
-    // Structure Students: ID, Fullname, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
+    // Structure Students: ID, Fullname, Gender, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
     const newStId = 'ST' + new Date().getTime();
     const stRow = [
-      newStId, payload.fullname, payload.dob, payload.class_name, 
+      newStId, payload.fullname, payload.gender, payload.dob, payload.class_name, 
       payload.school, payload.address, payload.phone, payload.group_id,
       payload.reg_time, payload.reg_loc, payload.reg_act
     ];
@@ -832,9 +833,9 @@ function handleGetRegistrations(payload) {
     const list = [];
     for (let i = 1; i < data.length; i++) {
       list.push({
-        id: data[i][0], pass: data[i][1], fullname: data[i][2], dob: formatDateVN(data[i][3]),
-        class_name: data[i][4], school: data[i][5], address: data[i][6], phone: data[i][7],
-        reg_time: data[i][8], reg_loc: data[i][9], reg_act: data[i][10]
+        id: data[i][0], pass: data[i][1], fullname: data[i][2], gender: data[i][3], dob: formatDateVN(data[i][4]),
+        class_name: data[i][5], school: data[i][6], address: data[i][7], phone: data[i][8],
+        reg_time: data[i][9], reg_loc: data[i][10], reg_act: data[i][11]
       });
     }
     return response({ status: "success", data: list });
@@ -1110,22 +1111,23 @@ function handleGetAdminData() {
   const studentSheet = ss.getSheetByName('students');
   const studentValues = studentSheet.getDataRange().getValues();
   const students = [];
-  // Structure Students: ID(0), Fullname(1), DOB(2), Class(3), School(4), Address(5), Phone(6), GroupID(7), Time(8), Location(9), Activities(10)
+  // Structure Students: ID(0), Fullname(1), Gender(2), DOB(3), Class(4), School(5), Address(6), Phone(7), GroupID(8), Time(9), Location(10), Activities(11)
   for (let j = 1; j < studentValues.length; j++) {
     if (studentValues[j][1]) {
       students.push({
         id: studentValues[j][0],
         fullname: studentValues[j][1],
-        dob: formatDateVN(studentValues[j][2]),
-        class_name: studentValues[j][3],
-        school: studentValues[j][4],
-        address: studentValues[j][5],
-        phone: studentValues[j][6],
-        group_id: studentValues[j][7],
-        group_display: getGroupName(studentValues[j][7]),
-        reg_time: studentValues[j][8],
-        reg_loc: studentValues[j][9],
-        reg_act: studentValues[j][10]
+        gender: studentValues[j][2],
+        dob: formatDateVN(studentValues[j][3]),
+        class_name: studentValues[j][4],
+        school: studentValues[j][5],
+        address: studentValues[j][6],
+        phone: studentValues[j][7],
+        group_id: studentValues[j][8],
+        group_display: getGroupName(studentValues[j][8]),
+        reg_time: studentValues[j][9],
+        reg_loc: studentValues[j][10],
+        reg_act: studentValues[j][11]
       });
     }
   }

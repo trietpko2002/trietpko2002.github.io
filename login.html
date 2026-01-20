@@ -272,6 +272,9 @@
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         height: 100px;
     }
+    .theme-btn {
+        text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
     .theme-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .theme-btn i { font-size: 24px; margin-bottom: 5px; }
     
@@ -316,10 +319,26 @@
         padding: 30px;
         color: white;
     }
+    
+    /* Fix Input Group Pill */
+    .input-group-pill {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50rem;
+    }
+    .input-group-pill .form-control {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: white !important;
+    }
+    .input-group-pill .input-group-text {
+        background: transparent !important;
+        border: none !important;
+        color: white !important;
+    }
 
-    .form-control { background: rgba(255, 255, 255, 0.2) !important; border: 1px solid rgba(255, 255, 255, 0.1); color: white !important; }
     .form-control::placeholder { color: rgba(255,255,255,0.7); }
-    .input-group-text { background: rgba(255, 255, 255, 0.2) !important; border: 1px solid rgba(255, 255, 255, 0.1); color: white !important; }
     
     .btn-primary { background-color: rgba(30, 136, 229, 0.8); border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; }
     .btn-primary:hover { background-color: rgba(21, 101, 192, 0.9); box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4); }
@@ -334,6 +353,37 @@
         color: #fff;
         text-decoration: underline;
     }
+
+    /* New Side Panel Layout */
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        transition: gap 0.5s ease;
+    }
+    .login-container.side-panel-active {
+        gap: 30px;
+    }
+    .side-panel {
+        width: 0;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: width 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease, transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        overflow: hidden;
+        z-index: 2000; /* Ensure it's above background effects */
+    }
+    .login-container.side-panel-active .side-panel {
+        width: 420px;
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .side-panel .card-glass { max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; }
+    .side-panel-header { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .side-panel-title { font-weight: bold; margin: 0; }
+    .side-panel-body { padding: 1.5rem; overflow-y: auto; }
+    .close-side-panel { position: absolute; top: 10px; right: 20px; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; z-index: 10; opacity: 0.7; }
+    .close-side-panel:hover { opacity: 1; }
 
     /* Welcome Screen Animation */
     #welcome-screen {
@@ -405,7 +455,7 @@
         display: none;
         align-items: center;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 20px; margin-bottom: 20px; /* Fix overlap */
         background: rgba(255,255,255,0.1);
         padding: 10px;
         border-radius: 10px;
@@ -504,6 +554,14 @@
         overflow-y: auto;
         padding: 2rem;
     }
+    
+    /* Mobile Modal Styles */
+    #modalMobileAction .modal-content {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -539,7 +597,8 @@
     <i class="fas fa-cloud-rain"></i>
 </button>
 
-<div class="login-box">
+<div class="login-container" id="loginContainer">
+  <div class="login-box">
   <div class="card-glass">
     <div class="text-center mb-4">
       <h2 class="font-weight-bold">ĐĂNG NHẬP</h2>
@@ -547,16 +606,16 @@
     </div>
 
     <form id="loginForm">
-        <div class="input-group mb-3">
-            <input type="text" id="username" class="form-control rounded-pill" placeholder="Tên đăng nhập" required style="padding-left: 20px;">
+        <div class="input-group mb-3 input-group-pill">
+            <input type="text" id="username" class="form-control" placeholder="Tên đăng nhập" required style="padding-left: 20px;">
             <div class="input-group-append">
-                <div class="input-group-text border-0 bg-transparent"><span class="fas fa-user text-white"></span></div>
+                <div class="input-group-text"><span class="fas fa-user"></span></div>
             </div>
         </div>
-        <div class="input-group mb-3">
-            <input type="password" id="password" class="form-control rounded-pill" placeholder="Mật khẩu" required style="padding-left: 20px;">
+        <div class="input-group mb-3 input-group-pill">
+            <input type="password" id="password" class="form-control" placeholder="Mật khẩu" required style="padding-left: 20px;">
             <div class="input-group-append">
-                <div class="input-group-text border-0 bg-transparent"><span class="fas fa-lock text-white"></span></div>
+                <div class="input-group-text"><span class="fas fa-lock"></span></div>
             </div>
         </div>
         
@@ -583,7 +642,7 @@
         </button>
     </form>
 
-    <div class="text-center mt-4 action-links">
+    <div class="text-center mt-5 action-links">
         <p class="mb-1 small">Chưa có thông tin học sinh?</p>
         <a href="javascript:void(0)" onclick="openRegisterModal()"><i class="fas fa-user-plus mr-1"></i> Đăng ký ngay</a>
         <span class="mx-2">|</span>
@@ -596,114 +655,27 @@
   </div>
 </div>
 
-<!-- Modal Register Student -->
-<div class="modal fade" id="modalRegister" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-fullscreen" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title font-weight-bold">Đăng ký Thông tin Sinh hoạt hè</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info small">
-                    <i class="fas fa-info-circle"></i> Sau khi đăng ký, bạn sẽ nhận được <b>Mã ID</b> và <b>Mật khẩu tạm</b>. Vui lòng lưu lại để cập nhật thông tin chi tiết sau.
-                </div>
-                <div class="form-group"><label>Họ và Tên học sinh <span class="text-danger">*</span></label><input type="text" id="reg_name" class="form-control" placeholder="Nguyễn Văn A"></div>
-                <div class="form-group"><label>Ngày sinh</label><input type="date" id="reg_dob" class="form-control"></div>
-                <div class="form-group"><label>Lớp hiện tại</label><input type="text" id="reg_class" class="form-control" placeholder="VD: 9A1"></div>                
-                <div class="form-group">
-                    <label>Trường học</label>
-                    <select id="reg_school_select" class="form-control" onchange="toggleOtherSchool('reg_school_select', 'reg_school_other_div')">
-                        <option value="">-- Vui lòng chọn trường --</option>
-                    </select>
-                </div>
-                <div class="form-group" id="reg_school_other_div" style="display:none;">
-                    <label>Tên trường khác</label>
-                    <input type="text" id="reg_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
-                </div>
-                <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
-                <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
-                
-                <div class="form-group">
-                    <label>Mã xác nhận</label>
-                    <div class="d-flex align-items-center mb-2">
-                        <span id="captcha_code_reg" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_reg')"><i class="fas fa-sync"></i></button>
-                    </div>
-                    <input type="text" id="captcha_input_reg" class="form-control" placeholder="Nhập mã xác nhận">
-                </div>
-
-                <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
-                <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" placeholder="VD: Tháng 6 - Tháng 8"></div>
-                <div class="form-group"><label>Địa điểm đăng ký (Tổ chức/Địa phương)</label><input type="text" id="reg_loc" class="form-control"></div>
-                <div class="form-group"><label>Hoạt động dự định tham gia</label><textarea id="reg_act" class="form-control" rows="2" placeholder="Thể thao, văn nghệ, tình nguyện..."></textarea></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-success" onclick="submitRegister()">Đăng ký ngay</button>
-            </div>
+<div class="side-panel" id="sidePanel">
+    <div class="card-glass">
+        <div class="side-panel-header">
+            <h5 class="side-panel-title"></h5>
+            <button class="close-side-panel" onclick="closeSidePanel()">&times;</button>
+        </div>
+        <div class="side-panel-body" id="sidePanelBody">
+            <!-- Content injected by JS -->
         </div>
     </div>
 </div>
 
-<!-- Modal Update Info (Login Temp) -->
-<div class="modal fade" id="modalUpdateInfo" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-fullscreen" role="document">
+<!-- Modal Mobile Action -->
+<div class="modal fade" id="modalMobileAction" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title font-weight-bold">Đổi thông tin & Hoàn tất Hồ sơ</h5>
-                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <div class="modal-header border-0">
+                <h5 class="modal-title font-weight-bold" id="mobileModalTitle"></h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <div class="modal-body">
-                <!-- Step 1: Login -->
-                <div id="update_step1">
-                    <p>Vui lòng nhập ID và Mật khẩu tạm (6 số) bạn nhận được khi đăng ký.</p>
-                    <div class="form-group"><label>Mã ID Đăng ký</label><input type="text" id="temp_id" class="form-control" placeholder="REG..."></div>
-                    <div class="form-group"><label>Mật khẩu tạm</label><input type="password" id="temp_pass" class="form-control" placeholder="6 chữ số"></div>
-                    <button class="btn btn-primary btn-block" onclick="loginTemp()">Tiếp tục <i class="fas fa-arrow-right"></i></button>
-                </div>
-
-                <!-- Step 2: Update Form -->
-                <div id="update_step2" style="display:none;">
-                    <div class="alert alert-success small">Xác thực thành công! Vui lòng chọn Nhóm và kiểm tra lại thông tin.</div>
-                    <input type="hidden" id="conf_temp_id">
-                    <div class="form-group">
-                        <label class="text-danger font-weight-bold">Chọn Nhóm sinh hoạt <span class="text-danger">*</span></label>
-                        <select id="conf_group" class="form-control font-weight-bold border-danger"></select>
-                    </div>
-                    <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control"></div>
-                    <div class="form-group"><label>Ngày sinh</label><input type="date" id="conf_dob" class="form-control"></div>
-                    <div class="form-group"><label>Lớp</label><input type="text" id="conf_class" class="form-control"></div>                    
-                    <div class="form-group">
-                        <label>Trường</label>
-                        <select id="conf_school_select" class="form-control" onchange="toggleOtherSchool('conf_school_select', 'conf_school_other_div')">
-                            <option value="">-- Vui lòng chọn trường --</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="conf_school_other_div" style="display:none;">
-                        <label>Tên trường khác</label>
-                        <input type="text" id="conf_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
-                    </div>
-                    <div class="form-group"><label>Địa chỉ</label><input type="text" id="conf_address" class="form-control"></div>
-                    <div class="form-group"><label>SĐT</label><input type="text" id="conf_phone" class="form-control"></div>
-                    <div class="form-group"><label>Thời gian</label><input type="text" id="conf_time" class="form-control"></div>
-                    <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
-                    <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
-                    
-                    <div class="form-group">
-                        <label>Mã xác nhận</label>
-                        <div class="d-flex align-items-center mb-2">
-                            <span id="captcha_code_update" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_update')"><i class="fas fa-sync"></i></button>
-                        </div>
-                        <input type="text" id="captcha_input_update" class="form-control" placeholder="Nhập mã xác nhận">
-                    </div>
-
-                    <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
-                        <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
-                    </button>
-                </div>
-            </div>
+            <div class="modal-body" id="mobileModalBody"></div>
         </div>
     </div>
 </div>
@@ -798,6 +770,97 @@
     let tempUser = "";
 
     window.onload = () => { 
+        // Define form templates
+        window.registerFormTemplate = `
+            <div class="alert alert-info small p-2">
+                <i class="fas fa-info-circle"></i> Sau khi đăng ký, bạn sẽ nhận được <b>Mã ID</b> và <b>Mật khẩu tạm</b>. Vui lòng lưu lại để cập nhật thông tin chi tiết sau.
+            </div>
+            <div class="form-group"><label>Họ và Tên học sinh <span class="text-danger">*</span></label><input type="text" id="reg_name" class="form-control" placeholder="Nguyễn Văn A"></div>
+            <div class="form-group"><label>Giới tính</label>
+                <select id="reg_gender" class="form-control">
+                    <option value="">-- Chọn --</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Ngày sinh</label><input type="date" id="reg_dob" class="form-control"></div>
+            <div class="form-group"><label>Lớp hiện tại</label><input type="text" id="reg_class" class="form-control" placeholder="VD: 9A1"></div>                
+            <div class="form-group">
+                <label>Trường học</label>
+                <select id="reg_school_select" class="form-control" onchange="toggleOtherSchool('reg_school_select', 'reg_school_other_div')">
+                    <option value="">-- Vui lòng chọn trường --</option>
+                </select>
+            </div>
+            <div class="form-group" id="reg_school_other_div" style="display:none;">
+                <label>Tên trường khác</label>
+                <input type="text" id="reg_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
+            </div>
+            <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
+            <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
+            <div class="form-group">
+                <label>Mã xác nhận</label>
+                <div class="d-flex align-items-center mb-2">
+                    <span id="captcha_code_reg" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_reg')"><i class="fas fa-sync"></i></button>
+                </div>
+                <input type="text" id="captcha_input_reg" class="form-control" placeholder="Nhập mã xác nhận">
+            </div>
+            <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
+            <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" placeholder="VD: Tháng 6 - Tháng 8"></div>
+            <div class="form-group"><label>Địa điểm đăng ký (Tổ chức/Địa phương)</label><input type="text" id="reg_loc" class="form-control"></div>
+            <div class="form-group"><label>Hoạt động dự định tham gia</label><textarea id="reg_act" class="form-control" rows="2" placeholder="Thể thao, văn nghệ, tình nguyện..."></textarea></div>
+            <button type="button" class="btn btn-success btn-block" onclick="submitRegister()">Đăng ký ngay</button>
+        `;
+
+        window.updateInfoTemplate = `
+            <div id="update_step1">
+                <p>Vui lòng nhập ID và Mật khẩu tạm (6 số) bạn nhận được khi đăng ký.</p>
+                <div class="form-group"><label>Mã ID Đăng ký</label><input type="text" id="temp_id" class="form-control" placeholder="REG..."></div>
+                <div class="form-group"><label>Mật khẩu tạm</label><input type="password" id="temp_pass" class="form-control" placeholder="6 chữ số"></div>
+                <button class="btn btn-primary btn-block" onclick="loginTemp()">Tiếp tục <i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div id="update_step2" style="display:none;">
+                <div class="alert alert-success small">Xác thực thành công! Vui lòng chọn Nhóm và kiểm tra lại thông tin.</div>
+                <input type="hidden" id="conf_temp_id">
+                <div class="form-group">
+                    <label class="text-danger font-weight-bold">Chọn Nhóm sinh hoạt <span class="text-danger">*</span></label>
+                    <select id="conf_group" class="form-control font-weight-bold border-danger"></select>
+                </div>
+                <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control"></div>
+                <div class="form-group"><label>Giới tính</label>
+                    <select id="conf_gender" class="form-control">
+                        <option value="">-- Chọn --</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Ngày sinh</label><input type="date" id="conf_dob" class="form-control"></div>
+                <div class="form-group"><label>Lớp</label><input type="text" id="conf_class" class="form-control"></div>                    
+                <div class="form-group">
+                    <label>Trường</label>
+                    <select id="conf_school_select" class="form-control" onchange="toggleOtherSchool('conf_school_select', 'conf_school_other_div')">
+                        <option value="">-- Vui lòng chọn trường --</option>
+                    </select>
+                </div>
+                <div class="form-group" id="conf_school_other_div" style="display:none;">
+                    <label>Tên trường khác</label>
+                    <input type="text" id="conf_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
+                </div>
+                <div class="form-group"><label>Địa chỉ</label><input type="text" id="conf_address" class="form-control"></div>
+                <div class="form-group"><label>SĐT</label><input type="text" id="conf_phone" class="form-control"></div>
+                <div class="form-group"><label>Thời gian</label><input type="text" id="conf_time" class="form-control"></div>
+                <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
+                <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
+                <div class="form-group">
+                    <label>Mã xác nhận</label>
+                    <div class="d-flex align-items-center mb-2">
+                        <span id="captcha_code_update" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_update')"><i class="fas fa-sync"></i></button>
+                    </div>
+                    <input type="text" id="captcha_input_update" class="form-control" placeholder="Nhập mã xác nhận">
+                </div>
+                <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
+                    <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
+                </button>
+            </div>
+        `;
+
         sessionStorage.clear(); 
         
         // Auto Loading Sequence (5 trạng thái)
@@ -955,15 +1018,34 @@
         }, 800);
     }
 
+    function isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    // --- SIDE PANEL LOGIC ---
+    function openSidePanel(title, content) {
+        const sidePanel = $('#sidePanel');
+        sidePanel.find('.side-panel-title').html(title);
+        $('#sidePanelBody').html(content);
+        $('#loginContainer').addClass('side-panel-active');
+    }
+
+    function closeSidePanel() {
+        $('#loginContainer').removeClass('side-panel-active');
+    }
+
     // --- LOGIC ĐĂNG KÝ ---
     async function openRegisterModal() {
-        $('#modalRegister').modal('show');
-        $('#reg_name, #reg_dob, #reg_class, #reg_address, #reg_phone, #reg_time, #reg_loc, #reg_act, #captcha_input_reg, #reg_school_other').val('');
-        generateCaptcha('captcha_code_reg');
+        if (isMobile()) {
+            $('#mobileModalTitle').html('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin');
+            $('#mobileModalBody').html(window.registerFormTemplate);
+            $('#modalMobileAction').modal('show');
+        } else {
+            openSidePanel('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin', window.registerFormTemplate);
+        }
         await loadSchoolList();
         populateSchoolDropdown('reg_school_select');
-        $('#reg_school_select').val('');
-        toggleOtherSchool('reg_school_select', 'reg_school_other_div');
+        generateCaptcha('captcha_code_reg');
     }
 
     async function submitRegister() {
@@ -979,6 +1061,7 @@
 
         const payload = {
             fullname: name,
+            gender: $('#reg_gender').val(),
             dob: $('#reg_dob').val(),
             class_name: $('#reg_class').val(),
             school: schoolName,
@@ -994,7 +1077,8 @@
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGISTER_TEMP", payload: payload }) });
             const res = await response.json();
             if (res.status === "success") {
-                $('#modalRegister').modal('hide');
+                if(isMobile()) $('#modalMobileAction').modal('hide');
+                else closeSidePanel();
                 Swal.fire({
                     title: 'Đăng ký thành công!',
                     html: `Vui lòng chụp lại màn hình thông tin này để hoàn tất hồ sơ:<br><br>
@@ -1009,12 +1093,14 @@
 
     // --- LOGIC CẬP NHẬT / HOÀN TẤT ---
     function openUpdateInfoModal() {
-        $('#modalUpdateInfo').modal('show');
-        $('#update_step1').show();
-        $('#update_step2').hide();
-        $('#temp_id, #temp_pass').val('');
-        $('#captcha_input_update').val('');
-        generateCaptcha('captcha_code_update');
+        if (isMobile()) {
+            $('#mobileModalTitle').html('<i class="fas fa-edit mr-2"></i> Hoàn tất Hồ sơ');
+            $('#mobileModalBody').html(window.updateInfoTemplate);
+            $('#modalMobileAction').modal('show');
+        } else {
+            openSidePanel('<i class="fas fa-edit mr-2"></i> Hoàn tất Hồ sơ', window.updateInfoTemplate);
+        }
+        generateCaptcha('captcha_code_update'); // Generate for step 2
     }
 
     async function loginTemp() {
@@ -1031,6 +1117,7 @@
                 const d = res.data;
                 $('#conf_temp_id').val(d.id);
                 $('#conf_name').val(d.fullname);
+                $('#conf_gender').val(d.gender);
                 $('#conf_dob').val(d.dob ? new Date(d.dob).toISOString().split('T')[0] : ''); // Format YYYY-MM-DD for input
                 $('#conf_class').val(d.class_name);
                 $('#conf_address').val(d.address);
@@ -1085,6 +1172,7 @@
             temp_id: $('#conf_temp_id').val(),
             group_id: group,
             fullname: $('#conf_name').val(),
+            gender: $('#conf_gender').val(),
             dob: $('#conf_dob').val(), // Already in YYYY-MM-DD
             class_name: $('#conf_class').val(),
             school: schoolName,
@@ -1100,7 +1188,8 @@
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CONFIRM_REGISTRATION", payload: payload }) });
             const res = await response.json();
             if (res.status === "success") {
-                $('#modalUpdateInfo').modal('hide');
+                if(isMobile()) $('#modalMobileAction').modal('hide');
+                else closeSidePanel();
                 Swal.fire('Thành công', 'Hồ sơ đã được chuyển sang danh sách chính thức!', 'success');
             } else { Swal.fire('Lỗi', res.message, 'error'); }
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
