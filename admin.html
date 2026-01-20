@@ -138,10 +138,15 @@
             position: relative;
             background-color: #fff !important;
         }
+        /* Fix 1 Page Scroll */
+        html, body { height: 100vh; overflow: hidden; }
+        .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
+        .main-footer { height: 40px; line-height: 20px; }
+        .info-box { min-height: 90px; }
     </style>
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <script>
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -192,39 +197,61 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#tab-students-list" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-id-card"></i> <p>Dữ liệu học sinh</p>
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-database"></i>
+                            <p>
+                                Quản lý Dữ liệu
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#tab-students-list" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-id-card"></i> <p>Dữ liệu học sinh</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#tab-managers-list" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-user-shield"></i> <p>Quản lý tài khoản</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#tab-groups-list" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-users-cog"></i> <p>Danh sách nhóm</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
-                        <a href="#tab-managers-list" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-user-shield"></i> <p>Quản lý tài khoản</p>
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-cubes"></i>
+                            <p>
+                                Chức năng & Tiện ích
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-groups-list" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-users-cog"></i> <p>Danh sách nhóm</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-upload" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-folder-open"></i> <p>Quản lý trình duyệt file</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-notifications" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-bell"></i> <p>Thông báo hệ thống</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-feedbacks" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-comments"></i> <p>Quản lý Phản ánh kiến nghị</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-evaluations" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-star"></i> <p>Quản lý Đánh giá</p>
-                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#tab-upload" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-folder-open"></i> <p>Quản lý file</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#tab-notifications" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-bell"></i> <p>Thông báo hệ thống</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#tab-feedbacks" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-comments"></i> <p>Phản ánh kiến nghị</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#tab-evaluations" class="nav-link" data-toggle="pill">
+                                    <i class="nav-icon fas fa-star"></i> <p>Quản lý Đánh giá</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a href="#tab-system-logs" class="nav-link" data-toggle="pill">
@@ -290,46 +317,62 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
-                        <div class="d-flex flex-nowrap overflow-auto pb-3" style="gap: 15px;">
+                        <div class="row">
                             <!-- Students -->
-                            <div class="info-box bg-info shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('students', 'Thống kê Học sinh', 'countHS')">
-                                <span class="info-box-icon"><i class="fas fa-users"></i></span>
-                                <div class="info-box-content"><span class="info-box-text">Học sinh</span><span class="info-box-number" id="countHS">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-info shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('students', 'Thống kê Học sinh', 'countHS')">
+                                    <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content"><span class="info-box-text">Học sinh</span><span class="info-box-number" id="countHS">0</span></div>
+                                </div>
                             </div>
                             <!-- Present -->
-                            <div class="info-box bg-success shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Có mặt', 'countPresent')">
-                                <span class="info-box-icon"><i class="fas fa-check"></i></span>
-                                <div class="info-box-content"><span class="info-box-text">Có mặt</span><span class="info-box-number" id="countPresent">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-success shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Có mặt', 'countPresent')">
+                                    <span class="info-box-icon"><i class="fas fa-check"></i></span>
+                                    <div class="info-box-content"><span class="info-box-text">Có mặt</span><span class="info-box-number" id="countPresent">0</span></div>
+                                </div>
                             </div>
                             <!-- Absent P -->
-                            <div class="info-box bg-warning shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (P)', 'countAbsentP')">
-                                <span class="info-box-icon text-white"><i class="fas fa-envelope"></i></span>
-                                <div class="info-box-content text-white"><span class="info-box-text">Vắng (P)</span><span class="info-box-number" id="countAbsentP">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-warning shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (P)', 'countAbsentP')">
+                                    <span class="info-box-icon text-white"><i class="fas fa-envelope"></i></span>
+                                    <div class="info-box-content text-white"><span class="info-box-text">Vắng (P)</span><span class="info-box-number" id="countAbsentP">0</span></div>
+                                </div>
                             </div>
                             <!-- Absent K -->
-                            <div class="info-box bg-danger shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (K)', 'countAbsent')">
-                                <span class="info-box-icon"><i class="fas fa-times"></i></span>
-                                <div class="info-box-content"><span class="info-box-text">Vắng (K)</span><span class="info-box-number" id="countAbsent">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-danger shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (K)', 'countAbsent')">
+                                    <span class="info-box-icon"><i class="fas fa-times"></i></span>
+                                    <div class="info-box-content"><span class="info-box-text">Vắng (K)</span><span class="info-box-number" id="countAbsent">0</span></div>
+                                </div>
                             </div>
                             <!-- Managers -->
-                            <div class="info-box bg-purple shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('managers', 'Thống kê Quản lý', 'countManagers')">
-                                <span class="info-box-icon"><i class="fas fa-user-shield"></i></span>
-                                <div class="info-box-content"><span class="info-box-text">Quản lý</span><span class="info-box-number" id="countManagers">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-purple shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('managers', 'Thống kê Quản lý', 'countManagers')">
+                                    <span class="info-box-icon"><i class="fas fa-user-shield"></i></span>
+                                    <div class="info-box-content"><span class="info-box-text">Quản lý</span><span class="info-box-number" id="countManagers">0</span></div>
+                                </div>
                             </div>
                             <!-- Groups -->
-                            <div class="info-box bg-indigo shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('groups', 'Thống kê Nhóm', 'countGroups')">
-                                <span class="info-box-icon"><i class="fas fa-layer-group"></i></span>
-                                <div class="info-box-content"><span class="info-box-text">Nhóm SHH</span><span class="info-box-number" id="countGroups">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-indigo shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('groups', 'Thống kê Nhóm', 'countGroups')">
+                                    <span class="info-box-icon"><i class="fas fa-layer-group"></i></span>
+                                    <div class="info-box-content"><span class="info-box-text">Nhóm SHH</span><span class="info-box-number" id="countGroups">0</span></div>
+                                </div>
                             </div>
                             <!-- Notifications -->
-                            <div class="info-box bg-orange shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('notifications', 'Thống kê Thông báo', 'countNotis')">
-                                <span class="info-box-icon text-white"><i class="fas fa-bell"></i></span>
-                                <div class="info-box-content text-white"><span class="info-box-text">Thông báo</span><span class="info-box-number" id="countNotis">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-orange shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('notifications', 'Thống kê Thông báo', 'countNotis')">
+                                    <span class="info-box-icon text-white"><i class="fas fa-bell"></i></span>
+                                    <div class="info-box-content text-white"><span class="info-box-text">Thông báo</span><span class="info-box-number" id="countNotis">0</span></div>
+                                </div>
                             </div>
                             <!-- Feedbacks -->
-                            <div class="info-box bg-teal shadow-sm flex-shrink-0" style="width: 220px; cursor: pointer;" onclick="showChartsFor('feedbacks', 'Thống kê Phản ánh', 'countFeedbacks')">
-                                <span class="info-box-icon"><i class="fas fa-comments"></i></span>
-                                <div class="info-box-content"><span class="info-box-text">Phản ánh</span><span class="info-box-number" id="countFeedbacks">0</span></div>
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <div class="info-box bg-teal shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('feedbacks', 'Thống kê Phản ánh', 'countFeedbacks')">
+                                    <span class="info-box-icon"><i class="fas fa-comments"></i></span>
+                                    <div class="info-box-content"><span class="info-box-text">Phản ánh</span><span class="info-box-number" id="countFeedbacks">0</span></div>
+                                </div>
                             </div>
                         </div>
 
@@ -397,8 +440,8 @@
                         <!-- Subtab Official -->
                         <div class="tab-pane fade show active" id="subtab-official">
                         <div class="row">
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Nhóm</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStGroup"></canvas></div></div></div></div>
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Trường</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStSchool"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_st_group"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Nhóm</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStGroup"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_st_school"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Trường</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStSchool"></canvas></div></div></div></div>
                         </div>
                         <div class="card card-outline card-info shadow mb-3">
                             <div class="card-header"><h3 class="card-title"><i class="fas fa-filter mr-2"></i>Bộ lọc tìm kiếm</h3></div>
@@ -485,8 +528,8 @@
                 <section class="content">
                     <div class="container-fluid">
                         <div class="row mb-2">
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Phân quyền</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartMgrRole"></canvas></div></div></div></div>
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Phụ trách Nhóm</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartMgrGroup"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_mgr_role"><div class="card-header py-1"><h3 class="card-title">Phân quyền</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartMgrRole"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_mgr_group"><div class="card-header py-1"><h3 class="card-title">Phụ trách Nhóm</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartMgrGroup"></canvas></div></div></div></div>
                         </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
@@ -584,8 +627,8 @@
                 <section class="content">
                     <div class="container-fluid">
                         <div class="row mb-2">
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Loại Thông báo</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartNotiType"></canvas></div></div></div></div>
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Tương tác (Lượt xem)</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartNotiRead"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_noti_type"><div class="card-header py-1"><h3 class="card-title">Loại Thông báo</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartNotiType"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_noti_read"><div class="card-header py-1"><h3 class="card-title">Tương tác (Lượt xem)</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartNotiRead"></canvas></div></div></div></div>
                         </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
@@ -622,7 +665,7 @@
                 <section class="content">
                     <div class="container-fluid">
                         <div class="row mb-2">
-                            <div class="col-md-6"><div class="card"><div class="card-header py-1"><h3 class="card-title">Trạng thái Phản hồi</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartFbStatus"></canvas></div></div></div></div>
+                            <div class="col-md-6"><div class="card" data-save-key="adm_fb_status"><div class="card-header py-1"><h3 class="card-title">Trạng thái Phản hồi</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartFbStatus"></canvas></div></div></div></div>
                         </div>
                         <div class="card shadow">
                             <div class="card-body table-responsive">
@@ -660,7 +703,7 @@
                 <section class="content">
                     <div class="container-fluid">
                         <div class="row mb-2">
-                            <div class="col-12"><div class="card"><div class="card-header py-1"><h3 class="card-title">Thống kê Xếp loại</h3></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartEvalClass"></canvas></div></div></div></div>
+                            <div class="col-12"><div class="card" data-save-key="adm_eval_class"><div class="card-header py-1"><h3 class="card-title">Thống kê Xếp loại</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartEvalClass"></canvas></div></div></div></div>
                         </div>
                         <!-- Cấu hình đánh giá -->
                         <div class="card card-outline card-purple shadow mb-3">
@@ -1020,14 +1063,14 @@
 
 <!-- Modal Settings -->
 <div class="modal fade" id="modalSettings" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title"><i class="fas fa-cogs mr-2"></i>Cài đặt hệ thống</h5>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <div class="modal-body">
-                <ul class="nav nav-tabs mb-3" id="settingTabs" role="tablist">
+            <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                <ul class="nav nav-tabs mb-3 flex-nowrap" id="settingTabs" role="tablist" style="overflow-x: auto;">
                     <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tab-interface">Giao diện</a></li>
                     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-troll">Thông báo Khẩn</a></li>
                     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tab-features">Tính năng & Chữ chạy</a></li>
@@ -1064,7 +1107,6 @@
                             </div>
                         </div>
                         
-                        <button class="btn btn-warning btn-block mt-4" onclick="cleanUpChat()"><i class="fas fa-trash-alt mr-2"></i>Dọn dẹp tin nhắn cũ (>7 ngày)</button>
                         <p class="text-muted small">Chuyển đổi giao diện sáng/tối để dễ nhìn hơn.</p>
                     </div>
                     <!-- Tab Thông báo Khẩn -->
@@ -1107,6 +1149,10 @@
                             <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_marquee_enabled"><label class="custom-control-label" for="conf_marquee_enabled"></label></div>
                         </div>
                         <div class="form-group"><label>Nội dung hiển thị</label><input type="text" id="conf_marquee_text" class="form-control" placeholder="VD: Chúc mừng năm mới..."></div>
+                        <div class="form-group mt-2">
+                            <label><i class="fas fa-palette mr-2"></i>Màu nền Chữ chạy (Marquee)</label>
+                            <input type="text" id="conf_theme_color" class="form-control" placeholder="VD: #ff0000 hoặc linear-gradient(...)">
+                        </div>
                         <div class="form-group"><label>Chiều chạy chữ</label>
                             <select id="conf_marquee_direction" class="form-control">
                                 <option value="right">Từ Trái sang Phải (Mặc định)</option>
@@ -1123,8 +1169,6 @@
                             <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_notis"><label class="custom-control-label" for="maint_notis">Thông báo</label></div></div>
                             <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_eval"><label class="custom-control-label" for="maint_eval">Đánh giá</label></div></div>
                             <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_feedback"><label class="custom-control-label" for="maint_feedback">Phản ánh kiến nghị</label></div></div>
-                            <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_upload"><label class="custom-control-label" for="maint_upload">Trung tâm Tải file</label></div></div>
-                            <div class="col-6"><div class="custom-control custom-switch mb-2"><input type="checkbox" class="custom-control-input" id="maint_calendar"><label class="custom-control-label" for="maint_calendar">Lịch hoạt động</label></div></div>
                         </div>
                         <hr>
                         <h6 class="text-success font-weight-bold"><i class="fas fa-clock mr-2"></i>Cấu hình Giờ Điểm danh Tự động</h6>
@@ -1149,35 +1193,6 @@
                             <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_student_import_locked"><label class="custom-control-label" for="conf_student_import_locked"></label></div>
                         </div>
                         <div class="form-group"><label>Hạn chót nhập liệu (Tự động khóa sau ngày này)</label><input type="date" id="conf_student_import_deadline" class="form-control"></div>
-                        
-                        <div class="form-group mt-2 border-top pt-2">
-                            <label><i class="fas fa-image mr-2"></i>Ảnh bìa Điểm danh (Tab Index)</label>
-                            <div class="input-group">
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="file_cover_image" accept="image/*">
-                                    <label class="custom-file-label" for="file_cover_image">Chọn ảnh (Tỉ lệ Banner Youtube)...</label>
-                                </div>
-                                <div class="input-group-append">
-                                    <button class="btn btn-info" type="button" onclick="uploadCoverImage()">Upload</button>
-                                </div>
-                            </div>
-                            <input type="text" id="conf_cover_image" class="form-control mt-2" placeholder="Link ảnh hiện tại..." readonly>
-                        </div>
-
-                        <div class="form-group mt-2">
-                            <label><i class="fas fa-palette mr-2"></i>Màu nền Chữ chạy (Marquee)</label>
-                            <input type="text" id="conf_theme_color" class="form-control" placeholder="VD: #ff0000 hoặc linear-gradient(...)">
-                        </div>
-
-                        <div class="form-group mt-2">
-                            <label><i class="fas fa-cloud-sun-rain mr-2"></i>Hiệu ứng Thời tiết (Giao diện)</label>
-                            <select id="conf_weather_effect" class="form-control">
-                                <option value="">-- Không --</option>
-                                <option value="snow">Tuyết rơi (Mùa đông)</option>
-                                <option value="rain">Mưa rơi</option>
-                                <option value="sunny">Trời nắng (Hiệu ứng sáng)</option>
-                            </select>
-                        </div>
 
                         <div class="form-group mt-2 border-top pt-2">
                             <label>Giới hạn dung lượng file Upload (MB)</label>
@@ -1222,26 +1237,26 @@
 <!-- Modal Charts -->
 <div class="modal fade" id="modalCharts" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary">
-                <h5 class="modal-title" id="chartModalTitle">Thống kê chi tiết</h5>
+        <div class="modal-content border-0">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h4 class="modal-title font-weight-bold text-dark" id="chartModalTitle">Thống kê chi tiết</h4>
                 <div class="d-flex align-items-center ml-auto">
                     <div id="chartFilterContainer" class="mr-2" style="display:none;">
                         <select id="chartGroupFilter" class="form-control form-control-sm" onchange="updateModalCharts()">
                             <option value="">-- Tất cả Nhóm --</option>
                         </select>
                     </div>
-                    <button type="button" class="close text-white ml-2" data-dismiss="modal"><span>&times;</span></button>
+                    <button type="button" class="close ml-2" data-dismiss="modal"><span>&times;</span></button>
                 </div>
             </div>
-            <div class="modal-body bg-light">
-                <h4 class="text-center font-weight-bold mb-3" id="modalTotalDisplay"></h4>
+            <div class="modal-body pt-2">
+                <div class="text-center mb-4" id="modalTotalDisplay"></div>
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="card shadow-sm"><div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title font-weight-bold" id="chartTitle1">Phân bố</h3><button class="btn btn-xs btn-outline-secondary" onclick="downloadChartImage('modalChart1', 'Bieu_do_phan_bo.png')"><i class="fas fa-download"></i> PNG</button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart1"></canvas></div></div></div>
+                        <div class="card shadow-none border"><div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom-0"><h3 class="card-title font-weight-bold text-secondary" id="chartTitle1">Phân bố</h3><button class="btn btn-xs btn-light" onclick="downloadChartImage('modalChart1', 'Bieu_do_phan_bo.png')"><i class="fas fa-download"></i></button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart1"></canvas></div></div></div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card shadow-sm"><div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title font-weight-bold" id="chartTitle2">Biến động</h3><button class="btn btn-xs btn-outline-secondary" onclick="downloadChartImage('modalChart2', 'Bieu_do_bien_dong.png')"><i class="fas fa-download"></i> PNG</button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart2"></canvas></div></div></div>
+                        <div class="card shadow-none border"><div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom-0"><h3 class="card-title font-weight-bold text-secondary" id="chartTitle2">Biến động</h3><button class="btn btn-xs btn-light" onclick="downloadChartImage('modalChart2', 'Bieu_do_bien_dong.png')"><i class="fas fa-download"></i></button></div><div class="card-body"><div class="chart-container" style="height: 300px;"><canvas id="modalChart2"></canvas></div></div></div>
                     </div>
                 </div>
             </div>
@@ -1369,6 +1384,7 @@ $(document).ready(function() {
     generateCaptcha('captcha_code_backup');
     generateCaptcha('captcha_code_restore');
     refreshAll();
+    initCardCollapseState();
 });
 
 // Helper: Render Chart
@@ -1833,9 +1849,7 @@ async function loadEvalConfig() {
             $('#conf_marquee_enabled').prop('checked', String(res.data.marquee_enabled).toUpperCase() === 'TRUE');
             $('#conf_marquee_text').val(res.data.marquee_text || '');
             $('#conf_marquee_direction').val(res.data.marquee_direction || 'right');
-            $('#conf_cover_image').val(res.data.cover_image || '');
             $('#conf_theme_color').val(res.data.theme_color || '');
-            $('#conf_weather_effect').val(res.data.weather_effect || '');
 
             // Load Feature Maintenance Config
             $('#maint_attendance').prop('checked', String(res.data.maint_attendance).toUpperCase() === 'TRUE');
@@ -1844,8 +1858,6 @@ async function loadEvalConfig() {
             $('#maint_notis').prop('checked', String(res.data.maint_notis).toUpperCase() === 'TRUE');
             $('#maint_eval').prop('checked', String(res.data.maint_eval).toUpperCase() === 'TRUE');
             $('#maint_feedback').prop('checked', String(res.data.maint_feedback).toUpperCase() === 'TRUE');
-            $('#maint_upload').prop('checked', String(res.data.maint_upload).toUpperCase() === 'TRUE');
-            $('#maint_calendar').prop('checked', String(res.data.maint_calendar).toUpperCase() === 'TRUE');
             
             // Attendance Time
             $('#conf_att_start').val(res.data.attendance_start_time || '');
@@ -1979,17 +1991,13 @@ async function saveFeatureConfig() {
         marquee_enabled: $('#conf_marquee_enabled').is(':checked') ? 'TRUE' : 'FALSE',
         marquee_text: $('#conf_marquee_text').val(),
         marquee_direction: $('#conf_marquee_direction').val(),
-        cover_image: $('#conf_cover_image').val(),
         theme_color: $('#conf_theme_color').val(),
-        weather_effect: $('#conf_weather_effect').val(),
         maint_attendance: $('#maint_attendance').is(':checked') ? 'TRUE' : 'FALSE',
         maint_students: $('#maint_students').is(':checked') ? 'TRUE' : 'FALSE',
         maint_funds: $('#maint_funds').is(':checked') ? 'TRUE' : 'FALSE',
         maint_notis: $('#maint_notis').is(':checked') ? 'TRUE' : 'FALSE',
         maint_eval: $('#maint_eval').is(':checked') ? 'TRUE' : 'FALSE',
         maint_feedback: $('#maint_feedback').is(':checked') ? 'TRUE' : 'FALSE',
-        maint_upload: $('#maint_upload').is(':checked') ? 'TRUE' : 'FALSE',
-        maint_calendar: $('#maint_calendar').is(':checked') ? 'TRUE' : 'FALSE',
         attendance_start_time: $('#conf_att_start').val(),
         attendance_end_time: $('#conf_att_end').val(),
         att_blocked: $('#conf_att_blocked').is(':checked') ? 'TRUE' : 'FALSE',
@@ -2006,39 +2014,6 @@ async function saveFeatureConfig() {
         if (res.status === 'success') { Swal.fire('Thành công', 'Đã lưu cấu hình tính năng!', 'success'); loadEvalConfig(); }
         else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
-}
-
-function uploadCoverImage() {
-    const file = document.getElementById('file_cover_image').files[0];
-    if (!file) return toastr.warning("Vui lòng chọn file ảnh!");
-    
-    // Show Modal
-    $('#uploadFileName').text(file.name);
-    $('#uploadProgressBar').css('width', '0%').text('0%');
-    $('#uploadProgressText').text('Đang đọc file...');
-    $('#modalUploadProgress').modal('show');
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const base64 = e.target.result;
-        
-        const payload = { 
-            action: "UPLOAD_MUSIC", 
-            payload: { data: base64, filename: file.name, mimeType: file.type, setting_key: 'cover_image' } 
-        };
-
-        uploadFileWithProgress(payload, (res) => {
-            $('#modalUploadProgress').modal('hide');
-            if (res.status === 'success') {
-                $('#conf_cover_image').val(res.url);
-                Swal.fire('Thành công', 'Đã upload ảnh bìa! Nhớ nhấn "Lưu Cấu hình Tính năng".', 'success');
-            } else Swal.fire('Lỗi', res.message, 'error');
-        }, (err) => {
-            $('#modalUploadProgress').modal('hide');
-            Swal.fire('Lỗi', err, 'error');
-        });
-    };
-    reader.readAsDataURL(file);
 }
 
 async function resetPushNotification() {

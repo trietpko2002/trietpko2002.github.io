@@ -66,10 +66,14 @@
         body.dark-mode .table-hover tbody tr:hover {
             background-color: #3f474e !important;
         }
+        /* Fix 1 Page Scroll */
+        html, body { height: 100vh; overflow: hidden; }
+        .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
+        .main-footer { height: 40px; line-height: 20px; }
     </style>
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <script>
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -208,8 +212,8 @@
                                     <!-- Charts Tab -->
                                     <div class="tab-pane fade show active" id="dash-charts">
                                         <div class="row">
-                                            <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Tỉ lệ Điểm danh (Tổng quát)</h3></div><div class="card-body"><div class="chart-container"><canvas id="chartAttendanceRatio"></canvas></div></div></div></div>
-                                            <div class="col-md-6"><div class="card"><div class="card-header"><h3 class="card-title">Biến động Điểm danh (7 ngày)</h3></div><div class="card-body"><div class="chart-container"><canvas id="chartAttendanceTrend"></canvas></div></div></div></div>
+                                            <div class="col-md-6"><div class="card" data-save-key="sup_att_ratio"><div class="card-header"><h3 class="card-title">Tỉ lệ Điểm danh (Tổng quát)</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body"><div class="chart-container"><canvas id="chartAttendanceRatio"></canvas></div></div></div></div>
+                                            <div class="col-md-6"><div class="card" data-save-key="sup_att_trend"><div class="card-header"><h3 class="card-title">Biến động Điểm danh (7 ngày)</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body"><div class="chart-container"><canvas id="chartAttendanceTrend"></canvas></div></div></div></div>
                                         </div>
                                     </div>
                                     
@@ -255,8 +259,8 @@
                             <div class="tab-pane fade show active" id="subtab-official">
                                 <!-- Student Charts -->
                                 <div class="row mb-3">
-                                    <div class="col-md-6"><div class="card card-info"><div class="card-header"><h3 class="card-title">Phân bố theo Nhóm</h3></div><div class="card-body"><div class="chart-container" style="height:200px"><canvas id="chartStGroup"></canvas></div></div></div></div>
-                                    <div class="col-md-6"><div class="card card-success"><div class="card-header"><h3 class="card-title">Tăng trưởng Học sinh</h3></div><div class="card-body"><div class="chart-container" style="height:200px"><canvas id="chartStTrend"></canvas></div></div></div></div>
+                                    <div class="col-md-6"><div class="card card-info" data-save-key="sup_st_group"><div class="card-header"><h3 class="card-title">Phân bố theo Nhóm</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body"><div class="chart-container" style="height:200px"><canvas id="chartStGroup"></canvas></div></div></div></div>
+                                    <div class="col-md-6"><div class="card card-success" data-save-key="sup_st_trend"><div class="card-header"><h3 class="card-title">Tăng trưởng Học sinh</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body"><div class="chart-container" style="height:200px"><canvas id="chartStTrend"></canvas></div></div></div></div>
                                 </div>
                                 <!-- Student Filters -->
                                 <div class="card card-outline card-info shadow mb-3">
@@ -382,7 +386,7 @@
                     <div class="container-fluid">
                         <!-- Evaluation Chart -->
                         <div class="row mb-3">
-                            <div class="col-12"><div class="card card-purple"><div class="card-header"><h3 class="card-title">Thống kê Kết quả</h3></div><div class="card-body"><div class="chart-container" style="height:250px"><canvas id="chartEvaluation"></canvas></div></div></div></div>
+                            <div class="col-12"><div class="card card-purple" data-save-key="sup_eval_chart"><div class="card-header"><h3 class="card-title">Thống kê Kết quả</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body"><div class="chart-container" style="height:250px"><canvas id="chartEvaluation"></canvas></div></div></div></div>
                         </div>
                         <!-- Evaluation Filters -->
                         <div class="card card-outline card-purple shadow mb-3">
@@ -630,6 +634,7 @@ $(document).ready(function() {
     if(user) $('#adminNameDisplay').text(user.fullname);
     if (localStorage.getItem('darkMode') === 'true') $('body').addClass('dark-mode');
     refreshAll();
+    initCardCollapseState();
 });
 
 async function refreshAll() {
@@ -1105,6 +1110,28 @@ function startEasterEgg() {
 function stopEasterEgg() {
     $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
     clearInterval(fireworksInterval); confetti.reset();
+}
+
+function initCardCollapseState() {
+    $('.card[data-save-key]').each(function() {
+        const key = $(this).data('save-key');
+        const state = localStorage.getItem('card_state_' + key);
+        if (state === 'collapsed') {
+            $(this).addClass('collapsed-card');
+            $(this).find('.card-body').hide();
+            $(this).find('[data-card-widget="collapse"] i').removeClass('fa-minus').addClass('fa-plus');
+        }
+    });
+    $(document).on('click', '[data-card-widget="collapse"]', function() {
+        const card = $(this).closest('.card');
+        const key = card.data('save-key');
+        if (key) {
+            setTimeout(() => {
+                const isCollapsed = card.hasClass('collapsed-card');
+                localStorage.setItem('card_state_' + key, isCollapsed ? 'collapsed' : 'expanded');
+            }, 300);
+        }
+    });
 }
 </script>
 </body>

@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
 
     <style>
         .info-box-content { justify-content: center; }
@@ -225,9 +227,14 @@
         .music-bar { width: 8px; background: linear-gradient(to top, #007bff, #00d2ff); border-radius: 5px; animation: bounce 1s infinite ease-in-out; opacity: 0.8; }
         @keyframes bounce { 0%, 100% { height: 10%; } 50% { height: 100%; } }
         .music-bar:nth-child(odd) { animation-duration: 0.8s; } .music-bar:nth-child(even) { animation-duration: 1.1s; } .music-bar:nth-child(3n) { animation-duration: 1.3s; } .music-bar:nth-child(4n) { animation-duration: 0.9s; } .music-bar:nth-child(5n) { animation-duration: 1.2s; }
+        
+        /* Fix 1 Page Scroll */
+        html, body { height: 100vh; overflow: hidden; }
+        .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
+        .main-footer { height: 40px; line-height: 20px; }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 
 <script>
     (function checkSecurity() {
@@ -363,7 +370,7 @@
             </div>
 
             <div class="tab-pane fade" id="tab-students">
-                <div class="card card-outline card-primary shadow">
+                <div class="card card-outline card-primary shadow" data-save-key="idx_student_list">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title text-uppercase flex-grow-1">
                             <i class="fas fa-table mr-2"></i>Danh sách học sinh <span class="text-primary" id="groupBadge">...</span>
@@ -374,9 +381,7 @@
                             <button class="btn btn-primary btn-sm shadow-sm mr-2 btn-manager-only" onclick="openStudentModal()">
                                 <i class="fas fa-plus mr-1"></i> Thêm HS
                             </button>
-                            <button class="btn btn-success btn-sm shadow-sm" onclick="exportExcel()">
-                                <i class="fas fa-file-excel mr-1"></i> Xuất Excel
-                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                         </div>
                     </div>
                     <div class="card-body table-responsive p-0">
@@ -402,10 +407,10 @@
             </div>
 
             <div class="tab-pane fade" id="tab-registrations">
-                <div class="card card-outline card-warning shadow">
+                <div class="card card-outline card-warning shadow" data-save-key="idx_reg_list">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-user-clock mr-2"></i>Danh sách Đăng ký Tạm thời</h3>
-                        <div class="card-tools"><button class="btn btn-tool" onclick="loadRegistrations()"><i class="fas fa-sync"></i></button></div>
+                        <div class="card-tools"><button class="btn btn-tool" onclick="loadRegistrations()"><i class="fas fa-sync"></i></button><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div>
                     </div>
                     <div class="card-body table-responsive p-0">
                         <table class="table table-hover text-nowrap">
@@ -419,11 +424,11 @@
             </div>
 
             <div class="tab-pane fade" id="tab-upload">
-                <div class="card card-outline card-primary shadow">
+                <div class="card card-outline card-primary shadow" data-save-key="idx_upload_center">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-folder-open mr-2"></i>Tài liệu sinh hoạt, hướng dẫn, kế hoạch chương trình và các file liên quan tới sinh hoạt hè</h3>
                         <div class="card-tools">
-                            <button class="btn btn-tool" onclick="loadResources()"><i class="fas fa-sync"></i></button>
+                            <button class="btn btn-tool" onclick="loadResources()"><i class="fas fa-sync"></i></button><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -475,8 +480,12 @@
             <div class="tab-pane fade" id="tab-funds">
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="card card-primary card-outline shadow">
-                            <div class="card-header"><h3 class="card-title font-weight-bold"><i class="fas fa-calculator mr-2"></i>Công cụ tính quỹ</h3></div>
+                        <div class="small-box bg-success shadow-sm">
+                            <div class="inner"><h3><span id="current_fund_balance">0</span> <sup style="font-size: 20px">đ</sup></h3><p>Số dư quỹ hiện tại</p></div>
+                            <div class="icon"><i class="fas fa-wallet"></i></div>
+                        </div>
+                        <div class="card card-primary card-outline shadow" data-save-key="idx_fund_tool">
+                            <div class="card-header"><h3 class="card-title font-weight-bold"><i class="fas fa-calculator mr-2"></i>Công cụ tính quỹ</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div>
                             <div class="card-body">
                                 <div class="form-group">
                                     <label>Số tiền thu / người (VNĐ)</label>
@@ -498,18 +507,25 @@
                                 <button class="btn btn-warning btn-block font-weight-bold mb-2" data-toggle="modal" data-target="#modalChiQuy">
                                     <i class="fas fa-file-invoice-dollar mr-2"></i>CHI QUỸ (RÚT TIỀN)
                                 </button>
+                                <button class="btn btn-info btn-block font-weight-bold mb-2" data-toggle="modal" data-target="#modalContribution">
+                                    <i class="fas fa-hand-holding-heart mr-2"></i>QUẢN LÝ ĐÓNG GÓP
+                                </button>
+                                <button class="btn btn-secondary btn-block font-weight-bold mb-2" onclick="showUnpaidModal()">
+                                    <i class="fas fa-list-alt mr-2"></i>XEM DANH SÁCH CHƯA ĐÓNG
+                                </button>
                                 <button class="btn btn-outline-danger btn-block" onclick="resetFundCheckboxes()">
                                     <i class="fas fa-redo mr-2"></i>Reset (Tính đợt mới)
                                 </button>
                             </div>
                         </div>
                         
-                        <div class="card card-info card-outline shadow mt-3">
+                        <div class="card card-info card-outline shadow mt-3" data-save-key="idx_fund_history">
                             <div class="card-header d-flex p-2 align-items-center">
                                 <h3 class="card-title font-weight-bold pl-2"><i class="fas fa-history mr-2"></i>Lịch sử Thu/Chi</h3>
                                 <div class="ml-auto">
-                                    <button class="btn btn-xs btn-default mr-1" onclick="window.print()"><i class="fas fa-print"></i> In</button>
+                                    <button class="btn btn-xs btn-danger mr-1" onclick="exportFundHistoryPdf()"><i class="fas fa-file-pdf"></i> PDF</button>
                                     <button class="btn btn-xs btn-success" onclick="exportFundHistoryExcel()"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                 </div>
                             </div>
                             <div class="card-body p-0 table-responsive" style="max-height: 300px;">
@@ -522,13 +538,14 @@
                     </div>
                     
                     <div class="col-md-8">
-                        <div class="card shadow">
+                        <div class="card shadow" data-save-key="idx_fund_list">
                             <div class="card-header bg-light">
                                 <h3 class="card-title font-weight-bold">Danh sách đóng tiền</h3>
                                 <div class="card-tools">
                                     <div class="input-group input-group-sm" style="width: 200px;">
                                         <input type="text" id="fund_search" class="form-control float-right" placeholder="Tìm tên..." onkeyup="filterFundList()">
                                         <div class="input-group-append"><button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button></div>
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -543,6 +560,39 @@
                 </div>
             </div>
                         
+            <!-- Modal Quản lý Đóng góp -->
+            <div class="modal fade" id="modalContribution" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info"><h5 class="modal-title"><i class="fas fa-hand-holding-heart mr-2"></i>Quản lý tự đóng góp</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+                        <div class="modal-body">
+                            <div class="form-group"><label>Số tiền đóng góp (VNĐ)</label><input type="number" id="contrib_amount" class="form-control" placeholder="Nhập số tiền..."></div>
+                            <div class="form-group"><label>Lời nhắn / Ghi chú</label><textarea id="contrib_notes" class="form-control" rows="2" placeholder="VD: Ủng hộ nước uống..."></textarea></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                            <button type="button" class="btn btn-info" onclick="saveManagerContribution()">Xác nhận Đóng góp</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Unpaid Details -->
+            <div class="modal fade" id="modalUnpaid" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-secondary"><h5 class="modal-title">Danh sách chưa đóng tiền</h5><button type="button" class="close" data-dismiss="modal"><span>&times;</span></button></div>
+                        <div class="modal-body">
+                            <div id="unpaidListContent" style="max-height: 400px; overflow-y: auto;"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                            <button type="button" class="btn btn-primary" onclick="copyUnpaidList()"><i class="fas fa-copy mr-1"></i>Sao chép tên</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal Chi Quỹ -->
             <div class="modal fade" id="modalChiQuy" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
@@ -562,11 +612,11 @@
             </div>
 
             <div class="tab-pane fade" id="tab-evaluation">
-                <div class="card card-outline card-purple shadow">
+                <div class="card card-outline card-purple shadow" data-save-key="idx_eval_list">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-star mr-2"></i>Đánh giá & Xếp loại Học sinh</h3>
                         <div class="card-tools">
-                            <button class="btn btn-tool" onclick="loadEvaluationUI()"><i class="fas fa-sync"></i></button>
+                            <button class="btn btn-tool" onclick="loadEvaluationUI()"><i class="fas fa-sync"></i></button><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                         </div>
                     </div>
                     <div id="evalAlertContainer" class="p-3"></div>
@@ -591,9 +641,9 @@
                 <div class="row">
                     <!-- Cột trái: Form gửi -->
                     <div class="col-md-4">
-                        <div class="card card-primary card-outline shadow-sm">
+                        <div class="card card-primary card-outline shadow-sm" data-save-key="idx_fb_form">
                             <div class="card-header">
-                                <h3 class="card-title font-weight-bold"><i class="fas fa-pen-alt mr-2"></i>Tạo phản ánh kiến nghị mới</h3>
+                                <h3 class="card-title font-weight-bold"><i class="fas fa-pen-alt mr-2"></i>Tạo phản ánh kiến nghị mới</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div>
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
@@ -640,11 +690,11 @@
                     
                     <!-- Cột phải: Lịch sử -->
                     <div class="col-md-8">
-                        <div class="card card-outline card-info shadow-sm h-100">
+                        <div class="card card-outline card-info shadow-sm h-100" data-save-key="idx_fb_history">
                             <div class="card-header border-0 bg-white">
                                 <h3 class="card-title font-weight-bold text-info"><i class="fas fa-history mr-2"></i>Lịch sử phản ánh</h3>
                                 <div class="card-tools">
-                                    <button class="btn btn-tool" onclick="loadFeedbackHistory()"><i class="fas fa-sync"></i></button>
+                                    <button class="btn btn-tool" onclick="loadFeedbackHistory()"><i class="fas fa-sync"></i></button><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                 </div>
                             </div>
                             <div class="card-body bg-light p-3" style="max-height: 700px; overflow-y: auto;">
@@ -1116,6 +1166,7 @@ document.addEventListener("DOMContentLoaded", function() {
         loadResources(); // Tải tài nguyên
         loadFeedbackHistory();
     }, 800);
+    initCardCollapseState();
     
     // Role specific UI
     if (user.role === 'supervisor') {
@@ -2468,6 +2519,59 @@ async function saveFundLog() {
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 
+async function saveManagerContribution() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const amount = parseInt($('#contrib_amount').val()) || 0;
+    const notes = $('#contrib_notes').val();
+
+    if (amount <= 0) return toastr.warning("Vui lòng nhập số tiền hợp lệ!");
+
+    const payload = {
+        group_id: user.group_id,
+        manager: user.fullname,
+        amount_per_head: amount,
+        total_collected: amount,
+        paid_students: "Quản lý đóng góp", // Đánh dấu đặc biệt
+        notes: notes,
+        timestamp: new Date().toLocaleString('vi-VN')
+    };
+
+    Swal.fire({ title: 'Đang lưu...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "SAVE_FUND_LOG", payload: payload }) });
+        const res = await response.json();
+        if (res.status === 'success') { Swal.fire('Thành công', 'Đã lưu đóng góp!', 'success'); $('#modalContribution').modal('hide'); $('#contrib_amount, #contrib_notes').val(''); loadFundHistory(); } 
+        else Swal.fire('Lỗi', res.message, 'error');
+    } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
+}
+
+function showUnpaidModal() {
+    const unpaid = [];
+    $('.fund-check').each(function() {
+        if (!$(this).is(':checked')) {
+            unpaid.push($(this).data('name'));
+        }
+    });
+    
+    let html = '';
+    if (unpaid.length === 0) html = '<div class="alert alert-success"><i class="fas fa-check-circle mr-2"></i>Tất cả mọi người đã đóng tiền!</div>';
+    else {
+        html = `<p class="font-weight-bold text-danger">Tổng cộng: ${unpaid.length} người chưa đóng.</p><ul class="list-group list-group-flush">`;
+        unpaid.forEach(name => { html += `<li class="list-group-item py-2 px-0 border-bottom">${name}</li>`; });
+        html += '</ul>';
+    }
+    $('#unpaidListContent').html(html);
+    $('#modalUnpaid').modal('show');
+}
+
+function copyUnpaidList() {
+    const names = [];
+    $('#unpaidListContent li').each(function() { names.push($(this).text()); });
+    if(names.length > 0) {
+        navigator.clipboard.writeText(names.join('\n')).then(() => toastr.success('Đã sao chép danh sách!'));
+    } else toastr.info('Danh sách trống');
+}
+
 async function saveExpenseLog() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const reason = $('#expense_reason').val();
@@ -2506,12 +2610,22 @@ async function loadFundHistory() {
         const res = await response.json();
         if (res.status === 'success') {
             globalFundLogs = res.data; // Lưu dữ liệu để xuất Excel
+            
+            // Tính toán số dư
+            let balance = 0;
             let html = '';
+            
+            // Đảo ngược mảng để tính từ cũ đến mới cho đúng logic số dư (nếu cần hiển thị số dư từng dòng), 
+            // nhưng ở đây ta chỉ cần tổng cuối cùng. API thường trả về mới nhất trước.
             res.data.forEach(log => {
                 const isThu = log.type === 'THU';
-                const colorClass = isThu ? 'text-success' : 'text-danger';
+                const amount = parseInt(log.amount);
+                
+                if (isThu) balance += amount; else balance -= amount;
+
+                const colorClass = isThu ? (log.paid_list === "Quản lý đóng góp" ? 'text-info' : 'text-success') : 'text-danger';
                 const sign = isThu ? '+' : '-';
-                const desc = isThu ? (log.paid_list ? `Thu: ${log.paid_list.split(',').length} người` : 'Thu quỹ') : log.reason;
+                const desc = isThu ? (log.paid_list === "Quản lý đóng góp" ? 'Quản lý đóng góp' : (log.paid_list ? `Thu: ${log.paid_list.split(',').length} người` : 'Thu quỹ')) : log.reason;
                 const detailBtn = isThu ? `<button class="btn btn-xs btn-outline-info ml-1" onclick="Swal.fire('Danh sách đóng', '${log.paid_list}', 'info')"><i class="fas fa-list"></i></button>` : '';
                 
                 html += `<tr>
@@ -2524,6 +2638,9 @@ async function loadFundHistory() {
                 </tr>`;
             });
             historyTable.html(html || '<tr><td colspan="3" class="text-center text-muted">Chưa có lịch sử</td></tr>');
+            
+            // Cập nhật số dư hiển thị
+            $('#current_fund_balance').text(balance.toLocaleString('vi-VN'));
         }
     } catch (e) { 
         console.error(e); 
@@ -2548,6 +2665,85 @@ function exportFundHistoryExcel() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Quy_Nhom");
     XLSX.writeFile(wb, `So_Quy_Nhom_${user.group_id}.xlsx`);
+}
+
+function exportFundHistoryPdf() {
+    if (globalFundLogs.length === 0) return toastr.warning("Chưa có lịch sử để xuất!");
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const groupName = user.group_name || user.group_id;
+    const currentBalance = $('#current_fund_balance').text();
+
+    const body = [
+        [
+            { text: 'Thời gian', bold: true, style: 'tableHeader' },
+            { text: 'Nội dung', bold: true, style: 'tableHeader' },
+            { text: 'Thu/Chi', bold: true, style: 'tableHeader', alignment: 'center' },
+            { text: 'Số tiền', bold: true, style: 'tableHeader', alignment: 'right' }
+        ]
+    ];
+
+    let totalThu = 0;
+    let totalChi = 0;
+
+    // Duyệt ngược để hiển thị theo trình tự thời gian nếu muốn, hoặc giữ nguyên
+    // Ở đây giữ nguyên thứ tự hiển thị (Mới nhất ở trên) hoặc đảo ngược tùy ý. 
+    // Thường báo cáo tài chính nên từ cũ đến mới để theo dõi dòng tiền, nhưng log thường xem mới nhất.
+    // Ta sẽ xuất theo thứ tự hiện tại (Mới nhất trước).
+    
+    globalFundLogs.forEach(log => {
+        const isThu = log.type === 'THU';
+        const amount = parseInt(log.amount);
+        if(isThu) totalThu += amount; else totalChi += amount;
+
+        const desc = isThu ? (log.paid_list === "Quản lý đóng góp" ? 'Quản lý đóng góp' : log.details) : log.reason;
+        const sign = isThu ? '+' : '-';
+        const color = isThu ? '#28a745' : '#dc3545';
+
+        body.push([
+            { text: log.timestamp, fontSize: 9 },
+            { text: desc + (log.notes ? ` (${log.notes})` : ''), fontSize: 9 },
+            { text: isThu ? 'Thu' : 'Chi', fontSize: 9, alignment: 'center', color: color, bold: true },
+            { text: `${sign} ${amount.toLocaleString('vi-VN')} đ`, fontSize: 9, alignment: 'right', color: color, bold: true }
+        ]);
+    });
+
+    // Footer Row
+    body.push([
+        { text: 'TỔNG KẾT', colSpan: 2, bold: true, alignment: 'right' },
+        {},
+        { text: `Thu: ${totalThu.toLocaleString()} - Chi: ${totalChi.toLocaleString()}`, colSpan: 2, bold: true, alignment: 'right', fontSize: 9 }
+    ]);
+
+    const docDefinition = {
+        content: [
+            { text: 'BÁO CÁO TÀI CHÍNH QUỸ NHÓM', style: 'header', alignment: 'center', margin: [0, 0, 0, 5] },
+            { text: `Nhóm: ${groupName}`, alignment: 'center', fontSize: 12, margin: [0, 0, 0, 20] },
+            {
+                columns: [
+                    { text: `Người xuất: ${user.fullname}`, fontSize: 10 },
+                    { text: `Ngày xuất: ${new Date().toLocaleString('vi-VN')}`, fontSize: 10, alignment: 'right' }
+                ],
+                margin: [0, 0, 0, 10]
+            },
+            {
+                style: 'tableExample',
+                table: {
+                    headerRows: 1,
+                    widths: ['auto', '*', 'auto', 'auto'],
+                    body: body
+                },
+                layout: 'lightHorizontalLines'
+            },
+            { text: `Số dư hiện tại: ${currentBalance} đ`, style: 'total', alignment: 'right', margin: [0, 20, 0, 0], fontSize: 14, bold: true, color: '#007bff' }
+        ],
+        styles: {
+            header: { fontSize: 18, bold: true },
+            tableHeader: { fontSize: 10, fillColor: '#eeeeee', margin: [0, 5, 0, 5] },
+            total: { fontSize: 14, bold: true }
+        }
+    };
+
+    pdfMake.createPdf(docDefinition).download(`Bao_Cao_Quy_${groupName}.pdf`);
 }
 
 function downloadTemplateIndex() {
@@ -2971,6 +3167,28 @@ function startEasterEgg() {
 function stopEasterEgg() {
     $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
     clearInterval(fireworksInterval); confetti.reset();
+}
+
+function initCardCollapseState() {
+    $('.card[data-save-key]').each(function() {
+        const key = $(this).data('save-key');
+        const state = localStorage.getItem('card_state_' + key);
+        if (state === 'collapsed') {
+            $(this).addClass('collapsed-card');
+            $(this).find('.card-body').hide();
+            $(this).find('[data-card-widget="collapse"] i').removeClass('fa-minus').addClass('fa-plus');
+        }
+    });
+    $(document).on('click', '[data-card-widget="collapse"]', function() {
+        const card = $(this).closest('.card');
+        const key = card.data('save-key');
+        if (key) {
+            setTimeout(() => {
+                const isCollapsed = card.hasClass('collapsed-card');
+                localStorage.setItem('card_state_' + key, isCollapsed ? 'collapsed' : 'expanded');
+            }, 300);
+        }
+    });
 }
 </script>
 

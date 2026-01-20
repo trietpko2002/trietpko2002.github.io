@@ -114,9 +114,12 @@
 
         /* Dark Mode Card Gradient */
         body.dark-mode .card { background: linear-gradient(135deg, #343a40, #2b3035); color: #fff; }
+        /* Fix 1 Page Scroll */
+        html, body { height: 100vh; overflow: hidden; }
+        .content-wrapper { height: calc(100vh - 57px) !important; overflow-y: auto; }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
 <script>
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));

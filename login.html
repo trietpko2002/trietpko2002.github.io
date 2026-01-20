@@ -488,6 +488,22 @@
     /* Cat Paw Cursor Default */
     body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
     a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
+
+    /* Full Screen Modal for Registration */
+    .modal-dialog.modal-fullscreen {
+        max-width: 100%;
+        margin: 0;
+        height: 100%;
+    }
+    .modal-dialog.modal-fullscreen .modal-content {
+        height: 100%;
+        border: 0;
+        border-radius: 0;
+    }
+    .modal-dialog.modal-fullscreen .modal-body {
+        overflow-y: auto;
+        padding: 2rem;
+    }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -582,7 +598,7 @@
 
 <!-- Modal Register Student -->
 <div class="modal fade" id="modalRegister" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title font-weight-bold">Đăng ký Thông tin Sinh hoạt hè</h5>
@@ -632,7 +648,7 @@
 
 <!-- Modal Update Info (Login Temp) -->
 <div class="modal fade" id="modalUpdateInfo" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content">
             <div class="modal-header bg-warning">
                 <h5 class="modal-title font-weight-bold">Đổi thông tin & Hoàn tất Hồ sơ</h5>
@@ -760,6 +776,9 @@
 </audio>
 <audio id="halloweenSfx" preload="auto">
     <source src="https://www.myinstants.com/media/sounds/spooky-scary-skeletons-song-hq.mp3" type="audio/mpeg">
+</audio>
+<audio id="boingSfx" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/boing2.mp3" type="audio/mpeg">
 </audio>
 <!-- Theme Audios -->
 <audio id="audio-tet" loop><source src="https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/tet_music.mp3" type="audio/mpeg"></audio>
@@ -1257,6 +1276,7 @@
         
         // Clear intervals
         if (window.catJumpInterval) clearInterval(window.catJumpInterval);
+        if (window.uiaInterval) { cancelAnimationFrame(window.uiaInterval); window.uiaInterval = null; }
 
         if (state === 0) { // Ocean + Rain
             rainContainer.style.display = 'block'; btnIcon.className = 'fas fa-cloud-rain'; if(rainContainer.children.length === 0) createRain();
@@ -1292,7 +1312,7 @@
         } else if (state === 12) { // UIA Meme
             body.classList.add('theme-uia');
             uiaContainer.style.display = 'block';
-            if(uiaContainer.children.length === 0) createUiaMemes();
+            createUiaMemes();
             document.getElementById('audio-uia')?.play().catch(e=>{});
         } else if (state === 13) { // Summer
             body.classList.add('theme-summer');
@@ -1350,14 +1370,109 @@
             c.appendChild(l);
         }
     }
+    
+    let uiaMemes = [];
     function createUiaMemes() {
         const c = document.getElementById('uia-container');
-        for(let i=0; i<30; i++) {
-            const m = document.createElement('img'); m.className = 'uia-img'; m.src = 'https://media.tenor.com/sbfBfp3FeY8AAAAj/oia-uia.gif';
-            m.style.left = Math.random()*80+'vw'; m.style.top = Math.random()*80+'vh';
+        c.innerHTML = '';
+        uiaMemes = [];
+        
+        for(let i=0; i<15; i++) {
+            const m = document.createElement('img'); 
+            m.className = 'uia-img'; 
+            m.src = 'https://media.tenor.com/sbfBfp3FeY8AAAAj/oia-uia.gif';
+            
+            let x = Math.random() * (window.innerWidth - 150);
+            let y = Math.random() * (window.innerHeight - 150);
+            
+            m.style.left = x + 'px'; 
+            m.style.top = y + 'px';
+            m.style.cursor = 'grab';
+            
+            let vx = (Math.random() - 0.5) * 8;
+            let vy = (Math.random() - 0.5) * 8;
+            
+            const meme = { el: m, x: x, y: y, vx: vx, vy: vy, isDragging: false };
+            uiaMemes.push(meme);
             c.appendChild(m);
+            
+            const startHandler = (e) => {
+                e.preventDefault();
+                meme.isDragging = true;
+                m.style.cursor = 'grabbing';
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                const shiftX = clientX - meme.x;
+                const shiftY = clientY - meme.y;
+                
+                const moveHandler = (ev) => {
+                    const cx = ev.clientX || ev.touches[0].clientX;
+                    const cy = ev.clientY || ev.touches[0].clientY;
+                    meme.x = cx - shiftX;
+                    meme.y = cy - shiftY;
+                    m.style.left = meme.x + 'px';
+                    m.style.top = meme.y + 'px';
+                };
+                
+                const endHandler = () => {
+                    document.removeEventListener('mousemove', moveHandler);
+                    document.removeEventListener('mouseup', endHandler);
+                    document.removeEventListener('touchmove', moveHandler);
+                    document.removeEventListener('touchend', endHandler);
+                    meme.isDragging = false;
+                    m.style.cursor = 'grab';
+                    
+                    meme.vx = (Math.random() - 0.5) * 10;
+                    meme.vy = (Math.random() - 0.5) * 10;
+                };
+                
+                document.addEventListener('mousemove', moveHandler);
+                document.addEventListener('mouseup', endHandler);
+                document.addEventListener('touchmove', moveHandler, {passive: false});
+                document.addEventListener('touchend', endHandler);
+            };
+            m.addEventListener('mousedown', startHandler);
+            m.addEventListener('touchstart', startHandler, {passive: false});
         }
+        if (!window.uiaInterval) animateUiaMemes();
     }
+    
+    function animateUiaMemes() {
+        if (!document.body.classList.contains('theme-uia')) {
+            window.uiaInterval = null;
+            return;
+        }
+        const boing = document.getElementById('boingSfx');
+        const maxX = window.innerWidth - 150;
+        const maxY = window.innerHeight - 150;
+
+        uiaMemes.forEach(meme => {
+            if (!meme.isDragging) {
+                meme.x += meme.vx;
+                meme.y += meme.vy;
+                
+                let hit = false;
+                if (meme.x <= 0) {
+                    if (meme.vx < 0) { meme.vx *= -1; hit = true; }
+                } else if (meme.x >= maxX) {
+                    if (meme.vx > 0) { meme.vx *= -1; hit = true; }
+                }
+                
+                if (meme.y <= 0) {
+                    if (meme.vy < 0) { meme.vy *= -1; hit = true; }
+                } else if (meme.y >= maxY) {
+                    if (meme.vy > 0) { meme.vy *= -1; hit = true; }
+                }
+                
+                if (hit && boing) { const s = boing.cloneNode(); s.volume = 0.5; s.play().catch(()=>{}); }
+                
+                meme.el.style.left = meme.x + 'px';
+                meme.el.style.top = meme.y + 'px';
+            }
+        });
+        window.uiaInterval = requestAnimationFrame(animateUiaMemes);
+    }
+
     function createSummer() {
         const c = document.getElementById('summer-container');
         const sun = document.createElement('div'); sun.className = 'summer-sun'; c.appendChild(sun);

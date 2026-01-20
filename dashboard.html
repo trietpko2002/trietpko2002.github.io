@@ -20,6 +20,9 @@
         /* Cat Paw Cursor Default */
         body { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), auto !important; }
         a, button, .btn, .nav-link { cursor: url('https://cur.cursors-4u.net/nature/nat-10/nat984.cur'), pointer !important; }
+        /* Fix 1 Page Scroll */
+        html, body { height: 100vh; overflow: hidden; }
+        .content-wrapper { height: calc(100vh - 57px) !important; overflow-y: auto; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
