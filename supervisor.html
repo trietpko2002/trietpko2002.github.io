@@ -124,7 +124,6 @@
                 <a href="supervisor_profile.html" class="nav-link font-weight-bold text-primary">
                     <i class="fas fa-user-circle mr-1"></i> <span id="adminNameDisplay">Supervisor</span>
                 </a>
-                <a href="javascript:void(0)" onclick="startEasterEgg()" class="text-warning ml-2" style="position: absolute; top: 12px; right: 120px;"><i class="fas fa-info-circle"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)" onclick="openSettingsModal()" title="Cài đặt">
@@ -627,24 +626,6 @@
     </div>
 </div>
 
-<!-- Modal Easter Egg -->
-<div class="modal fade" id="modalCredits" tabindex="-1" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bg-dark text-white text-center" style="border: 2px solid #ffd700;">
-            <div class="modal-header border-0"><h5 class="modal-title font-weight-bold text-warning"><i class="fas fa-crown mr-2"></i>CREDITS</h5><button type="button" class="close text-white" onclick="stopEasterEgg()"><span>&times;</span></button></div>
-            <div class="modal-body">
-                <h4 class="text-primary font-weight-bold">Tổ Công nghệ Đoàn phường Phan Rang 2025</h4>
-                <p class="lead">Người làm: <span class="text-warning font-weight-bold">Triết Võ</span></p>
-                <p class="small text-muted">Hỗ trợ AI: Gemini Code Assist (VS Code)</p>
-                <hr class="bg-secondary">
-                <p><i class="fas fa-envelope mr-2"></i>phanranggaming@gmail.com</p>
-                <p><i class="fas fa-phone mr-2"></i>0396385579</p>
-            </div>
-        </div>
-    </div>
-</div>
-<audio id="eggAudio" loop><source src="music/easter_egg.mp3" type="audio/mpeg"></audio>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
@@ -1127,21 +1108,6 @@ function exportExcelHistory() {
     XLSX.writeFile(wb, `Lich_Su_Diem_Danh.xlsx`);
 }
 
-// Easter Egg Logic
-var fireworksInterval;
-function startEasterEgg() {
-    $('#modalCredits').modal('show');
-    const audio = document.getElementById('eggAudio');
-    if(audio) audio.play().catch(e => console.log("Audio play failed", e));
-    var duration = 15 * 1000; var animationEnd = Date.now() + duration; var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
-    function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-    fireworksInterval = setInterval(function() { var timeLeft = animationEnd - Date.now(); if (timeLeft <= 0) { return clearInterval(fireworksInterval); } var particleCount = 50 * (timeLeft / duration); confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })); confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })); }, 250);
-}
-function stopEasterEgg() {
-    $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
-    clearInterval(fireworksInterval); confetti.reset();
-}
-
 function initCardCollapseState() {
     $('.card[data-save-key]').each(function() {
         const key = $(this).data('save-key');
@@ -1212,13 +1178,30 @@ function setConnStatus(type, text, ms) {
     const txt = document.getElementById('conn-text');
     const badge = document.getElementById('conn-ms');
     
+    // Create Blocking Overlay if not exists
+    let blockOverlay = document.getElementById('connection-block-overlay');
+    if (!blockOverlay) {
+        blockOverlay = document.createElement('div');
+        blockOverlay.id = 'connection-block-overlay';
+        blockOverlay.style.cssText = 'display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 99999; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; backdrop-filter: blur(5px);';
+        blockOverlay.innerHTML = '<i class="fas fa-wifi fa-4x mb-4 text-danger" style="animation: pulse 2s infinite"></i><h3 class="font-weight-bold">KẾT NỐI KHÔNG ỔN ĐỊNH</h3><p class="lead">Hệ thống yêu cầu mạng ổn định để đảm bảo dữ liệu.</p><button class="btn btn-danger font-weight-bold mt-3" onclick="updateConnectionStatus()"><i class="fas fa-sync mr-2"></i>Thử lại kết nối</button>';
+        document.body.appendChild(blockOverlay);
+    }
+
     el.style.display = 'flex';
     txt.innerText = text; badge.innerText = ms;
     el.style.border = '1px solid rgba(255,255,255,0.1)'; el.style.background = 'rgba(0, 0, 0, 0.7)';
     
-    if(type === 'online') { icon.className = 'fas fa-wifi'; badge.className = 'ml-2 badge badge-success'; el.style.borderColor = '#28a745'; icon.style.color = '#28a745'; }
-    else if(type === 'slow') { icon.className = 'fas fa-network-wired'; badge.className = 'ml-2 badge badge-warning'; el.style.borderColor = '#ffc107'; icon.style.color = '#ffc107'; }
-    else { icon.className = 'fas fa-exclamation-triangle'; badge.className = 'ml-2 badge badge-danger'; el.style.borderColor = '#dc3545'; el.style.background = 'rgba(50, 0, 0, 0.8)'; icon.style.color = '#dc3545'; }
+    if(type === 'online') { 
+        icon.className = 'fas fa-wifi'; badge.className = 'ml-2 badge badge-success'; el.style.borderColor = '#28a745'; icon.style.color = '#28a745';
+        blockOverlay.style.display = 'none';
+    } else if(type === 'slow') { 
+        icon.className = 'fas fa-network-wired'; badge.className = 'ml-2 badge badge-warning'; el.style.borderColor = '#ffc107'; icon.style.color = '#ffc107';
+        blockOverlay.style.display = 'none';
+    } else { 
+        icon.className = 'fas fa-exclamation-triangle'; badge.className = 'ml-2 badge badge-danger'; el.style.borderColor = '#dc3545'; el.style.background = 'rgba(50, 0, 0, 0.8)'; icon.style.color = '#dc3545';
+        blockOverlay.style.display = 'flex';
+    }
 }
 
 setInterval(updateConnectionStatus, 5000);
