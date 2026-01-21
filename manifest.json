@@ -1,6 +1,6 @@
 {
-  "name": "Hệ thống Quản lý SHH",
-  "short_name": "SHH App",
+  "name": "Hệ thống Quản lý sinh hoạt hè",
+  "short_name": "Hệ thống quản lý sinh hoạt hè",
   "start_url": "./login.html",
   "display": "standalone",
   "background_color": "#1e88e5",
