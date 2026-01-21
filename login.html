@@ -343,6 +343,17 @@
     .btn-primary { background-color: rgba(30, 136, 229, 0.8); border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; }
     .btn-primary:hover { background-color: rgba(21, 101, 192, 0.9); box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4); }
 
+    /* New Glow Effect for Login Button */
+    .btn-glow {
+        box-shadow: 0 0 5px rgba(30, 136, 229, 0.8), 0 0 10px rgba(30, 136, 229, 0.6);
+        animation: btn-glow-animation 2s ease-in-out infinite;
+    }
+    @keyframes btn-glow-animation {
+        0% { box-shadow: 0 0 5px rgba(30, 136, 229, 0.8), 0 0 10px rgba(30, 136, 229, 0.6); }
+        50% { box-shadow: 0 0 20px rgba(30, 136, 229, 1), 0 0 30px rgba(30, 136, 229, 0.8); }
+        100% { box-shadow: 0 0 5px rgba(30, 136, 229, 0.8), 0 0 10px rgba(30, 136, 229, 0.6); }
+    }
+
     .action-links a {
         color: #ffeb3b;
         text-decoration: none;
@@ -453,12 +464,41 @@
     /* Login Loading Styles */
     .login-loading-container {
         display: none;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 2px; /* for the border */
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .login-loading-container::before {
+        content: '';
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        top: -25%;
+        left: -25%;
+        background: conic-gradient(from 0deg at 50% 50%, transparent, #007bff, transparent 30%);
+        animation: rotate-gradient 2s linear infinite;
+    }
+    @keyframes rotate-gradient {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .login-loading-content {
+        display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 20px; margin-bottom: 20px; /* Fix overlap */
-        background: rgba(255,255,255,0.1);
+        background: rgba(0, 0, 0, 0.45);
+        width: 100%;
+        height: 100%;
         padding: 10px;
-        border-radius: 10px;
+        border-radius: 13px;
+        position: relative;
+        z-index: 1;
     }
 
     /* Rain Effect */
@@ -619,19 +659,21 @@
         
         <!-- Simple Captcha -->
         <div class="form-group mb-3">
-            <div class="d-flex align-items-center mb-2 justify-content-center">
-                <span id="captcha_code_login" class="bg-white text-dark border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
-                <button type="button" class="btn btn-sm btn-light" onclick="generateCaptcha('captcha_code_login')"><i class="fas fa-sync"></i></button>
+            <div class="d-flex align-items-stretch" style="background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50rem; overflow: hidden;">
+                <span id="captcha_code_login" class="bg-white text-dark px-3 font-weight-bold d-flex align-items-center" style="letter-spacing: 3px; user-select: none;"></span>
+                <input type="text" id="captcha_input_login" class="form-control text-center" placeholder="Nhập mã" required style="background: transparent; border: none; box-shadow: none; color: white;">
+                <button type="button" class="btn" onclick="generateCaptcha('captcha_code_login')" style="background: transparent; border: none; color: white; box-shadow: none; padding-right: 1rem;"><i class="fas fa-sync"></i></button>
             </div>
-            <input type="text" id="captcha_input_login" class="form-control rounded-pill text-center" placeholder="Nhập mã xác nhận trên" required>
         </div>
 
         <div class="login-loading-container" id="loginLoading">
-            <div class="spinner-border text-white" role="status"></div>
-            <span class="loading-text text-white" id="loadingText">Đang kết nối...</span>
+            <div class="login-loading-content">
+                <div class="spinner-border text-white" role="status" style="width: 1.5rem; height: 1.5rem; border-width: .2em;"></div>
+                <span class="loading-text text-white ml-3" id="loadingText">Đang kết nối...</span>
+            </div>
         </div>
 
-        <button type="submit" id="submitBtn" class="btn btn-primary btn-block shadow-sm mt-3">
+        <button type="submit" id="submitBtn" class="btn btn-primary btn-block shadow-sm mt-3 btn-glow">
             <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY
         </button>
 

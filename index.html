@@ -16,6 +16,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
 
     <style>
+        /* New styles for menu boxes */
+        .small-box {
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .small-box:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.15);
+        }
+        .small-box .icon {
+            transition: transform 0.3s ease;
+        }
+        .small-box:hover .icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+        /* New styles for section titles */
+        .dashboard-section-title {
+            font-size: 1.1rem; font-weight: 500; color: #495057;
+            border-bottom: 1px solid #e9ecef; padding-bottom: 0.5rem;
+            margin-top: 1.5rem; margin-bottom: 1.25rem;
+        }
         .info-box-content { justify-content: center; }
         .table thead th { background-color: #f4f6f9; color: #333; border-top: none; text-align: center; }
         .table td, .table th { vertical-align: middle; padding: 12px 8px; }
@@ -40,6 +65,10 @@
         body.dark-mode .content-wrapper { background-color: #343a40; color: #fff; }
         body.dark-mode .card { background-color: #343a40; color: #fff; }
         body.dark-mode .card-header { border-bottom-color: #454d55; }
+        body.dark-mode .dashboard-section-title {
+            color: #c2c7d0;
+            border-bottom-color: #454d55;
+        }
         body.dark-mode .table { color: #fff; }
         body.dark-mode .table thead th { background-color: #3f474e; color: #fff; border-color: #454d55; }
         body.dark-mode .table td, body.dark-mode .table th { border-color: #454d55; }
@@ -230,7 +259,7 @@
         .main-footer { height: 40px; line-height: 20px; }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed">
 
 <script>
     (function checkSecurity() {
@@ -267,7 +296,9 @@
     </div>
     <nav class="main-header navbar navbar-expand navbar-primary navbar-dark border-bottom-0">
         <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a></li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link font-weight-bold"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
+            </li>
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item d-flex align-items-center">
@@ -291,65 +322,100 @@
         </ul>
     </nav>
 
-    <aside class="main-sidebar sidebar-light-primary elevation-4">
-        <a href="#" class="brand-link bg-primary">
-            <span class="brand-text font-weight-bold pl-3">QUẢN LÝ SHH</span>
-        </a>
-        <div class="sidebar">
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                    <li class="nav-item">
-                        <a href="profile.html" class="nav-link"><i class="nav-icon fas fa-id-card"></i><p>Hồ sơ cá nhân</p></a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-attendance" class="nav-link active" data-toggle="pill">
-                            <i class="nav-icon fas fa-check-square"></i> <p>Điểm danh</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-students" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-user-friends"></i> <p>HS của nhóm</p>
-                        </a>
-                    </li>
-                    <li class="nav-item d-none" id="nav-registrations">
-                        <a href="#tab-registrations" class="nav-link" data-toggle="pill" onclick="loadRegistrations()">
-                            <i class="nav-icon fas fa-user-plus"></i> <p>Duyệt Đăng Ký</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-upload" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-cloud-upload-alt"></i> <p>Trung tâm quản lý tệp tin</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-funds" class="nav-link" data-toggle="pill" onclick="loadFundTab()">
-                            <i class="nav-icon fas fa-hand-holding-usd"></i> <p>Công cụ tính quỹ nhóm</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-evaluation" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-star"></i> <p>Đánh giá</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#tab-feedback" class="nav-link" data-toggle="pill">
-                            <i class="nav-icon fas fa-comments"></i> <p>Phản ánh kiến nghị</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="about.html" target="_blank" class="nav-link"><i class="nav-icon fas fa-question-circle"></i><p>Hướng dẫn sử dụng</p></a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </aside>
-
     <div class="content-wrapper text-sm">
         <div id="topMarquee"><marquee id="marqueeText" behavior="scroll" direction="left"></marquee></div>
-        <div class="content">
-            <div class="container-fluid pt-3">
+        <!-- MAIN MENU GRID -->
+        <div id="main-menu-section" class="content pt-4">
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2 class="font-weight-bold text-primary">BẢNG ĐIỀU KHIỂN</h2>
+                    <p class="text-muted">Xin chào, <b id="managerMenuDisplayName" class="text-primary"></b>! Chọn một chức năng để bắt đầu.</p>
+                </div>
+
+                <!-- Section 1: Chức năng chính -->
+                <h5 class="dashboard-section-title"><i class="fas fa-tasks mr-2"></i>Chức năng chính</h5>
+                <div class="row">
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-primary shadow" onclick="showTab('tab-attendance')">
+                            <div class="inner"><h3>Điểm danh</h3><p>Quản lý có mặt/vắng</p></div>
+                            <div class="icon"><i class="fas fa-check-square"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-info shadow" onclick="showTab('tab-students')">
+                            <div class="inner"><h3>Học sinh</h3><p>Danh sách nhóm</p></div>
+                            <div class="icon"><i class="fas fa-user-friends"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-6 d-none" id="menu-registrations">
+                        <div class="small-box bg-warning shadow" onclick="showTab('tab-registrations'); loadRegistrations();">
+                            <div class="inner text-white"><h3>Duyệt HS</h3><p>Đăng ký chờ</p></div>
+                            <div class="icon"><i class="fas fa-user-plus"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Công cụ & Tiện ích -->
+                <h5 class="dashboard-section-title"><i class="fas fa-tools mr-2"></i>Công cụ & Tiện ích</h5>
+                <div class="row">
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-success shadow" onclick="showTab('tab-funds'); loadFundTab();">
+                            <div class="inner"><h3>Quỹ nhóm</h3><p>Thu/chi & Báo cáo</p></div>
+                            <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-purple shadow" onclick="showTab('tab-evaluation')">
+                            <div class="inner"><h3>Đánh giá</h3><p>Xếp loại học sinh</p></div>
+                            <div class="icon"><i class="fas fa-star"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-teal shadow" onclick="showTab('tab-feedback')">
+                            <div class="inner"><h3>Phản ánh</h3><p>Gửi kiến nghị</p></div>
+                            <div class="icon"><i class="fas fa-comments"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Tài nguyên & Hỗ trợ -->
+                <h5 class="dashboard-section-title"><i class="fas fa-archive mr-2"></i>Tài nguyên & Hỗ trợ</h5>
+                <div class="row">
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-secondary shadow" onclick="showTab('tab-upload')">
+                            <div class="inner"><h3>Tài liệu</h3><p>Tệp tin & Tài nguyên</p></div>
+                            <div class="icon"><i class="fas fa-folder-open"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-danger shadow" onclick="window.location.href='profile.html'">
+                            <div class="inner"><h3>Hồ sơ</h3><p>Thông tin cá nhân</p></div>
+                            <div class="icon"><i class="fas fa-id-card"></i></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-light shadow" onclick="window.open('about.html', '_blank')">
+                            <div class="inner"><h3>Hướng dẫn</h3><p>Tài liệu sử dụng</p></div>
+                            <div class="icon"><i class="fas fa-question-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FUNCTIONAL VIEWS (Hidden by default) -->
+        <div id="functional-section" style="display:none;">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-secondary mb-2 font-weight-bold" onclick="showMainMenu()">
+                        <i class="fas fa-arrow-left mr-2"></i>Trở về Menu chính
+                    </button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="container-fluid">
                 <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-attendance">
+            <div class="tab-pane fade" id="tab-attendance">
                 <div id="attendance-cover" class="mb-3 shadow-sm rounded overflow-hidden" style="display:none;"><img id="img-cover" src=""></div>
                 <div class="callout callout-info mb-3 shadow-sm">
                     <h5><i class="fas fa-calendar-alt mr-2"></i>Hôm nay: <span id="currentDateDisplay"></span></h5>
@@ -705,6 +771,7 @@
             </div>
 
         </div>
+            </div>
             </div>
         </div>
     </div>
@@ -1121,6 +1188,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' });
     
     // Load User Settings (Dark Mode & Effects)
+    showMainMenu();
     loadUserSettings();
     
     // Init Auto Logout
@@ -1129,6 +1197,7 @@ document.addEventListener("DOMContentLoaded", function() {
     generateCaptcha('captcha_code_fb');
     
     // Render VIP Honors
+    $('#managerMenuDisplayName').text(user.fullname);
     
     // Render VIP Honors
     try {
@@ -1175,20 +1244,11 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Role specific UI
     if (user.role === 'supervisor') {
-        $('.btn-manager-only').hide(); // Hide Add/Import buttons
-        $('#nav-registrations').removeClass('d-none'); // Show Registrations tab
+        $('#menu-registrations').removeClass('d-none');
     }
     
     // Start Polling for Notifications (Push Simulation)
     setInterval(pollForNotifications, 60000); // Check every 60s
-
-    // Kiểm tra mật khẩu mặc định
-    if (user.is_default_pass) {
-        $('#modalChangePass').modal('show');
-        $('#passAlert').removeClass('d-none');
-        $('#btnClosePassModal').hide(); // Ẩn nút đóng để bắt buộc đổi
-    }
-
     // Kiểm tra mã PIN mặc định
     if (user.is_default_pin) {
         $('#modalChangePin').modal('show');
@@ -1196,12 +1256,12 @@ document.addEventListener("DOMContentLoaded", function() {
         $('#btnClosePinModal').hide();
     }
 
-    // Tự động thu gọn sidebar khi click menu trên điện thoại
-    $('.nav-sidebar .nav-link').on('click', function() {
-        if (window.innerWidth < 992) {
-            $('[data-widget="pushmenu"]').PushMenu('collapse');
-        }
-    });
+    // Kiểm tra mật khẩu mặc định
+    if (user.is_default_pass) {
+        $('#modalChangePass').modal('show');
+        $('#passAlert').removeClass('d-none');
+        $('#btnClosePassModal').hide(); // Ẩn nút đóng để bắt buộc đổi
+    }
 });
 
 // --- USER SETTINGS & AUTO LOGOUT ---
@@ -1312,6 +1372,20 @@ function applyUserSettings(settings) {
             sessionStorage.setItem('jack_music_played', 'true');
         }
     }
+}
+
+// --- NEW NAVIGATION ---
+function showTab(tabId) {
+    $('#main-menu-section').hide();
+    $('#functional-section').fadeIn();
+    $('.tab-pane').removeClass('show active');
+    $('#' + tabId).addClass('show active');
+    window.scrollTo(0, 0);
+}
+
+function showMainMenu() {
+    $('#functional-section').hide();
+    $('#main-menu-section').fadeIn();
 }
 
 // --- PUSH NOTIFICATION LOGIC (POLLING) ---
