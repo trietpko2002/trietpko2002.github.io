@@ -1148,6 +1148,28 @@
 </div>
 <audio id="eggAudio" loop><source src="music/easter_egg.mp3" type="audio/mpeg"></audio>
 
+<!-- Modal Update Available -->
+<div class="modal fade" id="modalUpdateAvailable" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-sync-alt mr-2"></i>Cập nhật hệ thống</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p class="lead mb-2">Đã có phiên bản mới!</p>
+                <p class="text-muted">Hệ thống vừa được cập nhật trên máy chủ. Vui lòng tải lại để áp dụng thay đổi.</p>
+                <div class="alert alert-light border text-left small mb-3" style="max-height: 100px; overflow-y: auto; white-space: pre-wrap;">
+                    <strong>Nội dung cập nhật:</strong><br>
+                    <span id="updateChangelog">...</span>
+                </div>
+                <button type="button" class="btn btn-success btn-lg font-weight-bold rounded-pill px-4 mt-2" onclick="window.location.reload(true)">
+                    <i class="fas fa-redo mr-2"></i> Tải lại ngay
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js"></script>
@@ -1242,6 +1264,27 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Init Auto Logout
     initAutoLogout();
+    
+    // Real-time GitHub Update Detection
+    let currentCommitSha = null;
+    async function checkGitHubUpdate() {
+        try {
+            const response = await fetch('https://api.github.com/repos/trietpko2002/trietpko2002.github.io/commits?per_page=1');
+            if (response.ok) {
+                const data = await response.json();
+                const latestSha = data[0].sha;
+                const message = data[0].commit.message;
+                if (!currentCommitSha) {
+                    currentCommitSha = latestSha;
+                } else if (currentCommitSha !== latestSha) {
+                    $('#updateChangelog').text(message);
+                    $('#modalUpdateAvailable').modal('show');
+                }
+            }
+        } catch (e) { console.log('Update check skipped'); }
+    }
+    checkGitHubUpdate();
+    setInterval(checkGitHubUpdate, 120000); // Check every 2 minutes
 
     generateCaptcha('captcha_code_fb');
     
