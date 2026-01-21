@@ -39,6 +39,7 @@
             border: 1px solid rgba(255,255,255,0.1); user-select: none;
         }
         .connection-status i { margin-right: 6px; }
+        body { transition: opacity 0.5s ease-out; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
@@ -49,7 +50,35 @@
             window.location.replace('login.html');
         }
     })();
-    function logout() { sessionStorage.clear(); window.location.replace('login.html'); }
+    function logout() { 
+        Swal.fire({
+            title: 'Đăng xuất?',
+            text: "Bạn có chắc chắn muốn thoát phiên làm việc?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đăng xuất',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang đăng xuất...',
+                    html: 'Vui lòng chờ trong giây lát',
+                    timer: 800,
+                    timerProgressBar: true,
+                    didOpen: () => { Swal.showLoading(); },
+                    willClose: () => {
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            sessionStorage.clear();
+                            window.location.replace('login.html');
+                        }, 500);
+                    }
+                });
+            }
+        });
+    }
 </script>
 
 <!-- Connection Status Widget -->
@@ -103,7 +132,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="about.html" target="_blank" class="nav-link">
+                        <a href="https://github.com/trietpko2002/trietpko2002.github.io/blob/main/README.md" target="_blank" class="nav-link">
                             <i class="nav-icon fas fa-question-circle"></i> <p>Hướng dẫn sử dụng</p>
                         </a>
                     </li>

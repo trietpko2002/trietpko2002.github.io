@@ -46,6 +46,8 @@ function doPost(e) {
     if (action === 'CONFIRM_REGISTRATION') return handleConfirmRegistration(payload);
     if (action === 'GET_REGISTRATIONS') return handleGetRegistrations(payload);
     if (action === 'REGENERATE_PASS') return handleRegeneratePass(payload);
+    if (action === 'CHANGE_STUDENT_PASS') return handleManagerChangeStudentPass(payload);
+    if (action === 'STUDENT_SELF_CHANGE_PASS') return handleStudentChangePass(payload);
 
     if (action === 'SAVE_ATTENDANCE') return handleSaveAttendance(payload);
     if (action === 'GET_ADMIN_STATS') return handleGetAdminStats();
@@ -735,12 +737,25 @@ function handleRestoreSystem(payload) {
 function handleGetGroupsPublic() {
   try {
     const sheet = ss.getSheetByName('groups');
+    const stSheet = ss.getSheetByName('students');
     if (!sheet) return response({ status: "success", data: [] });
+    
     const rows = sheet.getDataRange().getValues();
+    const stRows = stSheet ? stSheet.getDataRange().getValues() : [];
+    
+    // Count members
+    const counts = {};
+    for (let i = 1; i < stRows.length; i++) {
+      const gid = String(stRows[i][8]); 
+      counts[gid] = (counts[gid] || 0) + 1;
+    }
+
     const groups = [];
     for (let i = 1; i < rows.length; i++) {
       if (rows[i][0]) {
-        groups.push({ id: rows[i][0], name: rows[i][1] });
+        const gid = String(rows[i][0]);
+        const limit = rows[i][2] ? parseInt(rows[i][2]) : 0;
+        groups.push({ id: gid, name: rows[i][1], limit: limit, count: counts[gid] || 0 });
       }
     }
     return response({ status: "success", data: groups });
@@ -749,23 +764,47 @@ function handleGetGroupsPublic() {
 
 function handleRegisterTemp(payload) {
   try {
-    let sheet = ss.getSheetByName('registrations');
-    if (!sheet) {
-      sheet = ss.insertSheet('registrations');
-      // ID, Pass, Name, Gender, DOB, Class, School, Address, Phone, Time, Location, Activities, Timestamp
-      sheet.appendRow(['ID', 'Pass', 'Fullname', 'Gender', 'DOB', 'Class', 'School', 'Address', 'Phone', 'Time', 'Location', 'Activities', 'Timestamp']);
+    const stSheet = ss.getSheetByName('students');
+    const grpSheet = ss.getSheetByName('groups');
+    
+    // 1. Check Group Limit
+    if (payload.group_id) {
+       const groups = handleGetGroupsPublic().getContent(); // Reuse logic
+       const parsedGroups = JSON.parse(groups).data;
+       const targetGroup = parsedGroups.find(g => String(g.id) === String(payload.group_id));
+       if (targetGroup && targetGroup.limit > 0 && targetGroup.count >= targetGroup.limit) {
+           return response({ status: "error", message: "Nhóm này đã đủ số lượng thành viên!" });
+       }
+    }
+
+    // 2. Check Duplicates (Name + DOB)
+    const stData = stSheet.getDataRange().getValues();
+    for(let i=1; i<stData.length; i++) {
+        // Col 1: Name, Col 3: DOB
+        if(String(stData[i][1]).toLowerCase().trim() === String(payload.fullname).toLowerCase().trim() && 
+           formatDateVN(stData[i][3]) === formatDateVN(payload.dob)) {
+            return response({ status: "error", message: "Học sinh này đã tồn tại (Trùng tên và ngày sinh)!" });
+        }
     }
     
-    const newId = 'REG' + Math.floor(100000 + Math.random() * 900000); // Random ID 6 số cho gọn hoặc timestamp
+    // 3. Register Directly to Students
+    const newId = 'ST' + new Date().getTime();
     const randomPass = Math.floor(100000 + Math.random() * 900000).toString(); // 6 số ngẫu nhiên
     
+    // ID, Fullname, Gender, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities, Password, AllowChange
     const newRow = [
-      newId, randomPass, payload.fullname, payload.gender, payload.dob, payload.class_name, 
-      payload.school, payload.address, payload.phone, 
-      payload.reg_time, payload.reg_loc, payload.reg_act, new Date()
+      newId, payload.fullname, payload.gender, payload.dob, payload.class_name, 
+      payload.school, payload.address, payload.phone, payload.group_id,
+      payload.reg_time, payload.reg_loc, payload.reg_act, 
+      randomPass, 'TRUE' // Default allow change
     ];
     
-    sheet.appendRow(newRow);
+    // Ensure header exists if empty
+    if (stSheet.getLastRow() === 0) {
+        stSheet.appendRow(['ID', 'Fullname', 'Gender', 'DOB', 'Class', 'School', 'Address', 'Phone', 'GroupID', 'Time', 'Location', 'Activities', 'Password', 'AllowChange']);
+    }
+
+    stSheet.appendRow(newRow);
     return response({ 
       status: "success", 
       message: "Đăng ký tạm thành công!", 
@@ -776,18 +815,20 @@ function handleRegisterTemp(payload) {
 
 function handleLoginTemp(payload) {
   try {
-    const sheet = ss.getSheetByName('registrations');
-    if (!sheet) return response({ status: "error", message: "Chưa có dữ liệu đăng ký." });
+    const sheet = ss.getSheetByName('students');
+    if (!sheet) return response({ status: "error", message: "Chưa có dữ liệu." });
     const data = sheet.getDataRange().getValues();
     
     for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]) === String(payload.id) && String(data[i][1]) === String(payload.pass)) {
+      // Check ID (Col 0) and Password (Col 12)
+      if (String(data[i][0]) === String(payload.id) && String(data[i][12]) === String(payload.pass)) {
         return response({ 
           status: "success", 
           data: {
-            id: data[i][0], fullname: data[i][2], gender: data[i][3], dob: data[i][4], class_name: data[i][5],
-            school: data[i][6], address: data[i][7], phone: data[i][8],
-            reg_time: data[i][9], reg_loc: data[i][10], reg_act: data[i][11]
+            id: data[i][0], fullname: data[i][1], gender: data[i][2], dob: data[i][3], class_name: data[i][4],
+            school: data[i][5], address: data[i][6], phone: data[i][7], group_id: data[i][8],
+            reg_time: data[i][9], reg_loc: data[i][10], reg_act: data[i][11],
+            allow_change: data[i][13]
           }
         });
       }
@@ -796,26 +837,58 @@ function handleLoginTemp(payload) {
   } catch (e) { return response({ status: "error", message: e.toString() }); }
 }
 
+function handleManagerChangeStudentPass(payload) {
+  try {
+    const sheet = ss.getSheetByName('students');
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(payload.student_id)) {
+        sheet.getRange(i + 1, 13).setValue(payload.new_pass); // Col 13: Password
+        sheet.getRange(i + 1, 14).setValue('TRUE'); // Col 14: AllowChange -> Unlock
+        return response({ status: "success", message: "Đã đổi mật khẩu và mở khóa cho học sinh." });
+      }
+    }
+    return response({ status: "error", message: "Không tìm thấy học sinh." });
+  } catch (e) { return response({ status: "error", message: e.toString() }); }
+}
+
+function handleStudentChangePass(payload) {
+  try {
+    const sheet = ss.getSheetByName('students');
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(payload.id)) {
+        if (String(data[i][13]).toUpperCase() !== 'TRUE') {
+            return response({ status: "error", message: "Bạn không có quyền đổi mật khẩu. Vui lòng liên hệ quản lý." });
+        }
+        sheet.getRange(i + 1, 13).setValue(payload.new_pass);
+        sheet.getRange(i + 1, 14).setValue('FALSE'); // Lock after change
+        return response({ status: "success", message: "Đổi mật khẩu thành công!" });
+      }
+    }
+    return response({ status: "error", message: "Không tìm thấy tài khoản." });
+  } catch (e) { return response({ status: "error", message: e.toString() }); }
+}
+
 function handleConfirmRegistration(payload) {
   try {
-    const regSheet = ss.getSheetByName('registrations');
     const stSheet = ss.getSheetByName('students');
+    const data = stSheet.getDataRange().getValues();
     
-    // 1. Thêm vào Students
-    // Structure Students: ID, Fullname, Gender, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities
-    const newStId = 'ST' + new Date().getTime();
-    const stRow = [
-      newStId, payload.fullname, payload.gender, payload.dob, payload.class_name, 
-      payload.school, payload.address, payload.phone, payload.group_id,
-      payload.reg_time, payload.reg_loc, payload.reg_act
-    ];
-    stSheet.appendRow(stRow);
-
-    // 2. Xóa khỏi Registrations
-    const regData = regSheet.getDataRange().getValues();
-    for (let i = 1; i < regData.length; i++) {
-      if (String(regData[i][0]) === String(payload.temp_id)) {
-        regSheet.deleteRow(i + 1);
+    // Update existing student info
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(payload.temp_id)) {
+        // Update info (Cols 2-12)
+        const row = i + 1;
+        // Fullname(2), Gender(3), DOB(4), Class(5), School(6), Address(7), Phone(8)
+        stSheet.getRange(row, 2, 1, 7).setValues([[
+            payload.fullname, payload.gender, payload.dob, 
+            payload.class_name, payload.school, payload.address, payload.phone
+        ]]);
+        // Time(10), Location(11), Activities(12)
+        stSheet.getRange(row, 10, 1, 3).setValues([[
+            payload.reg_time, payload.reg_loc, payload.reg_act
+        ]]);
         break;
       }
     }
@@ -1026,13 +1099,13 @@ function handleGetStudentsByGroup(payload) {
   const rows = ss.getSheetByName('students').getDataRange().getValues();
   const list = [];
   const realGroupName = getGroupName(payload.group_id.toString());
-  // Structure Students: ID(0), Fullname(1), DOB(2), Class(3), School(4), Address(5), Phone(6), GroupID(7), Time(8), Location(9), Activities(10)
+  // Structure Students: ID(0), Fullname(1), Gender(2), DOB(3), Class(4), School(5), Address(6), Phone(7), GroupID(8), Time(9), Location(10), Activities(11)
   for (let i = 1; i < rows.length; i++) {
-    if (rows[i][7].toString() === payload.group_id.toString()) {
+    if (rows[i][8].toString() === payload.group_id.toString()) {
       list.push({ 
-        id: rows[i][0], fullname: rows[i][1], dob: formatDateVN(rows[i][2]), 
-        class_name: rows[i][3], school: rows[i][4], address: rows[i][5], phone: rows[i][6],
-        reg_time: rows[i][8], reg_loc: rows[i][9], reg_act: rows[i][10],
+        id: rows[i][0], fullname: rows[i][1], gender: rows[i][2], dob: formatDateVN(rows[i][3]), 
+        class_name: rows[i][4], school: rows[i][5], address: rows[i][6], phone: rows[i][7],
+        reg_time: rows[i][9], reg_loc: rows[i][10], reg_act: rows[i][11],
         group_name: realGroupName 
       });
     }
@@ -1148,6 +1221,10 @@ function getGroupName(groupId) {
 function formatDateVN(dateVal) {
   if (!dateVal) return "";
   try {
+    if (typeof dateVal === 'string' && dateVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
+       const parts = dateVal.split('-');
+       return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
     if (dateVal instanceof Date) return Utilities.formatDate(dateVal, "GMT+7", "dd/MM/yyyy");
     return dateVal.toString();
   } catch (e) { return dateVal.toString(); }

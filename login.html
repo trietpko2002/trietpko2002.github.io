@@ -29,6 +29,7 @@
         justify-content: center;
         font-family: 'Source Sans Pro', sans-serif;
         overflow: hidden;
+        transition: opacity 0.5s ease-out; /* Hiệu ứng chuyển trang */
     }
 
     /* Galaxy Theme */
@@ -481,6 +482,11 @@
         position: relative;
         overflow: hidden;
         background: rgba(255, 255, 255, 0.1);
+        animation: fadeInUp 0.5s ease-out forwards; /* Hiệu ứng xuất hiện */
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     .login-loading-container::before {
         content: '';
@@ -500,7 +506,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(0, 0, 0, 0.45);
+        background: #1a1a1a;
         width: 100%;
         height: 100%;
         padding: 10px;
@@ -709,7 +715,8 @@
     </div>
     
     <div class="text-center mt-4 small" style="opacity: 0.7;">
-        <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong>
+        <strong>Bản quyền và coding bởi Triết Võ.</strong><br>
+        <small>Sản phẩm có sự hỗ trợ từ AI Gemini.</small>
     </div>
   </div>
 </div>
@@ -839,6 +846,10 @@
             <div class="alert alert-info small p-2">
                 <i class="fas fa-info-circle"></i> Sau khi đăng ký, bạn sẽ nhận được <b>Mã ID</b> và <b>Mật khẩu tạm</b>. Vui lòng lưu lại để cập nhật thông tin chi tiết sau.
             </div>
+            <div class="form-group">
+                <label class="text-primary font-weight-bold">Chọn Nhóm sinh hoạt <span class="text-danger">*</span></label>
+                <select id="reg_group" class="form-control font-weight-bold border-primary"></select>
+            </div>
             <div class="form-group"><label>Họ và Tên học sinh <span class="text-danger">*</span></label><input type="text" id="reg_name" class="form-control" placeholder="Nguyễn Văn A"></div>
             <div class="form-group"><label>Giới tính</label>
                 <select id="reg_gender" class="form-control">
@@ -884,11 +895,7 @@
             <div id="update_step2" style="display:none;">
                 <div class="alert alert-success small">Xác thực thành công! Vui lòng chọn Nhóm và kiểm tra lại thông tin.</div>
                 <input type="hidden" id="conf_temp_id">
-                <div class="form-group">
-                    <label class="text-danger font-weight-bold">Chọn Nhóm sinh hoạt <span class="text-danger">*</span></label>
-                    <select id="conf_group" class="form-control font-weight-bold border-danger"></select>
-                </div>
-                <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control"></div>
+                <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control" readonly></div>
                 <div class="form-group"><label>Giới tính</label>
                     <select id="conf_gender" class="form-control">
                         <option value="">-- Chọn --</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option>
@@ -911,6 +918,11 @@
                 <div class="form-group"><label>Thời gian</label><input type="text" id="conf_time" class="form-control"></div>
                 <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
                 <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
+                
+                <div id="change_pass_area" class="d-none border-top pt-2 mt-2">
+                    <label class="text-warning">Đổi mật khẩu mới</label>
+                    <input type="password" id="conf_new_pass" class="form-control" placeholder="Nhập mật khẩu mới (nếu muốn đổi)">
+                </div>
                 <div class="form-group">
                     <label>Mã xác nhận</label>
                     <div class="d-flex align-items-center mb-2">
@@ -920,7 +932,7 @@
                     <input type="text" id="captcha_input_update" class="form-control" placeholder="Nhập mã xác nhận">
                 </div>
                 <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
-                    <i class="fas fa-check-circle mr-2"></i> XÁC NHẬN & VÀO NHÓM
+                    <i class="fas fa-check-circle mr-2"></i> CẬP NHẬT THÔNG TIN
                 </button>
             </div>
         `;
@@ -1096,11 +1108,12 @@
     function handleLoginSuccess(user) {
         sessionStorage.setItem('user', JSON.stringify(user));
         toastr.success("Đăng nhập thành công!");
+        document.body.style.opacity = '0'; // Fade out effect
         setTimeout(() => {
             if (user.role === 'admin') window.location.replace('admin.html');
             else if (user.role === 'supervisor') window.location.replace('supervisor.html');
             else window.location.replace('index.html');
-        }, 800);
+        }, 500);
     }
 
     function isMobile() {
@@ -1128,6 +1141,7 @@
         } else {
             openSidePanel('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin', window.registerFormTemplate);
         }
+        loadGroupsForRegister();
         await loadSchoolList();
         populateSchoolDropdown('reg_school_select');
         generateCaptcha('captcha_code_reg');
@@ -1135,6 +1149,7 @@
 
     async function submitRegister() {
         const name = $('#reg_name').val().trim();
+        const group = $('#reg_group').val();
         if (!name) return toastr.warning("Vui lòng nhập họ tên!");
         
         const schoolName = getSelectedSchool('reg_school_select', 'reg_school_other');
@@ -1142,9 +1157,11 @@
 
         const captchaInput = $('#captcha_input_reg').val().trim();
         const captchaCode = $('#captcha_code_reg').text().trim();
+        if (!group) return toastr.warning("Vui lòng chọn nhóm!");
         if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
 
         const payload = {
+            group_id: group,
             fullname: name,
             gender: $('#reg_gender').val(),
             dob: $('#reg_dob').val(),
@@ -1211,8 +1228,13 @@
                 $('#conf_loc').val(d.reg_loc);
                 $('#conf_act').val(d.reg_act);
                 
+                // Check if allowed to change pass
+                if (String(d.allow_change).toUpperCase() === 'TRUE') {
+                    $('#change_pass_area').removeClass('d-none');
+                }
+                
                 // Load groups and schools
-                await Promise.all([loadGroupsForConfirm(), loadSchoolList()]);
+                await Promise.all([loadSchoolList()]);
                 populateSchoolDropdown('conf_school_select');
 
                 // Set school value
@@ -1230,22 +1252,23 @@
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     }
 
-    async function loadGroupsForConfirm() {
+    async function loadGroupsForRegister() {
         try {
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_GROUPS_PUBLIC" }) });
             const res = await response.json();
             if (res.status === "success") {
                 let html = '<option value="">-- Chọn nhóm --</option>';
-                res.data.forEach(g => { html += `<option value="${g.id}">${g.name}</option>`; });
-                $('#conf_group').html(html);
+                res.data.forEach(g => { 
+                    const fullText = g.limit > 0 && g.count >= g.limit ? `${g.name} (Đã đầy)` : `${g.name} (${g.count}/${g.limit || '∞'})`;
+                    const disabled = g.limit > 0 && g.count >= g.limit ? 'disabled' : '';
+                    html += `<option value="${g.id}" ${disabled}>${fullText}</option>`; 
+                });
+                $('#reg_group').html(html);
             }
         } catch (e) {}
     }
 
     async function confirmRegistration() {
-        const group = $('#conf_group').val();
-        if(!group) return toastr.warning("Vui lòng chọn Nhóm sinh hoạt!");
-        
         const schoolName = getSelectedSchool('conf_school_select', 'conf_school_other');
         if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
 
@@ -1255,7 +1278,6 @@
 
         const payload = {
             temp_id: $('#conf_temp_id').val(),
-            group_id: group,
             fullname: $('#conf_name').val(),
             gender: $('#conf_gender').val(),
             dob: $('#conf_dob').val(), // Already in YYYY-MM-DD
@@ -1267,6 +1289,15 @@
             reg_loc: $('#conf_loc').val(),
             reg_act: $('#conf_act').val()
         };
+
+        // Handle Password Change
+        const newPass = $('#conf_new_pass').val().trim();
+        if (newPass) {
+            try {
+                await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "STUDENT_SELF_CHANGE_PASS", payload: { id: payload.temp_id, new_pass: newPass } }) });
+                toastr.success("Đã cập nhật mật khẩu mới!");
+            } catch(e) {}
+        }
 
         Swal.fire({ title: 'Đang lưu hồ sơ...', didOpen: () => Swal.showLoading() });
         try {

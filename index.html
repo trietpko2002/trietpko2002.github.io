@@ -265,6 +265,7 @@
         html, body { height: 100vh; overflow: hidden; }
         .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
         .main-footer { height: 40px; line-height: 20px; }
+        body { transition: opacity 0.5s ease-out; } /* Page transition */
 
         /* Welcome Screen Styles */
         #welcome-screen {
@@ -309,7 +310,35 @@
         }
         if(typeof generateCaptcha === 'function') generateCaptcha('captcha_code_fb');
     })();
-    function logout() { sessionStorage.clear(); window.location.replace('login.html'); }
+    function logout() { 
+        Swal.fire({
+            title: 'Đăng xuất?',
+            text: "Bạn có chắc chắn muốn thoát phiên làm việc?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đăng xuất',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang đăng xuất...',
+                    html: 'Vui lòng chờ trong giây lát',
+                    timer: 800,
+                    timerProgressBar: true,
+                    didOpen: () => { Swal.showLoading(); },
+                    willClose: () => {
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            sessionStorage.clear();
+                            window.location.replace('login.html');
+                        }, 500);
+                    }
+                });
+            }
+        });
+    }
 </script>
 
 <!-- Welcome Screen -->
@@ -443,7 +472,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
-                        <div class="small-box bg-light shadow" onclick="window.open('about.html', '_blank')">
+                        <div class="small-box bg-light shadow" onclick="window.open('https://github.com/trietpko2002/trietpko2002.github.io/blob/main/README.md', '_blank')">
                             <div class="inner"><h3>Hướng dẫn</h3><p>Tài liệu sử dụng</p></div>
                             <div class="icon"><i class="fas fa-question-circle"></i></div>
                         </div>
@@ -826,7 +855,8 @@
     </div>
     
     <footer class="main-footer text-center text-sm">
-        <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong> All rights reserved.
+        <strong>Bản quyền và coding bởi Triết Võ.</strong><br>
+        <small>Sản phẩm có sự hỗ trợ từ AI Gemini.</small>
     </footer>
 </div>
 

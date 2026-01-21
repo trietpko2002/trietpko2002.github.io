@@ -194,6 +194,7 @@
             border: 1px solid rgba(255,255,255,0.1); user-select: none;
         }
         .connection-status i { margin-right: 6px; }
+        body { transition: opacity 0.5s ease-out; }
     </style>
 </head>
 
@@ -206,9 +207,34 @@
         }
     })();
 
-    function logout() {
-        sessionStorage.clear();
-        window.location.replace('login.html');
+    function logout() { 
+        Swal.fire({
+            title: 'Đăng xuất?',
+            text: "Bạn có chắc chắn muốn thoát phiên làm việc?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Đăng xuất',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang đăng xuất...',
+                    html: 'Vui lòng chờ trong giây lát',
+                    timer: 800,
+                    timerProgressBar: true,
+                    didOpen: () => { Swal.showLoading(); },
+                    willClose: () => {
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            sessionStorage.clear();
+                            window.location.replace('login.html');
+                        }, 500);
+                    }
+                });
+            }
+        });
     }
 </script>
 
@@ -329,7 +355,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
-                        <div class="small-box bg-light shadow" onclick="window.open('about.html', '_blank')" style="cursor:pointer">
+                        <div class="small-box bg-light shadow" onclick="window.open('https://github.com/trietpko2002/trietpko2002.github.io/blob/main/README.md', '_blank')" style="cursor:pointer">
                             <div class="inner"><h3>Hướng dẫn</h3><p>Tài liệu sử dụng</p></div>
                             <div class="icon"><i class="fas fa-question-circle"></i></div>
                         </div>
@@ -858,7 +884,8 @@
         </div>
     </div>
     <footer class="main-footer text-center text-sm">
-        <strong>Copyright &copy; 2025 Tổ công nghệ phường Phan Rang.</strong> All rights reserved.
+        <strong>Bản quyền và coding bởi Triết Võ.</strong><br>
+        <small>Sản phẩm có sự hỗ trợ từ AI Gemini.</small>
     </footer>
 </div>
 
@@ -1003,6 +1030,7 @@
                 <input type="hidden" id="group_id_old">
                 <div class="form-group"><label>Mã Nhóm</label><input type="text" id="g_id" class="form-control"></div>
                 <div class="form-group"><label>Tên Nhóm</label><input type="text" id="g_name" class="form-control"></div>
+                <div class="form-group"><label>Giới hạn thành viên (0 = Không giới hạn)</label><input type="number" id="g_limit" class="form-control" value="0"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
@@ -1685,7 +1713,7 @@ async function loadExtraData() {
                     <div class="info-box shadow-sm position-relative">
                         <span class="info-box-icon bg-info elevation-1"><i class="fas fa-layer-group"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text text-bold">${g.group_name}</span>
+                            <span class="info-box-text text-bold">${g.group_name} <small class="text-muted">(${g.count}/${g.limit || '∞'})</small></span>
                             <span class="info-box-number">Mã: ${g.group_id}</span>
                         </div>
                         <div style="position:absolute; right:5px; top:5px;">
@@ -2682,7 +2710,7 @@ function openUserModal() {
     $('#modalUser').modal('show'); $('#user_id_old').val(''); $('#pass_area').show(); $('#u_name').val(getNextId(globalUsersData, 'username', 'user')); $('#u_pass, #u_role, #u_group, #u_fullname, #u_avatar, #u_email').val(''); 
     $('#u_vip_level').val(''); renderHonorCheckboxes();
 }
-function openGroupModal() { $('#modalGroup').modal('show'); $('#group_id_old').val(''); $('#g_id').val(getNextId(globalGroupsData, 'group_id', '')); $('#g_name').val(''); }
+function openGroupModal() { $('#modalGroup').modal('show'); $('#group_id_old').val(''); $('#g_id').val(getNextId(globalGroupsData, 'group_id', '')); $('#g_name').val(''); $('#g_limit').val(0); }
 function openNotiModal() { 
     $('#modalNoti').modal('show'); 
     $('#noti_id_old').val(''); 
@@ -2849,6 +2877,7 @@ function editGroup(idx) {
     $('#group_id_old').val(g.group_id);
     $('#g_id').val(g.group_id);
     $('#g_name').val(g.group_name);
+    $('#g_limit').val(g.limit || 0);
     $('#modalGroup').modal('show');
 }
 
@@ -2950,7 +2979,7 @@ async function saveData(type) {
         return;
     } else if (type === 'groups') {
         idOld = $('#group_id_old').val();
-        dataArr = [$('#g_id').val(), $('#g_name').val()];
+        dataArr = [$('#g_id').val(), $('#g_name').val(), $('#g_limit').val()];
     } else if (type === 'notifications') {
         idOld = $('#noti_id_old').val();
         let dt = $('#n_datetime').val().replace('T', ' '); // Format lại: bỏ chữ T ở giữa
