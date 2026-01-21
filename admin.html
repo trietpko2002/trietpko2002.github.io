@@ -207,6 +207,9 @@
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link font-weight-bold"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
             </li>
+            <li class="nav-item d-none d-sm-inline-block" id="installPwaNav" style="display:none;">
+                <a href="javascript:void(0)" onclick="installPwa()" class="nav-link font-weight-bold text-warning"><i class="fas fa-download mr-1"></i> CÀI ĐẶT APP</a>
+            </li>
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
@@ -3729,6 +3732,27 @@ async function exportPollPdf(pollId, title) {
         } else Swal.fire('Lỗi', 'Không thể tải dữ liệu', 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
+
+// PWA Install Logic
+let deferredPrompt;
+const installNav = document.getElementById('installPwaNav');
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if(installNav) installNav.style.display = 'block';
+});
+
+async function installPwa() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if(installNav) installNav.style.display = 'none';
+    }
+}
+window.addEventListener('appinstalled', () => {
+    if(installNav) installNav.style.display = 'none';
+});
 </script>
 </body>
 </html>

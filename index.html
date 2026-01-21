@@ -8,6 +8,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SHH App">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2921/2921222.png">
+    
     <link rel="manifest" href="manifest.json">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -258,6 +265,17 @@
         html, body { height: 100vh; overflow: hidden; }
         .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
         .main-footer { height: 40px; line-height: 20px; }
+
+        /* Welcome Screen Styles */
+        #welcome-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1e88e5; color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 99999; transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        #welcome-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
+        .welcome-logo { width: 100px; height: 100px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed">
@@ -283,6 +301,13 @@
     function logout() { sessionStorage.clear(); window.location.replace('login.html'); }
 </script>
 
+<!-- Welcome Screen -->
+<div id="welcome-screen">
+    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" class="welcome-logo">
+    <h3 class="font-weight-bold">Hệ thống Quản lý SHH</h3>
+    <div class="spinner-border text-white mt-3" role="status" style="width: 2rem; height: 2rem;"></div>
+</div>
+
 <div class="wrapper">
     <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
     <button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 20px;">
@@ -302,6 +327,9 @@
         <ul class="navbar-nav">
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link font-weight-bold"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block" id="installPwaNav" style="display:none;">
+                <a href="javascript:void(0)" onclick="installPwa()" class="nav-link font-weight-bold text-warning"><i class="fas fa-download mr-1"></i> CÀI ĐẶT APP</a>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -1253,6 +1281,12 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Start Polling for Notifications (Push Simulation)
     setInterval(pollForNotifications, 60000); // Check every 60s
+    
+    // Hide Welcome Screen after load
+    setTimeout(() => {
+        $('#welcome-screen').addClass('hidden');
+    }, 1500); // Hiện trong 1.5 giây
+
     // Kiểm tra mã PIN mặc định
     if (user.is_default_pin) {
         $('#modalChangePin').modal('show');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shh-manager-v5';
+const CACHE_NAME = 'shh-manager-v6';
 const urlsToCache = [
   './',
   './index.html',
@@ -9,7 +9,8 @@ const urlsToCache = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js',
+  'https://cdn-icons-png.flaticon.com/512/2921/2921222.png'
 ];
 
 self.addEventListener('install', event => {
