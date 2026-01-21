@@ -795,7 +795,7 @@ function handleRegisterTemp(payload) {
     const newRow = [
       newId, payload.fullname, payload.gender, payload.dob, payload.class_name, 
       payload.school, payload.address, payload.phone, payload.group_id,
-      payload.reg_time, payload.reg_loc, payload.reg_act, 
+      payload.reg_time, payload.reg_loc, payload.reg_act || '', 
       randomPass, 'TRUE' // Default allow change
     ];
     
