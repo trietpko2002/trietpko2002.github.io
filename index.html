@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="manifest" href="manifest.json">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -284,6 +285,9 @@
 
 <div class="wrapper">
     <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
+    <button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 20px;">
+        <i class="fas fa-download mr-2"></i> Cài App
+    </button>
     <canvas id="matrix-canvas" style="display:none;"></canvas>
     <div id="phone-notification">
         <img id="pn-img" src="" style="display:none;">

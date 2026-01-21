@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     /* Youth Union Theme */
@@ -633,6 +634,10 @@
 </button>
 <button id="toggleRainBtn" class="toggle-rain-btn" onclick="$('#modalThemeSelection').modal('show')" title="Đổi giao diện">
     <i class="fas fa-cloud-rain"></i>
+</button>
+
+<button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 20px;">
+    <i class="fas fa-download mr-2"></i> Cài App
 </button>
 
 <div class="login-container" id="loginContainer">
@@ -1742,6 +1747,26 @@
         await saveCustomBg(file);
         toastr.success("Đã lưu giao diện custom!");
         selectTheme(18);
+    });
+
+    // PWA Install Logic
+    let deferredPrompt;
+    const installBtn = document.getElementById('installPwaBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        }
+    });
+    window.addEventListener('appinstalled', () => {
+        installBtn.style.display = 'none';
     });
 </script>
 </body>
