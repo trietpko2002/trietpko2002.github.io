@@ -183,6 +183,17 @@
         /* Smooth Tab Transition */
         .tab-pane.fade { transition: opacity 0.3s linear, transform 0.3s ease-out; transform: translateY(10px); }
         .tab-pane.fade.show { transform: translateY(0); }
+        
+        /* Connection Status */
+        .connection-status {
+            position: fixed; bottom: 10px; left: 10px; z-index: 10000;
+            background: rgba(0, 0, 0, 0.7); color: #fff; padding: 6px 12px;
+            border-radius: 30px; font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; backdrop-filter: blur(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1); user-select: none;
+        }
+        .connection-status i { margin-right: 6px; }
     </style>
 </head>
 
@@ -200,6 +211,13 @@
         window.location.replace('login.html');
     }
 </script>
+
+<!-- Connection Status Widget -->
+<div id="connection-status" class="connection-status" style="display:none;">
+    <i class="fas fa-wifi" id="conn-icon"></i>
+    <span id="conn-text">Kết nối</span>
+    <span id="conn-ms" class="ml-2 badge badge-dark">--ms</span>
+</div>
 
 <div class="wrapper">
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -3753,6 +3771,47 @@ async function installPwa() {
 window.addEventListener('appinstalled', () => {
     if(installNav) installNav.style.display = 'none';
 });
+
+// --- CONNECTION STATUS LOGIC ---
+function updateConnectionStatus() {
+    const statusEl = document.getElementById('connection-status');
+    const iconEl = document.getElementById('conn-icon');
+    const textEl = document.getElementById('conn-text');
+    const msEl = document.getElementById('conn-ms');
+    
+    if(!statusEl) return;
+    if (!navigator.onLine) { setConnStatus('offline', 'Mất kết nối', '--'); return; }
+
+    const start = Date.now();
+    fetch('manifest.json?t=' + start, { method: 'HEAD', cache: 'no-store' })
+    .then(() => {
+        const latency = Date.now() - start;
+        if (latency < 300) setConnStatus('online', 'Tốt', latency + 'ms');
+        else if (latency < 1000) setConnStatus('slow', 'Trung bình', latency + 'ms');
+        else setConnStatus('offline', 'Yếu', latency + 'ms');
+    })
+    .catch(() => setConnStatus('offline', 'Lỗi mạng', '--'));
+}
+
+function setConnStatus(type, text, ms) {
+    const el = document.getElementById('connection-status');
+    const icon = document.getElementById('conn-icon');
+    const txt = document.getElementById('conn-text');
+    const badge = document.getElementById('conn-ms');
+    
+    el.style.display = 'flex';
+    txt.innerText = text; badge.innerText = ms;
+    el.style.border = '1px solid rgba(255,255,255,0.1)'; el.style.background = 'rgba(0, 0, 0, 0.7)';
+    
+    if(type === 'online') { icon.className = 'fas fa-wifi'; badge.className = 'ml-2 badge badge-success'; el.style.borderColor = '#28a745'; icon.style.color = '#28a745'; }
+    else if(type === 'slow') { icon.className = 'fas fa-network-wired'; badge.className = 'ml-2 badge badge-warning'; el.style.borderColor = '#ffc107'; icon.style.color = '#ffc107'; }
+    else { icon.className = 'fas fa-exclamation-triangle'; badge.className = 'ml-2 badge badge-danger'; el.style.borderColor = '#dc3545'; el.style.background = 'rgba(50, 0, 0, 0.8)'; icon.style.color = '#dc3545'; }
+}
+
+setInterval(updateConnectionStatus, 5000);
+window.addEventListener('load', updateConnectionStatus);
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', () => setConnStatus('offline', 'Mất kết nối', '--'));
 </script>
 </body>
 </html>
