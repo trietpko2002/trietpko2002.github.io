@@ -322,20 +322,15 @@
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Đang đăng xuất...',
-                    html: 'Vui lòng chờ trong giây lát',
-                    timer: 800,
-                    timerProgressBar: true,
-                    didOpen: () => { Swal.showLoading(); },
-                    willClose: () => {
-                        document.body.style.opacity = '0';
-                        setTimeout(() => {
-                            sessionStorage.clear();
-                            window.location.replace('login.html');
-                        }, 500);
-                    }
-                });
+                const logoutOverlay = document.getElementById('logout-overlay');
+                if (logoutOverlay) {
+                    logoutOverlay.style.display = 'flex';
+                    setTimeout(() => { logoutOverlay.style.opacity = '1'; }, 10);
+                }
+                setTimeout(() => {
+                    sessionStorage.clear();
+                    window.location.replace('login.html');
+                }, 800);
             }
         });
     }
@@ -345,7 +340,21 @@
 <div id="welcome-screen">
     <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" class="welcome-logo">
     <h3 class="font-weight-bold">Hệ thống Quản lý SHH</h3>
-    <div class="spinner-border text-white mt-3" role="status" style="width: 2rem; height: 2rem;"></div>
+    <div class="w-75 mt-4" style="max-width: 300px;">
+        <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
+            <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2 text-white small">
+            <span id="welcome-status-text">Đang kết nối...</span>
+            <span id="welcome-percent">0%</span>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Loading Overlay -->
+<div id="logout-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; color: white; z-index: 999999; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+    <h4 class="mt-3 font-weight-bold">Đang đăng xuất...</h4>
 </div>
 
 <!-- Connection Status Widget -->
@@ -1176,6 +1185,7 @@
     </div>
 </div>
 <audio id="eggAudio" loop><source src="music/easter_egg.mp3" type="audio/mpeg"></audio>
+<audio id="startupAudio" preload="auto"><source src="music/startup.mp3" type="audio/mpeg"></audio>
 
 <!-- Modal Update Available -->
 <div class="modal fade" id="modalUpdateAvailable" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
@@ -1371,10 +1381,35 @@ document.addEventListener("DOMContentLoaded", function() {
     // Start Polling for Notifications (Push Simulation)
     setInterval(pollForNotifications, 60000); // Check every 60s
     
-    // Hide Welcome Screen after load
-    setTimeout(() => {
-        $('#welcome-screen').addClass('hidden');
-    }, 1500); // Hiện trong 1.5 giây
+    // Simulate Update Loading
+    const statusText = document.getElementById('welcome-status-text');
+    const percentText = document.getElementById('welcome-percent');
+    const progressBar = document.getElementById('welcome-progress-bar');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    
+    if (statusText && progressBar && welcomeScreen) {
+        let progress = 0;
+        const messages = ["Đang kết nối máy chủ...", "Kiểm tra phiên bản...", "Tải xuống giao diện mới...", "Cập nhật tính năng...", "Hoàn tất!"];
+        
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 5) + 2;
+            if (progress > 100) progress = 100;
+            
+            progressBar.style.width = `${progress}%`;
+            if(percentText) percentText.innerText = `${progress}%`;
+            
+            const step = Math.min(Math.floor((progress / 100) * messages.length), messages.length - 1);
+            statusText.innerText = messages[step];
+
+            if (progress === 100) {
+                clearInterval(interval);
+                document.getElementById('startupAudio')?.play().catch(e => {});
+                setTimeout(() => { welcomeScreen.classList.add('hidden'); }, 800);
+            }
+        }, 50); // Speed of loading
+    } else {
+        setTimeout(() => { $('#welcome-screen').addClass('hidden'); }, 1500);
+    }
 
     // Kiểm tra mã PIN mặc định
     if (user.is_default_pin) {
@@ -2250,6 +2285,13 @@ async function saveStudent() {
         $('#st_reg_loc').val(),
         "" // reg_act removed
     ];
+    
+    if (!idOld) {
+        // Generate password for new student
+        const randomPass = Math.floor(100000 + Math.random() * 900000).toString();
+        dataArr.push(randomPass); // Col 13: Password
+        dataArr.push('TRUE');     // Col 14: AllowChange
+    }
 
     Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
     try {
@@ -3375,6 +3417,20 @@ function startEasterEgg() {
 function stopEasterEgg() {
     $('#modalCredits').modal('hide'); const audio = document.getElementById('eggAudio'); if(audio) { audio.pause(); audio.currentTime = 0; }
     clearInterval(fireworksInterval); confetti.reset();
+}
+
+function getNextId(list, prop, prefix = '') {
+    if (!list || list.length === 0) return prefix + '1';
+    let max = 0;
+    list.forEach(item => {
+        let val = String(item[prop]);
+        const match = val.match(/(\d+)$/);
+        if (match) {
+            const num = parseInt(match[1]);
+            if (num > max) max = num;
+        }
+    });
+    return prefix + (max + 1);
 }
 
 function initCardCollapseState() {

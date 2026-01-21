@@ -194,7 +194,17 @@
             border: 1px solid rgba(255,255,255,0.1); user-select: none;
         }
         .connection-status i { margin-right: 6px; }
-        body { transition: opacity 0.5s ease-out; }
+        body { transition: opacity 0.5s ease-out; }        
+        /* Welcome Screen Styles */
+        #welcome-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1e88e5; color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 99999; transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        #welcome-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
+        .welcome-logo { width: 100px; height: 100px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 
@@ -219,24 +229,40 @@
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Đang đăng xuất...',
-                    html: 'Vui lòng chờ trong giây lát',
-                    timer: 800,
-                    timerProgressBar: true,
-                    didOpen: () => { Swal.showLoading(); },
-                    willClose: () => {
-                        document.body.style.opacity = '0';
-                        setTimeout(() => {
-                            sessionStorage.clear();
-                            window.location.replace('login.html');
-                        }, 500);
-                    }
-                });
+                const logoutOverlay = document.getElementById('logout-overlay');
+                if (logoutOverlay) {
+                    logoutOverlay.style.display = 'flex';
+                    setTimeout(() => { logoutOverlay.style.opacity = '1'; }, 10);
+                }
+                setTimeout(() => {
+                    sessionStorage.clear();
+                    window.location.replace('login.html');
+                }, 800);
             }
         });
     }
 </script>
+
+<!-- Welcome Screen -->
+<div id="welcome-screen">
+    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" class="welcome-logo">
+    <h3 class="font-weight-bold">Hệ thống Quản trị viên</h3>
+    <div class="w-75 mt-4" style="max-width: 300px;">
+        <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
+            <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2 text-white small">
+            <span id="welcome-status-text">Đang khởi tạo...</span>
+            <span id="welcome-percent">0%</span>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Loading Overlay -->
+<div id="logout-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; color: white; z-index: 999999; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+    <h4 class="mt-3 font-weight-bold">Đang đăng xuất...</h4>
+</div>
 
 <!-- Connection Status Widget -->
 <div id="connection-status" class="connection-status" style="display:none;">
@@ -1418,6 +1444,7 @@
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<audio id="startupAudio" preload="auto"><source src="music/startup.mp3" type="audio/mpeg"></audio>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
@@ -1454,6 +1481,35 @@ $(document).ready(function() {
     if (localStorage.getItem('darkMode') === 'true') {
         $('body').addClass('dark-mode');
     }
+
+    // Simulate Update Loading
+    const statusText = document.getElementById('welcome-status-text');
+    const percentText = document.getElementById('welcome-percent');
+    const progressBar = document.getElementById('welcome-progress-bar');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    
+    if (statusText && progressBar && welcomeScreen) {
+        let progress = 0;
+        const messages = ["Đang kết nối máy chủ...", "Kiểm tra quyền Admin...", "Tải dữ liệu hệ thống...", "Khởi tạo giao diện...", "Hoàn tất!"];
+        
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 10) + 5;
+            if (progress > 100) progress = 100;
+            
+            progressBar.style.width = `${progress}%`;
+            if(percentText) percentText.innerText = `${progress}%`;
+            
+            const step = Math.min(Math.floor((progress / 100) * messages.length), messages.length - 1);
+            statusText.innerText = messages[step];
+
+            if (progress === 100) {
+                clearInterval(interval);
+                document.getElementById('startupAudio')?.play().catch(e => {});
+                setTimeout(() => { welcomeScreen.classList.add('hidden'); }, 800);
+            }
+        }, 80); // Speed of loading
+    }
+
     generateCaptcha('captcha_code_backup');
     generateCaptcha('captcha_code_restore');
     refreshAll();

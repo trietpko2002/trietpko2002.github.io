@@ -621,10 +621,15 @@
 <div id="welcome-screen">
   <h1>Chào mừng bạn!</h1>
   <p>Đến với Hệ thống Quản lý Sinh hoạt hè</p>
-  <div class="welcome-loading-box">
-      <div class="spinner-border text-white welcome-spinner" role="status"></div>
-      <span class="welcome-text" id="welcome-status">Đang khởi động...</span>
-  </div>
+    <div class="w-75 mt-4" style="max-width: 300px;">
+        <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
+            <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2 text-white small">
+            <span id="welcome-status">Đang khởi động...</span>
+            <span id="welcome-percent">0%</span>
+        </div>
+    </div>
 </div>
 
 <!-- Rain Container -->
@@ -710,8 +715,6 @@
     <div class="text-center mt-5 action-links">
         <p class="mb-1 small">Chưa có thông tin học sinh?</p>
         <a href="javascript:void(0)" onclick="openRegisterModal()"><i class="fas fa-user-plus mr-1"></i> Đăng ký ngay</a>
-        <span class="mx-2">|</span>
-        <a href="javascript:void(0)" onclick="openUpdateInfoModal()"><i class="fas fa-edit mr-1"></i> Cập nhật</a>
     </div>
     
     <div class="text-center mt-4 small" style="opacity: 0.7;">
@@ -881,84 +884,40 @@
             <button type="button" class="btn btn-success btn-block" onclick="submitRegister()">Đăng ký ngay</button>
         `;
 
-        window.updateInfoTemplate = `
-            <div id="update_step1">
-                <p>Vui lòng nhập ID và Mật khẩu tạm (6 số) bạn nhận được khi đăng ký.</p>
-                <div class="form-group"><label>Mã ID Đăng ký</label><input type="text" id="temp_id" class="form-control" placeholder="REG..."></div>
-                <div class="form-group"><label>Mật khẩu tạm</label><input type="password" id="temp_pass" class="form-control" placeholder="6 chữ số"></div>
-                <button class="btn btn-primary btn-block" onclick="loginTemp()">Tiếp tục <i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div id="update_step2" style="display:none;">
-                <div class="alert alert-success small">Xác thực thành công! Vui lòng chọn Nhóm và kiểm tra lại thông tin.</div>
-                <input type="hidden" id="conf_temp_id">
-                <div class="form-group"><label>Họ tên</label><input type="text" id="conf_name" class="form-control" readonly></div>
-                <div class="form-group"><label>Giới tính</label>
-                    <select id="conf_gender" class="form-control">
-                        <option value="">-- Chọn --</option><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Ngày sinh</label><input type="date" id="conf_dob" class="form-control"></div>
-                <div class="form-group"><label>Lớp</label><input type="text" id="conf_class" class="form-control"></div>                    
-                <div class="form-group">
-                    <label>Trường</label>
-                    <select id="conf_school_select" class="form-control" onchange="toggleOtherSchool('conf_school_select', 'conf_school_other_div')">
-                        <option value="">-- Vui lòng chọn trường --</option>
-                    </select>
-                </div>
-                <div class="form-group" id="conf_school_other_div" style="display:none;">
-                    <label>Tên trường khác</label>
-                    <input type="text" id="conf_school_other" class="form-control" placeholder="Nhập tên trường của bạn...">
-                </div>
-                <div class="form-group"><label>Địa chỉ</label><input type="text" id="conf_address" class="form-control"></div>
-                <div class="form-group"><label>SĐT</label><input type="text" id="conf_phone" class="form-control"></div>
-                <div class="form-group"><label>Thời gian</label><input type="text" id="conf_time" class="form-control"></div>
-                <div class="form-group"><label>Địa điểm</label><input type="text" id="conf_loc" class="form-control"></div>
-                <div class="form-group"><label>Hoạt động</label><textarea id="conf_act" class="form-control" rows="2"></textarea></div>
-                
-                <div id="change_pass_area" class="d-none border-top pt-2 mt-2">
-                    <label class="text-warning">Đổi mật khẩu mới</label>
-                    <input type="password" id="conf_new_pass" class="form-control" placeholder="Nhập mật khẩu mới (nếu muốn đổi)">
-                </div>
-                <div class="form-group">
-                    <label>Mã xác nhận</label>
-                    <div class="d-flex align-items-center mb-2">
-                        <span id="captcha_code_update" class="bg-light border px-3 py-1 font-weight-bold mr-2 h5 mb-0" style="letter-spacing: 3px; user-select: none; border-radius: 4px;"></span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_update')"><i class="fas fa-sync"></i></button>
-                    </div>
-                    <input type="text" id="captcha_input_update" class="form-control" placeholder="Nhập mã xác nhận">
-                </div>
-                <button class="btn btn-success btn-block font-weight-bold" onclick="confirmRegistration()">
-                    <i class="fas fa-check-circle mr-2"></i> CẬP NHẬT THÔNG TIN
-                </button>
-            </div>
-        `;
-
         sessionStorage.clear(); 
         
-        // Auto Loading Sequence (5 trạng thái)
+        // New Loading Sequence with Progress Bar
         const states = [
-            "Đang kết nối máy chủ...",
-            "Đang kiểm tra phiên bản...",
-            "Đang tải tài nguyên...",
-            "Đang thiết lập bảo mật...",
-            "Hoàn tất! Đang vào hệ thống..."
+            "Kết nối máy chủ...",
+            "Kiểm tra phiên bản...",
+            "Tải tài nguyên...",
+            "Thiết lập bảo mật...",
+            "Hoàn tất!"
         ];
         
-        let step = 0;
         const statusEl = document.getElementById('welcome-status');
+        const percentEl = document.getElementById('welcome-percent');
+        const barEl = document.getElementById('welcome-progress-bar');
         
         const interval = setInterval(() => {
-            if (step < states.length) {
-                statusEl.innerText = states[step];
-                step++;
-            } else {
+            let progress = parseInt(barEl.style.width) || 0;
+            progress += Math.floor(Math.random() * 5) + 2;
+            if (progress > 100) progress = 100;
+            
+            barEl.style.width = `${progress}%`;
+            percentEl.innerText = `${progress}%`;
+            
+            const step = Math.min(Math.floor((progress / 100) * states.length), states.length - 1);
+            statusEl.innerText = states[step];
+
+            if (progress === 100) {
                 clearInterval(interval);
                 setTimeout(() => {
                     document.getElementById('welcome-screen').classList.add('hidden');
                     generateCaptcha('captcha_code_login');
                 }, 500);
             }
-        }, 800); // 800ms mỗi trạng thái
+        }, 50); // Faster interval for smoother loading
         
         const effectState = parseInt(localStorage.getItem('bgEffect') || '0');
         applyEffect(effectState);
@@ -1262,49 +1221,6 @@
         } catch (e) {}
     }
 
-    async function confirmRegistration() {
-        const schoolName = getSelectedSchool('conf_school_select', 'conf_school_other');
-        if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
-
-        const captchaInput = $('#captcha_input_update').val().trim();
-        const captchaCode = $('#captcha_code_update').text().trim();
-        if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
-
-        const payload = {
-            temp_id: $('#conf_temp_id').val(),
-            fullname: $('#conf_name').val(),
-            gender: $('#conf_gender').val(),
-            dob: $('#conf_dob').val(), // Already in YYYY-MM-DD
-            class_name: $('#conf_class').val(),
-            school: schoolName,
-            address: $('#conf_address').val(),
-            phone: $('#conf_phone').val(),
-            reg_time: $('#conf_time').val(),
-            reg_loc: $('#conf_loc').val(),
-            reg_act: $('#conf_act').val()
-        };
-
-        // Handle Password Change
-        const newPass = $('#conf_new_pass').val().trim();
-        if (newPass) {
-            try {
-                await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "STUDENT_SELF_CHANGE_PASS", payload: { id: payload.temp_id, new_pass: newPass } }) });
-                toastr.success("Đã cập nhật mật khẩu mới!");
-            } catch(e) {}
-        }
-
-        Swal.fire({ title: 'Đang lưu hồ sơ...', didOpen: () => Swal.showLoading() });
-        try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "CONFIRM_REGISTRATION", payload: payload }) });
-            const res = await response.json();
-            if (res.status === "success") {
-                if(isMobile()) $('#modalMobileAction').modal('hide');
-                else closeSidePanel();
-                Swal.fire('Thành công', 'Hồ sơ đã được chuyển sang danh sách chính thức!', 'success');
-            } else { Swal.fire('Lỗi', res.message, 'error'); }
-        } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
-    }
-
     function createRain() {
         const rainContainer = document.getElementById('rain');
         for (let i = 0; i < 80; i++) {
@@ -1400,8 +1316,27 @@
         canvas.dataset.intervalId = intervalId;
 
         window.addEventListener('resize', () => {
+            if (!document.body.classList.contains('theme-matrix')) return;
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+        });
+    }
+
+    function cleanupEffects() {
+        // Stop intervals/animations
+        if (window.matrixInterval) { clearInterval(window.matrixInterval); window.matrixInterval = null; }
+        if (window.uiaInterval) { cancelAnimationFrame(window.uiaInterval); window.uiaInterval = null; }
+
+        // Stop all theme audios
+        document.querySelectorAll('audio[id^="audio-"]').forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+
+        // Clear generated elements from containers
+        ['rain', 'stars', 'snow', 'flowers', 'midautumn', 'uia-container', 'summer-container', 'jack97-container', 'halloween-container', 'custom-bg-container'].forEach(id => {
+            const container = document.getElementById(id);
+            if (container) container.innerHTML = '';
         });
     }
 
@@ -1420,6 +1355,8 @@
     }
 
     function applyEffect(state) {
+        cleanupEffects(); // Dọn dẹp hiệu ứng cũ trước khi áp dụng cái mới
+
         const body = document.body;
         const rainContainer = document.getElementById('rain');
         const starsContainer = document.getElementById('stars');
@@ -1438,11 +1375,8 @@
         // Reset
         body.className = 'hold-transition login-page';
         rainContainer.style.display = 'none';
-        starsContainer.style.display = 'none';
-        snowContainer.style.display = 'none';
         sun.style.display = 'none';
         matrixContainer.style.display = 'none';
-        flowerContainer.style.display = 'none';
         midAutumn.style.display = 'none';
         uiaContainer.style.display = 'none';
         summerContainer.style.display = 'none';
@@ -1450,17 +1384,10 @@
         halloweenContainer.style.display = 'none';
         customBgContainer.style.display = 'none';
         
-        // Stop all theme audios
-        ['audio-tet', 'audio-nyan', 'audio-uia', 'audio-jack', 'meowSfx', 'angrybirdSfx', 'halloweenSfx'].forEach(id => {
-            const a = document.getElementById(id);
-            if(a) { a.pause(); a.currentTime = 0; }
-        });
-
         btnIcon.className = 'fas fa-magic';
         
-        // Clear intervals
-        if (window.catJumpInterval) clearInterval(window.catJumpInterval);
-        if (window.uiaInterval) { cancelAnimationFrame(window.uiaInterval); window.uiaInterval = null; }
+        // Hide containers that are not being re-created
+        snowContainer.style.display = 'none';
 
         if (state === 0) { // Ocean + Rain
             rainContainer.style.display = 'block'; btnIcon.className = 'fas fa-cloud-rain'; if(rainContainer.children.length === 0) createRain();
