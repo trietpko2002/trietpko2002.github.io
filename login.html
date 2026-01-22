@@ -412,7 +412,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: #1e88e5;
+      background: #000;
       color: white;
       display: flex;
       flex-direction: column;
@@ -422,6 +422,7 @@
       transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
       text-align: center;
       padding: 20px;
+      transition: background 1s ease, opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
     }
     #welcome-screen.hidden {
       transform: translateY(-50px);
@@ -469,6 +470,33 @@
       from { opacity: 0; transform: scale(0.8); }
       to { opacity: 1; transform: scale(1); }
     }
+
+    /* Intro Logo Animation */
+    .intro-logo {
+        width: 150px;
+        height: 150px;
+        filter: drop-shadow(0 0 20px #ffd700);
+        animation: pulseLogo 2s infinite;
+        transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 0;
+    }
+    @keyframes pulseLogo {
+        0% { transform: scale(1); filter: drop-shadow(0 0 20px #ffd700); }
+        50% { transform: scale(1.1); filter: drop-shadow(0 0 40px #ffeb3b); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 20px #ffd700); }
+    }
+    
+    #welcome-content {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(20px);
+        transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #welcome-screen.phase-2 { background: #1e88e5; }
+    #welcome-screen.phase-2 .intro-logo { width: 100px; height: 100px; margin-bottom: 20px; animation: none; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); transform: scale(1); }
+    #welcome-screen.phase-2 #welcome-content { opacity: 1; max-height: 500px; transform: translateY(0); }
 
     /* Login Loading Styles */
     .login-loading-container {
@@ -614,22 +642,30 @@
         color: white;
         border: 1px solid rgba(255,255,255,0.2);
     }
+
+    /* SweetAlert Z-Index Fix - Ensure it appears on top of modals */
+    .swal2-container {
+        z-index: 10000 !important;
+    }
   </style>
 </head>
 <body class="hold-transition login-page">
 <!-- Welcome Screen -->
 <div id="welcome-screen">
-  <h1>Chào mừng bạn!</h1>
-  <p>Đến với Hệ thống Quản lý Sinh hoạt hè</p>
-    <div class="w-75 mt-4" style="max-width: 300px;">
-        <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
-            <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
-        </div>
-        <div class="d-flex justify-content-between mt-2 text-white small">
-            <span id="welcome-status">Đang khởi động...</span>
-            <span id="welcome-percent">0%</span>
-        </div>
-    </div>
+  <img src="https://upload.wikimedia.org/wikipedia/vi/0/09/Huy_Hi%E1%BB%87u_%C4%90o%C3%A0n.png" class="intro-logo">
+  <div id="welcome-content">
+      <h1>Chào mừng bạn!</h1>
+      <p>Đến với Hệ thống Quản lý Sinh hoạt hè</p>
+      <div class="w-75 mt-4 mx-auto" style="max-width: 300px;">
+          <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
+              <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
+          </div>
+          <div class="d-flex justify-content-between mt-2 text-white small">
+              <span id="welcome-status">Đang khởi động...</span>
+              <span id="welcome-percent">0%</span>
+          </div>
+      </div>
+  </div>
 </div>
 
 <!-- Rain Container -->
@@ -669,8 +705,13 @@
     <span id="conn-ms" class="ml-2 badge badge-dark">--ms</span>
 </div>
 
-      <h2 class="font-weight-bold">ĐĂNG NHẬP</h2>
-      <p class="small">Hệ thống quản lý sinh hoạt hè</p>
+      <div class="d-flex justify-content-center align-items-center">
+          <img src="https://upload.wikimedia.org/wikipedia/vi/0/09/Huy_Hi%E1%BB%87u_%C4%90o%C3%A0n.png" alt="Logo Đoàn" style="height: 50px; margin-right: 15px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));">
+          <div class="text-left">
+              <h2 class="font-weight-bold mb-0" style="line-height: 1.2;">ĐĂNG NHẬP</h2>
+              <p class="small mb-0">Hệ thống quản lý sinh hoạt hè</p>
+          </div>
+      </div>
     </div>
 
     <form id="loginForm">
@@ -683,7 +724,9 @@
         <div class="input-group mb-3 input-group-pill">
             <input type="password" id="password" class="form-control" placeholder="Mật khẩu" required style="padding-left: 20px;">
             <div class="input-group-append">
-                <div class="input-group-text"><span class="fas fa-lock"></span></div>
+                <div class="input-group-text" style="cursor: pointer;" onclick="togglePassword()">
+                    <span id="password-icon" class="fas fa-eye"></span>
+                </div>
             </div>
         </div>
         
@@ -846,10 +889,6 @@
     window.onload = () => { 
         // Define form templates
         window.registerFormTemplate = `
-            <div class="form-group">
-                <label class="text-primary font-weight-bold">Chọn Nhóm sinh hoạt <span class="text-danger">*</span></label>
-                <select id="reg_group" class="form-control font-weight-bold border-primary"></select>
-            </div>
             <div class="form-group"><label>Họ và Tên học sinh <span class="text-danger">*</span></label><input type="text" id="reg_name" class="form-control" placeholder="Nguyễn Văn A"></div>
             <div class="form-group"><label>Giới tính</label>
                 <select id="reg_gender" class="form-control">
@@ -886,38 +925,47 @@
 
         sessionStorage.clear(); 
         
-        // New Loading Sequence with Progress Bar
-        const states = [
-            "Kết nối máy chủ...",
-            "Kiểm tra phiên bản...",
-            "Tải tài nguyên...",
-            "Thiết lập bảo mật...",
-            "Hoàn tất!"
-        ];
-        
-        const statusEl = document.getElementById('welcome-status');
-        const percentEl = document.getElementById('welcome-percent');
-        const barEl = document.getElementById('welcome-progress-bar');
-        
-        const interval = setInterval(() => {
-            let progress = parseInt(barEl.style.width) || 0;
-            progress += Math.floor(Math.random() * 5) + 2;
-            if (progress > 100) progress = 100;
-            
-            barEl.style.width = `${progress}%`;
-            percentEl.innerText = `${progress}%`;
-            
-            const step = Math.min(Math.floor((progress / 100) * states.length), states.length - 1);
-            statusEl.innerText = states[step];
+        // Start Phase 2 after 2 seconds
+        setTimeout(() => {
+            document.getElementById('welcome-screen').classList.add('phase-2');
+            setTimeout(startLoadingProgress, 500);
+        }, 2000);
 
-            if (progress === 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    document.getElementById('welcome-screen').classList.add('hidden');
-                    generateCaptcha('captcha_code_login');
-                }, 500);
-            }
-        }, 50); // Faster interval for smoother loading
+        function startLoadingProgress() {
+            const states = [
+                "Kết nối máy chủ...",
+                "Kiểm tra phiên bản...",
+                "Tải tài nguyên...",
+                "Thiết lập bảo mật...",
+                "Hoàn tất!"
+            ];
+            
+            const statusEl = document.getElementById('welcome-status');
+            const percentEl = document.getElementById('welcome-percent');
+            const barEl = document.getElementById('welcome-progress-bar');
+            
+            barEl.style.transition = 'width 0.05s linear';
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += 1;
+                if (progress > 100) progress = 100;
+                
+                barEl.style.width = `${progress}%`;
+                percentEl.innerText = `${progress}%`;
+                
+                const step = Math.floor((progress / 100) * states.length);
+                if(states[step]) statusEl.innerText = states[step];
+
+                if (progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('welcome-screen').classList.add('hidden');
+                        generateCaptcha('captcha_code_login');
+                    }, 500);
+                }
+            }, 15); 
+        }
         
         const effectState = parseInt(localStorage.getItem('bgEffect') || '0');
         applyEffect(effectState);
@@ -1087,6 +1135,20 @@
         $('#loginContainer').removeClass('side-panel-active');
     }
 
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('password-icon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.classList.remove('fa-eye');
+            passwordIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.classList.remove('fa-eye-slash');
+            passwordIcon.classList.add('fa-eye');
+        }
+    }
+
     // --- LOGIC ĐĂNG KÝ ---
     async function openRegisterModal() {
         if (isMobile()) {
@@ -1096,7 +1158,6 @@
         } else {
             openSidePanel('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin', window.registerFormTemplate);
         }
-        loadGroupsForRegister();
         await loadSchoolList();
         populateSchoolDropdown('reg_school_select');
         generateCaptcha('captcha_code_reg');
@@ -1104,7 +1165,6 @@
 
     async function submitRegister() {
         const name = $('#reg_name').val().trim();
-        const group = $('#reg_group').val();
         if (!name) return toastr.warning("Vui lòng nhập họ tên!");
         
         const schoolName = getSelectedSchool('reg_school_select', 'reg_school_other');
@@ -1112,11 +1172,9 @@
 
         const captchaInput = $('#captcha_input_reg').val().trim();
         const captchaCode = $('#captcha_code_reg').text().trim();
-        if (!group) return toastr.warning("Vui lòng chọn nhóm!");
         if (captchaInput.toUpperCase() !== captchaCode) return toastr.error("Mã xác nhận không đúng!");
 
         const payload = {
-            group_id: group,
             fullname: name,
             gender: $('#reg_gender').val(),
             dob: $('#reg_dob').val(),
@@ -1138,7 +1196,7 @@
                 else closeSidePanel();
                 Swal.fire({
                     title: 'Đăng ký thành công!',
-                    text: 'Thông tin đã được ghi nhận. Vui lòng liên hệ quản lý để được cấp tài khoản đăng nhập.',
+                    html: `Chúc mừng bạn đã được phân vào <b>${res.data.group_name}</b>.<br>Thông tin đã được ghi nhận vào hệ thống.`,
                     icon: 'success',
                     confirmButtonText: 'Đã lưu'
                 });
@@ -1203,22 +1261,6 @@
                 $('#update_step2').show();
             } else Swal.fire('Lỗi', res.message, 'error');
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
-    }
-
-    async function loadGroupsForRegister() {
-        try {
-            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_GROUPS_PUBLIC" }) });
-            const res = await response.json();
-            if (res.status === "success") {
-                let html = '<option value="">-- Chọn nhóm --</option>';
-                res.data.forEach(g => { 
-                    const fullText = g.limit > 0 && g.count >= g.limit ? `${g.name} (Đã đầy)` : `${g.name} (${g.count}/${g.limit || '∞'})`;
-                    const disabled = g.limit > 0 && g.count >= g.limit ? 'disabled' : '';
-                    html += `<option value="${g.id}" ${disabled}>${fullText}</option>`; 
-                });
-                $('#reg_group').html(html);
-            }
-        } catch (e) {}
     }
 
     function createRain() {

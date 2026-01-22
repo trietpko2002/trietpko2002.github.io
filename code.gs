@@ -42,12 +42,7 @@ function doPost(e) {
     
     // --- REGISTRATION FLOW ---
     if (action === 'REGISTER_TEMP') return handleRegisterTemp(payload);
-    if (action === 'LOGIN_TEMP') return handleLoginTemp(payload);
-    if (action === 'CONFIRM_REGISTRATION') return handleConfirmRegistration(payload);
-    if (action === 'GET_REGISTRATIONS') return handleGetRegistrations(payload);
-    if (action === 'REGENERATE_PASS') return handleRegeneratePass(payload);
     if (action === 'CHANGE_STUDENT_PASS') return handleManagerChangeStudentPass(payload);
-    if (action === 'STUDENT_SELF_CHANGE_PASS') return handleStudentChangePass(payload);
 
     if (action === 'SAVE_ATTENDANCE') return handleSaveAttendance(payload);
     if (action === 'GET_ADMIN_STATS') return handleGetAdminStats();
@@ -104,7 +99,7 @@ function getSchoolList() {
 }
 
 // ============================================================
-// TÍNH NĂNG MỚI: ĐÁNH DẤU ĐÃ XEM & ĐỒNG BỘ SHEET
+// TÍNH NĂNG MỚI: ĐÁNH DẤU ĐÃi XEM & ĐỒNG BỘ SHEET
 // ============================================================
 
 function handleMarkRead(payload) {
@@ -765,17 +760,22 @@ function handleGetGroupsPublic() {
 function handleRegisterTemp(payload) {
   try {
     const stSheet = ss.getSheetByName('students');
-    const grpSheet = ss.getSheetByName('groups');
     
-    // 1. Check Group Limit
-    if (payload.group_id) {
-       const groups = handleGetGroupsPublic().getContent(); // Reuse logic
-       const parsedGroups = JSON.parse(groups).data;
-       const targetGroup = parsedGroups.find(g => String(g.id) === String(payload.group_id));
-       if (targetGroup && targetGroup.limit > 0 && targetGroup.count >= targetGroup.limit) {
-           return response({ status: "error", message: "Nhóm này đã đủ số lượng thành viên!" });
-       }
+    // 1. Random Group Assignment (Auto-balance)
+    const groupsResponse = handleGetGroupsPublic();
+    const groupsData = JSON.parse(groupsResponse.getContent()).data;
+    
+    // Filter available groups (not full)
+    const availableGroups = groupsData.filter(g => g.limit === 0 || g.count < g.limit);
+    
+    if (availableGroups.length === 0) {
+        return response({ status: "error", message: "Hiện tại tất cả các nhóm đã đầy!" });
     }
+    
+    // Pick random group
+    const randomGroup = availableGroups[Math.floor(Math.random() * availableGroups.length)];
+    const assignedGroupId = randomGroup.id;
+    const assignedGroupName = randomGroup.name;
 
     // 2. Check Duplicates (Name + DOB)
     const stData = stSheet.getDataRange().getValues();
@@ -794,7 +794,7 @@ function handleRegisterTemp(payload) {
     // ID, Fullname, Gender, DOB, Class, School, Address, Phone, GroupID, Time, Location, Activities, Password, AllowChange
     const newRow = [
       newId, payload.fullname, payload.gender, payload.dob, payload.class_name, 
-      payload.school, payload.address, payload.phone, payload.group_id,
+      payload.school, payload.address, payload.phone, assignedGroupId,
       payload.reg_time, payload.reg_loc, payload.reg_act || '', 
       randomPass, 'TRUE' // Default allow change
     ];
@@ -808,33 +808,9 @@ function handleRegisterTemp(payload) {
     return response({ 
       status: "success", 
       message: "Đăng ký tạm thành công!", 
-      data: { id: newId, pass: randomPass } 
+      data: { group_name: assignedGroupName } 
     });
   } catch (e) { return response({ status: "error", message: "Lỗi đăng ký: " + e.toString() }); }
-}
-
-function handleLoginTemp(payload) {
-  try {
-    const sheet = ss.getSheetByName('students');
-    if (!sheet) return response({ status: "error", message: "Chưa có dữ liệu." });
-    const data = sheet.getDataRange().getValues();
-    
-    for (let i = 1; i < data.length; i++) {
-      // Check ID (Col 0) and Password (Col 12)
-      if (String(data[i][0]) === String(payload.id) && String(data[i][12]) === String(payload.pass)) {
-        return response({ 
-          status: "success", 
-          data: {
-            id: data[i][0], fullname: data[i][1], gender: data[i][2], dob: data[i][3], class_name: data[i][4],
-            school: data[i][5], address: data[i][6], phone: data[i][7], group_id: data[i][8],
-            reg_time: data[i][9], reg_loc: data[i][10], reg_act: data[i][11],
-            allow_change: data[i][13]
-          }
-        });
-      }
-    }
-    return response({ status: "error", message: "ID hoặc Mật khẩu không đúng!" });
-  } catch (e) { return response({ status: "error", message: e.toString() }); }
 }
 
 function handleManagerChangeStudentPass(payload) {
@@ -849,85 +825,6 @@ function handleManagerChangeStudentPass(payload) {
       }
     }
     return response({ status: "error", message: "Không tìm thấy học sinh." });
-  } catch (e) { return response({ status: "error", message: e.toString() }); }
-}
-
-function handleStudentChangePass(payload) {
-  try {
-    const sheet = ss.getSheetByName('students');
-    const data = sheet.getDataRange().getValues();
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]) === String(payload.id)) {
-        if (String(data[i][13]).toUpperCase() !== 'TRUE') {
-            return response({ status: "error", message: "Bạn không có quyền đổi mật khẩu. Vui lòng liên hệ quản lý." });
-        }
-        sheet.getRange(i + 1, 13).setValue(payload.new_pass);
-        sheet.getRange(i + 1, 14).setValue('FALSE'); // Lock after change
-        return response({ status: "success", message: "Đổi mật khẩu thành công!" });
-      }
-    }
-    return response({ status: "error", message: "Không tìm thấy tài khoản." });
-  } catch (e) { return response({ status: "error", message: e.toString() }); }
-}
-
-function handleConfirmRegistration(payload) {
-  try {
-    const stSheet = ss.getSheetByName('students');
-    const data = stSheet.getDataRange().getValues();
-    
-    // Update existing student info
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]) === String(payload.temp_id)) {
-        // Update info (Cols 2-12)
-        const row = i + 1;
-        // Fullname(2), Gender(3), DOB(4), Class(5), School(6), Address(7), Phone(8)
-        stSheet.getRange(row, 2, 1, 7).setValues([[
-            payload.fullname, payload.gender, payload.dob, 
-            payload.class_name, payload.school, payload.address, payload.phone
-        ]]);
-        // Time(10), Location(11), Activities(12)
-        stSheet.getRange(row, 10, 1, 3).setValues([[
-            payload.reg_time, payload.reg_loc, payload.reg_act
-        ]]);
-        break;
-      }
-    }
-    
-    writeLog("System", "CONFIRM_REG", `Đã duyệt/hoàn tất HS: ${payload.fullname} vào nhóm ${payload.group_id}`);
-    return response({ status: "success", message: "Cập nhật thông tin và vào nhóm thành công!" });
-  } catch (e) { return response({ status: "error", message: e.toString() }); }
-}
-
-function handleGetRegistrations(payload) {
-  try {
-    const sheet = ss.getSheetByName('registrations');
-    if (!sheet) return response({ status: "success", data: [] });
-    const data = sheet.getDataRange().getValues();
-    const list = [];
-    for (let i = 1; i < data.length; i++) {
-      list.push({
-        id: data[i][0], pass: data[i][1], fullname: data[i][2], gender: data[i][3], dob: formatDateVN(data[i][4]),
-        class_name: data[i][5], school: data[i][6], address: data[i][7], phone: data[i][8],
-        reg_time: data[i][9], reg_loc: data[i][10], reg_act: data[i][11]
-      });
-    }
-    return response({ status: "success", data: list });
-  } catch (e) { return response({ status: "error", message: e.toString() }); }
-}
-
-function handleRegeneratePass(payload) {
-  try {
-    const sheet = ss.getSheetByName('registrations');
-    const data = sheet.getDataRange().getValues();
-    const newPass = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]) === String(payload.id)) {
-        sheet.getRange(i + 1, 2).setValue(newPass);
-        return response({ status: "success", message: "Đã cấp lại mật khẩu mới.", new_pass: newPass });
-      }
-    }
-    return response({ status: "error", message: "Không tìm thấy ID đăng ký." });
   } catch (e) { return response({ status: "error", message: e.toString() }); }
 }
 

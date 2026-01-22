@@ -352,8 +352,8 @@
 </div>
 
 <!-- Logout Loading Overlay -->
-<div id="logout-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; color: white; z-index: 999999; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; transition: opacity 0.3s ease;">
-    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+<div id="logout-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1e88e5; color: white; z-index: 999999; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="spinner-border text-white" role="status" style="width: 3rem; height: 3rem;"></div>
     <h4 class="mt-3 font-weight-bold">Đang đăng xuất...</h4>
 </div>
 
@@ -432,12 +432,6 @@
                         <div class="small-box bg-info shadow" onclick="showTab('tab-students')">
                             <div class="inner"><h3>Học sinh</h3><p>Danh sách nhóm</p></div>
                             <div class="icon"><i class="fas fa-user-friends"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6 d-none" id="menu-registrations">
-                        <div class="small-box bg-warning shadow" onclick="showTab('tab-registrations'); loadRegistrations();">
-                            <div class="inner text-white"><h3>Duyệt HS</h3><p>Đăng ký chờ</p></div>
-                            <div class="icon"><i class="fas fa-user-plus"></i></div>
                         </div>
                     </div>
                 </div>
@@ -551,23 +545,6 @@
                             <tbody id="groupStudentList">
                                 <!-- Data loaded by JS -->
                             </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="tab-registrations">
-                <div class="card card-outline card-warning shadow" data-save-key="idx_reg_list">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-user-clock mr-2"></i>Danh sách Đăng ký Tạm thời</h3>
-                        <div class="card-tools"><button class="btn btn-tool" onclick="loadRegistrations()"><i class="fas fa-sync"></i></button><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div>
-                    </div>
-                    <div class="card-body table-responsive p-0">
-                        <table class="table table-hover text-nowrap">
-                            <thead>
-                                <tr><th>ID</th><th>Mật khẩu</th><th>Họ tên</th><th>Lớp</th><th>Trường</th><th>Thao tác</th></tr>
-                            </thead>
-                            <tbody id="regListBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -879,7 +856,7 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="student_id_old">
-                <div class="form-group"><label>Mã Học sinh (ID)</label><input type="text" id="st_id" class="form-control" placeholder="Nhập mã HS..."></div>
+                <div class="form-group" style="display:none"><label>Mã Học sinh (ID)</label><input type="text" id="st_id" class="form-control" placeholder="Nhập mã HS..."></div>
                 <div class="form-group"><label>Họ và Tên</label><input type="text" id="st_name" class="form-control" placeholder="Nguyễn Văn A"></div>
                 <div class="form-group"><label>Giới tính</label>
                     <select id="st_gender" class="form-control">
@@ -977,7 +954,7 @@
                 <p>Vui lòng sử dụng file Excel theo đúng định dạng mẫu. Hệ thống sẽ tự động bỏ qua các học sinh đã tồn tại (trùng Tên trong nhóm của bạn).</p>
                 <div class="form-group">
                     <label>1. Tải file mẫu</label><br>
-                    <button class="btn btn-success" id="btnDownloadTemplate"><i class="fas fa-download mr-2"></i>Tải mẫu Excel</button>
+                    <button class="btn btn-success" id="btnDownloadTemplate" onclick="downloadTemplateIndex()"><i class="fas fa-download mr-2"></i>Tải mẫu Excel</button>
                 </div>
                 <div class="form-group">
                     <label>2. Chọn file Excel của bạn</label>
@@ -2239,9 +2216,30 @@ async function markRead(id) {
     } catch (e) { console.error(e); }
 }
 
+async function openStudentModal() {
+    $('#modalStudent').modal('show');
+    $('#student_id_old').val('');
+    $('#st_id').val('').prop('readonly', false);
+    $('#st_name').val('');
+    $('#st_gender').val('');
+    $('#st_dob').val('');
+    $('#st_class').val('');
+    $('#st_address').val('');
+    $('#st_phone').val('');
+    $('#st_reg_time').val('');
+    $('#st_reg_loc').val('');
+    
+    await loadSchoolList();
+    populateSchoolDropdown('st_school_select');
+    $('#st_school_select').val('');
+    $('#st_school_other').val('');
+    toggleOtherSchool('st_school_select', 'st_school_other_div');
 
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    $('#st_group_select').val(user.group_id);
+}
 
-function editStudent(index) {
+async function editStudent(index) {
     const s = globalGroupStudents[index];
     $('#student_id_old').val(s.id);
     $('#st_id').val(s.id).prop('readonly', true);
@@ -2251,12 +2249,24 @@ function editStudent(index) {
     $('#st_class').val(s.class_name);
     $('#st_address').val(s.address);
     $('#st_phone').val(s.phone);
-    $('#st_school').val(s.school);
     $('#st_reg_time').val(s.reg_time);
     $('#st_reg_loc').val(s.reg_loc);
     
     const user = JSON.parse(sessionStorage.getItem('user'));
     $('#st_group_select').val(user.group_id);
+
+    await loadSchoolList();
+    populateSchoolDropdown('st_school_select');
+    if (schoolList.includes(s.school)) {
+        $('#st_school_select').val(s.school);
+    } else if (s.school) {
+        $('#st_school_select').val('other');
+        $('#st_school_other').val(s.school);
+    } else {
+        $('#st_school_select').val('');
+    }
+    toggleOtherSchool('st_school_select', 'st_school_other_div');
+
     $('#modalStudent').modal('show');
 }
 
