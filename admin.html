@@ -528,14 +528,6 @@
                 </section>
                 <section class="content">
                     <div class="container-fluid">
-                        <ul class="nav nav-tabs mb-3" role="tablist">
-                            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#subtab-official">Học sinh Chính thức</a></li>
-                            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#subtab-pending" onclick="loadRegistrations()">Đăng ký Chờ duyệt</a></li>
-                        </ul>
-                        
-                        <div class="tab-content">
-                        <!-- Subtab Official -->
-                        <div class="tab-pane fade show active" id="subtab-official">
                         <div class="row">
                             <div class="col-md-6"><div class="card" data-save-key="adm_st_group"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Nhóm</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStGroup"></canvas></div></div></div></div>
                             <div class="col-md-6"><div class="card" data-save-key="adm_st_school"><div class="card-header py-1"><h3 class="card-title">Học sinh theo Trường</h3><div class="card-tools"><button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button></div></div><div class="card-body p-2"><div class="chart-wrapper"><canvas id="chartStSchool"></canvas></div></div></div></div>
@@ -586,30 +578,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                        </div>
-                        
-                        <!-- Subtab Pending -->
-                        <div class="tab-pane fade" id="subtab-pending">
-                            <div class="card shadow">
-                                <div class="card-header bg-warning"><h3 class="card-title">Danh sách đăng ký tạm (Chưa vào nhóm)</h3></div>
-                                <div class="card-body table-responsive">
-                                    <table id="regTable" class="table table-bordered w-100">
-                                        <thead>
-                                            <tr>
-                                                <th>ID Tạm</th>
-                                                <th>Mật khẩu</th>
-                                                <th>Họ tên</th>
-                                                <th class="d-none d-md-table-cell">Lớp</th>
-                                                <th class="d-none d-md-table-cell">Trường</th>
-                                                <th>Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="regData"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
                         </div>
                     </div>
                 </section>
@@ -1541,11 +1509,13 @@ async function refreshAll() {
     const p3 = loadExtraData();
     const p4 = loadLogs();
     const p5 = loadFeedbacks();
-    const p6 = loadEvaluations();
     const p7 = loadEvalConfig(); // Load config (Eval + Troll + Features)
     const p8 = loadUploadedFiles();
 
-    await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
+    await p1; // Đợi loadStudents xong để có globalStudentsData cho loadEvaluations
+    const p6 = loadEvaluations();
+
+    await Promise.all([p2, p3, p4, p5, p6, p7, p8]);
     
     renderDashboardStats();
     toastr.success("Dữ liệu đã được cập nhật!");
