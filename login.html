@@ -878,6 +878,7 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+    const CF_SITE_KEY = "0x4AAAAAACMy1EBQkY1DD4si"; // Cloudflare Site Key
 
     let schoolList = [];
     let tempUser = "";
@@ -1142,7 +1143,7 @@
         // Render Turnstile cho form đăng ký (vì form này được inject động)
         setTimeout(() => {
             if(typeof turnstile !== 'undefined') {
-                turnstile.render('#turnstile-register', { sitekey: '1x00000000000000000000AA', theme: 'light' });
+                turnstile.render('#turnstile-register', { sitekey: CF_SITE_KEY, theme: 'light' });
             }
         }, 100);
     }

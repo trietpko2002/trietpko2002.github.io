@@ -29,6 +29,7 @@ const SCHOOL_LIST = [
 
 // --- CẤU HÌNH CLOUDFLARE TURNSTILE ---
 const CF_SECRET_KEY = "1x0000000000000000000000000000000AA"; // KEY TEST. Hãy thay bằng Secret Key thật của bạn
+const CF_SITE_KEY = "1x00000000000000000000AA"; // KEY TEST. Site Key tương ứng (Dùng ở Frontend)
 
 function verifyTurnstile(token) {
   if (!token) return false;
