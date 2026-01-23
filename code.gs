@@ -27,25 +27,6 @@ const SCHOOL_LIST = [
   "THCS Lê Văn Tám"
 ];
 
-// --- CẤU HÌNH CLOUDFLARE TURNSTILE ---
-const CF_SECRET_KEY = "YOUR_REAL_SECRET_KEY_HERE"; // ĐÃ SỬA: Hãy dán Secret Key thật của bạn vào đây
-const CF_SITE_KEY = "YOUR_REAL_SITE_KEY_HERE"; // ĐÃ SỬA: Hãy dán Site Key thật của bạn vào đây
-
-function verifyTurnstile(token) {
-  if (!token) return false;
-  try {
-    const response = UrlFetchApp.fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'post',
-      payload: {
-        secret: CF_SECRET_KEY,
-        response: token
-      }
-    });
-    const json = JSON.parse(response.getContentText());
-    return json.success;
-  } catch (e) { return false; }
-}
-
 function doPost(e) {
   try {
     const request = JSON.parse(e.postData.contents);
@@ -192,8 +173,6 @@ function syncReadersToNotificationSheet(notiId) {
 
 function handleSendFeedback(payload) {
   try {
-    // Xác thực Cloudflare
-    if (!verifyTurnstile(payload.cf_token)) return response({ status: 'error', message: 'Xác thực bảo mật thất bại (Cloudflare)!' });
 
     let sheet = ss.getSheetByName('feedback');
     if (!sheet) {
@@ -781,8 +760,6 @@ function handleGetGroupsPublic() {
 
 function handleRegisterTemp(payload) {
   try {
-    // Xác thực Cloudflare
-    if (!verifyTurnstile(payload.cf_token)) return response({ status: 'error', message: 'Xác thực bảo mật thất bại (Cloudflare)!' });
 
     const stSheet = ss.getSheetByName('students');
     
@@ -854,9 +831,6 @@ function handleManagerChangeStudentPass(payload) {
 }
 
 function handleLogin(payload) {
-  // Xác thực Cloudflare
-  // Tạm thời tắt xác thực để đăng nhập được ngay
-  // if (!verifyTurnstile(payload.cf_token)) return response({ status: "error", message: "Xác thực bảo mật thất bại (Cloudflare)!" });
 
   const sheet = ss.getSheetByName('users');
   const rows = sheet.getDataRange().getValues();

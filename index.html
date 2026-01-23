@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2921/2921222.png">
     
     <link rel="manifest" href="manifest.json">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -784,9 +784,12 @@
                                     <label>Tiêu đề <span class="text-danger">*</span></label>
                                     <input type="text" id="fb_title" class="form-control" placeholder="VD: Lỗi điểm danh...">
                                 </div>
-                                <div class="form-group d-flex justify-content-center">
-                                    <!-- Cloudflare Turnstile -->
-                                    <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light" id="cf-feedback"></div>
+                                <div class="form-group">
+                                    <div class="d-flex align-items-center justify-content-between bg-white border rounded p-2 mb-2">
+                                        <span id="captcha_code_fb" class="font-weight-bold h5 mb-0 text-primary" style="letter-spacing: 5px; user-select: none;"></span>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_fb')"><i class="fas fa-sync"></i></button>
+                                    </div>
+                                    <input type="text" id="captcha_input_fb" class="form-control text-center" placeholder="Nhập mã xác nhận">
                                 </div>
                                 <div class="form-group">
                                     <label>Nội dung / Khó khăn</label>
@@ -1198,6 +1201,16 @@ let globalDriveLink = "";
 let globalResources = [];
 let autoLogoutTimer;
 
+function generateCaptcha(elementId) {
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    for (let i = 0; i < 5; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const el = document.getElementById(elementId);
+    if(el) el.innerText = result;
+}
+
 // --- HELPER FUNCTIONS FOR LOADING/ERROR STATES ---
 function getLoadingRowHtml(colspan) {
     return `<tr><td colspan="${colspan}" class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Đang tải dữ liệu...</p></td></tr>`;
@@ -1342,6 +1355,7 @@ document.addEventListener("DOMContentLoaded", function() {
         loadGroupsForSelect(); // Tải danh sách nhóm để dùng khi chuyển nhóm
         loadResources(); // Tải tài nguyên
         loadFeedbackHistory();
+        generateCaptcha('captcha_code_fb'); // Tạo captcha cho form feedback
     }, 800);
     initCardCollapseState();
     
@@ -2376,10 +2390,11 @@ async function sendFeedback() {
         return toastr.warning("Vui lòng nhập nội dung phản ánh hoặc kiến nghị!");
     }
     
-    // Lấy token từ widget
-    const cfToken = document.querySelector('#cf-feedback [name="cf-turnstile-response"]')?.value;
-    if (!cfToken) {
-        toastr.error("Vui lòng hoàn thành xác thực bảo mật!");
+    // Check Captcha
+    const captchaInput = $('#captcha_input_fb').val().trim().toUpperCase();
+    const captchaCode = $('#captcha_code_fb').text().trim();
+    if (captchaInput !== captchaCode) {
+        toastr.error("Mã xác nhận không đúng!");
         return;
     }
 
@@ -2391,8 +2406,7 @@ async function sendFeedback() {
         title: title,
         difficulty: difficulty,
         suggestion: suggestion,
-        drive_link: driveLink,
-        cf_token: cfToken
+        drive_link: driveLink
     };
 
     const send = async (finalPayload) => {
@@ -2402,8 +2416,8 @@ async function sendFeedback() {
             const res = await response.json();
             if (res.status === 'success') {
                 Swal.fire('Thành công!', 'Đã gửi yêu cầu/file.', 'success');
-                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file').val('');
-                if(typeof turnstile !== 'undefined') turnstile.reset();
+                $('#fb_title, #fb_difficulty, #fb_suggestion, #fb_drive_link, #fb_file, #captcha_input_fb').val('');
+                generateCaptcha('captcha_code_fb');
                 loadFeedbackHistory();
             } else { Swal.fire('Lỗi', res.message, 'error'); }
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }

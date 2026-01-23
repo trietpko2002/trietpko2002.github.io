@@ -17,7 +17,6 @@
   
   <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     /* Youth Union Theme */
     body {
@@ -730,9 +729,13 @@
             </div>
         </div>
         
-        <!-- Cloudflare Turnstile -->
-        <div class="form-group mb-3 d-flex justify-content-center">
-            <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+        <!-- Captcha -->
+        <div class="form-group mb-3">
+            <div class="d-flex align-items-center justify-content-between bg-light rounded p-2 border">
+                <span id="captcha_code_login" class="font-weight-bold h5 mb-0 text-primary" style="letter-spacing: 5px; user-select: none;"></span>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_login')"><i class="fas fa-sync"></i></button>
+            </div>
+            <input type="text" id="captcha_input_login" class="form-control mt-2 text-center" placeholder="Nhập mã xác nhận ở trên" required>
         </div>
 
         <div class="login-loading-container" id="loginLoading">
@@ -878,10 +881,18 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
-    const CF_SITE_KEY = "0x4AAAAAACMy1EBQkY1DD4si"; // Cloudflare Site Key
 
     let schoolList = [];
     let tempUser = "";
+
+    function generateCaptcha(elementId) {
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let result = '';
+        for (let i = 0; i < 5; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById(elementId).innerText = result;
+    }
 
     window.onload = () => { 
         // Define form templates
@@ -906,8 +917,13 @@
             </div>
             <div class="form-group"><label>Địa chỉ nơi cư trú</label><input type="text" id="reg_address" class="form-control"></div>
             <div class="form-group"><label>Số điện thoại liên hệ</label><input type="text" id="reg_phone" class="form-control"></div>
-            <div class="form-group d-flex justify-content-center">
-                <div id="turnstile-register"></div>
+            <div class="form-group">
+                <label>Mã xác thực</label>
+                <div class="d-flex align-items-center justify-content-between bg-light rounded p-2 border mb-2">
+                    <span id="captcha_code_reg" class="font-weight-bold h5 mb-0 text-success" style="letter-spacing: 5px; user-select: none;"></span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_reg')"><i class="fas fa-sync"></i></button>
+                </div>
+                <input type="text" id="captcha_input_reg" class="form-control text-center" placeholder="Nhập mã xác nhận">
             </div>
             <h6 class="text-primary font-weight-bold mt-3 border-top pt-2">Thông tin đăng ký</h6>
             <div class="form-group"><label>Thời gian sinh hoạt (Dự kiến)</label><input type="text" id="reg_time" class="form-control" value="Tháng 6" readonly></div>
@@ -916,6 +932,7 @@
         `;
 
         sessionStorage.clear(); 
+        generateCaptcha('captcha_code_login');
         
         startLoadingProgress();
 
@@ -1028,12 +1045,11 @@
         const user = $('#username').val().trim();
         const pass = $('#password').val().trim();
         const loadingBox = $('#loginLoading');
-        
-        // Lấy token từ widget Cloudflare trong form đăng nhập
-        const formData = new FormData(e.target);
-        const cfToken = formData.get('cf-turnstile-response');
-        if (!cfToken) {
-            toastr.error("Vui lòng hoàn thành xác thực bảo mật!");
+        const captchaInput = $('#captcha_input_login').val().trim().toUpperCase();
+        const captchaCode = $('#captcha_code_login').text().trim();
+
+        if (captchaInput !== captchaCode) {
+            toastr.error("Mã xác nhận không đúng!");
             return;
         }
         
@@ -1047,7 +1063,7 @@
             await new Promise(r => setTimeout(r, 500));
             updateStatus("Đang xác thực thông tin...");
 
-            const payload = { username: user, password: pass, cf_token: cfToken }; 
+            const payload = { username: user, password: pass }; 
 
             const response = await fetch(API_URL, {
                 method: "POST",
@@ -1068,6 +1084,8 @@
             }
         } catch (error) {
             toastr.error("Lỗi kết nối hệ thống!");
+            generateCaptcha('captcha_code_login');
+            $('#captcha_input_login').val('');
             resetLoginForm();
         }
     });
@@ -1079,7 +1097,6 @@
     function resetLoginForm() {
         setTimeout(() => {
             $('#loginLoading').hide();
-            if(typeof turnstile !== 'undefined') turnstile.reset(); // Reset widget
             const btn = document.getElementById('submitBtn');
             btn.style.display = 'block';
             btn.disabled = false;
@@ -1139,13 +1156,7 @@
         }
         await loadSchoolList();
         populateSchoolDropdown('reg_school_select');
-        
-        // Render Turnstile cho form đăng ký (vì form này được inject động)
-        setTimeout(() => {
-            if(typeof turnstile !== 'undefined') {
-                turnstile.render('#turnstile-register', { sitekey: CF_SITE_KEY, theme: 'light' });
-            }
-        }, 100);
+        generateCaptcha('captcha_code_reg');
     }
 
     async function submitRegister() {
@@ -1155,10 +1166,10 @@
         const schoolName = getSelectedSchool('reg_school_select', 'reg_school_other');
         if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
 
-        // Lấy token từ widget đăng ký (cần lấy instance ID nếu render động, nhưng ở đây ta lấy qua name input ẩn do turnstile tạo ra trong container)
-        const cfToken = document.querySelector('#turnstile-register [name="cf-turnstile-response"]')?.value;
-        if (!cfToken) {
-            return toastr.error("Vui lòng hoàn thành xác thực bảo mật!");
+        const captchaInput = $('#captcha_input_reg').val().trim().toUpperCase();
+        const captchaCode = $('#captcha_code_reg').text().trim();
+        if (captchaInput !== captchaCode) {
+            return toastr.error("Mã xác nhận không đúng!");
         }
 
         const payload = {
@@ -1171,8 +1182,7 @@
             phone: $('#reg_phone').val(),
             reg_time: "Tháng 6",
             reg_loc: "Trường Tiểu Học Đài Sơn địa chỉ 31 Ng. Gia Tự, phường Phan Rang, tỉnh Khánh Hoà",
-            reg_act: "",
-            cf_token: cfToken
+            reg_act: ""
         };
 
         Swal.fire({ title: 'Đang đăng ký...', didOpen: () => Swal.showLoading() });
