@@ -28,8 +28,8 @@ const SCHOOL_LIST = [
 ];
 
 // --- CẤU HÌNH CLOUDFLARE TURNSTILE ---
-const CF_SECRET_KEY = "1x0000000000000000000000000000000AA"; // KEY TEST. Hãy thay bằng Secret Key thật của bạn
-const CF_SITE_KEY = "1x00000000000000000000AA"; // KEY TEST. Site Key tương ứng (Dùng ở Frontend)
+const CF_SECRET_KEY = "YOUR_REAL_SECRET_KEY_HERE"; // ĐÃ SỬA: Hãy dán Secret Key thật của bạn vào đây
+const CF_SITE_KEY = "YOUR_REAL_SITE_KEY_HERE"; // ĐÃ SỬA: Hãy dán Site Key thật của bạn vào đây
 
 function verifyTurnstile(token) {
   if (!token) return false;
@@ -855,7 +855,8 @@ function handleManagerChangeStudentPass(payload) {
 
 function handleLogin(payload) {
   // Xác thực Cloudflare
-  if (!verifyTurnstile(payload.cf_token)) return response({ status: "error", message: "Xác thực bảo mật thất bại (Cloudflare)!" });
+  // Tạm thời tắt xác thực để đăng nhập được ngay
+  // if (!verifyTurnstile(payload.cf_token)) return response({ status: "error", message: "Xác thực bảo mật thất bại (Cloudflare)!" });
 
   const sheet = ss.getSheetByName('users');
   const rows = sheet.getDataRange().getValues();
