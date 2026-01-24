@@ -205,6 +205,9 @@
         /* Settings Btn */
         .settings-btn { position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #007bff; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
         .settings-btn:hover { transform: rotate(90deg); background: #0056b3; }
+        /* Guide Btn */
+        .guide-btn { position: fixed; bottom: 80px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #17a2b8; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
+        .guide-btn:hover { transform: scale(1.1); background: #138496; }
 
         /* Jack J97 Troll Mode */
         body.jack-mode {
@@ -366,6 +369,7 @@
 
 <div class="wrapper">
     <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
+    <div class="guide-btn" onclick="$('#modalGuide').modal('show')" title="Hướng dẫn sử dụng"><i class="fas fa-question"></i></div>
     <button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 20px;">
         <i class="fas fa-download mr-2"></i> Cài App
     </button>
@@ -508,7 +512,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
-                        <div class="small-box bg-light shadow" onclick="window.open('https://github.com/trietpko2002/trietpko2002.github.io/blob/main/README.md', '_blank')">
+                        <div class="small-box bg-light shadow" onclick="$('#modalGuide').modal('show')">
                             <div class="inner"><h3>Hướng dẫn</h3><p>Tài liệu sử dụng</p></div>
                             <div class="icon"><i class="fas fa-question-circle"></i></div>
                         </div>
@@ -1146,6 +1150,78 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" onclick="saveUserSettings()">Lưu Cài đặt</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal User Guide -->
+<div class="modal fade" id="modalGuide" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-book-reader mr-2"></i>Hướng dẫn sử dụng</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" id="guideTabs" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#guide-overview">Tổng quan</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#guide-attendance">Điểm danh</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#guide-students">Học sinh</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#guide-funds">Quỹ & Khác</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="guide-overview">
+                        <p><b>Dashboard (Bảng điều khiển):</b> Màn hình chính hiển thị toàn bộ các chức năng quản lý.</p>
+                        <ul>
+                            <li><b>Menu chính:</b> Các ô chức năng lớn giúp truy cập nhanh vào Điểm danh, Quản lý HS, Quỹ...</li>
+                            <li><b>Thông báo:</b> Nhấn vào biểu tượng chuông <i class="fas fa-bell text-warning"></i> trên thanh menu để xem thông báo từ Admin.</li>
+                            <li><b>Cài đặt:</b> Nút <i class="fas fa-cog text-primary"></i> ở góc dưới bên phải dùng để chỉnh giao diện (Chế độ tối, Hiệu ứng nền).</li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="guide-attendance">
+                        <p><b>Quy trình điểm danh:</b></p>
+                        <ol>
+                            <li>Chọn tab <b>Điểm danh</b> từ màn hình chính.</li>
+                            <li>Danh sách học sinh sẽ hiện ra với 3 tùy chọn:
+                                <ul>
+                                    <li><span class="text-success">Có mặt</span>: Học sinh đi học đầy đủ.</li>
+                                    <li><span class="text-warning">Vắng (P)</span>: Vắng có phép (Hệ thống sẽ hiện ô nhập lý do).</li>
+                                    <li><span class="text-danger">Vắng</span>: Vắng không phép.</li>
+                                </ul>
+                            </li>
+                            <li>Sau khi chọn xong, nhấn nút <b>LƯU KẾT QUẢ ĐIỂM DANH</b> ở cuối trang.</li>
+                        </ol>
+                        <div class="alert alert-warning small">
+                            <i class="fas fa-clock mr-1"></i> <b>Lưu ý:</b> Hệ thống tự động khóa điểm danh sau 20:00 hàng ngày. Nếu có lịch sinh hoạt đặc biệt, hệ thống sẽ mở khóa theo giờ quy định trong thông báo.
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="guide-students">
+                        <p><b>Quản lý danh sách nhóm:</b></p>
+                        <ul>
+                            <li><b>Thêm HS:</b> Nhấn nút "Thêm HS" để nhập thủ công thông tin một học sinh mới.</li>
+                            <li><b>Nhập Excel:</b> Dùng file mẫu của hệ thống để thêm nhanh danh sách lớn.</li>
+                            <li><b>Sửa/Xóa:</b> Sử dụng các nút <i class="fas fa-edit text-info"></i> (Sửa) hoặc <i class="fas fa-trash text-danger"></i> (Xóa) tương ứng với từng học sinh.</li>
+                            <li><b>In ấn:</b> Nhấn nút "In" để xuất danh sách ra giấy hoặc lưu PDF.</li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="guide-funds">
+                        <p><b>Quản lý Quỹ nhóm:</b></p>
+                        <ul>
+                            <li><b>Thu quỹ:</b> Nhập số tiền thu/người -> Tích chọn vào tên các học sinh đã đóng -> Nhấn "Lưu vào sổ quỹ".</li>
+                            <li><b>Chi quỹ:</b> Nhấn nút "Chi quỹ" -> Nhập lý do chi và số tiền -> Lưu lại.</li>
+                            <li><b>Lịch sử:</b> Xem lại bảng kê chi tiết các khoản thu/chi ở phía dưới. Có thể xuất báo cáo ra file Excel/PDF.</li>
+                        </ul>
+                        <hr>
+                        <p><b>Các tiện ích khác:</b></p>
+                        <ul>
+                            <li><b>Đánh giá:</b> Xếp loại học sinh (Xuất sắc, Tốt, Khá...) vào cuối đợt sinh hoạt.</li>
+                            <li><b>Phản ánh:</b> Gửi ý kiến, báo lỗi hoặc kiến nghị lên Admin. Có thể đính kèm ảnh minh họa.</li>
+                            <li><b>Tài liệu:</b> Tải lên và chia sẻ file với nhóm hoặc gửi file cho Admin.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button></div>
         </div>
     </div>
 </div>

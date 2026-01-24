@@ -62,6 +62,7 @@ function doPost(e) {
     if (action === 'SAVE_CONFIG') return handleSaveConfig(payload);
     if (action === 'RESET_EVALUATIONS') return handleResetEvaluations(payload);
     if (action === 'UPLOAD_MUSIC') return handleUploadMusic(payload);
+    if (action === 'TEST_TELEGRAM') return handleTestTelegram(payload);
 
     // --- 2.1. FILE UPLOAD ---
     if (action === 'UPLOAD_FILE') return handleUploadFile(payload);
@@ -454,6 +455,7 @@ function writeLog(username, action, details) {
     const sheet = ss.getSheetByName('logs');
     if (sheet) {
       sheet.appendRow([new Date(), username, action, details]);
+      sendLogToTelegram(new Date(), username, action, details);
     }
   } catch (e) { console.error("Lỗi ghi log: " + e.toString()); }
 }
@@ -474,6 +476,58 @@ function handleGetLogs() {
     }
     return response({ status: 'success', data: logs });
   } catch (e) { return response({ status: 'error', message: 'Lỗi lấy logs: ' + e.toString() }); }
+}
+
+function sendLogToTelegram(timestamp, username, action, details) {
+  try {
+    const settingsSheet = ss.getSheetByName('settings');
+    if (!settingsSheet) return;
+    
+    const data = settingsSheet.getDataRange().getValues();
+    let token = "";
+    let chatId = "";
+    let enabled = "FALSE";
+    
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === 'telegram_bot_token') token = data[i][1];
+      if (data[i][0] === 'telegram_chat_id') chatId = data[i][1];
+      if (data[i][0] === 'telegram_enabled') enabled = String(data[i][1]).toUpperCase();
+    }
+    
+    if (enabled === 'TRUE' && token && chatId) {
+      const message = `<b>🔔 HỆ THỐNG LOGS</b>\n\n` +
+                      `👤 <b>User:</b> ${username}\n` +
+                      `⚡ <b>Action:</b> ${action}\n` +
+                      `📝 <b>Details:</b> ${details}\n` +
+                      `🕒 <b>Time:</b> ${Utilities.formatDate(timestamp, "GMT+7", "dd/MM/yyyy HH:mm:ss")}`;
+      
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      UrlFetchApp.fetch(url, {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' }),
+        muteHttpExceptions: true
+      });
+    }
+  } catch (e) { console.error("Lỗi gửi Telegram: " + e.toString()); }
+}
+
+function handleTestTelegram(payload) {
+  try {
+    const url = `https://api.telegram.org/bot${payload.token}/sendMessage`;
+    const res = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify({
+        chat_id: payload.chat_id,
+        text: "🔔 <b>TEST CONNECTION</b>\n\nKết nối Bot Telegram thành công!",
+        parse_mode: 'HTML'
+      }),
+      muteHttpExceptions: true
+    });
+    const json = JSON.parse(res.getContentText());
+    return json.ok ? response({ status: 'success' }) : response({ status: 'error', message: json.description });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
 }
 
 // ============================================================

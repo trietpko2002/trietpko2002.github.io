@@ -63,6 +63,9 @@
         body.jack-mode { background-color: #000 !important; color: #fff !important; }
         .settings-btn { position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #007bff; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
         .settings-btn:hover { transform: rotate(90deg); background: #0056b3; }
+        /* Guide Btn */
+        .guide-btn { position: fixed; bottom: 80px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #17a2b8; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
+        .guide-btn:hover { transform: scale(1.1); background: #138496; }
 
         /* Modern Rounded UI Overrides */
         .card { border-radius: 20px; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.05); background: linear-gradient(135deg, #ffffff 0%, #f4f6f9 100%); }
@@ -90,6 +93,7 @@
 </script>
 <div class="wrapper">
     <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
+    <div class="guide-btn" onclick="$('#modalGuide').modal('show')" title="Hướng dẫn sử dụng"><i class="fas fa-question"></i></div>
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
         <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" href="supervisor.html"><i class="fas fa-arrow-left mr-2"></i>Quay lại Dashboard</a></li>
@@ -104,7 +108,7 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column">
                     <li class="nav-item"><a href="supervisor.html" class="nav-link"><i class="nav-icon fas fa-home"></i><p>Trang chủ</p></a></li>
-                    <li class="nav-item"><a href="https://github.com/trietpko2002/trietpko2002.github.io/blob/main/README.md" target="_blank" class="nav-link"><i class="nav-icon fas fa-question-circle"></i><p>Hướng dẫn sử dụng</p></a></li>
+                    <li class="nav-item"><a href="#" onclick="$('#modalGuide').modal('show')" class="nav-link"><i class="nav-icon fas fa-question-circle"></i><p>Hướng dẫn sử dụng</p></a></li>
                     <li class="nav-item"><a href="#" class="nav-link active"><i class="nav-icon fas fa-id-card"></i><p>Hồ sơ cá nhân</p></a></li>
                 </ul>
             </nav>
@@ -184,6 +188,42 @@
                 </div>
             </div>
         </section>
+    </div>
+</div>
+
+<!-- Modal User Guide -->
+<div class="modal fade" id="modalGuide" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-book-reader mr-2"></i>Hướng dẫn Hồ sơ</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" id="guideTabs" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#guide-info">Thông tin</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#guide-security">Bảo mật</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="guide-info">
+                        <p><b>Cập nhật thông tin cá nhân:</b></p>
+                        <ul>
+                            <li><b>Thông tin cơ bản:</b> Bạn có thể tự cập nhật Tên hiển thị, Email và Số điện thoại liên hệ.</li>
+                            <li><b>Username (Tên đăng nhập):</b> Có thể đổi nhưng bị giới hạn tần suất (30 ngày/lần). Lưu ý: Sau khi đổi phải đăng nhập lại.</li>
+                            <li><b>Avatar:</b> Nhấn vào biểu tượng máy ảnh <i class="fas fa-camera"></i> trên hình đại diện để tải ảnh mới lên.</li>
+                        </ul>
+                    </div>
+                    <div class="tab-pane fade" id="guide-security">
+                        <p><b>Bảo mật tài khoản:</b></p>
+                        <ul>
+                            <li><b>Đổi mật khẩu:</b> Nhập mật khẩu cũ và mật khẩu mới để thay đổi. Mật khẩu mới cần có ít nhất 6 ký tự.</li>
+                            <li><b>Giao diện:</b> Bạn có thể tùy chỉnh Chế độ tối (Dark Mode) hoặc Hiệu ứng nền (Jack J97, Tuyết rơi...) trong phần Cài đặt <i class="fas fa-cog"></i>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button></div>
+        </div>
     </div>
 </div>
 
