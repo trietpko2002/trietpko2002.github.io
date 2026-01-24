@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <meta name="theme-color" content="#007bff">
   
   <!-- iOS PWA Support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -957,6 +958,38 @@
             </div>
             <div class="modal-footer border-0 justify-content-center">
                 <button type="button" class="btn btn-success btn-block font-weight-bold rounded-pill" onclick="confirmLogin()">XÁC NHẬN & ĐĂNG NHẬP</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal iOS Install Guide -->
+<div class="modal fade" id="modalIOSInstall" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.2);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title font-weight-bold"><i class="fab fa-apple mr-2"></i>Cài đặt trên iOS</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-3">Safari trên iOS không hỗ trợ cài đặt tự động. Vui lòng làm theo thủ công:</p>
+                <div class="text-left d-inline-block p-3 rounded" style="background: rgba(255,255,255,0.1); width: 100%;">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge badge-light mr-2">1</span>
+                        <span>Nhấn nút <b>Chia sẻ</b> <i class="fas fa-share-square"></i> trên thanh công cụ Safari.</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="badge badge-light mr-2">2</span>
+                        <span>Kéo xuống tìm và chọn <b>"Thêm vào MH chính"</b> (Add to Home Screen).</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge badge-light mr-2">3</span>
+                        <span>Nhấn <b>"Thêm"</b> (Add) ở góc trên cùng bên phải.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-primary rounded-pill px-4" data-dismiss="modal">Đã hiểu</button>
             </div>
         </div>
     </div>
@@ -1990,6 +2023,19 @@
     // PWA Install Logic
     let deferredPrompt;
     const installBtn = document.getElementById('installPwaBtn');
+    
+    // Detect iOS
+    const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    if (isIos() && !isInStandaloneMode()) {
+        installBtn.style.display = 'block';
+        installBtn.innerHTML = '<i class="fab fa-apple mr-2"></i> Cài App';
+        installBtn.onclick = (e) => {
+            $('#modalIOSInstall').modal('show');
+        };
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -1998,16 +2044,34 @@
     
     async function installPwa() {
         if (deferredPrompt) {
+            const originalText = installBtn.innerHTML;
+            installBtn.disabled = true;
+            installBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang cài đặt...';
+            
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             deferredPrompt = null;
-            installBtn.style.display = 'none';
+            
+            if (outcome === 'accepted') {
+                toastr.success("Cài đặt ứng dụng thành công!");
+                installBtn.style.display = 'none';
+            } else {
+                installBtn.disabled = false;
+                installBtn.innerHTML = originalText;
+            }
         }
     }
     installBtn.addEventListener('click', installPwa);
     window.addEventListener('appinstalled', () => {
         installBtn.style.display = 'none';
     });
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker Registered', reg))
+        .catch(err => console.log('Service Worker Failed', err));
+    }
 
     // --- CONNECTION STATUS LOGIC ---
     function updateConnectionStatus() {
@@ -2109,7 +2173,7 @@
         document.getElementById('step-' + step).style.display = 'block';
     }
 
-    function runSpeedTest() {
+    async function runSpeedTest() {
         const btn = document.getElementById('btn-speedtest');
         const nextBtn = document.getElementById('btn-step2-next');
         const progress = document.getElementById('speed-progress');
@@ -2117,27 +2181,89 @@
         
         btn.disabled = true;
         progress.classList.remove('d-none');
-        result.innerHTML = 'Đang ping máy chủ...';
         
-        const start = Date.now();
-        // Fetch file nhỏ để test ping
-        fetch('manifest.json?t=' + start) 
-            .then(() => {
-                const duration = Date.now() - start;
-                progress.classList.add('d-none');
-                
-                let quality = duration < 200 ? '<span class="text-success">Tuyệt vời 🚀</span>' : (duration < 500 ? '<span class="text-info">Ổn định ✅</span>' : '<span class="text-warning">Hơi chậm ⚠️</span>');
-                result.innerHTML = `${quality} (${duration}ms)`;
-                
-                nextBtn.disabled = false;
-                btn.disabled = false;
-            })
-            .catch(() => {
-                progress.classList.add('d-none');
-                result.innerHTML = '<span class="text-danger">Không có kết nối!</span>';
-                btn.disabled = false;
-                nextBtn.disabled = false; // Vẫn cho qua để không bị kẹt
+        // 1. Server Selection Simulation
+        result.innerHTML = '<i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang tìm máy chủ tốt nhất...';
+        
+        const servers = [
+            { name: "Google (Global)", url: "https://www.google.com/favicon.ico" },
+            { name: "Cloudflare (CDN)", url: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" },
+            { name: "Facebook (Meta)", url: "https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg" }
+        ];
+
+        let bestServer = servers[0];
+        let minPing = Infinity;
+
+        for (const s of servers) {
+            result.innerHTML = `<i class="fas fa-satellite-dish fa-spin mr-2"></i>Ping: ${s.name}...`;
+            const start = Date.now();
+            try {
+                await fetch(s.url + '?t=' + start, { mode: 'no-cors', cache: 'no-store' });
+                const ping = Date.now() - start;
+                if (ping < minPing) { minPing = ping; bestServer = s; }
+            } catch (e) {}
+        }
+        
+        result.innerHTML = `<i class="fas fa-server mr-2"></i>Máy chủ: <b>${bestServer.name}</b> <small>(${minPing}ms)</small>`;
+        await new Promise(r => setTimeout(r, 1000));
+
+        // 2. Download Test
+        result.innerHTML = `<i class="fas fa-download fa-spin mr-2"></i>Đang test tải xuống...`;
+        const dlStart = Date.now();
+        // Use a reliable CDN file (Wikimedia 5MB image)
+        const testUrl = 'https://upload.wikimedia.org/wikipedia/commons/2/2d/Snake_River_%285mb%29.jpg'; 
+        
+        try {
+            const dlRes = await fetch(testUrl + '?t=' + dlStart, { cache: "no-store" });
+            const dlBlob = await dlRes.blob();
+            const dlEnd = Date.now();
+            
+            const dlDuration = (dlEnd - dlStart) / 1000; // seconds
+            const dlSize = dlBlob.size * 8;
+            const dlSpeed = (dlSize / dlDuration / (1024 * 1024)).toFixed(2);
+            
+            // 3. Upload Test
+            result.innerHTML = `<i class="fas fa-upload fa-spin mr-2"></i>Đang test tải lên...`;
+            const ulStart = Date.now();
+            // Create 500KB dummy data
+            const dummyData = new Array(500 * 1024).fill('a').join('');
+            await fetch(API_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: dummyData 
             });
+            const ulEnd = Date.now();
+            const ulDuration = (ulEnd - ulStart) / 1000;
+            const ulSize = dummyData.length * 8;
+            const ulSpeed = (ulSize / ulDuration / (1024 * 1024)).toFixed(2);
+            
+            progress.classList.add('d-none');
+            
+            let color = 'text-danger';
+            let icon = 'fa-exclamation-triangle';
+            if (dlSpeed > 20) { color = 'text-success'; icon = 'fa-rocket'; }
+            else if (dlSpeed > 5) { color = 'text-info'; icon = 'fa-check-circle'; }
+            else if (dlSpeed > 1) { color = 'text-warning'; icon = 'fa-walking'; }
+
+            result.innerHTML = `
+                <div class="text-left" style="display: inline-block;">
+                    <div class="mb-1"><i class="fas fa-server mr-2"></i>Server: <b>${bestServer.name}</b></div>
+                    <div class="${color} font-weight-bold" style="font-size: 1.1rem;">
+                        <i class="fas fa-download mr-2"></i>Down: ${dlSpeed} Mbps
+                    </div>
+                    <div class="text-primary font-weight-bold" style="font-size: 1.1rem;">
+                        <i class="fas fa-upload mr-2"></i>Up: ${ulSpeed} Mbps
+                    </div>
+                </div>`;
+            
+            nextBtn.disabled = false;
+            btn.disabled = false;
+        } catch (e) {
+                progress.classList.add('d-none');
+                result.innerHTML = '<span class="text-danger">Lỗi đo tốc độ!</span>';
+                btn.disabled = false;
+                nextBtn.disabled = false;
+        }
     }
 
     function runFpsTest() {
@@ -2215,13 +2341,15 @@
             result.innerHTML = `${quality} (${fps} FPS)`;
             
             if (fps < 30) {
-                toastr.warning(`Kết quả: ${fps} FPS. Máy hơi yếu, hệ thống sẽ tự động tắt hiệu ứng.`);
+                result.innerHTML += '<br><small class="text-white-50">Đã tắt hiệu ứng để mượt hơn.</small>';
+                toastr.warning(`Kết quả: ${fps} FPS. Máy hơi yếu, đã tắt hiệu ứng.`);
                 applyEffect(-1);
                 localStorage.setItem('bgEffect', '-1');
             } else {
                 toastr.info(`Kết quả: ${fps} FPS. Máy ngon chiến tốt!`);
             }
             nextBtn.disabled = false;
+            $(nextBtn).addClass('btn-glow');
             btn.disabled = false;
         }, 2000);
     }

@@ -369,6 +369,39 @@
     <button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 20px;">
         <i class="fas fa-download mr-2"></i> Cài App
     </button>
+    
+    <!-- Modal iOS Install Guide -->
+    <div class="modal fade" id="modalIOSInstall" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.2);">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title font-weight-bold"><i class="fab fa-apple mr-2"></i>Cài đặt trên iOS</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-3">Safari trên iOS không hỗ trợ cài đặt tự động. Vui lòng làm theo thủ công:</p>
+                    <div class="text-left d-inline-block p-3 rounded" style="background: rgba(255,255,255,0.1); width: 100%;">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge badge-light mr-2">1</span>
+                            <span>Nhấn nút <b>Chia sẻ</b> <i class="fas fa-share-square"></i> trên thanh công cụ Safari.</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge badge-light mr-2">2</span>
+                            <span>Kéo xuống tìm và chọn <b>"Thêm vào MH chính"</b> (Add to Home Screen).</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge badge-light mr-2">3</span>
+                            <span>Nhấn <b>"Thêm"</b> (Add) ở góc trên cùng bên phải.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-primary rounded-pill px-4" data-dismiss="modal">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <canvas id="matrix-canvas" style="display:none;"></canvas>
     <div id="phone-notification">
         <img id="pn-img" src="" style="display:none;">

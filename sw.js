@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shh-manager-v6';
+const CACHE_NAME = 'shh-manager-v7';
 const urlsToCache = [
   './',
   './index.html',
@@ -37,6 +37,17 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request)
+      .then(response => {
+        // Nếu tải từ mạng thành công, tự động cập nhật vào cache
+        if (response && response.status === 200 && event.request.url.startsWith('http')) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

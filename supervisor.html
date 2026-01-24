@@ -1164,6 +1164,18 @@ function initCardCollapseState() {
 // PWA Install Logic
 let deferredPrompt;
 const installNav = document.getElementById('installPwaNav');
+
+// Detect iOS
+const isIos = () => /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+if (isIos() && !isInStandaloneMode()) {
+    if(installNav) {
+        installNav.style.display = 'block';
+        installNav.innerHTML = '<a href="javascript:void(0)" onclick="$(\'#modalIOSInstall\').modal(\'show\')" class="nav-link font-weight-bold text-primary"><i class="fab fa-apple mr-1"></i> CÀI ĐẶT APP</a>';
+    }
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -1175,7 +1187,10 @@ async function installPwa() {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
-        if(installNav) installNav.style.display = 'none';
+        if (outcome === 'accepted') {
+            toastr.success("Cài đặt ứng dụng thành công!");
+            if(installNav) installNav.style.display = 'none';
+        }
     }
 }
 window.addEventListener('appinstalled', () => {
