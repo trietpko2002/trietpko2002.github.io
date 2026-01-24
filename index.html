@@ -1141,6 +1141,17 @@
                     </select>
                     <small class="text-muted mt-2 d-block" id="effect_desc"></small>
                 </div>
+                <hr>
+                <h6 class="text-primary font-weight-bold"><i class="fas fa-tachometer-alt mr-2"></i>Kiểm tra mạng (Speedtest)</h6>
+                <div id="speedtest-area" class="p-3 rounded mb-2" style="background: rgba(0,0,0,0.05); border: 1px dashed #ccc;">
+                    <div class="progress d-none mb-2" id="speed-progress" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
+                    </div>
+                    <div id="speed-result" class="font-weight-bold small text-center">Nhấn nút để kiểm tra</div>
+                </div>
+                <button class="btn btn-outline-primary btn-block btn-sm" onclick="runSpeedTest()" id="btn-speedtest">
+                    <i class="fas fa-play mr-2"></i> Bắt đầu Test
+                </button>
                 <div class="alert alert-info small">
                     <i class="fas fa-info-circle"></i> Cài đặt này sẽ được lưu riêng cho tài khoản của bạn.
                     <br>Tự động đăng xuất sau 5 phút không hoạt động.
@@ -3575,6 +3586,65 @@ function initCardCollapseState() {
             }, 300);
         }
     });
+}
+
+async function runSpeedTest() {
+    const btn = document.getElementById('btn-speedtest');
+    const progress = document.getElementById('speed-progress');
+    const result = document.getElementById('speed-result');
+    
+    btn.disabled = true;
+    progress.classList.remove('d-none');
+    
+    result.innerHTML = '<i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang kết nối máy chủ Việt Nam...';
+    
+    const servers = [
+        { name: "VNPT", url: "https://vnexpress.net/favicon.ico" },
+        { name: "FPT", url: "https://fpt.vn/favicon.ico" },
+        { name: "Viettel", url: "https://viettel.vn/favicon.ico" }
+    ];
+
+    let bestServer = servers[0];
+    let minPing = Infinity;
+
+    for (const s of servers) {
+        result.innerHTML = `<i class="fas fa-satellite-dish fa-spin mr-2"></i>Ping: ${s.name}...`;
+        const start = Date.now();
+        try {
+            await fetch(s.url + '?t=' + start, { mode: 'no-cors', cache: 'no-store' });
+            const ping = Date.now() - start;
+            if (ping < minPing) { minPing = ping; bestServer = s; }
+        } catch (e) {}
+    }
+    
+    result.innerHTML = `<i class="fas fa-download fa-spin mr-2"></i>Đang tải xuống (Server VN)...`;
+    const dlStart = Date.now();
+    const testUrl = 'https://speed.cloudflare.com/__down?bytes=5000000'; 
+    
+    try {
+        const dlRes = await fetch(testUrl + '&t=' + dlStart, { cache: "no-store" });
+        const dlBlob = await dlRes.blob();
+        const dlEnd = Date.now();
+        const dlSpeed = ((dlBlob.size * 8) / ((dlEnd - dlStart) / 1000) / (1024 * 1024)).toFixed(2);
+        
+        result.innerHTML = `<i class="fas fa-upload fa-spin mr-2"></i>Đang tải lên...`;
+        const ulStart = Date.now();
+        const dummyData = new Array(500 * 1024).fill('a').join('');
+        await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: dummyData });
+        const ulEnd = Date.now();
+        const ulSpeed = ((dummyData.length * 8) / ((ulEnd - ulStart) / 1000) / (1024 * 1024)).toFixed(2);
+        
+        progress.classList.add('d-none');
+        result.innerHTML = `
+            <div class="text-success"><i class="fas fa-check-circle mr-1"></i>Hoàn tất!</div>
+            <div>Ping: <b>${minPing}ms</b> (${bestServer.name})</div>
+            <div>Download: <b>${dlSpeed} Mbps</b></div>
+            <div>Upload: <b>${ulSpeed} Mbps</b></div>`;
+    } catch (e) {
+        progress.classList.add('d-none');
+        result.innerHTML = '<span class="text-danger">Lỗi đo tốc độ!</span>';
+    }
+    btn.disabled = false;
 }
 </script>
 

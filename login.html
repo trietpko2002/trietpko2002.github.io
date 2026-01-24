@@ -706,6 +706,9 @@
 <button id="toggleRainBtn" class="toggle-rain-btn" onclick="$('#modalThemeSelection').modal('show')" title="Đổi giao diện">
     <i class="fas fa-cloud-rain"></i>
 </button>
+<button id="resetSetupBtn" class="toggle-rain-btn" style="bottom: 140px; background: rgba(255, 193, 7, 0.3);" onclick="resetPwaSetup()" title="Thiết lập lại từ đầu">
+    <i class="fas fa-redo-alt"></i>
+</button>
 
 <button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 60px; left: 20px; z-index: 9999; padding: 10px 20px;">
     <i class="fas fa-download mr-2"></i> Cài App
@@ -717,9 +720,16 @@
         <!-- Step 1: Welcome -->
         <div class="wizard-step" id="step-1">
             <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" style="width: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));">
-            <h3 class="font-weight-bold">Chào mừng bạn!</h3>
-            <p>Cảm ơn bạn đã cài đặt ứng dụng SHH. Hãy dành chút thời gian để thiết lập ban đầu nhé.</p>
-            <button class="btn btn-primary btn-block rounded-pill mt-4 font-weight-bold" onclick="nextWizardStep(2)">Bắt đầu ngay <i class="fas fa-arrow-right ml-2"></i></button>
+            <h3 class="font-weight-bold">Xin chào!</h3>
+            <p id="wizard-welcome-text">Chào mừng đến với Hệ thống Quản lý SHH.</p>
+            
+            <div id="mobile-app-suggestion" style="display: none;" class="alert alert-info text-left small">
+                <i class="fas fa-mobile-alt mr-2"></i><b>Phát hiện điện thoại:</b><br>
+                Để có trải nghiệm tốt nhất, bạn nên cài đặt ứng dụng ra màn hình chính.
+            </div>
+
+            <button class="btn btn-success btn-block rounded-pill mt-3 font-weight-bold" id="btn-install-wizard" style="display:none;" onclick="installPwa()">Cài đặt App ngay</button>
+            <button class="btn btn-primary btn-block rounded-pill mt-2 font-weight-bold" onclick="nextWizardStep(2)">Tiếp tục (Dùng Web) <i class="fas fa-arrow-right ml-2"></i></button>
         </div>
 
         <!-- Step 2: Speedtest -->
@@ -2216,12 +2226,27 @@
     // --- PWA WELCOME WIZARD LOGIC ---
     function checkPwaFirstRun() {
         // Kiểm tra nếu đang chạy ở chế độ Standalone (App)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        // const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         const isSetupDone = localStorage.getItem('pwa_setup_done');
         
-        // Chỉ hiện nếu là App và chưa setup lần nào
-        if (isStandalone && !isSetupDone) {
+        // Hiện wizard nếu chưa setup (bất kể là web hay app để đảm bảo trải nghiệm)
+        if (!isSetupDone) {
             document.getElementById('pwa-wizard').style.display = 'flex';
+            
+            // Logic phát hiện mobile để gợi ý cài app
+            if (isMobile() && !isInStandaloneMode()) {
+                document.getElementById('mobile-app-suggestion').style.display = 'block';
+                if (deferredPrompt || (isIos() && !isInStandaloneMode())) {
+                    document.getElementById('btn-install-wizard').style.display = 'block';
+                }
+            }
+        }
+    }
+
+    function resetPwaSetup() {
+        if(confirm('Bạn có muốn chạy lại thiết lập ban đầu (Speedtest, Giao diện...)?')) {
+            localStorage.removeItem('pwa_setup_done');
+            location.reload();
         }
     }
 
@@ -2242,13 +2267,63 @@
         btn.disabled = true;
         progress.classList.remove('d-none');
         
-        // 1. Server Selection Simulation
-        result.innerHTML = '<i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang tìm máy chủ tốt nhất...';
+        // 0. Detect ISP & Network Type
+        result.innerHTML = '<i class="fas fa-globe-asia fa-spin mr-2"></i>Đang kiểm tra nhà mạng...';
+        
+        try {
+            // Check Network Information API
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const isCellular = connection && (connection.type === 'cellular' || connection.effectiveType === '4g' || connection.effectiveType === '3g');
+            
+            // Fetch Public IP & ISP Info
+            const ipRes = await fetch('https://ipapi.co/json/');
+            const ipData = await ipRes.json();
+            
+            const ispName = ipData.org || ipData.isp || "Không xác định";
+            const ipAddr = ipData.ip || "---";
+            const networkType = isCellular ? '<span class="text-warning"><i class="fas fa-signal mr-1"></i>4G/5G (Di động)</span>' : '<span class="text-success"><i class="fas fa-wifi mr-1"></i>Wifi/LAN</span>';
+
+            // Warning if Cellular
+            if (isCellular) {
+                const confirm4G = await Swal.fire({
+                    title: 'Cảnh báo dữ liệu',
+                    html: `Bạn đang sử dụng <b>${networkType}</b>.<br>Việc kiểm tra tốc độ sẽ tiêu tốn khoảng 20-50MB dữ liệu.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Vẫn kiểm tra',
+                    cancelButtonText: 'Hủy bỏ',
+                    confirmButtonColor: '#d33'
+                });
+                
+                if (!confirm4G.isConfirmed) {
+                    throw new Error("User cancelled due to 4G");
+                }
+            }
+
+            result.innerHTML = `
+                <div class="text-left small mb-2 p-2 rounded border border-secondary" style="background: rgba(0,0,0,0.2);">
+                    <div><i class="fas fa-network-wired mr-1"></i>Mạng: <b>${networkType}</b></div>
+                    <div><i class="fas fa-building mr-1"></i>ISP: <b>${ispName}</b></div>
+                    <div><i class="fas fa-map-marker-alt mr-1"></i>IP: <b>${ipAddr}</b></div>
+                </div>
+                <i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang kết nối máy chủ...`;
+
+        } catch (e) {
+            if (e.message === "User cancelled due to 4G") {
+                progress.classList.add('d-none');
+                result.innerHTML = '<span class="text-warning">Đã hủy kiểm tra.</span>';
+                btn.disabled = false;
+                nextBtn.disabled = false; // Allow skip
+                return;
+            }
+            // Fallback if API fails
+            result.innerHTML = '<i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang kết nối máy chủ Việt Nam...';
+        }
         
         const servers = [
-            { name: "Google (Global)", url: "https://www.google.com/favicon.ico" },
-            { name: "Cloudflare (CDN)", url: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" },
-            { name: "Facebook (Meta)", url: "https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg" }
+            { name: "VNPT", url: "https://vnexpress.net/favicon.ico" },
+            { name: "FPT", url: "https://fpt.vn/favicon.ico" },
+            { name: "Viettel", url: "https://viettel.vn/favicon.ico" }
         ];
 
         let bestServer = servers[0];
@@ -2264,17 +2339,17 @@
             } catch (e) {}
         }
         
-        result.innerHTML = `<i class="fas fa-server mr-2"></i>Máy chủ: <b>${bestServer.name}</b> <small>(${minPing}ms)</small>`;
+        result.innerHTML += `<br><i class="fas fa-server mr-2"></i>Ping: <b>${bestServer.name}</b> <small>(${minPing}ms)</small>`;
         await new Promise(r => setTimeout(r, 1000));
 
         // 2. Download Test
-        result.innerHTML = `<i class="fas fa-download fa-spin mr-2"></i>Đang test tải xuống...`;
+        result.innerHTML = `<i class="fas fa-download fa-spin mr-2"></i>Đang tải xuống (Server VN)...`;
         const dlStart = Date.now();
         // Use a reliable CDN file (Wikimedia 5MB image)
-        const testUrl = 'https://upload.wikimedia.org/wikipedia/commons/2/2d/Snake_River_%285mb%29.jpg'; 
+        const testUrl = 'https://speed.cloudflare.com/__down?bytes=5000000'; 
         
         try {
-            const dlRes = await fetch(testUrl + '?t=' + dlStart, { cache: "no-store" });
+            const dlRes = await fetch(testUrl + '&t=' + dlStart, { cache: "no-store" });
             const dlBlob = await dlRes.blob();
             const dlEnd = Date.now();
             
@@ -2305,7 +2380,7 @@
             else if (dlSpeed > 5) { color = 'text-info'; icon = 'fa-check-circle'; }
             else if (dlSpeed > 1) { color = 'text-warning'; icon = 'fa-walking'; }
 
-            result.innerHTML = `
+            result.innerHTML += `
                 <div class="text-left" style="display: inline-block;">
                     <div class="mb-1"><i class="fas fa-server mr-2"></i>Server: <b>${bestServer.name}</b></div>
                     <div class="${color} font-weight-bold" style="font-size: 1.1rem;">
