@@ -936,10 +936,26 @@ function handleGetAdminExtras(payload) {
     // 2. Groups
     const groupSheet = ss.getSheetByName('groups');
     const groupValues = groupSheet.getDataRange().getValues();
+    
+    // Count members for Admin
+    const stSheet = ss.getSheetByName('students');
+    const stRows = stSheet ? stSheet.getDataRange().getValues() : [];
+    const counts = {};
+    for (let i = 1; i < stRows.length; i++) {
+      const gid = String(stRows[i][8]); 
+      counts[gid] = (counts[gid] || 0) + 1;
+    }
+
     const groups = [];
     for (let j = 1; j < groupValues.length; j++) {
       if (groupValues[j][0]) {
-        groups.push({ group_id: groupValues[j][0], group_name: groupValues[j][1] });
+        const gid = String(groupValues[j][0]);
+        groups.push({ 
+            group_id: gid, 
+            group_name: groupValues[j][1],
+            limit: groupValues[j][2] ? parseInt(groupValues[j][2]) : 0,
+            count: counts[gid] || 0
+        });
       }
     }
 

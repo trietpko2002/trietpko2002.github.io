@@ -647,6 +647,23 @@
     .swal2-container {
         z-index: 10000 !important;
     }
+
+    /* PWA Welcome Wizard Styles */
+    .pwa-wizard-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9); z-index: 99999;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(15px);
+        animation: fadeIn 0.5s ease-out;
+    }
+    .pwa-wizard-content {
+        width: 90%; max-width: 400px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 20px; padding: 30px; color: white;
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        text-align: center;
+    }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -693,6 +710,98 @@
     <i class="fas fa-download mr-2"></i> Cài App
 </button>
 
+<!-- PWA Welcome Wizard -->
+<div id="pwa-wizard" class="pwa-wizard-overlay" style="display: none;">
+    <div class="pwa-wizard-content">
+        <!-- Step 1: Welcome -->
+        <div class="wizard-step" id="step-1">
+            <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" style="width: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));">
+            <h3 class="font-weight-bold">Chào mừng bạn!</h3>
+            <p>Cảm ơn bạn đã cài đặt ứng dụng SHH. Hãy dành chút thời gian để thiết lập ban đầu nhé.</p>
+            <button class="btn btn-primary btn-block rounded-pill mt-4 font-weight-bold" onclick="nextWizardStep(2)">Bắt đầu ngay <i class="fas fa-arrow-right ml-2"></i></button>
+        </div>
+
+        <!-- Step 2: Speedtest -->
+        <div class="wizard-step" id="step-2" style="display: none;">
+            <i class="fas fa-wifi fa-4x text-info mb-3"></i>
+            <h4>Kiểm tra kết nối</h4>
+            <p class="small text-white-50">Đảm bảo mạng ổn định để trải nghiệm tốt nhất.</p>
+            
+            <div id="speedtest-area" class="my-4 p-3 rounded" style="background: rgba(0,0,0,0.3);">
+                <div class="progress d-none mb-2" id="speed-progress" style="height: 6px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 100%"></div>
+                </div>
+                <div id="speed-result" class="font-weight-bold">Nhấn nút bên dưới để kiểm tra</div>
+            </div>
+
+            <button class="btn btn-outline-light rounded-pill px-4" onclick="runSpeedTest()" id="btn-speedtest"><i class="fas fa-tachometer-alt mr-2"></i>Kiểm tra mạng</button>
+            <button class="btn btn-primary rounded-pill ml-2 px-4" onclick="nextWizardStep(3)" id="btn-step2-next" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Step 3: FPS Test -->
+        <div class="wizard-step" id="step-3" style="display: none;">
+            <i class="fas fa-gamepad fa-4x text-danger mb-3"></i>
+            <h4>Kiểm tra độ mượt</h4>
+            <p class="small text-white-50">Đánh giá khả năng xử lý đồ họa của máy.</p>
+            
+            <div id="fps-area" class="my-4 p-3 rounded" style="background: rgba(0,0,0,0.3); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <canvas id="fps-canvas" width="300" height="100" style="display: none; width: 100%; height: 100px; border-radius: 10px;"></canvas>
+                <div id="fps-result" class="font-weight-bold mt-2">Nhấn nút bên dưới để test</div>
+            </div>
+
+            <button class="btn btn-outline-light rounded-pill px-4" onclick="runFpsTest()" id="btn-fpstest"><i class="fas fa-play mr-2"></i>Bắt đầu Test</button>
+            <button class="btn btn-primary rounded-pill ml-2 px-4" onclick="nextWizardStep(3)" id="btn-step2-next" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Step 3: FPS Test -->
+        <div class="wizard-step" id="step-3" style="display: none;">
+            <i class="fas fa-gamepad fa-4x text-danger mb-3"></i>
+            <h4>Kiểm tra độ mượt</h4>
+            <p class="small text-white-50">Đánh giá khả năng xử lý đồ họa của máy.</p>
+            
+            <div id="fps-area" class="my-4 p-3 rounded" style="background: rgba(0,0,0,0.3); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <canvas id="fps-canvas" width="300" height="100" style="display: none; width: 100%; height: 100px; border-radius: 10px;"></canvas>
+                <div id="fps-result" class="font-weight-bold mt-2">Nhấn nút bên dưới để test</div>
+            </div>
+
+            <button class="btn btn-outline-light rounded-pill px-4" onclick="runFpsTest()" id="btn-fpstest"><i class="fas fa-play mr-2"></i>Bắt đầu Test</button>
+            <button class="btn btn-primary rounded-pill ml-2 px-4" onclick="nextWizardStep(4)" id="btn-step3-next" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Step 4: Data Sync Test -->
+        <div class="wizard-step" id="step-4" style="display: none;">
+            <i class="fas fa-database fa-4x text-primary mb-3"></i>
+            <h4>Kiểm tra Dữ liệu</h4>
+            <p class="small text-white-50">Đảm bảo kết nối đến máy chủ ổn định.</p>
+            
+            <div id="data-test-area" class="my-4 p-3 rounded" style="background: rgba(0,0,0,0.3);">
+                <div id="data-result" class="font-weight-bold">Nhấn nút để kiểm tra</div>
+            </div>
+
+            <button class="btn btn-outline-light rounded-pill px-4" onclick="runDataTest()" id="btn-datatest"><i class="fas fa-sync mr-2"></i>Test Kết nối</button>
+            <button class="btn btn-primary rounded-pill ml-2 px-4" onclick="nextWizardStep(5)" id="btn-step4-next" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Step 5: Theme -->
+        <div class="wizard-step" id="step-5" style="display: none;">
+            <i class="fas fa-palette fa-4x text-warning mb-3"></i>
+            <h4>Chọn giao diện</h4>
+            <p class="small text-white-50">Chọn phong cách bạn yêu thích.</p>
+            
+            <div class="theme-grid-mini mt-3 mb-4" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-height: 250px; overflow-y: auto;">
+                <button class="btn btn-sm btn-ocean btn-block" onclick="selectTheme(0)">Mặc định</button>
+                <button class="btn btn-sm btn-galaxy btn-block" onclick="selectTheme(1)">Galaxy</button>
+                <button class="btn btn-sm btn-sunny btn-block" onclick="selectTheme(2)">Nắng</button>
+                <button class="btn btn-sm btn-snow btn-block" onclick="selectTheme(3)">Tuyết</button>
+                <button class="btn btn-sm btn-neon btn-block" onclick="selectTheme(4)">Neon</button>
+                <button class="btn btn-sm btn-jack97 btn-block" onclick="selectTheme(16)">Jack J97</button>
+            </div>
+
+            <button class="btn btn-primary btn-block rounded-pill font-weight-bold" onclick="finishPwaSetup()">Hoàn tất <i class="fas fa-check ml-2"></i></button>
+        </div>
+    </div>
+</div>
+
 <div class="login-container" id="loginContainer">
   <div class="login-box">
   <div class="card-glass">
@@ -728,16 +837,18 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Captcha -->
-        <div class="form-group mb-3">
-            <div class="d-flex align-items-center justify-content-between bg-light rounded p-2 border">
-                <span id="captcha_code_login" class="font-weight-bold h5 mb-0 text-primary" style="letter-spacing: 5px; user-select: none;"></span>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="generateCaptcha('captcha_code_login')"><i class="fas fa-sync"></i></button>
-            </div>
-            <input type="text" id="captcha_input_login" class="form-control mt-2 text-center" placeholder="Nhập mã xác nhận ở trên" required>
-        </div>
 
+        <!-- Captcha -->
+        <div class="input-group mb-3 input-group-pill">
+            <div class="input-group-prepend">
+                <span class="input-group-text font-weight-bold text-warning" id="captcha_code_login" style="letter-spacing: 3px; user-select: none; min-width: 90px; justify-content: center;"></span>
+            </div>
+            <input type="text" id="captcha_input_login" class="form-control text-center" placeholder="Nhập mã xác thực" required maxlength="6" style="color: white !important;">
+            <div class="input-group-append">
+                <button type="button" class="btn text-white" onclick="generateCaptcha('captcha_code_login', 'alphanumeric')"><i class="fas fa-sync"></i></button>
+            </div>
+        </div>
+        
         <div class="login-loading-container" id="loginLoading">
             <div class="login-loading-content">
                 <div class="spinner-border text-white" role="status" style="width: 1.5rem; height: 1.5rem; border-width: .2em;"></div>
@@ -828,6 +939,29 @@
     </div>
 </div>
 
+<!-- Modal Login Verification -->
+<div class="modal fade" id="modalLoginVerify" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.2);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-shield-alt mr-2"></i>Xác thực đăng nhập</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-3">Vui lòng nhập mã PIN bên dưới để tiếp tục:</p>
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                    <span id="login_verify_code" class="h2 font-weight-bold text-warning border p-2 rounded mr-3" style="letter-spacing: 5px; user-select: none;"></span>
+                    <button class="btn btn-sm btn-outline-light" onclick="generateCaptcha('login_verify_code', 'numeric')"><i class="fas fa-sync"></i></button>
+                </div>
+                <input type="text" id="login_verify_input" class="form-control text-center text-white bg-transparent border-white" placeholder="Nhập mã PIN" maxlength="6" inputmode="numeric" style="font-size: 1.2rem; letter-spacing: 2px;">
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-success btn-block font-weight-bold rounded-pill" onclick="confirmLogin()">XÁC NHẬN & ĐĂNG NHẬP</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Update Available -->
 <div class="modal fade" id="modalUpdateAvailable" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -885,10 +1019,15 @@
     let schoolList = [];
     let tempUser = "";
 
-    function generateCaptcha(elementId) {
-        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    function generateCaptcha(elementId, type = 'alphanumeric') {
+        let chars = '';
+        if (type === 'numeric') {
+            chars = '0123456789';
+        } else {
+            chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        }
         let result = '';
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 6; i++) {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         document.getElementById(elementId).innerText = result;
@@ -932,9 +1071,10 @@
         `;
 
         sessionStorage.clear(); 
-        generateCaptcha('captcha_code_login');
         
         startLoadingProgress();
+
+        generateCaptcha('captcha_code_login', 'alphanumeric');
 
         function startLoadingProgress() {
             const states = [
@@ -1031,27 +1171,73 @@
     }
 
 
-    // Sync Logic
-    function syncData() {
+    // Sync Logic (Updated: No Refresh)
+    async function syncData() {
         const btn = document.querySelector('button[onclick="syncData()"]');
+        const originalText = btn.innerHTML;
         
-        $(btn).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang đồng bộ...');
-        setTimeout(() => window.location.reload(true), 500);
+        $(btn).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...');
+        
+        try {
+            const start = Date.now();
+            const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'GET_SCHOOL_LIST' }) });
+            const data = await response.json();
+            const duration = Date.now() - start;
+            
+            if(data.status === 'success') {
+                toastr.success(`Dữ liệu đồng bộ tốt (${duration}ms)`);
+            } else {
+                toastr.warning("Máy chủ phản hồi nhưng có lỗi.");
+            }
+        } catch (e) {
+            toastr.error("Không thể kết nối đến máy chủ dữ liệu.");
+        } finally {
+            $(btn).prop('disabled', false).html(originalText);
+        }
     }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const user = $('#username').val().trim();
+        const pass = $('#password').val().trim();
+        const captchaInput = $('#captcha_input_login').val().trim().toUpperCase();
+        const captchaCode = $('#captcha_code_login').text().trim();
+        
+        if (!user || !pass) {
+            toastr.warning("Vui lòng nhập tên đăng nhập và mật khẩu!");
+            return;
+        }
+
+        if (captchaInput !== captchaCode) {
+            toastr.error("Mã xác thực không đúng!");
+            return;
+        }
+        
+        // Open Modal
+        $('#modalLoginVerify').modal('show');
+        generateCaptcha('login_verify_code', 'numeric');
+        $('#login_verify_input').val('').focus();
+    });
+
+    async function confirmLogin() {
+        const input = $('#login_verify_input').val().trim();
+        const code = $('#login_verify_code').text().trim();
+        
+        if (input !== code) {
+            toastr.error("Mã PIN không đúng!");
+            $('#login_verify_input').val('').focus();
+            return;
+        }
+        
+        $('#modalLoginVerify').modal('hide');
+        performLogin();
+    }
+
+    async function performLogin() {
         const btn = document.getElementById('submitBtn');
         const user = $('#username').val().trim();
         const pass = $('#password').val().trim();
         const loadingBox = $('#loginLoading');
-        const captchaInput = $('#captcha_input_login').val().trim().toUpperCase();
-        const captchaCode = $('#captcha_code_login').text().trim();
-
-        if (captchaInput !== captchaCode) {
-            toastr.error("Mã xác nhận không đúng!");
-            return;
-        }
         
         // UI Reset
         btn.style.display = 'none';
@@ -1084,11 +1270,9 @@
             }
         } catch (error) {
             toastr.error("Lỗi kết nối hệ thống!");
-            generateCaptcha('captcha_code_login');
-            $('#captcha_input_login').val('');
             resetLoginForm();
         }
-    });
+    }
 
     function updateStatus(text) {
         $('#loadingText').text(text);
@@ -1907,6 +2091,212 @@
     window.addEventListener('load', updateConnectionStatus);
     window.addEventListener('online', updateConnectionStatus);
     window.addEventListener('offline', () => setConnStatus('offline', 'Mất kết nối', '--'));
+
+    // --- PWA WELCOME WIZARD LOGIC ---
+    function checkPwaFirstRun() {
+        // Kiểm tra nếu đang chạy ở chế độ Standalone (App)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const isSetupDone = localStorage.getItem('pwa_setup_done');
+        
+        // Chỉ hiện nếu là App và chưa setup lần nào
+        if (isStandalone && !isSetupDone) {
+            document.getElementById('pwa-wizard').style.display = 'flex';
+        }
+    }
+
+    function nextWizardStep(step) {
+        document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+        document.getElementById('step-' + step).style.display = 'block';
+    }
+
+    function runSpeedTest() {
+        const btn = document.getElementById('btn-speedtest');
+        const nextBtn = document.getElementById('btn-step2-next');
+        const progress = document.getElementById('speed-progress');
+        const result = document.getElementById('speed-result');
+        
+        btn.disabled = true;
+        progress.classList.remove('d-none');
+        result.innerHTML = 'Đang ping máy chủ...';
+        
+        const start = Date.now();
+        // Fetch file nhỏ để test ping
+        fetch('manifest.json?t=' + start) 
+            .then(() => {
+                const duration = Date.now() - start;
+                progress.classList.add('d-none');
+                
+                let quality = duration < 200 ? '<span class="text-success">Tuyệt vời 🚀</span>' : (duration < 500 ? '<span class="text-info">Ổn định ✅</span>' : '<span class="text-warning">Hơi chậm ⚠️</span>');
+                result.innerHTML = `${quality} (${duration}ms)`;
+                
+                nextBtn.disabled = false;
+                btn.disabled = false;
+            })
+            .catch(() => {
+                progress.classList.add('d-none');
+                result.innerHTML = '<span class="text-danger">Không có kết nối!</span>';
+                btn.disabled = false;
+                nextBtn.disabled = false; // Vẫn cho qua để không bị kẹt
+            });
+    }
+
+    function runFpsTest() {
+        const btn = document.getElementById('btn-fpstest');
+        const nextBtn = document.getElementById('btn-step3-next');
+        const result = document.getElementById('fps-result');
+        const canvas = document.getElementById('fps-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        btn.disabled = true;
+        result.innerHTML = 'Đang render đồ họa...';
+        canvas.style.display = 'block';
+        
+        let frameCount = 0;
+        let running = true;
+
+        function draw() {
+            if (!running) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = `hsl(${frameCount * 5 % 360}, 100%, 50%)`;
+            ctx.beginPath();
+            ctx.arc(150 + Math.sin(frameCount * 0.1) * 100, 50, 20, 0, Math.PI * 2);
+            ctx.fill();
+            frameCount++;
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        setTimeout(() => {
+            running = false;
+            const fps = Math.round(frameCount / 2); // 2 seconds
+            canvas.style.display = 'none';
+            
+            let quality = fps >= 50 ? '<span class="text-success">Rất mượt (High) 🚀</span>' : (fps >= 30 ? '<span class="text-info">Ổn định (Mid) ✅</span>' : '<span class="text-warning">Hơi lag (Low) ⚠️</span>');
+            result.innerHTML = `${quality} (${fps} FPS)`;
+            
+            toastr.info(`Kết quả: ${fps} FPS. ${fps < 30 ? 'Máy hơi yếu, nên tắt bớt hiệu ứng.' : 'Máy ngon chiến tốt!'}`);
+            nextBtn.disabled = false;
+            btn.disabled = false;
+        }, 2000);
+    }
+
+    function runFpsTest() {
+        const btn = document.getElementById('btn-fpstest');
+        const nextBtn = document.getElementById('btn-step3-next');
+        const result = document.getElementById('fps-result');
+        const canvas = document.getElementById('fps-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        btn.disabled = true;
+        result.innerHTML = 'Đang render đồ họa...';
+        canvas.style.display = 'block';
+        
+        let frameCount = 0;
+        let running = true;
+
+        function draw() {
+            if (!running) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = `hsl(${frameCount * 5 % 360}, 100%, 50%)`;
+            ctx.beginPath();
+            ctx.arc(150 + Math.sin(frameCount * 0.1) * 100, 50, 20, 0, Math.PI * 2);
+            ctx.fill();
+            frameCount++;
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        setTimeout(() => {
+            running = false;
+            const fps = Math.round(frameCount / 2); // 2 seconds
+            canvas.style.display = 'none';
+            
+            let quality = fps >= 50 ? '<span class="text-success">Rất mượt (High) 🚀</span>' : (fps >= 30 ? '<span class="text-info">Ổn định (Mid) ✅</span>' : '<span class="text-warning">Hơi lag (Low) ⚠️</span>');
+            result.innerHTML = `${quality} (${fps} FPS)`;
+            
+            if (fps < 30) {
+                toastr.warning(`Kết quả: ${fps} FPS. Máy hơi yếu, hệ thống sẽ tự động tắt hiệu ứng.`);
+                applyEffect(-1);
+                localStorage.setItem('bgEffect', '-1');
+            } else {
+                toastr.info(`Kết quả: ${fps} FPS. Máy ngon chiến tốt!`);
+            }
+            nextBtn.disabled = false;
+            btn.disabled = false;
+        }, 2000);
+    }
+
+    function runDataTest() {
+        const btn = document.getElementById('btn-datatest');
+        const nextBtn = document.getElementById('btn-step4-next');
+        const result = document.getElementById('data-result');
+        
+        btn.disabled = true;
+        result.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang kết nối máy chủ...';
+        
+        const start = performance.now();
+        let ttfb = 0;
+
+        fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'GET_SCHOOL_LIST' }) })
+            .then(res => {
+                ttfb = performance.now() - start;
+                return res.json();
+            })
+            .then(data => {
+                const end = performance.now();
+                const totalTime = end - start;
+                const downloadTime = Math.max(1, totalTime - ttfb);
+
+                if(data.status === 'success') {
+                    const sizeBytes = new TextEncoder().encode(JSON.stringify(data)).length;
+                    const speedKbps = (sizeBytes / 1024) / (downloadTime / 1000);
+                    let speedText = speedKbps.toFixed(2) + ' KB/s';
+                    if (speedKbps > 1024) speedText = (speedKbps / 1024).toFixed(2) + ' MB/s';
+
+                    result.innerHTML = `
+                        <div class="text-left" style="display: inline-block;">
+                            <span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-2"></i>Kết nối tốt</span><br>
+                            <small class="text-white-50">
+                                <i class="fas fa-server mr-1"></i>Ping: <b>${Math.round(ttfb)}ms</b> | 
+                                <i class="fas fa-download mr-1"></i>Tốc độ: <b>${speedText}</b><br>
+                                <i class="fas fa-clock mr-1"></i>Tổng: <b>${Math.round(totalTime)}ms</b> | 
+                                <i class="fas fa-weight-hanging mr-1"></i>Size: <b>${(sizeBytes/1024).toFixed(1)} KB</b>
+                            </small>
+                        </div>`;
+                    toastr.success("Kết nối dữ liệu thành công!");
+                } else {
+                    result.innerHTML = `<span class="text-warning">Phản hồi lạ ⚠️ (${Math.round(totalTime)}ms)</span>`;
+                }
+            })
+            .catch(err => {
+                result.innerHTML = `<span class="text-danger font-weight-bold"><i class="fas fa-times-circle mr-2"></i>Lỗi kết nối!</span>`;
+                toastr.error("Không thể kết nối máy chủ!");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                nextBtn.disabled = false;
+            });
+    }
+
+    function finishPwaSetup() {
+        localStorage.setItem('pwa_setup_done', 'true');
+        $('#pwa-wizard').fadeOut();
+        
+        // Hiệu ứng pháo hoa chúc mừng
+        if (typeof confetti === 'function') {
+            var duration = 3000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+        
+        toastr.success("Thiết lập hoàn tất! Chúc bạn sử dụng vui vẻ.");
+    }
+
+    window.addEventListener('load', checkPwaFirstRun);
 </script>
 </body>
 </html>

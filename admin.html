@@ -336,7 +336,7 @@
                     </div>
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-success shadow" onclick="showTab('tab-groups-list')" style="cursor:pointer">
-                            <div class="inner"><h3>Nhóm SHH</h3><p>Danh sách nhóm</p></div>
+                            <div class="inner"><h3>Nhóm </h3><p>Danh sách nhóm</p></div>
                             <div class="icon"><i class="fas fa-users-cog"></i></div>
                         </div>
                     </div>
@@ -978,7 +978,11 @@
                         <option value="admin">Quản trị (Admin)</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Nhóm phụ trách</label><input type="text" id="u_group" class="form-control" placeholder="Để trống nếu là Admin"></div>
+                <div class="form-group"><label>Nhóm phụ trách</label>
+                    <select id="u_group" class="form-control">
+                        <option value="">-- Không / Admin --</option>
+                    </select>
+                </div>
                 <div class="form-group"><label>Email</label><input type="email" id="u_email" class="form-control" placeholder="example@email.com"></div>
                 <div class="form-group"><label>Số điện thoại</label><input type="text" id="u_phone" class="form-control"></div>
                 <div class="form-group"><label>Link Avatar</label><input type="text" id="u_avatar" class="form-control"></div>
@@ -1739,7 +1743,7 @@ async function loadExtraData() {
                     <div class="info-box shadow-sm position-relative">
                         <span class="info-box-icon bg-info elevation-1"><i class="fas fa-layer-group"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text text-bold">${g.group_name} <small class="text-muted">(${g.count}/${g.limit || '∞'})</small></span>
+                            <span class="info-box-text text-bold">${g.group_name} <small class="text-muted">(${g.count}/${(g.limit && g.limit != 0) ? g.limit : '∞'})</small></span>
                             <span class="info-box-number">Mã: ${g.group_id}</span>
                         </div>
                         <div style="position:absolute; right:5px; top:5px;">
@@ -2719,6 +2723,18 @@ function getSelectedSchool(selectId, otherInputId) {
     return (select.value === 'other') ? document.getElementById(otherInputId).value.trim() : select.value;
 }
 
+function populateGroupSelect(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    let html = '<option value="">-- Không / Admin --</option>';
+    if (globalGroupsData && globalGroupsData.length > 0) {
+        globalGroupsData.forEach(g => {
+            html += `<option value="${g.group_id}">Nhóm ${g.group_name} (${g.group_id})</option>`;
+        });
+    }
+    select.innerHTML = html;
+}
+
 function renderHonorCheckboxes(selected = []) {
     let html = '';
     HONOR_TITLES.forEach(t => {
@@ -2733,7 +2749,8 @@ function renderHonorCheckboxes(selected = []) {
 }
 
 function openUserModal() { 
-    $('#modalUser').modal('show'); $('#user_id_old').val(''); $('#pass_area').show(); $('#u_name').val(getNextId(globalUsersData, 'username', 'user')); $('#u_pass, #u_role, #u_group, #u_fullname, #u_avatar, #u_email').val(''); 
+    $('#modalUser').modal('show'); $('#user_id_old').val(''); $('#pass_area').show(); $('#u_name').val(getNextId(globalUsersData, 'username', 'user')); $('#u_pass, #u_role, #u_fullname, #u_avatar, #u_email').val(''); 
+    populateGroupSelect('u_group'); $('#u_group').val('');
     $('#u_vip_level').val(''); renderHonorCheckboxes();
 }
 function openGroupModal() { $('#modalGroup').modal('show'); $('#group_id_old').val(''); $('#g_id').val(getNextId(globalGroupsData, 'group_id', '')); $('#g_name').val(''); $('#g_limit').val(0); }
@@ -2874,6 +2891,7 @@ function editUser(username) {
     $('#user_id_old').val(u.username);
     $('#u_name').val(u.username);
     $('#u_role').val(u.role);
+    populateGroupSelect('u_group');
     $('#u_group').val(u.group_id);
     $('#u_fullname').val(u.fullname);
     $('#u_email').val(u.email || '');
@@ -2966,6 +2984,26 @@ async function saveData(type) {
         const schoolName = getSelectedSchool('st_school_select', 'st_school_other');
         if (!schoolName) return toastr.warning("Vui lòng chọn hoặc nhập trường học!");
 
+        // Check Group Limit
+        const groupId = $('#st_group').val().trim();
+        if (groupId) {
+            const group = globalGroupsData.find(g => String(g.group_id) === String(groupId));
+            if (group) {
+                const limit = parseInt(group.limit) || 0;
+                const count = parseInt(group.count) || 0;
+                if (limit > 0) {
+                    let checkLimit = !idOld; // Adding new
+                    if (idOld) {
+                        const currentSt = globalStudentsData.find(s => String(s.id) === String(idOld));
+                        if (currentSt && String(currentSt.group_id) !== String(groupId)) checkLimit = true; // Moving group
+                    }
+                    if (checkLimit && count >= limit) {
+                        return Swal.fire('Đạt giới hạn', `Nhóm ${group.group_name} đã đủ số lượng (${count}/${limit}). Không thể thêm thành viên mới.`, 'warning');
+                    }
+                }
+            }
+        }
+
         dataArr = [
             $('#st_id').val(), $('#st_name').val(), $('#st_gender').val(), $('#st_dob').val(), $('#st_class').val(), schoolName, 
             $('#st_address').val(), $('#st_phone').val(), $('#st_group').val(), 
@@ -3005,7 +3043,7 @@ async function saveData(type) {
         return;
     } else if (type === 'groups') {
         idOld = $('#group_id_old').val();
-        dataArr = [$('#g_id').val(), $('#g_name').val(), $('#g_limit').val()];
+        dataArr = [$('#g_id').val(), $('#g_name').val(), parseInt($('#g_limit').val()) || 0];
     } else if (type === 'notifications') {
         idOld = $('#noti_id_old').val();
         let dt = $('#n_datetime').val().replace('T', ' '); // Format lại: bỏ chữ T ở giữa
