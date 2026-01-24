@@ -727,7 +727,7 @@
             
             <div id="mobile-app-suggestion" style="display: none;" class="alert alert-info text-left small">
                 <i class="fas fa-mobile-alt mr-2"></i><b>Phát hiện điện thoại:</b><br>
-                Để có trải nghiệm tốt nhất, bạn nên cài đặt ứng dụng ra màn hình chính.
+                Để có trải nghiệm tốt nhất, bạn nên cài đặt ứng dụng ra màn hình chính. Nếu đã cài, hãy mở App để sử dụng mượt mà hơn.
             </div>
 
             <button class="btn btn-success btn-block rounded-pill mt-3 font-weight-bold" id="btn-install-wizard" style="display:none;" onclick="installPwa()">Cài đặt App ngay</button>
@@ -1402,21 +1402,39 @@
         try {
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
             const res = await response.json();
+            
+            let isLocked = false;
+            let lockMessage = "Hệ thống hiện đang tạm ngưng tiếp nhận đăng ký mới.";
+            let showTimer = false;
+            let targetTime = null;
+
+            // Check Manual Lock
             if (res.status === "success" && String(res.data.registration_locked).toUpperCase() === 'TRUE') {
+                isLocked = true;
+                showTimer = true;
+                targetTime = res.data.registration_open_time || new Date(Date.now() + 86400000).toISOString();
+            } 
+            // Check Deadline
+            else if (res.status === "success" && res.data.registration_deadline) {
+                if (new Date() > new Date(res.data.registration_deadline)) {
+                    isLocked = true;
+                    lockMessage = "Đã hết thời gian đăng ký (" + new Date(res.data.registration_deadline).toLocaleString('vi-VN') + ").";
+                }
+            }
+
+            if (isLocked) {
                 document.getElementById('maintenanceAudio')?.play().catch(e=>{});
                 
                 const timerId = 'reg-countdown-' + Date.now();
-                // Use configured time or default to 24h from now if not set
-                const targetTime = res.data.registration_open_time || new Date(Date.now() + 86400000).toISOString();
 
                 const msg = `<div class="text-center p-4">
                     <i class="fas fa-clock fa-4x text-warning mb-3"></i>
-                    <h4>Hết thời gian đăng ký!</h4>
-                    <p>Hệ thống hiện đang tạm ngưng tiếp nhận đăng ký mới.</p>
-                    <div class="bg-dark rounded p-3 mt-3 mb-3 border border-secondary" style="background: rgba(0,0,0,0.3) !important;">
+                    <h4>Thông báo Đăng ký</h4>
+                    <p>${lockMessage}</p>
+                    ${showTimer ? `<div class="bg-dark rounded p-3 mt-3 mb-3 border border-secondary" style="background: rgba(0,0,0,0.3) !important;">
                         <div class="small text-white-50 mb-1 text-uppercase">Mở lại sau</div>
                         <div id="${timerId}" class="font-weight-bold text-warning" style="font-size: 2rem; font-family: monospace; letter-spacing: 2px;">--:--:--</div>
-                    </div>
+                    </div>` : ''}
                     <p class="small text-muted">Vui lòng quay lại sau.</p>
                 </div>`;
 
@@ -1427,7 +1445,7 @@
                 } else {
                     openSidePanel('<i class="fas fa-exclamation-circle mr-2"></i> Thông báo', msg);
                 }
-                startRegCountdown(timerId, targetTime);
+                if(showTimer) startRegCountdown(timerId, targetTime);
                 return;
             }
         } catch(e) {}
@@ -2113,10 +2131,7 @@
 
     if (isIos() && !isInStandaloneMode()) {
         installBtn.style.display = 'block';
-        installBtn.innerHTML = '<i class="fab fa-apple mr-2"></i> Cài App';
-        installBtn.onclick = (e) => {
-            $('#modalIOSInstall').modal('show');
-        };
+        installBtn.innerHTML = '<i class="fab fa-apple mr-2"></i> Cài đặt iOS';
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -2126,6 +2141,10 @@
     });
     
     async function installPwa() {
+        if (isIos() && !isInStandaloneMode()) {
+            $('#modalIOSInstall').modal('show');
+            return;
+        }
         if (deferredPrompt) {
             const originalText = installBtn.innerHTML;
             installBtn.disabled = true;
@@ -2249,8 +2268,8 @@
         // const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         const isSetupDone = localStorage.getItem('pwa_setup_done');
         
-        // Chỉ hiện nút Reset nếu là PWA (Standalone)
-        if (isInStandaloneMode()) {
+        // Hiện nút Reset nếu là PWA (Standalone) hoặc Mobile
+        if (isInStandaloneMode() || isMobile()) {
             $('#resetSetupBtn').show();
         }
 
