@@ -1819,6 +1819,12 @@ async function loadGlobalConfig() {
                     $(`#${tabId}`).html('<div class="text-center p-5 text-muted"><i class="fas fa-tools fa-3x mb-3 text-warning"></i><h4>Tính năng đang bảo trì</h4><p>Vui lòng quay lại sau.</p></div>');
                 }
             }
+            
+            // Handle Notification Maintenance
+            if (String(conf.maint_notis).toUpperCase() === 'TRUE') {
+                $('.fa-bell').parent().attr('onclick', "toastr.warning('Tính năng Thông báo đang bảo trì.')");
+                $('#notiBadge').hide();
+            }
             checkUrgentNotification(conf);
         }
     } catch(e) {}
@@ -1858,10 +1864,10 @@ function showMaintenanceOverlay(startTime, endTime, musicUrl) {
         <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
             <defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" /></defs>
             <g class="parallax">
-                <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255, 193, 7, 0.7)" />
-                <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255, 255, 255, 0.5)" />
-                <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255, 193, 7, 0.3)" />
-                <use xlink:href="#gentle-wave" x="48" y="7" fill="rgba(255, 255, 255, 0.9)" />
+                <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(0, 50, 100, 0.7)" />
+                <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(0, 40, 80, 0.5)" />
+                <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(0, 30, 60, 0.3)" />
+                <use xlink:href="#gentle-wave" x="48" y="7" fill="rgba(0, 20, 40, 1)" />
             </g>
         </svg>
     </div>`;
@@ -2298,25 +2304,55 @@ function checkAttendanceLock() {
     let isLocked = false;
     let message = "";
 
-    // 1. Khóa nếu sau 20:00 (8h tối)
-    if (currentHour >= 20) {
+    // 1. Check Manual Block (Chặn thủ công)
+    if (String(conf.att_blocked).toUpperCase() === 'TRUE') {
         isLocked = true;
-        message = "Đã quá thời gian điểm danh trong ngày (Sau 20:00).";
-    } else {
-        // 2. Khóa nếu có lịch họp hôm nay mà chưa đến giờ (và không cho điểm danh sớm)
-        // Format ngày hiện tại yyyy-MM-dd để so sánh
+        message = "Điểm danh đang bị khóa bởi Quản trị viên.";
+    }
+
+    // 2. Check Time Range (Giờ tự động)
+    if (!isLocked) {
+        if (conf.attendance_start_time && conf.attendance_end_time) {
+            const [sH, sM] = conf.attendance_start_time.split(':').map(Number);
+            const [eH, eM] = conf.attendance_end_time.split(':').map(Number);
+            const start = new Date(now); start.setHours(sH, sM, 0, 0);
+            const end = new Date(now); end.setHours(eH, eM, 0, 0);
+            
+            if (now < start || now > end) {
+                isLocked = true;
+                message = `Ngoài khung giờ điểm danh (${conf.attendance_start_time} - ${conf.attendance_end_time}).`;
+            }
+        } else {
+            // Fallback default 20:00 if no config
+            if (currentHour >= 20) {
+                isLocked = true;
+                message = "Đã quá thời gian điểm danh trong ngày (Sau 20:00).";
+            }
+        }
+    }
+
+    // 3. Check Notification Override
+    // If locked (either manually or by time), check if we can unlock via notification
+    if (isLocked) {
         const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-        
-        // Tìm thông báo có ngày trùng hôm nay
         const todayNoti = globalNotifications.find(n => n.datetime.startsWith(todayStr));
         
         if (todayNoti) {
-            const meetingTime = new Date(todayNoti.datetime.replace(" ", "T")); // Chuyển đổi format cho Safari/Mobile
+            const meetingTime = new Date(todayNoti.datetime.replace(" ", "T"));
             const isEarlyAllowed = todayNoti.early === 'TRUE';
             
-            if (now < meetingTime && !isEarlyAllowed) {
-                isLocked = true;
-                message = `Chưa đến giờ điểm danh (${todayNoti.datetime.split(' ')[1]}). Không cho phép điểm danh sớm.`;
+            // Override allowed if:
+            // 1. Config 'noti_override' is TRUE (overrides everything)
+            // 2. OR Lock is NOT manual (time range lock can always be overridden by meeting time)
+            const canOverride = (String(conf.att_blocked).toUpperCase() !== 'TRUE') || (String(conf.noti_override).toUpperCase() === 'TRUE');
+            
+            if (canOverride) {
+                if (now >= meetingTime || isEarlyAllowed) {
+                    isLocked = false; // Unlock
+                } else {
+                    // It is meeting day, but not time yet.
+                    message = `Chưa đến giờ điểm danh theo thông báo (${todayNoti.datetime.split(' ')[1]}).`;
+                }
             }
         }
     }
