@@ -3623,21 +3623,12 @@ async function runSpeedTest() {
     progress.classList.remove('d-none');
     
     // 0. Detect ISP & Network Type
-    result.innerHTML = '<i class="fas fa-globe-asia fa-spin mr-2"></i>Đang kiểm tra nhà mạng...';
+    result.innerHTML = '<i class="fas fa-globe-asia fa-spin mr-2"></i>Đang kiểm tra kết nối...';
     
     try {
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         const isCellular = connection && (connection.type === 'cellular' || connection.effectiveType === '4g' || connection.effectiveType === '3g');
         
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500);
-
-        const ipRes = await fetch('https://ipapi.co/json/', { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const ipData = await ipRes.json();
-        
-        const ispName = ipData.org || ipData.isp || "Không xác định";
-        const ipAddr = ipData.ip || "---";
         const networkType = isCellular ? '<span class="text-warning"><i class="fas fa-signal mr-1"></i>4G/5G (Di động)</span>' : '<span class="text-success"><i class="fas fa-wifi mr-1"></i>Wifi/LAN</span>';
 
         if (isCellular) {
@@ -3649,8 +3640,6 @@ async function runSpeedTest() {
         result.innerHTML = `
             <div class="text-left small mb-2 p-2 rounded border border-secondary" style="background: rgba(0,0,0,0.05);">
                 <div><i class="fas fa-network-wired mr-1"></i>Mạng: <b>${networkType}</b></div>
-                <div><i class="fas fa-building mr-1"></i>ISP: <b>${ispName}</b></div>
-                <div><i class="fas fa-map-marker-alt mr-1"></i>IP: <b>${ipAddr}</b></div>
             </div>
             <i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang kết nối máy chủ...`;
     } catch (e) {
