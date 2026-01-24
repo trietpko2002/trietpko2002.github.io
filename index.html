@@ -61,7 +61,17 @@
         /* Poll Styles */
         .student-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 5px; border-radius: 4px; margin-bottom: 10px; }
         /* Maintenance Overlay */
-        #maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .swal2-container { z-index: 200000 !important; }
+        /* Waves Effect */
+        .waves-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 15vh; overflow: hidden; z-index: 1; pointer-events: none; }
+        .waves { position: relative; width: 100%; height: 100%; margin-bottom: -7px; }
+        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
+        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; fill: rgba(255,255,255,0.7); }
+        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; fill: rgba(255,255,255,0.5); }
+        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; fill: rgba(255,255,255,0.3); }
+        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; fill: #fff; }
+        @keyframes move-forever { 0% { transform: translate3d(-90px,0,0); } 100% { transform: translate3d(85px,0,0); } }
         #topMarquee { background: #d81b60; color: #fff; padding: 5px; font-weight: bold; display: none; z-index: 1040; position: relative; }
         
         /* Dark Mode Full Coverage */
@@ -1842,6 +1852,19 @@ function showMaintenanceOverlay(startTime, endTime, musicUrl) {
         audioHtml = `<audio autoplay loop id="maint-audio"><source src="${musicUrl}" type="audio/mpeg"></audio>
         <button class="btn btn-sm btn-outline-light mt-3 rounded-pill px-4" onclick="const a=document.getElementById('maint-audio'); if(a.paused){a.play(); $('.music-visualizer').css('opacity','1');}else{a.pause(); $('.music-visualizer').css('opacity','0.2');}"><i class="fas fa-music mr-2"></i>Bật/Tắt Nhạc</button>`;
     }
+    
+    const wavesHtml = `
+    <div class="waves-container">
+        <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+            <defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" /></defs>
+            <g class="parallax">
+                <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7)" />
+                <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+                <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+                <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+            </g>
+        </svg>
+    </div>`;
 
     overlay.innerHTML = `
         <i class="fas fa-tools fa-4x mb-3 text-warning"></i>
@@ -1850,6 +1873,7 @@ function showMaintenanceOverlay(startTime, endTime, musicUrl) {
         ${timeHtml}
         ${visualizerHtml}
         ${audioHtml}
+        ${wavesHtml}
         <button class="btn btn-outline-light mt-4 font-weight-bold" onclick="logout()"><i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất</button>
     `;
     document.body.appendChild(overlay);

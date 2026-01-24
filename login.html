@@ -1445,8 +1445,8 @@
                 if(isMobile()) $('#modalMobileAction').modal('hide');
                 else closeSidePanel();
                 
-                const assignedGroup = res.data.group_name;
-                const managerName = res.data.manager_name;
+                const assignedGroup = res.data.group_name || 'Chưa phân nhóm';
+                const managerName = res.data.manager_name || 'Đang cập nhật';
                 const managerPhone = res.data.manager_phone;
                 const dummyGroups = ["Nhóm 1", "Nhóm 2", "Nhóm 3", "Nhóm 4", "Nhóm 5", "Nhóm 6"]; 
                 let timerInterval;
@@ -1478,7 +1478,7 @@
                                 <h2 class="text-success font-weight-bold text-uppercase mt-2 mb-3" style="font-size: 2rem;">${assignedGroup}</h2>
                                 <div class="text-left bg-light p-3 rounded border">
                                     <p class="mb-1"><i class="fas fa-user-shield mr-2 text-primary"></i><b>Quản lý:</b> ${managerName}</p>
-                                    <p class="mb-1"><i class="fas fa-phone mr-2 text-success"></i><b>Liên hệ:</b> <a href="tel:${managerPhone}" class="font-weight-bold">${managerPhone}</a></p>
+                                    <p class="mb-1"><i class="fas fa-phone mr-2 text-success"></i><b>Liên hệ:</b> ${managerPhone ? `<a href="tel:${managerPhone}" class="font-weight-bold">${managerPhone}</a>` : 'Đang cập nhật'}</p>
                                     <hr>
                                     <p class="mb-1"><i class="fas fa-clock mr-2 text-warning"></i><b>Thời gian:</b> Tháng 6 (Dự kiến)</p>
                                     <p class="mb-0"><i class="fas fa-map-marker-alt mr-2 text-danger"></i><b>Địa điểm:</b> Trường TH Đài Sơn (31 Ng. Gia Tự, Phan Rang)</p>
@@ -1555,7 +1555,7 @@
 
     function createRain() {
         const rainContainer = document.getElementById('rain');
-        const count = isMobile() ? 15 : 60; // Giảm số lượng hạt mưa
+        const count = isMobile() ? 8 : 60; // Giảm số lượng hạt mưa
         for (let i = 0; i < count; i++) {
             const drop = document.createElement('div');
             drop.classList.add('rain-drop');
@@ -1569,7 +1569,7 @@
     function createStars() {
         const container = document.getElementById('stars');
         container.innerHTML = '';
-        const shootingCount = isMobile() ? 5 : 30; // Giảm sao băng
+        const shootingCount = isMobile() ? 3 : 30; // Giảm sao băng
         for (let i = 0; i < shootingCount; i++) { // Increased for meteor shower effect
             const star = document.createElement('div');
             star.className = 'star';
@@ -1582,7 +1582,7 @@
             container.appendChild(star);
         }
         // Add static stars for Galaxy feel
-        const staticCount = isMobile() ? 20 : 80;
+        const staticCount = isMobile() ? 10 : 80;
         for (let i = 0; i < staticCount; i++) {
             const s = document.createElement('div'); s.className = 'static-star';
             s.style.top = Math.random() * 100 + 'vh'; s.style.left = Math.random() * 100 + 'vw';
@@ -1594,7 +1594,7 @@
     function createSnow() {
         const container = document.getElementById('snow');
         container.innerHTML = '';
-        const count = isMobile() ? 10 : 40; // Giảm tuyết
+        const count = isMobile() ? 8 : 40; // Giảm tuyết
         for (let i = 0; i < count; i++) {
             const flake = document.createElement('div');
             flake.className = 'snowflake';
@@ -1648,7 +1648,7 @@
         }
         
         if (canvas.dataset.intervalId) clearInterval(parseInt(canvas.dataset.intervalId));
-        const intervalTime = isMobile() ? 100 : 50; // Giảm FPS Matrix
+        const intervalTime = isMobile() ? 120 : 50; // Giảm FPS Matrix
         const intervalId = setInterval(draw, intervalTime);
         canvas.dataset.intervalId = intervalId;
 
@@ -1803,7 +1803,7 @@
     function createFlowers() {
         const c = document.getElementById('flowers');
         const icons = ['🌸', '🏵️', '🧧'];
-        const count = isMobile() ? 8 : 25;
+        const count = isMobile() ? 5 : 25;
         for(let i=0; i<count; i++) {
             const f = document.createElement('div'); f.className = 'flower';
             f.innerHTML = icons[Math.floor(Math.random()*icons.length)];
@@ -1826,7 +1826,7 @@
         c.innerHTML = '';
         uiaMemes = [];
         
-        const count = isMobile() ? 3 : 12;
+        const count = isMobile() ? 2 : 12;
         for(let i=0; i<count; i++) {
             const m = document.createElement('img'); 
             m.className = 'uia-img'; 
@@ -1934,7 +1934,7 @@
     }
     function createFireflies() {
         const c = document.getElementById('jack97-container');
-        const count = isMobile() ? 8 : 25;
+        const count = isMobile() ? 5 : 25;
         for(let i=0; i<count; i++) {
             const f = document.createElement('div'); f.className = 'firefly';
             f.style.top = Math.random() * 100 + 'vh';
@@ -1978,7 +1978,8 @@
 
     function createClickFirework(x, y) {
         const colors = ['#ff0000', '#ffd700', '#00ff00', '#00ffff', '#ff00ff', '#ffffff', '#ff4500'];
-        for (let i = 0; i < 30; i++) {
+        const count = isMobile() ? 10 : 30;
+        for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
             p.className = 'click-firework-particle';
             p.style.left = x + 'px';
@@ -2019,7 +2020,7 @@
     function createHalloween() {
         const c = document.getElementById('halloween-container');
         const pumpkins = ['🎃', '👻', '💀'];
-        const pCount = isMobile() ? 3 : 8;
+        const pCount = isMobile() ? 2 : 8;
         for(let i=0; i<pCount; i++) {
             const p = document.createElement('div'); p.className = 'pumpkin';
             p.innerText = pumpkins[Math.floor(Math.random()*pumpkins.length)];
@@ -2027,7 +2028,7 @@
             p.style.animationDelay = Math.random()*2 + 's';
             c.appendChild(p);
         }
-        const bCount = isMobile() ? 2 : 4;
+        const bCount = isMobile() ? 1 : 4;
         for(let i=0; i<bCount; i++) {
             const b = document.createElement('div'); b.className = 'bat';
             b.innerText = '🦇';
