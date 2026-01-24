@@ -1021,6 +1021,7 @@
 <audio id="audio-nyan" loop><source src="https://www.myinstants.com/media/sounds/nyan-cat.mp3" type="audio/mpeg"></audio>
 <audio id="audio-uia" loop><source src="music/uia.mp3" type="audio/mpeg"></audio>
 <audio id="audio-jack" loop><source src="music/jack_j97_dom_dom.mp3" type="audio/mpeg"></audio>
+<audio id="maintenanceAudio"><source src="music/bao_tri.mp3" type="audio/mpeg"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
@@ -1398,6 +1399,39 @@
 
     // --- LOGIC ĐĂNG KÝ ---
     async function openRegisterModal() {
+        try {
+            const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
+            const res = await response.json();
+            if (res.status === "success" && String(res.data.registration_locked).toUpperCase() === 'TRUE') {
+                document.getElementById('maintenanceAudio')?.play().catch(e=>{});
+                
+                const timerId = 'reg-countdown-' + Date.now();
+                // Use configured time or default to 24h from now if not set
+                const targetTime = res.data.registration_open_time || new Date(Date.now() + 86400000).toISOString();
+
+                const msg = `<div class="text-center p-4">
+                    <i class="fas fa-clock fa-4x text-warning mb-3"></i>
+                    <h4>Hết thời gian đăng ký!</h4>
+                    <p>Hệ thống hiện đang tạm ngưng tiếp nhận đăng ký mới.</p>
+                    <div class="bg-dark rounded p-3 mt-3 mb-3 border border-secondary" style="background: rgba(0,0,0,0.3) !important;">
+                        <div class="small text-white-50 mb-1 text-uppercase">Mở lại sau</div>
+                        <div id="${timerId}" class="font-weight-bold text-warning" style="font-size: 2rem; font-family: monospace; letter-spacing: 2px;">--:--:--</div>
+                    </div>
+                    <p class="small text-muted">Vui lòng quay lại sau.</p>
+                </div>`;
+
+                if (isMobile()) {
+                    $('#mobileModalTitle').html('<i class="fas fa-exclamation-circle mr-2"></i> Thông báo');
+                    $('#mobileModalBody').html(msg);
+                    $('#modalMobileAction').modal('show');
+                } else {
+                    openSidePanel('<i class="fas fa-exclamation-circle mr-2"></i> Thông báo', msg);
+                }
+                startRegCountdown(timerId, targetTime);
+                return;
+            }
+        } catch(e) {}
+
         if (isMobile()) {
             $('#mobileModalTitle').html('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin');
             $('#mobileModalBody').html(window.registerFormTemplate);
@@ -2391,6 +2425,35 @@
             requestAnimationFrame(fpsLoop);
         };
         requestAnimationFrame(fpsLoop);
+    }
+
+    function startRegCountdown(elementId, targetDateStr) {
+        const target = new Date(targetDateStr).getTime();
+        
+        const update = () => {
+            const el = document.getElementById(elementId);
+            if(!el) return; // Stop if element removed
+            
+            const now = new Date().getTime();
+            const distance = target - now;
+            
+            if (distance < 0) {
+                el.innerHTML = '<span class="text-success" style="font-size: 1.5rem">Đã mở!</span>';
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            el.innerText = (days > 0 ? days + "d " : "") + 
+                           String(hours).padStart(2,'0') + ":" + 
+                           String(minutes).padStart(2,'0') + ":" + 
+                           String(seconds).padStart(2,'0');
+        };
+        setInterval(update, 1000);
+        update(); // Run immediately
     }
 
     window.addEventListener('load', () => { checkPwaFirstRun(); initFpsMonitor(); });

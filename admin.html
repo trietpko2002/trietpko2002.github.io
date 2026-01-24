@@ -1293,6 +1293,14 @@
                             <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_student_import_locked"><label class="custom-control-label" for="conf_student_import_locked"></label></div>
                         </div>
                         <div class="form-group"><label>Hạn chót nhập liệu (Tự động khóa sau ngày này)</label><input type="date" id="conf_student_import_deadline" class="form-control"></div>
+                        <div class="form-group d-flex justify-content-between align-items-center border-top pt-2 mt-2">
+                            <label class="mb-0 text-danger">Khóa Đăng ký (Login Page)</label>
+                            <div class="custom-control custom-switch"><input type="checkbox" class="custom-control-input" id="conf_registration_locked"><label class="custom-control-label" for="conf_registration_locked"></label></div>
+                        </div>
+                        <div class="form-group mt-2 pl-3 border-left">
+                            <label class="small text-muted">Thời gian mở lại (Hiển thị đếm ngược)</label>
+                            <input type="datetime-local" id="conf_registration_open_time" class="form-control form-control-sm">
+                        </div>
 
                         <div class="form-group mt-2 border-top pt-2">
                             <label>Giới hạn dung lượng file Upload (MB)</label>
@@ -2076,6 +2084,8 @@ async function loadEvalConfig() {
             // Student Import Lock
             $('#conf_student_import_locked').prop('checked', String(res.data.student_import_locked).toUpperCase() === 'TRUE');
             if(res.data.student_import_deadline) $('#conf_student_import_deadline').val(res.data.student_import_deadline.split('T')[0]);
+            $('#conf_registration_locked').prop('checked', String(res.data.registration_locked).toUpperCase() === 'TRUE');
+            if(res.data.registration_open_time) $('#conf_registration_open_time').val(res.data.registration_open_time);
             
             // Load Max Upload Size
             globalMaxUploadSize = parseInt(res.data.max_upload_size) || 200;
@@ -2212,6 +2222,8 @@ async function saveFeatureConfig() {
         noti_override: $('#conf_noti_override').is(':checked') ? 'TRUE' : 'FALSE',
         maint_music: 'music/bao_tri.mp3',
         student_import_locked: $('#conf_student_import_locked').is(':checked') ? 'TRUE' : 'FALSE',
+        registration_locked: $('#conf_registration_locked').is(':checked') ? 'TRUE' : 'FALSE',
+        registration_open_time: $('#conf_registration_open_time').val(),
         student_import_deadline: $('#conf_student_import_deadline').val(),
         max_upload_size: $('#conf_max_upload_size').val() || '200'
     };
