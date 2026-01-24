@@ -1537,8 +1537,9 @@ function applyUserSettings(settings) {
 
     if (effect === 'jack97') {
         $('body').addClass('jack-mode');
-        // Fireflies
-        for(let i=0; i<20; i++) {
+        // Fireflies - Optimize for mobile
+        const count = (window.innerWidth < 768) ? 8 : 20;
+        for(let i=0; i<count; i++) {
             const f = document.createElement('div');
             f.className = 'firefly';
             f.style.top = Math.random() * 100 + 'vh';

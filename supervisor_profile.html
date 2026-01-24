@@ -412,7 +412,8 @@
         
         if (effect === 'jack97') {
             $('body').addClass('jack-mode');
-            for(let i=0; i<20; i++) { const f = document.createElement('div'); f.className = 'firefly'; f.style.top = Math.random() * 100 + 'vh'; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's'; f.style.animationDelay = Math.random() * 5 + 's'; document.body.appendChild(f); }
+            const count = (window.innerWidth < 768) ? 8 : 20;
+            for(let i=0; i<count; i++) { const f = document.createElement('div'); f.className = 'firefly'; f.style.top = Math.random() * 100 + 'vh'; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's'; f.style.animationDelay = Math.random() * 5 + 's'; document.body.appendChild(f); }
             if(audio) audio.play().catch(e => console.log("Autoplay blocked", e));
         }
     }
