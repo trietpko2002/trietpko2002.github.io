@@ -10,11 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="manifest" href="manifest.json">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
     <style>
         /* New styles for menu boxes */
         .small-box {
@@ -1504,6 +1499,31 @@ let currentStudentView = []; // Dữ liệu học sinh đang hiển thị
 let currentEvaluationView = []; // Dữ liệu đánh giá đang hiển thị
 let globalMaxUploadSize = 200; // Default 200MB
 
+// --- LAZY LOAD LIBRARIES ---
+const LIBS = {
+    Chart: 'https://cdn.jsdelivr.net/npm/chart.js',
+    XLSX: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js',
+    confetti: 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js',
+    pdfMake: ['https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js']
+};
+const _loadedScripts = {};
+function loadScript(url) {
+    if (_loadedScripts[url]) return _loadedScripts[url];
+    return _loadedScripts[url] = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+async function loadLib(name) {
+    if (name === 'pdfMake' && !window.pdfMake) { await loadScript(LIBS.pdfMake[0]); await loadScript(LIBS.pdfMake[1]); return; }
+    if (name === 'Chart' && !window.Chart) await loadScript(LIBS.Chart);
+    if (name === 'XLSX' && !window.XLSX) await loadScript(LIBS.XLSX);
+    if (name === 'confetti' && !window.confetti) await loadScript(LIBS.confetti);
+}
+
 function getLoadingRowHtml(colspan) {
     return `<tr><td colspan="${colspan}" class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-2 text-muted">Đang tải dữ liệu...</p></td></tr>`;
 }
@@ -1567,7 +1587,8 @@ $(document).ready(function() {
 
 // Helper: Render Chart
 let charts = {};
-function renderChart(id, type, labels, data, label, colors) {
+async function renderChart(id, type, labels, data, label, colors) {
+    await loadLib('Chart');
     const ctx = document.getElementById(id);
     if(!ctx) return;
     if (charts[id]) charts[id].destroy();
@@ -3193,7 +3214,8 @@ function deleteData(type, id) {
 }
 
 // EXPORT FUNCTIONS
-function exportExcelHistory() {
+async function exportExcelHistory() {
+    await loadLib('XLSX');
     if (currentHistoryView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
     const data = currentHistoryView.map(item => {
         let st = "Vắng không phép";
@@ -3208,7 +3230,8 @@ function exportExcelHistory() {
     XLSX.writeFile(wb, `Lich_Su_Diem_Danh.xlsx`);
 }
 
-function exportPdfHistory() {
+async function exportPdfHistory() {
+    await loadLib('pdfMake');
     if (currentHistoryView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
 
     const body = [
@@ -3248,7 +3271,8 @@ function exportPdfHistory() {
     pdfMake.createPdf(docDefinition).download(`Lich_Su_Diem_Danh_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfStudents() {
+async function exportPdfStudents() {
+    await loadLib('pdfMake');
     if (currentStudentView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
     
     const body = [
@@ -3286,7 +3310,8 @@ function exportPdfStudents() {
     pdfMake.createPdf(docDefinition).download(`Danh_Sach_Hoc_Sinh_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfEvaluations() {
+async function exportPdfEvaluations() {
+    await loadLib('pdfMake');
     if (currentEvaluationView.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
     
     const body = [
@@ -3322,7 +3347,8 @@ function exportPdfEvaluations() {
     pdfMake.createPdf(docDefinition).download(`Tong_Hop_Danh_Gia_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfManagers() {
+async function exportPdfManagers() {
+    await loadLib('pdfMake');
     if (globalUsersData.length === 0) return toastr.warning("Không có dữ liệu tài khoản!");
     
     const body = [
@@ -3358,7 +3384,8 @@ function exportPdfManagers() {
     pdfMake.createPdf(docDefinition).download(`Danh_Sach_Tai_Khoan_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfGroups() {
+async function exportPdfGroups() {
+    await loadLib('pdfMake');
     if (globalGroupsData.length === 0) return toastr.warning("Không có dữ liệu nhóm!");
     
     const body = [
@@ -3386,7 +3413,8 @@ function exportPdfGroups() {
     pdfMake.createPdf(docDefinition).download(`Danh_Sach_Nhom_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfNotifications() {
+async function exportPdfNotifications() {
+    await loadLib('pdfMake');
     if (globalNotisData.length === 0) return toastr.warning("Không có dữ liệu thông báo!");
     
     const body = [
@@ -3425,7 +3453,8 @@ function exportPdfNotifications() {
     pdfMake.createPdf(docDefinition).download(`Danh_Sach_Thong_Bao_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfFeedbacks() {
+async function exportPdfFeedbacks() {
+    await loadLib('pdfMake');
     if (globalFeedbacksData.length === 0) return toastr.warning("Không có dữ liệu phản ánh!");
     
     const body = [
@@ -3459,7 +3488,8 @@ function exportPdfFeedbacks() {
     pdfMake.createPdf(docDefinition).download(`Danh_Sach_Phan_Anh_${new Date().getTime()}.pdf`);
 }
 
-function exportPdfLogs() {
+async function exportPdfLogs() {
+    await loadLib('pdfMake');
     if (globalLogsData.length === 0) return toastr.warning("Không có dữ liệu logs!");
     
     const body = [
@@ -3492,6 +3522,7 @@ function exportPdfLogs() {
 }
 
 async function backupSystem() {
+    await loadLib('XLSX');
     const captchaInput = $('#captcha_input_backup').val().trim();
     const captchaCode = $('#captcha_code_backup').text().trim();
     if (captchaInput.toUpperCase() !== captchaCode) {
@@ -3536,7 +3567,8 @@ async function backupSystem() {
     }
 }
 
-function downloadTemplateAdmin() {
+async function downloadTemplateAdmin() {
+    await loadLib('XLSX');
     const data = [
         { "Họ và Tên": "Nguyễn Văn A", "Giới tính": "Nam", "Ngày sinh": "20/10/2010", "Nhóm": "1", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" },
         { "Họ và Tên": "Trần Thị B", "Giới tính": "Nữ", "Ngày sinh": "01/01/2011", "Nhóm": "2", "Trường học": "THCS B", "SĐT": "0909654321", "Địa chỉ": "456 Đường XYZ" }
@@ -3663,7 +3695,8 @@ async function loadUploadedFiles() {
     } catch (e) { console.error(e); }
 }
 
-function processImportAdminTab() {
+async function processImportAdminTab() {
+    await loadLib('XLSX');
     const file = document.getElementById('file_import').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
     
@@ -3730,7 +3763,8 @@ function openImportModal(context) {
     $('#file_import').val('');
 }
 
-function processRestore() {
+async function processRestore() {
+    await loadLib('XLSX');
     const captchaInput = $('#captcha_input_restore').val().trim();
     const captchaCode = $('#captcha_code_restore').text().trim();
     if (captchaInput.toUpperCase() !== captchaCode) {
@@ -3858,6 +3892,7 @@ async function viewPollResults(pollId) {
 }
 
 async function exportPollPdf(pollId, title) {
+    await loadLib('pdfMake');
     Swal.fire({ title: 'Đang xuất PDF...', didOpen: () => Swal.showLoading() });
     try {
         const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_POLL_VOTES", payload: { poll_id: pollId } }) });
@@ -4035,10 +4070,10 @@ async function runSpeedTest() {
         
         result.innerHTML = `<i class="fas fa-upload fa-spin mr-2"></i>Đang tải lên...`;
         const ulStart = Date.now();
-        const dummyData = new Array(500 * 1024).fill('a').join('');
+        const dummyData = new Blob([new Uint8Array(500 * 1024)]); // Tối ưu RAM
         await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: dummyData });
         const ulEnd = Date.now();
-        const ulSpeed = ((dummyData.length * 8) / ((ulEnd - ulStart) / 1000) / (1024 * 1024)).toFixed(2);
+        const ulSpeed = ((dummyData.size * 8) / ((ulEnd - ulStart) / 1000) / (1024 * 1024)).toFixed(2);
         
         progress.classList.add('d-none');
         result.innerHTML = `
@@ -4052,6 +4087,31 @@ async function runSpeedTest() {
     }
     btn.disabled = false;
 }
+
+function initFpsMonitor() {
+    let lastTime = performance.now();
+    let frames = 0;
+    let lowFpsCount = 0;
+    const fpsLoop = () => {
+        const now = performance.now();
+        frames++;
+        if (now - lastTime >= 1000) {
+            const fps = frames;
+            if (fps < 30) {
+                lowFpsCount++;
+                if (lowFpsCount >= 3) {
+                    $('.weather-overlay, .firefly, .star').remove();
+                    $('body').removeClass('jack-mode theme-matrix theme-neon');
+                    return;
+                }
+            } else { lowFpsCount = 0; }
+            frames = 0; lastTime = now;
+        }
+        requestAnimationFrame(fpsLoop);
+    };
+    requestAnimationFrame(fpsLoop);
+}
+window.addEventListener('load', initFpsMonitor);
 </script>
 </body>
 </html>

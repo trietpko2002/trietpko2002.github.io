@@ -452,11 +452,37 @@
         
         if (effect === 'jack97') {
             $('body').addClass('jack-mode');
-            const count = (window.innerWidth < 768) ? 8 : 20;
+            const count = (window.innerWidth < 768) ? 5 : 15; // Tối ưu RAM
             for(let i=0; i<count; i++) { const f = document.createElement('div'); f.className = 'firefly'; f.style.top = Math.random() * 100 + 'vh'; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's'; f.style.animationDelay = Math.random() * 5 + 's'; document.body.appendChild(f); }
             if(audio) audio.play().catch(e => console.log("Autoplay blocked", e));
         }
     }
+
+    function initFpsMonitor() {
+        let lastTime = performance.now();
+        let frames = 0;
+        let lowFpsCount = 0;
+        const fpsLoop = () => {
+            const now = performance.now();
+            frames++;
+            if (now - lastTime >= 1000) {
+                const fps = frames;
+                if (fps < 30) {
+                    lowFpsCount++;
+                    if (lowFpsCount >= 3) {
+                        $('.weather-overlay, .firefly, .star').remove();
+                        $('body').removeClass('jack-mode');
+                        const audio = document.getElementById('jackAudio'); if(audio) audio.pause();
+                        return;
+                    }
+                } else { lowFpsCount = 0; }
+                frames = 0; lastTime = now;
+            }
+            requestAnimationFrame(fpsLoop);
+        };
+        requestAnimationFrame(fpsLoop);
+    }
+    window.addEventListener('load', initFpsMonitor);
 </script>
 </body>
 </html>

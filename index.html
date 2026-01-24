@@ -18,11 +18,7 @@
     <link rel="manifest" href="manifest.json">
 
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
 
     <style>
         /* New styles for menu boxes */
@@ -1321,6 +1317,29 @@ let globalDriveLink = "";
 let globalResources = [];
 let autoLogoutTimer;
 
+// --- LAZY LOAD LIBRARIES ---
+const LIBS = {
+    XLSX: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    confetti: 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js',
+    pdfMake: ['https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js']
+};
+const _loadedScripts = {};
+function loadScript(url) {
+    if (_loadedScripts[url]) return _loadedScripts[url];
+    return _loadedScripts[url] = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+async function loadLib(name) {
+    if (name === 'pdfMake' && !window.pdfMake) { await loadScript(LIBS.pdfMake[0]); await loadScript(LIBS.pdfMake[1]); return; }
+    if (name === 'XLSX' && !window.XLSX) await loadScript(LIBS.XLSX);
+    if (name === 'confetti' && !window.confetti) await loadScript(LIBS.confetti);
+}
+
 function generateCaptcha(elementId) {
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let result = '';
@@ -1625,7 +1644,7 @@ function applyUserSettings(settings) {
     if (effect === 'jack97') {
         $('body').addClass('jack-mode');
         // Fireflies - Optimize for mobile
-        const count = (window.innerWidth < 768) ? 8 : 20;
+        const count = (window.innerWidth < 768) ? 5 : 15; // Tối ưu số lượng đom đóm
         for(let i=0; i<count; i++) {
             const f = document.createElement('div');
             f.className = 'firefly';
@@ -2482,7 +2501,8 @@ async function submitAttendance() {
 }
 
 // XUẤT EXCEL (Dữ liệu đã được định dạng dd/mm/yyyy trong bảng HTML)
-function exportExcel() {
+async function exportExcel() {
+    await loadLib('XLSX');
     const user = JSON.parse(sessionStorage.getItem('user'));
     const groupName = user.group_name || user.group_id;
     const table = document.getElementById("excelTable");
@@ -3050,7 +3070,8 @@ function exportFundHistoryExcel() {
     XLSX.writeFile(wb, `So_Quy_Nhom_${user.group_id}.xlsx`);
 }
 
-function exportFundHistoryPdf() {
+async function exportFundHistoryPdf() {
+    await loadLib('pdfMake');
     if (globalFundLogs.length === 0) return toastr.warning("Chưa có lịch sử để xuất!");
     const user = JSON.parse(sessionStorage.getItem('user'));
     const groupName = user.group_name || user.group_id;
@@ -3129,7 +3150,8 @@ function exportFundHistoryPdf() {
     pdfMake.createPdf(docDefinition).download(`Bao_Cao_Quy_${groupName}.pdf`);
 }
 
-function downloadTemplateIndex() {
+async function downloadTemplateIndex() {
+    await loadLib('XLSX');
     const user = JSON.parse(sessionStorage.getItem('user'));
     const data = [{ "Họ và Tên": "Nguyễn Văn A", "Giới tính": "Nam", "Ngày sinh": "20/10/2010", "Trường học": "THCS A", "SĐT": "0909123456", "Địa chỉ": "123 Đường ABC" }];
     const ws = XLSX.utils.json_to_sheet(data);
@@ -3248,7 +3270,8 @@ async function submitDriveLink() {
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
 }
 
-function processImportManagerTab() {
+async function processImportManagerTab() {
+    await loadLib('XLSX');
     const user = JSON.parse(sessionStorage.getItem('user'));
     // Check Lock
     const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
@@ -3362,7 +3385,8 @@ function openImportAttendanceModal() {
     $('#modalImportAttendance').modal('show');
 }
 
-function downloadAttendanceTemplate() {
+async function downloadAttendanceTemplate() {
+    await loadLib('XLSX');
     if (globalGroupStudents.length === 0) return toastr.warning("Chưa có học sinh để tạo mẫu!");
     const data = globalGroupStudents.map(s => ({
         "ID": s.id,
@@ -3376,7 +3400,8 @@ function downloadAttendanceTemplate() {
     XLSX.writeFile(wb, `Mau_Diem_Danh_${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`);
 }
 
-function processAttendanceImport() {
+async function processAttendanceImport() {
+    await loadLib('XLSX');
     const file = document.getElementById('file_att_import').files[0];
     if (!file) return toastr.warning("Vui lòng chọn file!");
 
@@ -3539,7 +3564,8 @@ async function regeneratePass(id) {
 
 // Easter Egg Logic
 var fireworksInterval;
-function startEasterEgg() {
+async function startEasterEgg() {
+    await loadLib('confetti');
     $('#modalCredits').modal('show');
     const audio = document.getElementById('eggAudio');
     if(audio) audio.play().catch(e => console.log("Audio play failed", e));
@@ -3629,10 +3655,10 @@ async function runSpeedTest() {
         
         result.innerHTML = `<i class="fas fa-upload fa-spin mr-2"></i>Đang tải lên...`;
         const ulStart = Date.now();
-        const dummyData = new Array(500 * 1024).fill('a').join('');
+        const dummyData = new Blob([new Uint8Array(500 * 1024)]); // Tối ưu RAM
         await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: dummyData });
         const ulEnd = Date.now();
-        const ulSpeed = ((dummyData.length * 8) / ((ulEnd - ulStart) / 1000) / (1024 * 1024)).toFixed(2);
+        const ulSpeed = ((dummyData.size * 8) / ((ulEnd - ulStart) / 1000) / (1024 * 1024)).toFixed(2);
         
         progress.classList.add('d-none');
         result.innerHTML = `
@@ -3646,6 +3672,33 @@ async function runSpeedTest() {
     }
     btn.disabled = false;
 }
+
+function initFpsMonitor() {
+    let lastTime = performance.now();
+    let frames = 0;
+    let lowFpsCount = 0;
+    const fpsLoop = () => {
+        const now = performance.now();
+        frames++;
+        if (now - lastTime >= 1000) {
+            const fps = frames;
+            if (fps < 30) {
+                lowFpsCount++;
+                if (lowFpsCount >= 3) {
+                    $('.weather-overlay, .firefly, .star, .rain-drop, .snowflake').remove();
+                    $('body').removeClass('jack-mode theme-matrix theme-neon');
+                    if(window.matrixInterval) clearInterval(window.matrixInterval);
+                    const audio = document.getElementById('jackAudio'); if(audio) audio.pause();
+                    return;
+                }
+            } else { lowFpsCount = 0; }
+            frames = 0; lastTime = now;
+        }
+        requestAnimationFrame(fpsLoop);
+    };
+    requestAnimationFrame(fpsLoop);
+}
+window.addEventListener('load', initFpsMonitor);
 </script>
 
 

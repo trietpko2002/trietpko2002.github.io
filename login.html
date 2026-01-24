@@ -561,6 +561,7 @@
         background: rgba(255, 255, 255, 0.4);
         top: -20px;
         animation: rainFall 0.7s linear infinite;
+        will-change: transform;
     }
     @keyframes rainFall {
         to { transform: translateY(100vh); }
@@ -586,6 +587,7 @@
         background: linear-gradient(-45deg, #fff, rgba(0, 0, 255, 0));
         filter: drop-shadow(0 0 6px #fff);
         animation: tail 3000ms ease-in-out infinite, shooting 3000ms ease-in-out infinite;
+        will-change: transform;
     }
     @keyframes tail { 0% { width: 0; } 30% { width: 100px; } 100% { width: 0; } }
     @keyframes shooting {
@@ -706,7 +708,7 @@
 <button id="toggleRainBtn" class="toggle-rain-btn" onclick="$('#modalThemeSelection').modal('show')" title="Đổi giao diện">
     <i class="fas fa-cloud-rain"></i>
 </button>
-<button id="resetSetupBtn" class="toggle-rain-btn" style="bottom: 140px; background: rgba(255, 193, 7, 0.3);" onclick="resetPwaSetup()" title="Thiết lập lại từ đầu">
+<button id="resetSetupBtn" class="toggle-rain-btn" style="bottom: 140px; background: rgba(255, 193, 7, 0.3); display: none;" onclick="resetPwaSetup()" title="Thiết lập lại từ đầu">
     <i class="fas fa-redo-alt"></i>
 </button>
 
@@ -1570,7 +1572,7 @@
 
     function createRain() {
         const rainContainer = document.getElementById('rain');
-        const count = isMobile() ? 20 : 80;
+        const count = isMobile() ? 15 : 60; // Giảm số lượng hạt mưa
         for (let i = 0; i < count; i++) {
             const drop = document.createElement('div');
             drop.classList.add('rain-drop');
@@ -1584,7 +1586,7 @@
     function createStars() {
         const container = document.getElementById('stars');
         container.innerHTML = '';
-        const shootingCount = isMobile() ? 10 : 50;
+        const shootingCount = isMobile() ? 5 : 30; // Giảm sao băng
         for (let i = 0; i < shootingCount; i++) { // Increased for meteor shower effect
             const star = document.createElement('div');
             star.className = 'star';
@@ -1597,7 +1599,7 @@
             container.appendChild(star);
         }
         // Add static stars for Galaxy feel
-        const staticCount = isMobile() ? 30 : 100;
+        const staticCount = isMobile() ? 20 : 80;
         for (let i = 0; i < staticCount; i++) {
             const s = document.createElement('div'); s.className = 'static-star';
             s.style.top = Math.random() * 100 + 'vh'; s.style.left = Math.random() * 100 + 'vw';
@@ -1609,7 +1611,7 @@
     function createSnow() {
         const container = document.getElementById('snow');
         container.innerHTML = '';
-        const count = isMobile() ? 15 : 50;
+        const count = isMobile() ? 10 : 40; // Giảm tuyết
         for (let i = 0; i < count; i++) {
             const flake = document.createElement('div');
             flake.className = 'snowflake';
@@ -1663,7 +1665,7 @@
         }
         
         if (canvas.dataset.intervalId) clearInterval(parseInt(canvas.dataset.intervalId));
-        const intervalTime = isMobile() ? 70 : 33;
+        const intervalTime = isMobile() ? 100 : 50; // Giảm FPS Matrix
         const intervalId = setInterval(draw, intervalTime);
         canvas.dataset.intervalId = intervalId;
 
@@ -1818,7 +1820,7 @@
     function createFlowers() {
         const c = document.getElementById('flowers');
         const icons = ['🌸', '🏵️', '🧧'];
-        const count = isMobile() ? 10 : 30;
+        const count = isMobile() ? 8 : 25;
         for(let i=0; i<count; i++) {
             const f = document.createElement('div'); f.className = 'flower';
             f.innerHTML = icons[Math.floor(Math.random()*icons.length)];
@@ -1841,7 +1843,7 @@
         c.innerHTML = '';
         uiaMemes = [];
         
-        const count = isMobile() ? 5 : 15;
+        const count = isMobile() ? 3 : 12;
         for(let i=0; i<count; i++) {
             const m = document.createElement('img'); 
             m.className = 'uia-img'; 
@@ -1949,7 +1951,7 @@
     }
     function createFireflies() {
         const c = document.getElementById('jack97-container');
-        const count = isMobile() ? 10 : 30;
+        const count = isMobile() ? 8 : 25;
         for(let i=0; i<count; i++) {
             const f = document.createElement('div'); f.className = 'firefly';
             f.style.top = Math.random() * 100 + 'vh';
@@ -2034,7 +2036,7 @@
     function createHalloween() {
         const c = document.getElementById('halloween-container');
         const pumpkins = ['🎃', '👻', '💀'];
-        const pCount = isMobile() ? 4 : 10;
+        const pCount = isMobile() ? 3 : 8;
         for(let i=0; i<pCount; i++) {
             const p = document.createElement('div'); p.className = 'pumpkin';
             p.innerText = pumpkins[Math.floor(Math.random()*pumpkins.length)];
@@ -2042,7 +2044,7 @@
             p.style.animationDelay = Math.random()*2 + 's';
             c.appendChild(p);
         }
-        const bCount = isMobile() ? 2 : 5;
+        const bCount = isMobile() ? 2 : 4;
         for(let i=0; i<bCount; i++) {
             const b = document.createElement('div'); b.className = 'bat';
             b.innerText = '🦇';
@@ -2229,6 +2231,11 @@
         // const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         const isSetupDone = localStorage.getItem('pwa_setup_done');
         
+        // Chỉ hiện nút Reset nếu là PWA (Standalone)
+        if (isInStandaloneMode()) {
+            $('#resetSetupBtn').show();
+        }
+
         // Hiện wizard nếu chưa setup (bất kể là web hay app để đảm bảo trải nghiệm)
         if (!isSetupDone) {
             document.getElementById('pwa-wizard').style.display = 'flex';
@@ -2276,7 +2283,11 @@
             const isCellular = connection && (connection.type === 'cellular' || connection.effectiveType === '4g' || connection.effectiveType === '3g');
             
             // Fetch Public IP & ISP Info
-            const ipRes = await fetch('https://ipapi.co/json/');
+            // Thêm timeout 3s để tránh bị treo nếu API lỗi
+            const ipRes = await Promise.race([
+                fetch('https://ipapi.co/json/'),
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000))
+            ]);
             const ipData = await ipRes.json();
             
             const ispName = ipData.org || ipData.isp || "Không xác định";
@@ -2317,7 +2328,7 @@
                 return;
             }
             // Fallback if API fails
-            result.innerHTML = '<i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang kết nối máy chủ Việt Nam...';
+            result.innerHTML = '<i class="fas fa-satellite-dish fa-spin mr-2"></i>Đang kết nối máy chủ...';
         }
         
         const servers = [
@@ -2361,7 +2372,7 @@
             result.innerHTML = `<i class="fas fa-upload fa-spin mr-2"></i>Đang test tải lên...`;
             const ulStart = Date.now();
             // Create 500KB dummy data
-            const dummyData = new Array(500 * 1024).fill('a').join('');
+            const dummyData = new Blob([new Uint8Array(500 * 1024)]); // Tối ưu RAM: Dùng Blob thay vì String
             await fetch(API_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
@@ -2369,7 +2380,7 @@
             });
             const ulEnd = Date.now();
             const ulDuration = (ulEnd - ulStart) / 1000;
-            const ulSize = dummyData.length * 8;
+            const ulSize = dummyData.size * 8;
             const ulSpeed = (ulSize / ulDuration / (1024 * 1024)).toFixed(2);
             
             progress.classList.add('d-none');
@@ -2520,7 +2531,32 @@
         toastr.success("Thiết lập hoàn tất! Chúc bạn sử dụng vui vẻ.");
     }
 
-    window.addEventListener('load', checkPwaFirstRun);
+    function initFpsMonitor() {
+        let lastTime = performance.now();
+        let frames = 0;
+        let lowFpsCount = 0;
+        const fpsLoop = () => {
+            const now = performance.now();
+            frames++;
+            if (now - lastTime >= 1000) {
+                const fps = frames;
+                if (fps < 30) {
+                    lowFpsCount++;
+                    if (lowFpsCount >= 3) { // 3 giây liên tiếp dưới 30fps
+                        applyEffect(-1); // Tắt hiệu ứng
+                        localStorage.setItem('bgEffect', '-1');
+                        if(typeof toastr !== 'undefined') toastr.warning('Đã tự động tắt hiệu ứng do máy yếu (FPS thấp).');
+                        return; // Dừng monitor
+                    }
+                } else { lowFpsCount = 0; }
+                frames = 0; lastTime = now;
+            }
+            requestAnimationFrame(fpsLoop);
+        };
+        requestAnimationFrame(fpsLoop);
+    }
+
+    window.addEventListener('load', () => { checkPwaFirstRun(); initFpsMonitor(); });
 </script>
 </body>
 </html>

@@ -10,9 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="manifest" href="manifest.json">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         .small-box { border-radius: 20px; overflow: hidden; transition: transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .small-box:hover { transform: translateY(-5px); }
@@ -721,6 +718,27 @@ let globalStudentsData = [], globalGroupsData = [], globalNotisData = [], global
 let currentStudentView = [], currentHistoryView = [], currentEvaluationView = [];
 let chartAttRatio, chartAttTrend, chartEval, chartStGroup, chartStTrend;
 
+// --- LAZY LOAD LIBRARIES ---
+const LIBS = {
+    Chart: 'https://cdn.jsdelivr.net/npm/chart.js',
+    XLSX: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js'
+};
+const _loadedScripts = {};
+function loadScript(url) {
+    if (_loadedScripts[url]) return _loadedScripts[url];
+    return _loadedScripts[url] = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+async function loadLib(name) {
+    if (name === 'Chart' && !window.Chart) await loadScript(LIBS.Chart);
+    if (name === 'XLSX' && !window.XLSX) await loadScript(LIBS.XLSX);
+}
+
 $(document).ready(function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     if(user) $('#adminNameDisplay').text(user.fullname);
@@ -1171,7 +1189,8 @@ function toggleDarkMode() {
     else { $('body').removeClass('dark-mode'); localStorage.setItem('darkMode', 'false'); }
 }
 
-function exportExcelStudents() {
+async function exportExcelStudents() {
+    await loadLib('XLSX');
     if (globalStudentsData.length === 0) return toastr.warning("Không có dữ liệu!");
     const data = globalStudentsData.map(st => ({ "Họ Tên": st.fullname, "Giới tính": st.gender, "Ngày Sinh": st.dob, "Lớp": st.class_name, "Nhóm": st.group_display, "Trường": st.school, "SĐT": st.phone, "Địa chỉ": st.address }));
     const ws = XLSX.utils.json_to_sheet(data);
@@ -1180,7 +1199,8 @@ function exportExcelStudents() {
     XLSX.writeFile(wb, `Danh_Sach_Hoc_Sinh.xlsx`);
 }
 
-function exportExcelHistory() {
+async function exportExcelHistory() {
+    await loadLib('XLSX');
     if (globalHistoryData.length === 0) return toastr.warning("Không có dữ liệu!");
     const data = globalHistoryData.map(item => ({ "Thời Gian": item.timestamp, "Học Sinh": item.student_name, "Nhóm": item.group_id, "Trạng Thái": item.status, "Người Thực Hiện": item.recorded_by }));
     const ws = XLSX.utils.json_to_sheet(data);

@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .small-box { border-radius: 12px; overflow: hidden; transition: transform 0.3s; }
         .small-box:hover { transform: translateY(-5px); }
@@ -255,6 +254,21 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
     let chartAtt, chartEval, chartAge;
 
+    // --- LAZY LOAD LIBRARIES ---
+    const LIBS = { Chart: 'https://cdn.jsdelivr.net/npm/chart.js' };
+    const _loadedScripts = {};
+    function loadScript(url) {
+        if (_loadedScripts[url]) return _loadedScripts[url];
+        return _loadedScripts[url] = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+    async function loadLib(name) { if (name === 'Chart' && !window.Chart) await loadScript(LIBS.Chart); }
+
     $(document).ready(function() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         $('#userName').text(user.fullname);
@@ -305,7 +319,8 @@
         } catch (e) { console.error(e); }
     }
 
-    function renderCharts(data) {
+    async function renderCharts(data) {
+        await loadLib('Chart');
         // Attendance Chart
         const ctxAtt = document.getElementById('chartAttendance').getContext('2d');
         if (chartAtt) chartAtt.destroy();
@@ -331,7 +346,8 @@
         });
     }
 
-    function renderAgeChart(students) {
+    async function renderAgeChart(students) {
+        await loadLib('Chart');
         const ageCounts = {};
         const currentYear = new Date().getFullYear();
         students.forEach(st => {
