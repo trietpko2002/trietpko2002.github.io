@@ -2283,11 +2283,12 @@
             const isCellular = connection && (connection.type === 'cellular' || connection.effectiveType === '4g' || connection.effectiveType === '3g');
             
             // Fetch Public IP & ISP Info
-            // Thêm timeout 3s để tránh bị treo nếu API lỗi
-            const ipRes = await Promise.race([
-                fetch('https://ipapi.co/json/'),
-                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000))
-            ]);
+            // Sử dụng AbortController để ngắt kết nối nếu quá lâu (1.5s)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+            const ipRes = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+            clearTimeout(timeoutId);
             const ipData = await ipRes.json();
             
             const ispName = ipData.org || ipData.isp || "Không xác định";
