@@ -46,7 +46,7 @@
 <body class="hold-transition sidebar-mini layout-fixed
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        if (!user) { window.location.replace('login.html'); }
+        if (!user || user.role.toLowerCase() !== 'supervisor') { window.location.replace('admin_login.html'); }
     })();
 </script>
 <div class="wrapper">

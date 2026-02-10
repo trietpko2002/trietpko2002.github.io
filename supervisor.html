@@ -99,7 +99,7 @@
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         if (!user || user.role.toLowerCase() !== 'supervisor') {
-            window.location.replace('login.html');
+            window.location.replace('admin_login.html');
         }
     })();
     function logout() { 

@@ -462,6 +462,9 @@
         <strong>Bản quyền và coding bởi Triết Võ.</strong><br>
         <small>Sản phẩm có sự hỗ trợ từ AI Gemini.</small>
     </div>
+    <div class="text-center mt-2">
+        <a href="admin_login.html" class="text-white-50 small">Đăng nhập với tư cách Quản trị viên</a>
+    </div>
   </div>
 </div>
 
@@ -789,8 +792,25 @@
             const res = await response.json();
 
             if (res.status === "success") {
-                updateStatus("Đăng nhập thành công! Đang vào...");
-                handleLoginSuccess(res.user);
+                if (res.user.role === 'admin' || res.user.role === 'supervisor') {
+                    toastr.error("Tài khoản quản trị viên không thể đăng nhập tại đây.");
+                    Swal.fire({
+                        title: 'Lỗi Đăng nhập',
+                        text: 'Đây là khu vực dành cho học sinh và quản lý nhóm. Vui lòng sử dụng trang đăng nhập dành cho Quản trị viên.',
+                        icon: 'error',
+                        confirmButtonText: 'Đến trang Admin Login',
+                        showCancelButton: true,
+                        cancelButtonText: 'Ở lại'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'admin_login.html';
+                        }
+                    });
+                    resetLoginForm();
+                } else {
+                    updateStatus("Đăng nhập thành công! Đang vào...");
+                    handleLoginSuccess(res.user);
+                }
             } else {
                 toastr.error(res.message);
                 resetLoginForm();
@@ -820,9 +840,7 @@
         toastr.success("Đăng nhập thành công!");
         document.body.style.opacity = '0'; // Fade out effect
         setTimeout(() => {
-            if (user.role === 'admin') window.location.replace('admin.html');
-            else if (user.role === 'supervisor') window.location.replace('supervisor.html');
-            else window.location.replace('index.html');
+            window.location.replace('index.html');
         }, 500);
     }
 
