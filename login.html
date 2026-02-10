@@ -21,9 +21,7 @@
   <style>
     /* Youth Union Theme */
     body {
-        background: linear-gradient(-45deg, #0052D4, #4364F7, #6FB1FC);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
+        background: linear-gradient(135deg, #1e88e5, #1565c0);
         height: 100vh;
         display: flex;
         align-items: center;
@@ -31,285 +29,6 @@
         font-family: 'Source Sans Pro', sans-serif;
         overflow: hidden;
         transition: opacity 0.5s ease-out; /* Hiệu ứng chuyển trang */
-    }
-
-    /* Galaxy Theme */
-    body.theme-galaxy {
-        background: #000 url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2011&auto=format&fit=crop') no-repeat center center fixed;
-        background-size: cover;
-        overflow: hidden;
-    }
-
-    /* Sunny Theme */
-    body.theme-sunny {
-        background: linear-gradient(to top, #2980b9, #6dd5fa, #ffffff);
-    }
-    .sun {
-        position: absolute;
-        top: -60px;
-        right: -60px;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, #ffd200 20%, #f7971e 100%);
-        border-radius: 50%;
-        box-shadow: 0 0 40px #ff9800, 0 0 80px #ff5722;
-        animation: sunShine 4s infinite alternate;
-        z-index: 1;
-        display: none;
-    }
-    @keyframes sunShine { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
-
-    /* Snow Theme */
-    body.theme-snow {
-        background: linear-gradient(to bottom, #203a43, #2c5364);
-    }
-    .snow-container {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none;
-    }
-    .snowflake {
-        position: absolute; top: -20px; color: #fff; font-size: 1.5em; opacity: 0.8; animation: fall linear infinite;
-    }
-    @keyframes fall { to { transform: translateY(105vh); } }
-
-    /* Matrix Theme */
-    body.theme-matrix {
-        background: #000;
-        animation: none;
-    }
-    #matrix-container {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: none;
-    }
-    #matrix-canvas { display: block; }
-    body.theme-matrix .card-glass {
-        background: rgba(0, 20, 0, 0.7);
-        border: 2px solid #0f0;
-        box-shadow: 0 0 20px #0f0, inset 0 0 10px rgba(0, 255, 0, 0.5);
-        animation: none; /* Override neon animation */
-    }
-    body.theme-matrix .form-control,
-    body.theme-matrix .input-group-text {
-        background: rgba(0, 255, 0, 0.1) !important;
-        border-color: rgba(0, 255, 0, 0.4) !important;
-        color: #0f0 !important;
-    }
-    body.theme-matrix .form-control::placeholder { color: rgba(0, 255, 0, 0.5); }
-    body.theme-matrix .btn-primary { background-color: #0f0; color: #000; }
-    body.theme-matrix .btn-primary:hover { background-color: #fff; box-shadow: 0 0 15px #0f0; }
-    body.theme-matrix .action-links a { color: #0f0; }
-
-    /* Neon Theme */
-    body.theme-neon {
-        background: #000;
-        animation: none;
-    }
-    body.theme-neon .card-glass {
-        background-color: rgba(0, 0, 0, 0.85);
-        border: 3px solid transparent;
-        border-radius: 20px;
-        background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-        background-origin: border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: 0 0 30px rgba(255, 0, 200, 0.6);
-        animation: neonRotate 2s linear infinite;
-    }
-    @keyframes neonRotate {
-        0% { filter: hue-rotate(0deg); }
-        100% { filter: hue-rotate(360deg); }
-    }
-    
-    /* Tet Nguyen Dan Theme */
-    body.theme-tet { background: linear-gradient(to bottom, #ff0000, #ffcc00); }
-    .flower-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; display: none; }
-    .flower { position: absolute; top: -10%; color: #ffeb3b; font-size: 20px; animation: fall-flower linear infinite; }
-    @keyframes fall-flower { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-
-    /* Mid-Autumn (Trung Thu) */
-    body.theme-midautumn { background: radial-gradient(circle at 50% 20%, #1a2a6c, #b21f1f, #fdbb2d); }
-    .moon { position: absolute; top: 50px; right: 50px; width: 100px; height: 100px; background: #ffeb3b; border-radius: 50%; box-shadow: 0 0 50px #ffeb3b; z-index: 1; }
-    .lantern { position: absolute; font-size: 40px; color: #ff5722; animation: float-lantern 5s ease-in-out infinite alternate; }
-    @keyframes float-lantern { from { transform: translateY(0); } to { transform: translateY(-20px); } }
-
-    /* Noel Theme */
-    body.theme-noel { background: linear-gradient(to bottom, #165b33, #bb2528); }
-    /* Re-use snow container */
-
-    /* UIA Meme Theme */
-    body.theme-uia { 
-        background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff0000); 
-        background-size: 400% 400%; 
-        animation: uia-party 0.5s infinite; 
-    }
-    @keyframes uia-party { 
-        0% { background-position: 0% 50%; filter: hue-rotate(0deg); } 
-        50% { background-position: 100% 50%; } 
-        100% { background-position: 0% 50%; filter: hue-rotate(360deg); } 
-    }
-    .uia-img { position: absolute; width: 150px; animation: uia-spin 2s linear infinite; z-index: 2; }
-    @keyframes uia-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    /* Summer Theme */
-    body.theme-summer { background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%); }
-    .summer-sun { position: absolute; top: 10%; right: 10%; width: 100px; height: 100px; background: #ffeb3b; border-radius: 50%; box-shadow: 0 0 50px #f39c12; animation: sun-pulse 2s infinite alternate; }
-    @keyframes sun-pulse { from { transform: scale(1); box-shadow: 0 0 50px #f39c12; } to { transform: scale(1.1); box-shadow: 0 0 80px #f39c12; } }
-    .cloud { position: absolute; color: rgba(255,255,255,0.8); font-size: 50px; animation: cloud-move linear infinite; }
-    @keyframes cloud-move { from { left: -100px; } to { left: 100vw; } }
-
-    /* Retro 80s Theme */
-    body.theme-retro80s {
-        background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff0000);
-        background-size: 400% 400%;
-        animation: retro-bg 8s ease infinite;
-    }
-    @keyframes retro-bg {
-        0% { background-position: 0% 50%; filter: hue-rotate(0deg); }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; filter: hue-rotate(360deg); }
-    }
-    body.theme-retro80s .card-glass {
-        background: rgba(0, 0, 0, 0.7);
-        border: 3px solid transparent;
-        border-radius: 20px;
-        background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-        background-origin: border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-        animation: neonRotate 2s linear infinite;
-    }
-
-    /* Cat Paw Click Effect */
-    .cat-paw-click {
-        position: absolute;
-        width: 40px;
-        height: 40px;
-        background-image: url('https://static.vecteezy.com/system/resources/previews/027/209/347/non_2x/cute-cat-paw-all-white-free-png.png');
-        background-size: cover;
-        pointer-events: none;
-        z-index: 9999;
-        animation: paw-fade 0.8s ease-out forwards;
-    }
-    @keyframes paw-fade { 0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.2) rotate(20deg); opacity: 0; } }
-
-    /* Halloween Theme */
-    body.theme-halloween { background: linear-gradient(to bottom, #2e003e 0%, #000000 100%); overflow: hidden; }
-    .pumpkin { position: absolute; font-size: 3rem; animation: pumpkin-bounce 3s ease-in-out infinite; bottom: -10px; z-index: 5; filter: drop-shadow(0 0 10px #ff6600); }
-    @keyframes pumpkin-bounce { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
-    .bat { position: absolute; font-size: 2rem; animation: bat-fly 15s linear infinite; z-index: 6; color: #000; text-shadow: 0 0 5px #fff; }
-    @keyframes bat-fly { 
-        0% { transform: translateX(-10vw) translateY(10vh) scale(0.5); } 
-        50% { transform: translateX(50vw) translateY(40vh) scale(1); }
-        100% { transform: translateX(110vw) translateY(10vh) scale(0.5); } 
-    }
-
-    /* Cyberpunk Theme */
-    body.theme-cyberpunk {
-        background: radial-gradient(circle at center, #1a0b2e 0%, #000000 100%);
-        overflow: hidden;
-    }
-    body.theme-cyberpunk::before {
-        content: "";
-        position: absolute;
-        width: 200%; height: 200%;
-        top: -50%; left: -50%;
-        background: repeating-linear-gradient(transparent 0, transparent 40px, rgba(255, 0, 255, 0.3) 40px, rgba(255, 0, 255, 0.3) 41px),
-                    repeating-linear-gradient(90deg, transparent 0, transparent 40px, rgba(0, 255, 255, 0.3) 40px, rgba(0, 255, 255, 0.3) 41px);
-        transform: perspective(500px) rotateX(60deg);
-        animation: cyber-grid 5s linear infinite;
-        z-index: 0;
-        pointer-events: none;
-    }
-    @keyframes cyber-grid { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(41px); } }
-    body.theme-cyberpunk .card-glass { background: rgba(10, 10, 20, 0.85); border: 1px solid #00ffff; box-shadow: 0 0 15px #ff00ff, inset 0 0 10px #00ffff; z-index: 1; }
-    body.theme-cyberpunk .btn-primary { background: transparent; border: 2px solid #ff00ff; color: #ff00ff; text-shadow: 0 0 5px #ff00ff; box-shadow: 0 0 10px #ff00ff; }
-    body.theme-cyberpunk .btn-primary:hover { background: #ff00ff; color: #000; box-shadow: 0 0 20px #ff00ff; }
-
-    /* Custom Theme */
-    #custom-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; }
-    #custom-bg-container img, #custom-bg-container video { width: 100%; height: 100%; object-fit: cover; }
-    .static-star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
-
-    /* Jack J97 Theme */
-    body.theme-jack97 {
-        background: #000 url('https://wallpaperaccess.com/full/6286375.jpg') no-repeat center center fixed;
-        background-size: cover;
-    }
-    .firefly {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        background-color: #ffff00;
-        border-radius: 50%;
-        box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
-        animation: fly 10s infinite alternate;
-        pointer-events: none;
-        z-index: 5;
-    }
-    @keyframes fly { 
-        0% { transform: translate(0, 0); opacity: 0; } 
-        10% { opacity: 1; } 
-        90% { opacity: 1; } 
-        100% { transform: translate(100vw, -50vh); opacity: 0; } 
-    }
-
-    /* Click Firework Particle */
-    .click-firework-particle {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        box-shadow: 0 0 10px currentColor;
-    }
-
-    /* Click Text Effect */
-    .click-text-effect {
-        position: absolute;
-        color: #ffd700;
-        font-weight: bold;
-        font-size: 24px;
-        pointer-events: none;
-        z-index: 9999;
-        text-shadow: 0 0 10px #ff0000;
-        white-space: nowrap;
-        transform: translate(-50%, -50%);
-    }
-
-    /* Theme Modal Grid */
-    .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .theme-btn { 
-        border: none; border-radius: 10px; padding: 15px; color: white; font-weight: bold; 
-        cursor: pointer; transition: transform 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100px;
-    }
-    .theme-btn {
-        text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-    }
-    .theme-btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-    .theme-btn i { font-size: 24px; margin-bottom: 5px; }
-    
-    /* Theme Button Colors */
-    .btn-ocean { background: linear-gradient(to right, #0052D4, #4364F7); }
-    .btn-galaxy { background: linear-gradient(to right, #1b2735, #090a0f); }
-    .btn-sunny { background: linear-gradient(to right, #2980b9, #f7971e); }
-    .btn-snow { background: linear-gradient(to right, #203a43, #2c5364); }
-    .btn-neon { background: #000; border: 2px solid #ff00de; color: #ff00de; }
-    .btn-matrix { background: #000; border: 2px solid #0f0; color: #0f0; }
-    .btn-tet { background: linear-gradient(to right, #ff0000, #ffcc00); }
-    .btn-midautumn { background: linear-gradient(to right, #1a2a6c, #b21f1f); }
-    .btn-noel { background: linear-gradient(to right, #165b33, #bb2528); }
-    .btn-uia { background: linear-gradient(45deg, #ff00ff, #00ffff); animation: uia-party 2s infinite; }
-    .btn-summer { background: linear-gradient(to right, #4facfe, #00f2fe); }
-    .btn-jack97 { background: #000; border: 2px solid #ffd700; color: #ffd700; }
-    .btn-halloween { background: linear-gradient(to right, #ff6600, #4a00e0); }
-    .btn-custom { background: #333; border: 1px dashed #fff; }
-    .btn-cyberpunk { background: linear-gradient(45deg, #2b002b, #000); border: 1px solid #00ffff; color: #00ffff; }
-    .btn-retro80s { background: linear-gradient(45deg, #ff00ff, #00ffff); color: white; }
-
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
     }
 
     .login-box {
@@ -651,22 +370,6 @@
         z-index: 10000 !important;
     }
 
-    /* PWA Welcome Wizard Styles */
-    .pwa-wizard-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); z-index: 99999;
-        display: flex; align-items: center; justify-content: center;
-        backdrop-filter: blur(15px);
-        animation: fadeIn 0.5s ease-out;
-    }
-    .pwa-wizard-content {
-        width: 90%; max-width: 400px;
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 20px; padding: 30px; color: white;
-        box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        text-align: center;
-    }
   </style>
 </head>
 <body class="hold-transition login-page">
@@ -685,103 +388,6 @@
           </div>
       </div>
   </div>
-</div>
-
-<!-- Rain Container -->
-<div id="rain" class="rain"></div>
-<div id="stars" class="star-container"></div>
-<div id="snow" class="snow-container"></div>
-<div id="sun" class="sun"></div>
-<div id="matrix-container" style="display:none;"><canvas id="matrix-canvas"></canvas></div>
-<div id="flowers" class="flower-container"></div>
-<div id="midautumn" style="display:none;"><div class="moon"></div></div>
-<div id="uia-container" style="display:none;"></div>
-<div id="summer-container" style="display:none;"></div>
-<div id="jack97-container" style="display:none;"></div>
-<div id="halloween-container" style="display:none;"></div>
-<div id="custom-bg-container"></div>
-<input type="file" id="customFileInput" hidden accept="image/*,video/*">
-
-<button id="resetEffectBtn" class="toggle-rain-btn" style="bottom: 80px; background: rgba(220, 53, 69, 0.3);" onclick="resetEffect()" title="Tắt hiệu ứng">
-    <i class="fas fa-power-off"></i>
-</button>
-<button id="toggleRainBtn" class="toggle-rain-btn" onclick="$('#modalThemeSelection').modal('show')" title="Đổi giao diện">
-    <i class="fas fa-cloud-rain"></i>
-</button>
-<button id="resetSetupBtn" class="toggle-rain-btn" style="bottom: 140px; background: rgba(255, 193, 7, 0.3); display: none;" onclick="resetPwaSetup()" title="Thiết lập lại từ đầu">
-    <i class="fas fa-redo-alt"></i>
-</button>
-
-<button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 60px; left: 20px; z-index: 9999; padding: 10px 20px;">
-    <i class="fas fa-download mr-2"></i> Cài App
-</button>
-
-<!-- PWA Welcome Wizard -->
-<div id="pwa-wizard" class="pwa-wizard-overlay" style="display: none;">
-    <div class="pwa-wizard-content">
-        <!-- Step 1: Welcome -->
-        <div class="wizard-step" id="step-1">
-            <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" style="width: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));">
-            <h3 class="font-weight-bold">Xin chào!</h3>
-            <p id="wizard-welcome-text">Chào mừng đến với Hệ thống Quản lý SHH.</p>
-            
-            <div id="mobile-app-suggestion" style="display: none;" class="alert alert-info text-left small">
-                <i class="fas fa-mobile-alt mr-2"></i><b>Phát hiện điện thoại:</b><br>
-                Để có trải nghiệm tốt nhất, bạn nên cài đặt ứng dụng ra màn hình chính. Nếu đã cài, hãy mở App để sử dụng mượt mà hơn.
-            </div>
-
-            <button class="btn btn-success btn-block rounded-pill mt-3 font-weight-bold" id="btn-install-wizard" style="display:none;" onclick="installPwa()">Cài đặt App ngay</button>
-            <button class="btn btn-primary btn-block rounded-pill mt-2 font-weight-bold" onclick="nextWizardStep(3)">Tiếp tục (Dùng Web) <i class="fas fa-arrow-right ml-2"></i></button>
-        </div>
-
-        <!-- Step 3: FPS Test -->
-        <div class="wizard-step" id="step-3" style="display: none;">
-            <i class="fas fa-gamepad fa-4x text-danger mb-3"></i>
-            <h4>Kiểm tra độ mượt</h4>
-            <p class="small text-white-50">Đánh giá khả năng xử lý đồ họa của máy.</p>
-            
-            <div id="fps-area" class="my-4 p-3 rounded" style="background: rgba(0,0,0,0.3); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <canvas id="fps-canvas" width="300" height="100" style="display: none; width: 100%; height: 100px; border-radius: 10px;"></canvas>
-                <div id="fps-result" class="font-weight-bold mt-2">Nhấn nút bên dưới để test</div>
-            </div>
-
-            <button class="btn btn-outline-light rounded-pill px-4" onclick="runFpsTest()" id="btn-fpstest"><i class="fas fa-play mr-2"></i>Bắt đầu Test</button>
-            <button class="btn btn-primary rounded-pill ml-2 px-4" onclick="nextWizardStep(4)" id="btn-step3-next" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
-            <div class="mt-3"><a href="javascript:void(0)" onclick="localStorage.setItem('fps_test_done', 'true'); nextWizardStep(4)" class="text-white-50 small" style="text-decoration: underline;">Bỏ qua bước này (Máy yếu)</a></div>
-        </div>
-
-        <!-- Step 4: Data Sync Test -->
-        <div class="wizard-step" id="step-4" style="display: none;">
-            <i class="fas fa-database fa-4x text-primary mb-3"></i>
-            <h4>Kiểm tra Dữ liệu</h4>
-            <p class="small text-white-50">Đảm bảo kết nối đến máy chủ ổn định.</p>
-            
-            <div id="data-test-area" class="my-4 p-3 rounded" style="background: rgba(0,0,0,0.3);">
-                <div id="data-result" class="font-weight-bold">Nhấn nút để kiểm tra</div>
-            </div>
-
-            <button class="btn btn-outline-light rounded-pill px-4" onclick="runDataTest()" id="btn-datatest"><i class="fas fa-sync mr-2"></i>Test Kết nối</button>
-            <button class="btn btn-primary rounded-pill ml-2 px-4" onclick="nextWizardStep(5)" id="btn-step4-next" disabled>Tiếp tục <i class="fas fa-arrow-right"></i></button>
-        </div>
-
-        <!-- Step 5: Theme -->
-        <div class="wizard-step" id="step-5" style="display: none;">
-            <i class="fas fa-palette fa-4x text-warning mb-3"></i>
-            <h4>Chọn giao diện</h4>
-            <p class="small text-white-50">Chọn phong cách bạn yêu thích.</p>
-            
-            <div class="theme-grid-mini mt-3 mb-4" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-height: 250px; overflow-y: auto;">
-                <button class="btn btn-sm btn-ocean btn-block" onclick="selectTheme(0)">Mặc định</button>
-                <button class="btn btn-sm btn-galaxy btn-block" onclick="selectTheme(1)">Galaxy</button>
-                <button class="btn btn-sm btn-sunny btn-block" onclick="selectTheme(2)">Nắng</button>
-                <button class="btn btn-sm btn-snow btn-block" onclick="selectTheme(3)">Tuyết</button>
-                <button class="btn btn-sm btn-neon btn-block" onclick="selectTheme(4)">Neon</button>
-                <button class="btn btn-sm btn-jack97 btn-block" onclick="selectTheme(16)">Jack J97</button>
-            </div>
-
-            <button class="btn btn-primary btn-block rounded-pill font-weight-bold" onclick="finishPwaSetup()">Hoàn tất <i class="fas fa-check ml-2"></i></button>
-        </div>
-    </div>
 </div>
 
 <div class="login-container" id="loginContainer">
@@ -884,43 +490,6 @@
     </div>
 </div>
 
-<!-- Modal Theme Selection -->
-<div class="modal fade" id="modalThemeSelection" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content bg-dark text-white">
-            <div class="modal-header border-0">
-                <h5 class="modal-title font-weight-bold"><i class="fas fa-palette mr-2"></i>Chọn Giao Diện</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body">
-                <div class="theme-grid">
-                    <button class="theme-btn btn-ocean" onclick="selectTheme(0)"><i class="fas fa-water"></i>Mặc định</button>
-                    <button class="theme-btn btn-galaxy" onclick="selectTheme(1)"><i class="fas fa-star"></i>Galaxy</button>
-                    <button class="theme-btn btn-sunny" onclick="selectTheme(2)"><i class="fas fa-sun"></i>Nắng</button>
-                    <button class="theme-btn btn-snow" onclick="selectTheme(3)"><i class="fas fa-snowflake"></i>Tuyết</button>
-                    <button class="theme-btn btn-neon" onclick="selectTheme(4)"><i class="fas fa-bolt"></i>Neon</button>
-                    <button class="theme-btn btn-matrix" onclick="selectTheme(5)"><i class="fas fa-terminal"></i>Hacker</button>
-                    
-                    <button class="theme-btn btn-tet" onclick="selectTheme(6)"><i class="fas fa-fan"></i>Tết Nguyên Đán</button>
-                    <button class="theme-btn btn-midautumn" onclick="selectTheme(9)"><i class="fas fa-moon"></i>Trung Thu</button>
-                    <button class="theme-btn btn-noel" onclick="selectTheme(10)"><i class="fas fa-sleigh"></i>Noel</button>
-                    
-                    <button class="theme-btn btn-uia" onclick="selectTheme(12)"><i class="fas fa-music"></i>Meme UIA</button>
-                    
-                    <button class="theme-btn btn-summer" onclick="selectTheme(13)"><i class="fas fa-umbrella-beach"></i>Mùa Hè</button>
-                    
-                    <button class="theme-btn btn-jack97" onclick="selectTheme(16)"><i class="fas fa-fire"></i>Jack J97</button>
-                    
-                    <button class="theme-btn btn-halloween" onclick="selectTheme(17)"><i class="fas fa-ghost"></i>Halloween</button>
-                    <button class="theme-btn btn-cyberpunk" onclick="selectTheme(19)"><i class="fas fa-vr-cardboard"></i>Cyberpunk</button>
-                    <button class="theme-btn btn-retro80s" onclick="selectTheme(20)"><i class="fas fa-record-vinyl"></i>Retro 80s</button>
-                    <button class="theme-btn btn-custom" onclick="triggerCustomUpload()"><i class="fas fa-upload"></i>Custom (50MB)</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Modal Login Verification -->
 <div class="modal fade" id="modalLoginVerify" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -939,38 +508,6 @@
             </div>
             <div class="modal-footer border-0 justify-content-center">
                 <button type="button" class="btn btn-success btn-block font-weight-bold rounded-pill" onclick="confirmLogin()">XÁC NHẬN & ĐĂNG NHẬP</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal iOS Install Guide -->
-<div class="modal fade" id="modalIOSInstall" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.2);">
-            <div class="modal-header border-0">
-                <h5 class="modal-title font-weight-bold"><i class="fab fa-apple mr-2"></i>Cài đặt trên iOS</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="mb-3">Safari trên iOS không hỗ trợ cài đặt tự động. Vui lòng làm theo thủ công:</p>
-                <div class="text-left d-inline-block p-3 rounded" style="background: rgba(255,255,255,0.1); width: 100%;">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge badge-light mr-2">1</span>
-                        <span>Nhấn nút <b>Chia sẻ</b> <i class="fas fa-share-square"></i> trên thanh công cụ Safari.</span>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge badge-light mr-2">2</span>
-                        <span>Kéo xuống tìm và chọn <b>"Thêm vào MH chính"</b> (Add to Home Screen).</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge badge-light mr-2">3</span>
-                        <span>Nhấn <b>"Thêm"</b> (Add) ở góc trên cùng bên phải.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 justify-content-center">
-                <button type="button" class="btn btn-primary rounded-pill px-4" data-dismiss="modal">Đã hiểu</button>
             </div>
         </div>
     </div>
@@ -998,29 +535,6 @@
     </div>
 </div>
 
-<audio id="switchSfx" preload="auto">
-    <source src="https://cdn.freesound.org/previews/273/273122_5121236-lq.mp3" type="audio/mpeg">
-</audio>
-<audio id="fireworkSfx" preload="auto">
-    <source src="https://www.soundjay.com/misc/sounds/fireworks-01.mp3" type="audio/mpeg">
-</audio>
-<audio id="angrybirdSfx" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/angry-birds-red-bird-flying.mp3" type="audio/mpeg">
-</audio>
-<audio id="meowSfx" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/cat-meow-short.mp3" type="audio/mpeg">
-</audio>
-<audio id="halloweenSfx" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/spooky-scary-skeletons-song-hq.mp3" type="audio/mpeg">
-</audio>
-<audio id="boingSfx" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/boing2.mp3" type="audio/mpeg">
-</audio>
-<!-- Theme Audios -->
-<audio id="audio-tet" loop><source src="https://github.com/trietpko2002/trietpko2002.github.io/raw/main/music/tet_music.mp3" type="audio/mpeg"></audio>
-<audio id="audio-nyan" loop><source src="https://www.myinstants.com/media/sounds/nyan-cat.mp3" type="audio/mpeg"></audio>
-<audio id="audio-uia" loop><source src="music/uia.mp3" type="audio/mpeg"></audio>
-<audio id="audio-jack" loop><source src="music/jack_j97_dom_dom.mp3" type="audio/mpeg"></audio>
 <audio id="maintenanceAudio"><source src="music/bao_tri.mp3" type="audio/mpeg"></audio>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -1127,9 +641,6 @@
             }, 15); 
         }
         
-        const effectState = parseInt(localStorage.getItem('bgEffect') || '0');
-        applyEffect(effectState);
-        
         // Real-time GitHub Update Detection
         let currentCommitSha = null;
         async function checkGitHubUpdate() {
@@ -1150,59 +661,7 @@
         }
         checkGitHubUpdate();
         setInterval(checkGitHubUpdate, 120000); // Check every 2 minutes
-        
-        autoDetectConfig();
     };
-
-    function autoDetectConfig() {
-        // Chỉ chạy nếu người dùng chưa từng chọn hiệu ứng (lần đầu truy cập)
-        if (localStorage.getItem('bgEffect') !== null) return;
-
-        // Kiểm tra kết nối mạng (4G/5G)
-        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (conn && (conn.type === 'cellular' || conn.saveData)) {
-            Swal.fire({
-                title: 'Cảnh báo dữ liệu di động',
-                html: 'Hệ thống phát hiện bạn đang sử dụng mạng <b>4G/5G</b>.<br>Để tránh tốn dung lượng, bạn có muốn tắt các hiệu ứng hình ảnh không?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Vẫn tiếp tục',
-                cancelButtonText: 'Tắt hiệu ứng (Tiết kiệm)',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33'
-            }).then((result) => {
-                if (result.dismiss === Swal.DismissReason.cancel) {
-                    applyEffect(-1);
-                    localStorage.setItem('bgEffect', '-1');
-                    toastr.success("Đã bật chế độ tiết kiệm dữ liệu.");
-                }
-            });
-            return; // Ưu tiên cảnh báo data hơn cấu hình
-        }
-
-        const cores = navigator.hardwareConcurrency || 4;
-        const ram = navigator.deviceMemory || 4; // RAM in GB (approx)
-        
-        // Nếu CPU < 4 nhân hoặc RAM < 4GB -> Máy yếu
-        if (cores < 4 || ram < 4) {
-            Swal.fire({
-                title: 'Phát hiện cấu hình thấp',
-                html: `Thiết bị của bạn có cấu hình khiêm tốn (${cores} nhân CPU, ~${ram}GB RAM).<br>Để ứng dụng mượt mà hơn, bạn có muốn <b>tắt các hiệu ứng hình ảnh</b> không?`,
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'Tắt hiệu ứng (Mượt)',
-                cancelButtonText: 'Giữ nguyên (Đẹp)',
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    applyEffect(-1);
-                    localStorage.setItem('bgEffect', '-1');
-                    toastr.success("Đã chuyển sang chế độ hiệu năng cao.");
-                }
-            });
-        }
-    }
 
     async function loadSchoolList() {
         if (schoolList.length > 0) return;
@@ -1365,10 +824,6 @@
             else if (user.role === 'supervisor') window.location.replace('supervisor.html');
             else window.location.replace('index.html');
         }, 500);
-    }
-
-    function isMobile() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
     // --- SIDE PANEL LOGIC ---
@@ -2228,13 +1683,10 @@
         
         if(type === 'online') { 
             icon.className = 'fas fa-wifi'; badge.className = 'ml-2 badge badge-success'; el.style.borderColor = '#28a745'; icon.style.color = '#28a745';
-            blockOverlay.style.display = 'none';
         } else if(type === 'slow') { 
             icon.className = 'fas fa-network-wired'; badge.className = 'ml-2 badge badge-warning'; el.style.borderColor = '#ffc107'; icon.style.color = '#ffc107';
-            blockOverlay.style.display = 'none';
         } else { 
             icon.className = 'fas fa-exclamation-triangle'; badge.className = 'ml-2 badge badge-danger'; el.style.borderColor = '#dc3545'; el.style.background = 'rgba(50, 0, 0, 0.8)'; icon.style.color = '#dc3545';
-            blockOverlay.style.display = 'flex';
         }
     }
 
@@ -2261,190 +1713,6 @@
     $('#modalMobileAction').on('hidden.bs.modal', function () {
         $(this).find('.modal-dialog').removeClass('modal-fullscreen');
     });
-
-    // --- PWA WELCOME WIZARD LOGIC ---
-    function checkPwaFirstRun() {
-        // Kiểm tra nếu đang chạy ở chế độ Standalone (App)
-        // const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        const isSetupDone = localStorage.getItem('pwa_setup_done');
-        
-        // Hiện nút Reset nếu là PWA (Standalone) hoặc Mobile
-        if (isInStandaloneMode() || isMobile()) {
-            $('#resetSetupBtn').show();
-        }
-
-        // Hiện wizard nếu chưa setup (bất kể là web hay app để đảm bảo trải nghiệm)
-        if (!isSetupDone) {
-            document.getElementById('pwa-wizard').style.display = 'flex';
-            
-            // Logic phát hiện mobile để gợi ý cài app
-            if (isMobile() && !isInStandaloneMode()) {
-                document.getElementById('mobile-app-suggestion').style.display = 'block';
-                if (deferredPrompt || (isIos() && !isInStandaloneMode())) {
-                    document.getElementById('btn-install-wizard').style.display = 'block';
-                }
-            }
-        }
-    }
-
-    function resetPwaSetup() {
-        if(confirm('Bạn có muốn chạy lại thiết lập ban đầu (Speedtest, Giao diện...)?')) {
-            localStorage.removeItem('pwa_setup_done');
-            location.reload();
-        }
-    }
-
-    function nextWizardStep(step) {
-        if (step === 3 && localStorage.getItem('fps_test_done') === 'true') {
-            step = 4;
-        }
-        document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-        document.getElementById('step-' + step).style.display = 'block';
-    }
-
-    function runFpsTest() {
-        const btn = document.getElementById('btn-fpstest');
-        const nextBtn = document.getElementById('btn-step3-next');
-        const result = document.getElementById('fps-result');
-        const canvas = document.getElementById('fps-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        btn.disabled = true;
-        result.innerHTML = 'Đang render đồ họa...';
-        canvas.style.display = 'block';
-        
-        let frameCount = 0;
-        let running = true;
-
-        function draw() {
-            if (!running) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = `hsl(${frameCount * 5 % 360}, 100%, 50%)`;
-            ctx.beginPath();
-            ctx.arc(150 + Math.sin(frameCount * 0.1) * 100, 50, 20, 0, Math.PI * 2);
-            ctx.fill();
-            frameCount++;
-            requestAnimationFrame(draw);
-        }
-        draw();
-
-        setTimeout(() => {
-            running = false;
-            const fps = Math.round(frameCount / 2); // 2 seconds
-            canvas.style.display = 'none';
-            
-            let quality = fps >= 50 ? '<span class="text-success">Rất mượt (High) 🚀</span>' : (fps >= 30 ? '<span class="text-info">Ổn định (Mid) ✅</span>' : '<span class="text-warning">Hơi lag (Low) ⚠️</span>');
-            result.innerHTML = `${quality} (${fps} FPS)`;
-            
-            if (fps < 30) {
-                result.innerHTML += '<br><small class="text-white-50">Đã tắt hiệu ứng để mượt hơn.</small>';
-                toastr.warning(`Kết quả: ${fps} FPS. Máy hơi yếu, đã tắt hiệu ứng.`);
-                applyEffect(-1);
-                localStorage.setItem('bgEffect', '-1');
-            } else {
-                toastr.info(`Kết quả: ${fps} FPS. Máy ngon chiến tốt!`);
-            }
-            nextBtn.disabled = false;
-            $(nextBtn).addClass('btn-glow');
-            btn.disabled = false;
-            localStorage.setItem('fps_test_done', 'true');
-        }, 2000);
-    }
-
-    function runDataTest() {
-        const btn = document.getElementById('btn-datatest');
-        const nextBtn = document.getElementById('btn-step4-next');
-        const result = document.getElementById('data-result');
-        
-        btn.disabled = true;
-        result.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang kết nối máy chủ...';
-        
-        const start = performance.now();
-        let ttfb = 0;
-
-        fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'GET_SCHOOL_LIST' }) })
-            .then(res => {
-                ttfb = performance.now() - start;
-                return res.json();
-            })
-            .then(data => {
-                const end = performance.now();
-                const totalTime = end - start;
-                const downloadTime = Math.max(1, totalTime - ttfb);
-
-                if(data.status === 'success') {
-                    const sizeBytes = new TextEncoder().encode(JSON.stringify(data)).length;
-                    const speedKbps = (sizeBytes / 1024) / (downloadTime / 1000);
-                    let speedText = speedKbps.toFixed(2) + ' KB/s';
-                    if (speedKbps > 1024) speedText = (speedKbps / 1024).toFixed(2) + ' MB/s';
-
-                    result.innerHTML = `
-                        <div class="text-left" style="display: inline-block;">
-                            <span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-2"></i>Kết nối tốt</span><br>
-                            <small class="text-white-50">
-                                <i class="fas fa-server mr-1"></i>Ping: <b>${Math.round(ttfb)}ms</b> | 
-                                <i class="fas fa-download mr-1"></i>Tốc độ: <b>${speedText}</b><br>
-                                <i class="fas fa-clock mr-1"></i>Tổng: <b>${Math.round(totalTime)}ms</b> | 
-                                <i class="fas fa-weight-hanging mr-1"></i>Size: <b>${(sizeBytes/1024).toFixed(1)} KB</b>
-                            </small>
-                        </div>`;
-                    toastr.success("Kết nối dữ liệu thành công!");
-                } else {
-                    result.innerHTML = `<span class="text-warning">Phản hồi lạ ⚠️ (${Math.round(totalTime)}ms)</span>`;
-                }
-            })
-            .catch(err => {
-                result.innerHTML = `<span class="text-danger font-weight-bold"><i class="fas fa-times-circle mr-2"></i>Lỗi kết nối!</span>`;
-                toastr.error("Không thể kết nối máy chủ!");
-            })
-            .finally(() => {
-                btn.disabled = false;
-                nextBtn.disabled = false;
-            });
-    }
-
-    function finishPwaSetup() {
-        localStorage.setItem('pwa_setup_done', 'true');
-        $('#pwa-wizard').fadeOut();
-        
-        // Hiệu ứng pháo hoa chúc mừng
-        if (typeof confetti === 'function') {
-            var duration = 3000;
-            var end = Date.now() + duration;
-            (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-        }
-        
-        toastr.success("Thiết lập hoàn tất! Chúc bạn sử dụng vui vẻ.");
-    }
-
-    function initFpsMonitor() {
-        let lastTime = performance.now();
-        let frames = 0;
-        let lowFpsCount = 0;
-        const fpsLoop = () => {
-            const now = performance.now();
-            frames++;
-            if (now - lastTime >= 1000) {
-                const fps = frames;
-                if (fps < 30) {
-                    lowFpsCount++;
-                    if (lowFpsCount >= 3) { // 3 giây liên tiếp dưới 30fps
-                        applyEffect(-1); // Tắt hiệu ứng
-                        localStorage.setItem('bgEffect', '-1');
-                        if(typeof toastr !== 'undefined') toastr.warning('Đã tự động tắt hiệu ứng do máy yếu (FPS thấp).');
-                        return; // Dừng monitor
-                    }
-                } else { lowFpsCount = 0; }
-                frames = 0; lastTime = now;
-            }
-            requestAnimationFrame(fpsLoop);
-        };
-        requestAnimationFrame(fpsLoop);
-    }
 
     function startRegCountdown(elementId, targetDateStr) {
         const target = new Date(targetDateStr).getTime();
@@ -2474,8 +1742,6 @@
         setInterval(update, 1000);
         update(); // Run immediately
     }
-
-    window.addEventListener('load', () => { checkPwaFirstRun(); initFpsMonitor(); });
 </script>
 </body>
 </html>

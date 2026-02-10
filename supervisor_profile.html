@@ -15,48 +15,6 @@
         body.dark-mode .card { background-color: #343a40; color: white; }
         body.dark-mode .form-control { background-color: #454d55; color: white; border-color: #6c757d; }
         
-        /* VIP Styles */
-        .vip-frame-container { position: relative; display: inline-block; }
-        .vip-crown { position: absolute; top: -30px; right: -15px; font-size: 2.5rem; color: #ffd700; transform: rotate(15deg); filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); animation: floatCrown 2s ease-in-out infinite; z-index: 10; }
-        @keyframes floatCrown { 0%, 100% { transform: rotate(15deg) translateY(0); } 50% { transform: rotate(15deg) translateY(-5px); } }
-        .vip-border-4 { border: 5px solid #e5e4e2 !important; box-shadow: 0 0 20px #e5e4e2, 0 0 10px #fff inset; animation: shineBorder 3s infinite linear; }
-        .vip-border-5 { border: 5px solid #ffd700 !important; box-shadow: 0 0 25px #ffd700, 0 0 15px #fff inset; animation: pulseBorder 2s infinite; }
-        @keyframes shineBorder { 0% { border-color: #e5e4e2; } 50% { border-color: #fff; } 100% { border-color: #e5e4e2; } }
-        @keyframes pulseBorder { 0% { border-color: #ffd700; box-shadow: 0 0 20px #ffd700; } 50% { border-color: #fff; box-shadow: 0 0 30px #ffd700; } 100% { border-color: #ffd700; box-shadow: 0 0 20px #ffd700; } }
-        
-        /* VIP 10 */
-        .vip-border-10 { 
-            border: 4px solid #ffd700 !important; 
-            box-shadow: 0 0 15px #ff4500, 0 0 30px #ffd700; 
-            animation: fiery 1s infinite alternate; 
-        }
-        @keyframes fiery { from { box-shadow: 0 0 10px #ff4500, 0 0 20px #ffd700; border-color: #ffd700; } to { box-shadow: 0 0 20px #ff0000, 0 0 40px #ff8c00; border-color: #fff; } }
-        .vip-wing { position: absolute; top: -10px; font-size: 2.5rem; color: #ff4500; filter: drop-shadow(0 2px 2px rgba(255,215,0,0.8)); z-index: 10; }
-        .vip-wing-left { left: -35px; transform: rotate(-20deg); }
-        .vip-wing-right { right: -35px; transform: rotate(20deg); }
-        .vip-crown-10 { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); font-size: 3rem; color: #ffd700; filter: drop-shadow(0 0 10px #ffd700); animation: floatCrown 2s ease-in-out infinite; z-index: 11; }
-
-        .honor-tag { background: linear-gradient(45deg, #ff6b6b, #f06595); color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; margin: 2px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .honor-tag.gold { background: linear-gradient(45deg, #ffd700, #fdb931); color: #000; font-weight: bold; border: 1px solid #fff; box-shadow: 0 0 5px #ffd700; }
-        
-        /* Hacker Title Effect */
-        .hacker-gold {
-            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
-            background-size: 200% auto;
-            color: #000;
-            font-weight: bold;
-            border: 2px solid #ffd700;
-            box-shadow: 0 0 10px #ffd700;
-            animation: shineText 2s linear infinite;
-            padding: 5px 10px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            display: inline-block;
-            margin: 2px;
-        }
-        @keyframes shineText { to { background-position: 200% center; } }
-        
-        
         /* Effects & Settings */
         .firefly { position: fixed; width: 6px; height: 6px; background: #ffff00; border-radius: 50%; box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; animation: fly 10s infinite alternate; pointer-events: none; z-index: 9998; }
         @keyframes fly { 0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translate(100vw, -50vh); opacity: 0; } }
@@ -126,16 +84,14 @@
                     <div class="col-md-4">
                         <div class="card card-primary card-outline">
                             <div class="card-body box-profile">
-                                <div class="text-center position-relative">
-                                    <div class="vip-frame-container">
+                                <div class="text-center">
+                                    <div class="position-relative d-inline-block">
                                         <img class="profile-user-img img-fluid img-circle" src="" id="profileAvatar" alt="User profile picture">
-                                        <div id="vipCrownArea"></div>
                                         <button class="btn btn-xs btn-primary position-absolute" style="bottom: 0; right: 0;" onclick="$('#avatarInput').click()"><i class="fas fa-camera"></i></button>
                                         <input type="file" id="avatarInput" class="d-none" accept="image/*">
                                     </div>
                                 </div>
                                 <h3 class="profile-username text-center mt-3" id="displayFullname">...</h3>
-                                <div id="honorTagsArea" class="text-center mb-2"></div>
                                 <p class="text-muted text-center" id="displayGroup">Supervisor</p>
                                 <ul class="list-group list-group-unbordered mb-3">
                                     <li class="list-group-item"><b>Vai trò</b> <a class="float-right" id="displayRole">SUPERVISOR</a></li>
@@ -280,31 +236,7 @@
         $('#displayFullname').text(user.fullname);
         $('#displayGroup').text('Nhóm: ' + (user.group_name || user.group_id));
         $('#displayRole').text(user.role.toUpperCase());
-        
-        try {
-            const honors = JSON.parse(user.honors || '{}');
-            const avatar = $('#profileAvatar');
-            if (honors.level === 'vip4') { avatar.addClass('vip-border-4'); $('#vipCrownArea').html('<i class="fas fa-crown vip-crown" style="color: #e5e4e2;"></i>'); }
-            else if (honors.level === 'vip5') { avatar.addClass('vip-border-5'); $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>'); }
-            else if (honors.level === 'vip10') { 
-                avatar.addClass('vip-border-10'); 
-                $('#vipCrownArea').html('<i class="fas fa-crown vip-crown-10"></i><i class="fas fa-dove vip-wing vip-wing-left"></i><i class="fas fa-dove vip-wing vip-wing-right"></i>');
-                $('#displayRole').html('<span class="badge badge-warning" style="font-size: 1rem; background: linear-gradient(90deg, #ffd700, #ff8c00); color: #000;">CẤP QUẢN LÝ XỊN SÒ</span>');
-            }
-            
-            if (honors.titles && honors.titles.length > 0) {
-                let tags = '';
-                honors.titles.forEach(t => {
-                    if (t === "CẤP QUẢN LÝ XỊN SÒ") {
-                        tags += `<span class="hacker-gold">${t}</span>`;
-                    } else {
-                        tags += `<span class="honor-tag gold">${t}</span>`;
-                    }
-                });
-                $('#honorTagsArea').html(tags);
-            }
-        } catch(e) {}
-        
+
         $('#inputName').val(user.fullname);
         $('#inputUsername').val(user.username);
         $('#inputEmail').val(user.email || '');
