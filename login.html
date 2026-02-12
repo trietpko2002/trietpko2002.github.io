@@ -39,35 +39,35 @@
     }
 
     .card-glass {
-        background: rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
+        background: #ffffff;
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        padding: 30px;
-        color: white;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        color: #333;
     }
     
     /* Fix Input Group Pill */
     .input-group-pill {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
         border-radius: 50rem;
+        transition: all 0.3s;
     }
+    .input-group-pill:focus-within { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); background: #fff; }
     .input-group-pill .form-control {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        color: white !important;
+        color: #495057 !important;
     }
     .input-group-pill .input-group-text {
         background: transparent !important;
         border: none !important;
-        color: white !important;
+        color: #6c757d !important;
     }
 
-    .form-control::placeholder { color: rgba(255,255,255,0.7); }
+    .form-control::placeholder { color: #adb5bd; }
     
     .btn-primary { background-color: rgba(30, 136, 229, 0.8); border: none; border-radius: 50px; padding: 10px 20px; font-weight: bold; }
     .btn-primary:hover { background-color: rgba(21, 101, 192, 0.9); box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4); }
@@ -84,13 +84,13 @@
     }
 
     .action-links a {
-        color: #ffeb3b;
+        color: #007bff;
         text-decoration: none;
         font-weight: bold;
         transition: all 0.3s;
     }
     .action-links a:hover {
-        color: #fff;
+        color: #0056b3;
         text-decoration: underline;
     }
 
@@ -229,7 +229,7 @@
         border-radius: 15px;
         position: relative;
         overflow: hidden;
-        background: rgba(255, 255, 255, 0.1);
+        background: #e9ecef;
         animation: fadeInUp 0.5s ease-out forwards; /* Hiệu ứng xuất hiện */
     }
     @keyframes fadeInUp {
@@ -254,7 +254,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #1a1a1a;
+        background: #fff;
         width: 100%;
         height: 100%;
         padding: 10px;
@@ -373,6 +373,9 @@
   </style>
 </head>
 <body class="hold-transition login-page">
+<script>
+    var API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+</script>
 <!-- Welcome Screen -->
 <div id="welcome-screen">
   <div id="welcome-content">
@@ -429,18 +432,18 @@
         <!-- Captcha -->
         <div class="input-group mb-3 input-group-pill">
             <div class="input-group-prepend">
-                <span class="input-group-text font-weight-bold text-warning" id="captcha_code_login" style="letter-spacing: 3px; user-select: none; min-width: 90px; justify-content: center;"></span>
+                <span class="input-group-text font-weight-bold text-primary" id="captcha_code_login" style="letter-spacing: 3px; user-select: none; min-width: 90px; justify-content: center;"></span>
             </div>
-            <input type="text" id="captcha_input_login" class="form-control text-center" placeholder="Nhập mã xác thực" required maxlength="6" style="color: white !important;">
+            <input type="text" id="captcha_input_login" class="form-control text-center" placeholder="Nhập mã xác thực" required maxlength="6">
             <div class="input-group-append">
-                <button type="button" class="btn text-white" onclick="generateCaptcha('captcha_code_login', 'alphanumeric')"><i class="fas fa-sync"></i></button>
+                <button type="button" class="btn text-secondary" onclick="generateCaptcha('captcha_code_login', 'alphanumeric')"><i class="fas fa-sync"></i></button>
             </div>
         </div>
         
         <div class="login-loading-container" id="loginLoading">
             <div class="login-loading-content">
-                <div class="spinner-border text-white" role="status" style="width: 1.5rem; height: 1.5rem; border-width: .2em;"></div>
-                <span class="loading-text text-white ml-3" id="loadingText">Đang kết nối...</span>
+                <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem; border-width: .2em;"></div>
+                <span class="loading-text text-dark ml-3" id="loadingText">Đang kết nối...</span>
             </div>
         </div>
 
@@ -448,7 +451,11 @@
             <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY
         </button>
 
-        <button type="button" class="btn btn-outline-light btn-block btn-sm mt-3 rounded-pill" onclick="syncData()">
+        <button type="button" class="btn btn-danger btn-block shadow-sm mt-2 rounded-pill" onclick="loginWithGoogle()">
+            <i class="fab fa-google mr-2"></i> Đăng nhập bằng Google
+        </button>
+
+        <button type="button" class="btn btn-outline-secondary btn-block btn-sm mt-3 rounded-pill" onclick="syncData()">
             <i class="fas fa-sync mr-1"></i> Đồng bộ dữ liệu 
         </button>
     </form>
@@ -458,13 +465,7 @@
         <a href="javascript:void(0)" onclick="openRegisterModal()"><i class="fas fa-user-plus mr-1"></i> Đăng ký ngay</a>
     </div>
     
-    <div class="text-center mt-4 small" style="opacity: 0.7;">
-        <strong>Bản quyền và coding bởi Triết Võ.</strong><br>
-        <small>Sản phẩm có sự hỗ trợ từ AI Gemini.</small>
-    </div>
-    <div class="text-center mt-2">
-        <a href="admin_login.html" class="text-white-50 small">Đăng nhập với tư cách Quản trị viên</a>
-    </div>
+
   </div>
 </div>
 
@@ -493,24 +494,29 @@
     </div>
 </div>
 
-<!-- Modal Login Verification -->
-<div class="modal fade" id="modalLoginVerify" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+<!-- Modal OTP Verification -->
+<div class="modal fade" id="modalOtp" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content bg-dark text-white" style="border: 1px solid rgba(255,255,255,0.2);">
-            <div class="modal-header border-0">
-                <h5 class="modal-title font-weight-bold"><i class="fas fa-shield-alt mr-2"></i>Xác thực đăng nhập</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-shield-alt mr-2"></i>Xác thực bảo mật</h5>
             </div>
-            <div class="modal-body text-center">
-                <p class="mb-3">Vui lòng nhập mã PIN bên dưới để tiếp tục:</p>
-                <div class="d-flex justify-content-center align-items-center mb-3">
-                    <span id="login_verify_code" class="h2 font-weight-bold text-warning border p-2 rounded mr-3" style="letter-spacing: 5px; user-select: none;"></span>
-                    <button class="btn btn-sm btn-outline-light" onclick="generateCaptcha('login_verify_code', 'numeric')"><i class="fas fa-sync"></i></button>
+            <div class="modal-body">
+                <p>Hệ thống phát hiện bạn đang đăng nhập liên tiếp. Vui lòng xác thực số điện thoại đuôi <b id="otp-phone-hint">...</b> để tiếp tục.</p>
+                <div id="recaptcha-container"></div>
+                <div class="form-group mt-3" id="phone-input-group">
+                    <label>Nhập số điện thoại đầy đủ của bạn:</label>
+                    <input type="tel" id="verify_phone_input" class="form-control" placeholder="0909xxxxxx">
+                    <button class="btn btn-primary btn-block mt-2" onclick="sendOtp()">Gửi mã OTP</button>
                 </div>
-                <input type="text" id="login_verify_input" class="form-control text-center text-white bg-transparent border-white" placeholder="Nhập mã PIN" maxlength="6" inputmode="numeric" style="font-size: 1.2rem; letter-spacing: 2px;">
+                <div class="form-group mt-3" id="otp-input-group" style="display:none;">
+                    <label>Nhập mã OTP (6 số):</label>
+                    <input type="text" id="otp_input" class="form-control text-center" maxlength="6" style="letter-spacing: 5px; font-size: 1.5rem;">
+                    <button class="btn btn-success btn-block mt-2" onclick="verifyOtpAndLogin()">Xác nhận</button>
+                </div>
             </div>
-            <div class="modal-footer border-0 justify-content-center">
-                <button type="button" class="btn btn-success btn-block font-weight-bold rounded-pill" onclick="confirmLogin()">XÁC NHẬN & ĐĂNG NHẬP</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Hủy bỏ</button>
             </div>
         </div>
     </div>
@@ -545,9 +551,116 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+    // --- CẤU HÌNH FIREBASE CỦA BẠN ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDc8UIDzjGnBLc0SEXZL96NandYWdPvEfE",
+        authDomain: "quanlysinhhoathe-2026.firebaseapp.com",
+        projectId: "quanlysinhhoathe-2026",
+        storageBucket: "quanlysinhhoathe-2026.firebasestorage.app",
+        messagingSenderId: "88022736202",
+        appId: "1:88022736202:web:90cffecf949ddb5ed075b3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    // --- PHONE AUTH SETUP ---
+    window.setupRecaptcha = function() {
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'normal',
+                'callback': (response) => {
+                    // reCAPTCHA solved, allow signInWithPhoneNumber.
+                }
+            });
+        }
+    }
+
+    window.sendOtp = async function() {
+        const phone = $('#verify_phone_input').val().trim();
+        if (!phone) return toastr.warning("Vui lòng nhập số điện thoại!");
+        
+        // Format phone to +84
+        const formattedPhone = phone.replace(/^0/, '+84');
+        
+        try {
+            window.setupRecaptcha();
+            const appVerifier = window.recaptchaVerifier;
+            window.confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+            toastr.success("Đã gửi OTP! Vui lòng kiểm tra tin nhắn.");
+            $('#phone-input-group').hide();
+            $('#otp-input-group').show();
+        } catch (error) {
+            console.error(error);
+            toastr.error("Lỗi gửi OTP: " + error.message);
+            window.recaptchaVerifier.render().then(function(widgetId) {
+                grecaptcha.reset(widgetId);
+            });
+        }
+    }
+
+    window.verifyOtpAndLogin = async function() {
+        const otp = $('#otp_input').val().trim();
+        if (!otp) return toastr.warning("Vui lòng nhập OTP!");
+        
+        try {
+            const result = await window.confirmationResult.confirm(otp);
+            const user = result.user;
+            toastr.success("Xác thực thành công!");
+            $('#modalOtp').modal('hide');
+            
+            // Gọi lại login với flag đã xác thực
+            performLogin(true, user.phoneNumber);
+        } catch (error) {
+            toastr.error("Mã OTP không đúng!");
+        }
+    }
+
+    window.loginWithGoogle = async function() {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            // Gửi UID lên server để kiểm tra liên kết
+            $('#loadingText').text("Đang kiểm tra liên kết Google...");
+            $('#loginLoading').css('display', 'flex');
+            
+            const response = await fetch(window.API_URL, {
+                method: "POST",
+                redirect: "follow",
+                body: JSON.stringify({ 
+                    action: "LOGIN_GOOGLE", 
+                    payload: { 
+                        google_uid: user.uid, 
+                        email: user.email || "",
+                        fullname: user.displayName || "",
+                        avatar: user.photoURL || "",
+                        phone: user.phoneNumber || ""
+                    }
+                })
+            });
+            const res = await response.json();
+
+            if (res.status === "success") {
+                handleLoginSuccess(res.user);
+            } else {
+                $('#loginLoading').hide();
+                Swal.fire('Chưa liên kết', 'Tài khoản Google này chưa được liên kết với tài khoản nào trong hệ thống. Vui lòng đăng nhập bằng mật khẩu và thực hiện liên kết trong phần Hồ sơ.', 'warning');
+            }
+        } catch (error) {
+            $('#loginLoading').hide();
+            console.error(error);
+            toastr.error("Lỗi đăng nhập Google: " + error.message);
+        }
+    }
+</script>
+<script>
     let schoolList = [];
     let tempUser = "";
 
@@ -563,6 +676,10 @@
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         document.getElementById(elementId).innerText = result;
+    }
+
+    function isMobile() {
+        return window.innerWidth <= 768;
     }
 
     window.onload = () => { 
@@ -743,43 +860,35 @@
             return;
         }
         
-        // Open Modal
-        $('#modalLoginVerify').modal('show');
-        generateCaptcha('login_verify_code', 'numeric');
-        $('#login_verify_input').val('').focus();
+        performLogin();
     });
 
-    async function confirmLogin() {
-        const input = $('#login_verify_input').val().trim();
-        const code = $('#login_verify_code').text().trim();
-        
-        if (input !== code) {
-            toastr.error("Mã PIN không đúng!");
-            $('#login_verify_input').val('').focus();
-            return;
-        }
-        
-        $('#modalLoginVerify').modal('hide');
-        performLogin();
-    }
-
-    async function performLogin() {
+    async function performLogin(isPhoneVerified = false, verifiedPhoneNumber = "") {
         const btn = document.getElementById('submitBtn');
         const user = $('#username').val().trim();
         const pass = $('#password').val().trim();
         const loadingBox = $('#loginLoading');
         
         // UI Reset
+        if (!isPhoneVerified) {
         btn.style.display = 'none';
         loadingBox.css('display', 'flex');
         updateStatus("Đang kết nối máy chủ...");
+        } else {
+            updateStatus("Đang hoàn tất đăng nhập...");
+        }
 
         try {
             // Giả lập delay nhẹ để hiệu ứng mượt hơn
             await new Promise(r => setTimeout(r, 500));
             updateStatus("Đang xác thực thông tin...");
 
-            const payload = { username: user, password: pass }; 
+            const payload = { 
+                username: user, 
+                password: pass,
+                phone_verified: isPhoneVerified,
+                verified_phone: verifiedPhoneNumber
+            }; 
 
             const response = await fetch(API_URL, {
                 method: "POST",
@@ -811,6 +920,13 @@
                     updateStatus("Đăng nhập thành công! Đang vào...");
                     handleLoginSuccess(res.user);
                 }
+            } else if (res.status === "require_phone_auth") {
+                $('#loginLoading').hide();
+                // Hiển thị modal OTP
+                $('#otp-phone-hint').text(res.phone_hint || "...");
+                $('#modalOtp').modal('show');
+                // Reset UI login form để tránh treo
+                resetLoginForm();
             } else {
                 toastr.error(res.message);
                 resetLoginForm();

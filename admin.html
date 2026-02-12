@@ -186,6 +186,50 @@
         #welcome-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
         .welcome-logo { width: 100px; height: 100px; margin-bottom: 20px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* AI Chat Styles */
+        .chat-container { height: 650px; display: flex; flex-direction: column; border: none; border-radius: 15px; background: #fff; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .chat-history { flex-grow: 1; overflow-y: auto; padding: 20px; background: #ffffff; scroll-behavior: smooth; }
+        .chat-message { display: flex; align-items: flex-end; margin-bottom: 20px; animation: fadeIn 0.3s ease; }
+        .chat-message.user { flex-direction: row-reverse; }
+        .chat-message .avatar { width: 35px; height: 35px; border-radius: 50%; background-size: cover; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background-color: #eee; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .chat-message.ai .avatar { margin-right: 12px; background-image: url('https://cdn-icons-png.flaticon.com/512/4712/4712027.png'); }
+        .chat-message.user .avatar { margin-left: 12px; background-image: url('https://cdn-icons-png.flaticon.com/512/1077/1077114.png'); }
+        
+        .chat-message .content { max-width: 75%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); word-wrap: break-word; }
+        .chat-message.ai .content { background: #f1f3f5; color: #333; border-bottom-left-radius: 4px; }
+        .chat-message.user .content { background: #007bff; color: white; border-bottom-right-radius: 4px; }
+        
+        .chat-input-area { padding: 15px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; align-items: center; }
+        .chat-input-area input { border-radius: 25px; padding-left: 20px; border: 1px solid #ddd; background: #f8f9fa; height: 45px; }
+        .chat-input-area input:focus { background: white; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); border-color: #007bff; }
+        
+        .chat-message a { color: #007bff; text-decoration: underline; font-weight: bold; }
+        .chat-message.user a { color: #fff; }
+        .typing-indicator { font-style: italic; color: #888; font-size: 0.8rem; margin-bottom: 5px; display: none; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Dark Mode Chat */
+        body.dark-mode .chat-container { background: #343a40; }
+        body.dark-mode .chat-history { background: #2b3035; }
+        body.dark-mode .chat-message.ai .content { background: #3f474e; color: #fff; border: 1px solid #56606a; }
+        body.dark-mode .chat-input-area { background: #343a40; border-top-color: #454d55; }
+        body.dark-mode .chat-input-area input { background: #454d55; color: white; border-color: #6c757d; }
+        body.dark-mode .chat-message.ai .avatar { filter: brightness(0.8); }
+        
+        /* AI Suggestions */
+        .suggestion-chip { font-size: 0.85rem; border-radius: 20px; padding: 6px 15px; cursor: pointer; transition: all 0.2s; border: 1px solid #17a2b8; color: #17a2b8; background: white; margin-right: 8px; margin-bottom: 8px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .suggestion-chip:hover { background: #17a2b8; color: white; }
+        body.dark-mode .suggestion-chip { background: #343a40; border-color: #17a2b8; color: #17a2b8; }
+        body.dark-mode .suggestion-chip:hover { background: #17a2b8; color: white; }
+        
+        /* AI Analysis Card inside Chat */
+        .ai-card { background: white; border-radius: 10px; overflow: hidden; margin-top: 10px; border: 1px solid #eee; }
+        body.dark-mode .ai-card { background: #3f474e; border-color: #56606a; }
+        .ai-card-header { padding: 10px 15px; background: #f8f9fa; font-weight: bold; border-bottom: 1px solid #eee; }
+        body.dark-mode .ai-card-header { background: #454d55; border-color: #56606a; }
+        .ai-card-body { padding: 15px; }
     </style>
 </head>
 
@@ -299,6 +343,12 @@
                             <div class="icon"><i class="fas fa-chart-pie"></i></div>
                         </div>
                     </div>
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-maroon shadow" onclick="showTab('tab-ai-admin'); initAdminAIChat();" style="cursor:pointer">
+                            <div class="inner"><h3>Trợ lý Admin</h3><p>AI Hỗ trợ & Báo cáo</p></div>
+                            <div class="icon"><i class="fas fa-brain"></i></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Section 2: Quản lý Dữ liệu -->
@@ -382,6 +432,34 @@
                 </div>
             </div>
             <div class="tab-content">
+            <div class="tab-pane fade" id="tab-ai-admin">
+                <div class="card card-outline card-maroon shadow">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title"><i class="fas fa-brain mr-2"></i>Trợ lý ảo Admin (Groq AI)</h3>
+                        <div class="card-tools ml-auto">
+                            <button class="btn btn-tool" onclick="clearChatHistory()"><i class="fas fa-trash"></i> Xóa chat</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="chat-container">
+                            <div id="aiChatHistory" class="chat-history">
+                                <!-- Initial message will be injected by JS -->
+                            </div>
+                            <div id="aiSuggestions" class="p-2 bg-white border-top d-flex flex-wrap" style="min-height: 40px;"></div>
+                            <div class="typing-indicator ml-3" id="aiTyping">AI đang xử lý...</div>
+                            <div id="aiFilePreview" class="px-3 pb-2 small text-info bg-white border-top" style="display:none;">
+                                <i class="fas fa-file mr-1"></i> <span id="aiFileName"></span> <i class="fas fa-times text-danger ml-2" style="cursor:pointer" onclick="clearAiFile()"></i>
+                            </div>
+                            <div class="chat-input-area">
+                                <label for="aiFileInput" class="btn btn-light text-secondary mb-0 mr-2 rounded-circle shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor:pointer" title="Gửi file"><i class="fas fa-paperclip"></i></label>
+                                <input type="file" id="aiFileInput" class="d-none" onchange="handleAiFileSelect()">
+                                <input type="text" id="aiChatInput" class="form-control shadow-sm" placeholder="Nhập yêu cầu quản trị..." onkeypress="if(event.keyCode==13) sendToAdminAI()">
+                                <button class="btn btn-maroon rounded-circle shadow-sm" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;" onclick="sendToAdminAI()"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="tab-pane fade show active" id="tab-dashboard">
                 <section class="content-header">
                     <div class="container-fluid">
@@ -2094,11 +2172,11 @@ function toggleDarkMode() {
     }
 }
 
-async function toggleMaintenance() {
+async function toggleMaintenance(skipConfirm = false) {
     const enabled = $('#maintenanceSwitch').is(':checked') ? 'TRUE' : 'FALSE';
     const msg = enabled === 'TRUE' ? 'BẬT chế độ bảo trì? Tất cả Quản lý sẽ bị đăng xuất.' : 'TẮT chế độ bảo trì?';
     
-    if(!confirm(msg)) {
+    if(!skipConfirm && !confirm(msg)) {
         $('#maintenanceSwitch').prop('checked', !$('#maintenanceSwitch').is(':checked')); // Revert
         return;
     }
@@ -2752,6 +2830,17 @@ function getNextId(list, prop, prefix = '') {
     });
     // Trả về prefix + số tiếp theo
     return prefix + (max + 1);
+}
+
+function populateGroupSelect(selectId) {
+    const select = $('#' + selectId);
+    if (!select.length || !globalGroupsData) return;
+    
+    let html = '<option value="">-- Không / Admin --</option>';
+    globalGroupsData.forEach(g => {
+        html += `<option value="${g.group_id}">${g.group_name}</option>`;
+    });
+    select.html(html);
 }
 
 let schoolList = [];
@@ -4071,6 +4160,446 @@ function initFpsMonitor() {
     requestAnimationFrame(fpsLoop);
 }
 window.addEventListener('load', initFpsMonitor);
+
+// --- ADMIN AI ASSISTANT LOGIC ---
+const DEFAULT_GROQ_KEY = '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'; // Key mặc định (nếu có)
+let groqApiKey = localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY;
+
+function setGroqKey() {
+    Swal.fire({
+        title: 'Cấu hình Groq AI',
+        input: 'text',
+        inputLabel: 'Nhập API Key (gsk_...)',
+        inputValue: groqApiKey,
+        showCancelButton: true,
+        confirmButtonText: 'Lưu'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            groqApiKey = result.value;
+            localStorage.setItem('groq_api_key', groqApiKey);
+            toastr.success('Đã lưu API Key!');
+        }
+    });
+}
+
+function initAdminAIChat() {
+    if (!groqApiKey) setTimeout(setGroqKey, 500);
+    // Show default welcome if empty
+    if ($('#aiChatHistory').children().length <= 1) {
+        appendMessage('ai', 'Xin chào Admin! Tôi là trợ lý ảo của bạn. Tôi có thể giúp bạn:<br>- <b>Tạo thông báo, bình chọn</b> (VD: "Tạo thông báo họp lúc 8h")<br>- <b>Trích xuất dữ liệu, báo cáo</b> (VD: "Báo cáo điểm danh hôm nay", "Thông tin HS Nguyễn Văn A")<br>- <b>Phân tích xu hướng điểm danh</b><br>- <b>Kiểm tra phản ánh và soạn trả lời</b><br>- <b>Phân tích Logs hệ thống</b><br>Hãy nhập lệnh để bắt đầu!');
+        updateAiSuggestions(["Báo cáo điểm danh hôm nay", "Tạo thông báo mới", "Kiểm tra phản ánh", "Bật chế độ bảo trì", "Xem log hệ thống"]);
+    }
+}
+
+function appendMessage(role, text) {
+    const htmlText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    const div = $(`
+        <div class="chat-message ${role}">
+            <div class="avatar"></div>
+            <div class="content">${htmlText}</div>
+        </div>
+    `);
+    const history = document.getElementById('aiChatHistory');
+    $(history).append(div);
+    history.scrollTop = history.scrollHeight;
+}
+
+function clearChatHistory() {
+    $('#aiChatHistory').empty();
+    appendMessage('ai', 'Đã xóa lịch sử chat.');
+}
+
+function updateAiSuggestions(suggestions) {
+    const container = $('#aiSuggestions');
+    container.empty();
+    if (suggestions && Array.isArray(suggestions)) {
+        suggestions.forEach(s => {
+            const chip = $(`<span class="suggestion-chip">${s}</span>`);
+            chip.on('click', function() {
+                $('#aiChatInput').val(s);
+                sendToAdminAI();
+            });
+            container.append(chip);
+        });
+    }
+}
+
+function handleAiAction(action, payload) {
+    if (action === 'change_setting') {
+        const s = payload.setting;
+        const v = payload.value;
+
+        // 1. Interface & System Maintenance
+        if (s === 'dark_mode') {
+            $('#darkModeSwitch').prop('checked', v === true);
+            toggleDarkMode();
+        } else if (s === 'maintenance') {
+            $('#maintenanceSwitch').prop('checked', v === true);
+            toggleMaintenance(true);
+        }
+        
+        // 2. Troll Settings
+        else if (['troll_enabled', 'troll_mode', 'troll_title', 'troll_content'].includes(s)) {
+            if (s === 'troll_enabled') $('#troll_enabled').prop('checked', v === true);
+            else if (s === 'troll_mode') $('#troll_mode').prop('checked', v === true);
+            else if (s === 'troll_title') $('#troll_title').val(v);
+            else if (s === 'troll_content') $('#troll_content').val(v);
+            saveTrollConfig();
+        }
+
+        // 3. Feature Configs (Marquee, Feature Maintenance, Locks)
+        else {
+            const map = {
+                'marquee_enabled': 'conf_marquee_enabled', 'marquee_text': 'conf_marquee_text',
+                'maint_attendance': 'maint_attendance', 'maint_students': 'maint_students', 'maint_funds': 'maint_funds',
+                'maint_notis': 'maint_notis', 'maint_eval': 'maint_eval', 'maint_feedback': 'maint_feedback',
+                'att_blocked': 'conf_att_blocked', 'student_import_locked': 'conf_student_import_locked', 'registration_locked': 'conf_registration_locked'
+            };
+            if (map[s]) {
+                const el = $('#' + map[s]);
+                if (el.attr('type') === 'checkbox') el.prop('checked', v === true);
+                else el.val(v);
+                saveFeatureConfig();
+            }
+        }
+    } else if (action === 'navigate_tab') {
+        if (payload.tab) {
+            showTab(payload.tab);
+        }
+    } else if (action === 'schedule_maintenance') {
+        if (payload.start) $('#maint_start_input').val(payload.start);
+        if (payload.end) $('#maint_end_input').val(payload.end);
+        saveMaintenanceSchedule();
+    }
+}
+
+function handleAiFileSelect() {
+    const file = document.getElementById('aiFileInput').files[0];
+    if (file) {
+        $('#aiFileName').text(file.name);
+        $('#aiFilePreview').show();
+    } else {
+        $('#aiFilePreview').hide();
+    }
+}
+
+function clearAiFile() {
+    $('#aiFileInput').val('');
+    $('#aiFilePreview').hide();
+}
+
+async function sendToAdminAI() {
+    const input = document.getElementById('aiChatInput');
+    const message = input.value.trim();
+    const fileInput = document.getElementById('aiFileInput');
+    const file = fileInput ? fileInput.files[0] : null;
+
+    if (!message && !file) return;
+
+    if (file) {
+        if (file.size > globalMaxUploadSize * 1024 * 1024) return toastr.warning(`File quá lớn! Giới hạn: ${globalMaxUploadSize}MB`);
+        
+        let userMsgHtml = message;
+        if (file) userMsgHtml = `[File] <b>${file.name}</b>` + (message ? `<br>${message}` : '');
+        appendMessage('user', userMsgHtml);
+        
+        input.value = '';
+        clearAiFile();
+
+        const loadingId = 'ai-upload-' + Date.now();
+        appendMessage('ai', `<span id="${loadingId}"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải lên file <b>${file.name}</b>...</span>`);
+        const history = document.getElementById('aiChatHistory'); history.scrollTop = history.scrollHeight;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64 = e.target.result;
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            try {
+                const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "UPLOAD_FILE", payload: { uploader: user.username, group_id: 'ADMIN', filename: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB', data: base64, type: 'FILE' } }) });
+                const res = await response.json();
+                if (res.status === 'success') {
+                    $(`#${loadingId}`).html(`✅ Đã tải lên file <b>${file.name}</b> vào trung tâm file.`);
+                    loadUploadedFiles();
+                    if (message) processAiMessage(message);
+                } else $(`#${loadingId}`).html(`❌ Lỗi tải file: ${res.message}`);
+            } catch (err) { $(`#${loadingId}`).html(`❌ Lỗi kết nối khi tải file.`); }
+        };
+        reader.readAsDataURL(file);
+    } else {
+        appendMessage('user', message);
+        input.value = '';
+        processAiMessage(message);
+    }
+}
+
+async function processAiMessage(message) {
+    if (!groqApiKey) return setGroqKey();
+    document.getElementById('aiTyping').style.display = 'block';
+
+    // --- CONTEXT PREPARATION ---
+    // Summarize Data to fit context window
+    const today = new Date().toLocaleDateString('vi-VN');
+    const attendanceSummary = {
+        present: $('#countPresent').text(),
+        absentP: $('#countAbsentP').text(),
+        absentK: $('#countAbsent').text()
+    };
+    
+    // Filter logs if requested
+    let logsContext = "";
+    if (message.toLowerCase().includes("log") || message.toLowerCase().includes("lịch sử")) {
+        logsContext = JSON.stringify(globalLogsData.slice(0, 20)); // Last 20 logs
+    }
+
+    // Filter students if requested
+    let studentsContext = "";
+    if (message.toLowerCase().includes("học sinh") || message.toLowerCase().includes("thông tin") || message.toLowerCase().includes("nhóm")) {
+        studentsContext = globalStudentsData.map(s => `${s.fullname} (ID:${s.id}, Nhóm:${s.group_display}, Lớp:${s.class_name}, SĐT:${s.phone})`).join('\n');
+    }
+
+    // Feedbacks
+    const pendingFeedbacks = globalFeedbacksData.filter(f => !f.reply).map(f => `ID:${f.id}, Từ:${f.fullname}, Nội dung:${f.difficulty}`).join('\n');
+
+    // Evaluations
+    let evalContext = "";
+    if (message.toLowerCase().includes("đánh giá") || message.toLowerCase().includes("xếp loại")) {
+        const evalCounts = { 'Xuất sắc': 0, 'Tốt': 0, 'Trung bình': 0, 'Yếu': 0, 'Chưa đánh giá': 0 };
+        globalEvaluationsData.forEach(e => { evalCounts[e.class] = (evalCounts[e.class]||0)+1; });
+        evalContext = JSON.stringify(evalCounts);
+    }
+
+    // Attendance Trend Analysis
+    let attendanceTrendContext = "";
+    if (message.toLowerCase().includes("xu hướng") || message.toLowerCase().includes("điểm danh") || message.toLowerCase().includes("tuần qua") || message.toLowerCase().includes("phân tích")) {
+        const trend = {};
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        if (typeof globalHistoryData !== 'undefined') {
+            globalHistoryData.forEach(h => {
+                try {
+                    const datePart = h.timestamp.split(' ')[0];
+                    const parts = datePart.split('/');
+                    if(parts.length === 3) {
+                        const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                        if (d >= sevenDaysAgo) {
+                            if (!trend[datePart]) trend[datePart] = { present: 0, absent: 0 };
+                            if (h.status === 'present') trend[datePart].present++;
+                            else trend[datePart].absent++;
+                        }
+                    }
+                } catch(e) {}
+            });
+        }
+        attendanceTrendContext = JSON.stringify(trend);
+    }
+
+    const systemPrompt = `Bạn là Trợ lý ảo Admin thông minh của hệ thống quản lý sinh hoạt hè.
+    Thời gian hiện tại: ${new Date().toLocaleString('vi-VN')}
+    
+    Dữ liệu hệ thống tóm tắt:
+    - Tổng học sinh: ${$('#countHS').text()}
+    - Điểm danh hôm nay: Có mặt ${attendanceSummary.present}, Vắng P ${attendanceSummary.absentP}, Vắng K ${attendanceSummary.absentK}
+    - Phản ánh chưa trả lời:
+    ${pendingFeedbacks}
+    
+    Dữ liệu chi tiết (nếu có):
+    ${studentsContext ? "- Danh sách học sinh:\n" + studentsContext : ""}
+    ${logsContext ? "- Logs gần đây:\n" + logsContext : ""}
+    ${evalContext ? "- Thống kê đánh giá:\n" + evalContext : ""}
+    ${attendanceTrendContext ? "- Xu hướng điểm danh 7 ngày qua (Ngày: {present, absent}):\n" + attendanceTrendContext : ""}
+
+    NHIỆM VỤ CỦA BẠN:
+    1. Trả lời các câu hỏi về số liệu, báo cáo, thông tin học sinh dựa trên dữ liệu được cung cấp.
+    2. Nếu người dùng muốn TẠO THÔNG BÁO, hãy trả về JSON duy nhất:
+       {"action": "create_notification", "title": "Tiêu đề", "content": "Nội dung", "type": "normal/online/poll", "suggestions": ["Xem danh sách thông báo"]}
+    3. Nếu người dùng muốn TẠO BÌNH CHỌN, hãy trả về JSON duy nhất:
+       {"action": "create_poll", "question": "Câu hỏi", "options": "Lựa chọn 1, Lựa chọn 2...", "suggestions": ["Xem kết quả bình chọn"]}
+    4. Nếu người dùng muốn TRẢ LỜI PHẢN ÁNH (VD: "Trả lời phản ánh ID..."), hãy soạn nội dung trả lời lịch sự và trả về JSON:
+       {"action": "reply_feedback", "id": "ID phản ánh", "content": "Nội dung trả lời", "suggestions": ["Xem danh sách phản ánh"]}
+    5. Nếu hỏi về Logs, hãy tóm tắt các hoạt động gần đây.
+    6. Nếu được hỏi về xu hướng điểm danh, hãy phân tích dữ liệu 7 ngày qua và đưa ra nhận xét (tăng/giảm, ngày nào vắng nhiều...).
+    7. QUẢN LÝ HỆ THỐNG & TAB:
+       - Đổi cài đặt: {"action": "change_setting", "setting": "KEY", "value": VALUE, "text": "Đã thực hiện...", "suggestions": [...]}
+         Các KEY hỗ trợ:
+         - Giao diện/Hệ thống: dark_mode, maintenance
+         - Thông báo khẩn: troll_enabled, troll_mode, troll_title, troll_content
+         - Chữ chạy: marquee_enabled, marquee_text
+         - Bảo trì tính năng (TRUE=Khóa): maint_attendance, maint_students, maint_funds, maint_notis, maint_eval, maint_feedback
+         - Khóa khác: att_blocked (khóa điểm danh), registration_locked (khóa đăng ký), student_import_locked (khóa nhập HS)
+       - Chuyển tab: {"action": "navigate_tab", "tab": "tab-dashboard/tab-students-list/tab-managers-list/tab-groups-list/tab-upload/tab-notifications/tab-feedbacks/tab-evaluations/tab-system-logs", "text": "Đang chuyển tab...", "suggestions": [...]}
+       - Lên lịch bảo trì: {"action": "schedule_maintenance", "start": "YYYY-MM-DDTHH:mm", "end": "YYYY-MM-DDTHH:mm", "text": "Đã lên lịch...", "suggestions": [...]}
+    8. TRÍCH XUẤT & BÁO CÁO NÂNG CAO:
+       - Nếu người dùng yêu cầu báo cáo, phân tích, trích xuất dữ liệu chi tiết (VD: "Phân tích học sinh", "Thống kê nhóm", "Báo cáo điểm danh", "Trích xuất log", "Danh sách học sinh nhóm 1"), hãy trả về JSON:
+         {"action": "analyze_data", "target": "students"|"attendance"|"groups"|"logs", "filters": {"group": "...", "name": "...", "date": "...", "user": "..."}, "text": "Đang trích xuất dữ liệu...", "suggestions": [...]}
+    9. LUÔN trả về JSON có trường "suggestions" (mảng string) chứa 2-3 câu lệnh gợi ý tiếp theo cho người dùng. Nếu chỉ trả lời text, hãy dùng format: {"text": "Nội dung...", "suggestions": ["Gợi ý 1", "Gợi ý 2"]}
+    10. Trả lời ngắn gọn, chuyên nghiệp bằng tiếng Việt.
+    `;
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${groqApiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: message }],
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.5
+            })
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        document.getElementById('aiTyping').style.display = 'none';
+
+        if (data.choices && data.choices.length > 0) {
+            const content = data.choices[0].message.content;
+            
+            let responseText = content;
+            let suggestions = [];
+
+            // Try parse JSON action
+            try {
+                const jsonStart = content.indexOf('{');
+                const jsonEnd = content.lastIndexOf('}');
+                if (jsonStart !== -1 && jsonEnd !== -1) {
+                    const jsonStr = content.substring(jsonStart, jsonEnd + 1);
+                    const actionData = JSON.parse(jsonStr);
+                    
+                    if (actionData.text) responseText = actionData.text;
+                    if (actionData.suggestions) suggestions = actionData.suggestions;
+
+                    if (actionData.action === 'create_notification') {
+                        openNotiModal();
+                        $('#n_title').val(actionData.title);
+                        $('#n_content').val(actionData.content);
+                        $('#n_type').val(actionData.type || 'normal');
+                        responseText = `✅ Đã mở form tạo thông báo với nội dung được soạn sẵn.`;
+                    } else if (actionData.action === 'create_poll') {
+                        openPollModal();
+                        $('#poll_question').val(actionData.question);
+                        $('#poll_options').val(actionData.options);
+                        responseText = `✅ Đã mở form tạo bình chọn.`;
+                    } else if (actionData.action === 'reply_feedback') {
+                        openReply(actionData.id);
+                        $('#reply_content').val(actionData.content);
+                        responseText = `✅ Đã mở form trả lời phản ánh ID ${actionData.id}.`;
+                    } else if (actionData.action === 'change_setting' || actionData.action === 'navigate_tab' || actionData.action === 'schedule_maintenance') {
+                        handleAiAction(actionData.action, actionData);
+                        if (!actionData.text) responseText = `✅ Đã thực hiện yêu cầu: ${actionData.action}`;
+                    } else if (actionData.action === 'analyze_data') {
+                        renderAIAnalysis(actionData.target, actionData.filters || {});
+                        if (!actionData.text) responseText = `✅ Đã trích xuất dữ liệu ${actionData.target}.`;
+                    }
+                }
+            } catch (e) {}
+
+            if (responseText) appendMessage('ai', responseText);
+            updateAiSuggestions(suggestions);
+        }
+    } catch (error) {
+        document.getElementById('aiTyping').style.display = 'none';
+        appendMessage('ai', `❌ Lỗi: ${error.message}`);
+    }
+}
+
+async function renderAIAnalysis(target, filters) {
+    await loadLib('Chart');
+    await loadLib('XLSX');
+
+    const containerId = 'ai-analysis-' + Date.now();
+    let contentHtml = `<div id="${containerId}" class="ai-card"><div class="ai-card-body">`;
+    let chartConfigs = [];
+    let excelData = [];
+    let excelName = 'Report';
+
+    if (target === 'students') {
+        let data = globalStudentsData;
+        if (filters.group) data = data.filter(s => s.group_display && s.group_display.toLowerCase().includes(filters.group.toLowerCase()));
+        if (filters.name) data = data.filter(s => s.fullname && s.fullname.toLowerCase().includes(filters.name.toLowerCase()));
+        
+        excelName = 'Danh_Sach_Hoc_Sinh_AI';
+        excelData = data.map(s => ({ "ID": s.id, "Họ Tên": s.fullname, "Giới tính": s.gender, "Năm sinh": s.dob, "Lớp": s.class_name, "Nhóm": s.group_display, "Trường": s.school, "SĐT": s.phone, "Địa chỉ": s.address }));
+
+        const genderCounts = { 'Nam': 0, 'Nữ': 0, 'Khác': 0 };
+        const groupCounts = {};
+        data.forEach(s => {
+            genderCounts[s.gender || 'Khác'] = (genderCounts[s.gender || 'Khác'] || 0) + 1;
+            groupCounts[s.group_display] = (groupCounts[s.group_display] || 0) + 1;
+        });
+
+        const chartId1 = `chart-gender-${Date.now()}`;
+        const chartId2 = `chart-group-${Date.now()}`;
+        
+        contentHtml += `<h6 class="font-weight-bold text-primary mb-3">Phân tích Học sinh (${data.length})</h6>`;
+        contentHtml += `<div class="row">
+            <div class="col-md-6"><div class="chart-wrapper" style="height:200px"><canvas id="${chartId1}"></canvas></div><button class="btn btn-xs btn-outline-secondary btn-block mt-1" onclick="downloadChartImage('${chartId1}', 'Gender_Chart.png')"><i class="fas fa-download"></i> Tải ảnh</button></div>
+            <div class="col-md-6"><div class="chart-wrapper" style="height:200px"><canvas id="${chartId2}"></canvas></div><button class="btn btn-xs btn-outline-secondary btn-block mt-1" onclick="downloadChartImage('${chartId2}', 'Group_Chart.png')"><i class="fas fa-download"></i> Tải ảnh</button></div>
+        </div>`;
+        
+        chartConfigs.push({ id: chartId1, type: 'pie', data: { labels: Object.keys(genderCounts), datasets: [{ data: Object.values(genderCounts), backgroundColor: ['#007bff', '#e83e8c', '#6c757d'] }] }, options: { plugins: { legend: { position: 'right' } }, maintainAspectRatio: false } });
+        chartConfigs.push({ id: chartId2, type: 'bar', data: { labels: Object.keys(groupCounts), datasets: [{ label: 'Số lượng', data: Object.values(groupCounts), backgroundColor: '#17a2b8' }] }, options: { plugins: { legend: { display: false } }, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+
+        contentHtml += `<div class="table-responsive mt-3" style="max-height: 300px;"><table class="table table-sm table-bordered table-head-fixed text-nowrap"><thead><tr><th>Tên</th><th>Giới tính</th><th>Năm sinh</th><th>Lớp</th><th>Nhóm</th><th>Trường</th><th>SĐT</th><th>Địa chỉ</th></tr></thead><tbody>`;
+        data.forEach(s => contentHtml += `<tr><td>${s.fullname}</td><td>${s.gender || ''}</td><td>${s.dob || ''}</td><td>${s.class_name || ''}</td><td>${s.group_display || ''}</td><td>${s.school || ''}</td><td>${s.phone || ''}</td><td>${s.address || ''}</td></tr>`);
+        contentHtml += `</tbody></table></div>`;
+
+    } else if (target === 'attendance') {
+        let data = globalHistoryData;
+        if (filters.date) data = data.filter(h => h.timestamp.includes(filters.date));
+        excelName = 'Bao_Cao_Diem_Danh_AI';
+        excelData = data.map(h => ({ "Thời gian": h.timestamp, "Học sinh": h.student_name, "Nhóm": h.group_id, "Trạng thái": h.status, "Người ghi": h.recorded_by, "Lý do": h.reason }));
+        const statusCounts = { 'present': 0, 'absent_perm': 0, 'absent': 0 };
+        data.forEach(h => { if(statusCounts[h.status] !== undefined) statusCounts[h.status]++; });
+        const chartId = `chart-att-${Date.now()}`;
+        contentHtml += `<h6 class="font-weight-bold text-success mb-3">Báo cáo Điểm danh (${data.length} lượt)</h6>`;
+        contentHtml += `<div class="chart-wrapper" style="height:200px"><canvas id="${chartId}"></canvas></div><button class="btn btn-xs btn-outline-secondary btn-block mt-1" onclick="downloadChartImage('${chartId}', 'Attendance_Chart.png')"><i class="fas fa-download"></i> Tải ảnh</button>`;
+        chartConfigs.push({ id: chartId, type: 'doughnut', data: { labels: ['Có mặt', 'Vắng (P)', 'Vắng (K)'], datasets: [{ data: [statusCounts.present, statusCounts.absent_perm, statusCounts.absent], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }] }, options: { maintainAspectRatio: false } });
+        contentHtml += `<div class="table-responsive mt-3" style="max-height: 300px;"><table class="table table-sm table-bordered table-head-fixed text-nowrap"><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Nhóm</th><th>Trạng thái</th><th>Người ghi</th><th>Lý do</th></tr></thead><tbody>`;
+        data.slice(0, 100).forEach(h => contentHtml += `<tr><td>${h.timestamp}</td><td>${h.student_name}</td><td>${h.group_id}</td><td>${h.status}</td><td>${h.recorded_by}</td><td>${h.reason || ''}</td></tr>`);
+        contentHtml += `</tbody></table></div>`;
+
+    } else if (target === 'groups') {
+        let data = globalGroupsData;
+        excelName = 'Thong_Ke_Nhom_AI';
+        excelData = data.map(g => ({ "Mã Nhóm": g.group_id, "Tên Nhóm": g.group_name, "Số lượng": g.count, "Giới hạn": g.limit }));
+        const chartId = `chart-groups-${Date.now()}`;
+        contentHtml += `<h6 class="font-weight-bold text-info mb-3">Thống kê Nhóm (${data.length})</h6>`;
+        contentHtml += `<div class="chart-wrapper" style="height:250px"><canvas id="${chartId}"></canvas></div><button class="btn btn-xs btn-outline-secondary btn-block mt-1" onclick="downloadChartImage('${chartId}', 'Groups_Chart.png')"><i class="fas fa-download"></i> Tải ảnh</button>`;
+        chartConfigs.push({ id: chartId, type: 'bar', data: { labels: data.map(g => g.group_name), datasets: [{ label: 'Thành viên', data: data.map(g => g.count), backgroundColor: '#6610f2' }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+        contentHtml += `<div class="table-responsive mt-3"><table class="table table-sm table-bordered"><thead><tr><th>Nhóm</th><th>Số lượng</th><th>Giới hạn</th></tr></thead><tbody>`;
+        data.forEach(g => contentHtml += `<tr><td>${g.group_name}</td><td>${g.count}</td><td>${g.limit || '∞'}</td></tr>`);
+        contentHtml += `</tbody></table></div>`;
+    } else if (target === 'logs') {
+        let data = globalLogsData;
+        if (filters.user) data = data.filter(l => l.username && l.username.toLowerCase().includes(filters.user.toLowerCase()));
+        if (filters.action) data = data.filter(l => l.action && l.action.toLowerCase().includes(filters.action.toLowerCase()));
+        
+        excelName = 'System_Logs_AI';
+        excelData = data.map(l => ({ "Thời gian": l.timestamp, "User": l.username, "Hành động": l.action, "Chi tiết": l.details }));
+        
+        contentHtml += `<h6 class="font-weight-bold text-secondary mb-3">Nhật ký Hệ thống (${data.length})</h6>`;
+        contentHtml += `<div class="table-responsive mt-3" style="max-height: 300px;"><table class="table table-sm table-bordered table-head-fixed text-nowrap"><thead><tr><th>Thời gian</th><th>User</th><th>Hành động</th><th>Chi tiết</th></tr></thead><tbody>`;
+        data.slice(0, 100).forEach(l => contentHtml += `<tr><td>${l.timestamp}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
+        contentHtml += `</tbody></table></div>`;
+    }
+
+    contentHtml += `<div class="mt-2 pt-2 border-top"><button class="btn btn-sm btn-success font-weight-bold" onclick='exportJsonToExcel(${JSON.stringify(excelData)}, "${excelName}")'><i class="fas fa-file-excel mr-2"></i>Xuất Excel</button></div>`;
+    contentHtml += `</div></div>`;
+
+    appendMessage('ai', contentHtml);
+    chartConfigs.forEach(c => { new Chart(document.getElementById(c.id), { type: c.type, data: c.data, options: c.options }); });
+    const history = document.getElementById('aiChatHistory'); history.scrollTop = history.scrollHeight;
+}
+
+function exportJsonToExcel(data, filename) {
+    if (!data || data.length === 0) return toastr.warning("Không có dữ liệu để xuất!");
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    XLSX.writeFile(wb, filename + ".xlsx");
+}
 </script>
+</body>
+</html>t>
 </body>
 </html>

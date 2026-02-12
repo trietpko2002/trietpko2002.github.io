@@ -89,6 +89,11 @@ function doPost(e) {
     if (action === 'GET_POLL_RESULTS') return handleGetPollResults(payload);
     if (action === 'GET_POLL_VOTES') return handleGetPollVotes(payload);
 
+    // --- 6. NHÓM TÍNH NĂNG GOOGLE LOGIN ---
+    if (action === 'LOGIN_GOOGLE') return handleLoginGoogle(payload);
+    if (action === 'LINK_GOOGLE') return handleLinkGoogle(payload);
+    if (action === 'UNLINK_GOOGLE') return handleUnlinkGoogle(payload);
+
     return response({ status: 'error', message: 'Hành động không hợp lệ' });
   } catch (err) {
     return response({ status: 'error', message: 'Lỗi server: ' + err.toString() });
@@ -97,6 +102,97 @@ function doPost(e) {
 
 function getSchoolList() {
   return response({ status: 'success', data: SCHOOL_LIST });
+}
+
+function handleLogin(payload) {
+  const sheet = ss.getSheetByName('users');
+  const rows = sheet.getDataRange().getValues();
+  const userIn = payload.username.toString().trim();
+  const passIn = payload.password.toString().trim();
+  
+  cleanUpSystem();
+
+  let isMaintenance = false;
+  const settingsSheet = ss.getSheetByName('settings');
+  if (settingsSheet) {
+    const sData = settingsSheet.getDataRange().getValues();
+    for (let k = 1; k < sData.length; k++) {
+      if (sData[k][0] === 'maintenance_mode' && String(sData[k][1]).toUpperCase() === 'TRUE') {
+        isMaintenance = true; break;
+      }
+    }
+  }
+
+  const secData = getSecurityData(userIn);
+  if (secData.failedAttempts >= 10) {
+     return response({ status: "error", message: "Tài khoản bị tạm khóa do nhập sai mật khẩu quá 10 lần." });
+  }
+
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i][0].toString().trim() === userIn) {
+      if (rows[i][1].toString().trim() === passIn) {
+        const role = rows[i][2].toString().trim().toLowerCase();
+        if (isMaintenance && role !== 'admin') return response({ status: "error", message: "Hệ thống đang bảo trì." });
+
+        // --- LOGIC XÁC THỰC SĐT KHI ĐĂNG NHẬP LIÊN TIẾP ---
+        if (secData.successfulAttempts >= 1) {
+            if (!payload.phone_verified) {
+                const storedPhone = rows[i][10] ? String(rows[i][10]).trim() : "";
+                // Chỉ yêu cầu nếu trong hồ sơ có SĐT hợp lệ
+                if (storedPhone && storedPhone.length > 5) {
+                    return response({ 
+                        status: "require_phone_auth", 
+                        phone_hint: "..." + storedPhone.slice(-4) 
+                    });
+                }
+            } else {
+                // Kiểm tra SĐT đã xác thực có khớp với hồ sơ không
+                const storedPhone = rows[i][10] ? String(rows[i][10]).trim() : "";
+                const verifiedPhone = payload.verified_phone || "";
+                
+                // Chuẩn hóa để so sánh (bỏ số 0 đầu, bỏ +84, bỏ ký tự lạ)
+                const p1 = storedPhone.replace(/\D/g, '').replace(/^84|^0/, '');
+                const p2 = verifiedPhone.replace(/\D/g, '').replace(/^84|^0/, '');
+                
+                if (p1 !== p2) {
+                    return response({ status: "error", message: "Số điện thoại xác thực không khớp với SĐT trong hồ sơ!" });
+                }
+            }
+        }
+
+        // Kiểm tra thiết bị (User Agent)
+        const currentUA = payload.userAgent || "Unknown Device";
+        let devices = secData.devices || [];
+        if (!devices.includes(currentUA)) {
+          devices.push(currentUA);
+        }
+
+        updateSecurityData(userIn, 0, devices, secData.successfulAttempts + 1);
+
+        writeLog(userIn, "LOGIN", "Đăng nhập thành công");
+        return response({ 
+          status: "success", 
+          user: { 
+            username: rows[i][0], 
+            role: role, 
+            group_id: rows[i][3].toString(), 
+            group_name: getGroupName(rows[i][3].toString()), 
+            fullname: rows[i][4], 
+            avatar: rows[i][5] || 'https://via.placeholder.com/150', 
+            email: rows[i][6] || '', 
+            is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
+            honors: rows[i][9] || '', 
+            phone: rows[i][10] || '', 
+            google_uid: rows[i][11] || '' 
+          } 
+        });
+      } else {
+        updateSecurityData(userIn, secData.failedAttempts + 1, secData.devices, 0);
+        return response({ status: "error", message: "Sai mật khẩu! (Lần " + (secData.failedAttempts + 1) + "/10)" });
+      }
+    }
+  }
+  return response({ status: "error", message: "Sai tài khoản hoặc mật khẩu!" });
 }
 
 // ============================================================
@@ -950,7 +1046,8 @@ function handleLogin(payload) {
             email: rows[i][6] || '', // Cột G: Email
             is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
             honors: rows[i][9] || '', // Cột J: Vinh danh (JSON)
-            phone: rows[i][10] || '' // Cột K: SĐT
+            phone: rows[i][10] || '', // Cột K: SĐT
+            google_uid: rows[i][11] || '' // Cột L: Google UID
           } 
         });
       } else {
@@ -1428,4 +1525,127 @@ function updateSecurityData(username, failedCount, devices, successfulCount) {
     // Thêm dòng mới
     sheet.appendRow([username, failedCount, devicesJson, successfulCount]);
   }
+}
+
+// ============================================================
+// CÁC HÀM XỬ LÝ GOOGLE LOGIN
+// ============================================================
+
+function handleLoginGoogle(payload) {
+  const sheet = ss.getSheetByName('users');
+  const rows = sheet.getDataRange().getValues();
+  const googleUid = payload.google_uid;
+  
+  // --- CHECK MAINTENANCE MODE ---
+  let isMaintenance = false;
+  const settingsSheet = ss.getSheetByName('settings');
+  if (settingsSheet) {
+    const sData = settingsSheet.getDataRange().getValues();
+    for (let k = 1; k < sData.length; k++) {
+      if (sData[k][0] === 'maintenance_mode' && String(sData[k][1]).toUpperCase() === 'TRUE') {
+        isMaintenance = true; break;
+      }
+    }
+  }
+
+  for (let i = 1; i < rows.length; i++) {
+    // Check column L (index 11) for Google UID
+    if (String(rows[i][11]) === String(googleUid)) {
+        const role = rows[i][2].toString().trim().toLowerCase();
+        
+        if (isMaintenance && role !== 'admin') {
+            return response({ status: "error", message: "Hệ thống đang bảo trì." });
+        }
+
+        // --- SYNC GOOGLE INFO ---
+        let updated = false;
+        if (payload.fullname && payload.fullname !== rows[i][4]) {
+             sheet.getRange(i + 1, 5).setValue(payload.fullname);
+             rows[i][4] = payload.fullname;
+             updated = true;
+        }
+        if (payload.avatar && payload.avatar !== rows[i][5]) {
+             sheet.getRange(i + 1, 6).setValue(payload.avatar);
+             rows[i][5] = payload.avatar;
+             updated = true;
+        }
+        if (payload.email && payload.email !== rows[i][6]) {
+             sheet.getRange(i + 1, 7).setValue(payload.email);
+             rows[i][6] = payload.email;
+             updated = true;
+        }
+        if (payload.phone && payload.phone !== rows[i][10]) {
+             sheet.getRange(i + 1, 11).setValue(payload.phone);
+             rows[i][10] = payload.phone;
+             updated = true;
+        }
+
+        writeLog(rows[i][0], "LOGIN_GOOGLE", "Đăng nhập bằng Google" + (updated ? " (Đã đồng bộ)" : ""));
+        return response({ 
+          status: "success", 
+          user: { 
+            username: rows[i][0], 
+            role: role, 
+            group_id: rows[i][3].toString(), 
+            group_name: getGroupName(rows[i][3].toString()), 
+            fullname: rows[i][4], 
+            avatar: rows[i][5] || 'https://via.placeholder.com/150', 
+            email: rows[i][6] || '', 
+            is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
+            honors: rows[i][9] || '',
+            phone: rows[i][10] || '',
+            google_uid: rows[i][11] || ''
+          } 
+        });
+    }
+  }
+  return response({ status: "error", message: "Tài khoản Google chưa được liên kết." });
+}
+
+function handleLinkGoogle(payload) {
+  try {
+    const sheet = ss.getSheetByName('users');
+    const rows = sheet.getDataRange().getValues();
+    const username = payload.username;
+    const googleUid = payload.google_uid;
+    
+    // Check if google_uid is already used
+    for (let i = 1; i < rows.length; i++) {
+        if (String(rows[i][11]) === String(googleUid) && rows[i][0] !== username) {
+            return response({ status: 'error', message: 'Tài khoản Google này đã được liên kết với user khác!' });
+        }
+    }
+
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0].toString().trim() === username) {
+        sheet.getRange(i + 1, 12).setValue(googleUid); // Column L (12)
+        
+        if (payload.fullname) sheet.getRange(i + 1, 5).setValue(payload.fullname);
+        if (payload.avatar) sheet.getRange(i + 1, 6).setValue(payload.avatar);
+        if (payload.email) sheet.getRange(i + 1, 7).setValue(payload.email);
+        if (payload.phone) sheet.getRange(i + 1, 11).setValue(payload.phone);
+
+        writeLog(username, "LINK_GOOGLE", "Liên kết Google UID và đồng bộ");
+        return response({ status: 'success', message: 'Đã liên kết Google và đồng bộ thông tin thành công!' });
+      }
+    }
+    return response({ status: 'error', message: 'User not found' });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+function handleUnlinkGoogle(payload) {
+  try {
+    const sheet = ss.getSheetByName('users');
+    const rows = sheet.getDataRange().getValues();
+    const username = payload.username;
+
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0].toString().trim() === username) {
+        sheet.getRange(i + 1, 12).setValue(""); // Clear Column L
+        writeLog(username, "UNLINK_GOOGLE", "Hủy liên kết Google");
+        return response({ status: 'success', message: 'Đã hủy liên kết Google!' });
+      }
+    }
+    return response({ status: 'error', message: 'User not found' });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
 }
