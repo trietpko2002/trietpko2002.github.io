@@ -4433,7 +4433,8 @@ async function processAiMessage(message) {
        - Nếu người dùng yêu cầu báo cáo, phân tích, trích xuất dữ liệu chi tiết (VD: "Phân tích học sinh", "Thống kê nhóm", "Báo cáo điểm danh", "Trích xuất log", "Danh sách học sinh nhóm 1"), hãy trả về JSON:
          {"action": "analyze_data", "target": "students"|"attendance"|"groups"|"logs", "filters": {"group": "...", "name": "...", "date": "...", "user": "..."}, "text": "Đang trích xuất dữ liệu...", "suggestions": [...]}
     9. LUÔN trả về JSON có trường "suggestions" (mảng string) chứa 2-3 câu lệnh gợi ý tiếp theo cho người dùng. Nếu chỉ trả lời text, hãy dùng format: {"text": "Nội dung...", "suggestions": ["Gợi ý 1", "Gợi ý 2"]}
-    10. Trả lời ngắn gọn, chuyên nghiệp bằng tiếng Việt.
+    10. Nếu người dùng muốn THÊM HỌC SINH (VD: "Thêm học sinh", "Tạo học sinh mới"), hãy trả về JSON: {"action": "show_add_student_form", "suggestions": ["Xem danh sách học sinh"]}.
+    11. Trả lời ngắn gọn, chuyên nghiệp bằng tiếng Việt.
     `;
 
     try {
@@ -4489,6 +4490,9 @@ async function processAiMessage(message) {
                     } else if (actionData.action === 'analyze_data') {
                         renderAIAnalysis(actionData.target, actionData.filters || {});
                         if (!actionData.text) responseText = `✅ Đã trích xuất dữ liệu ${actionData.target}.`;
+                    } else if (actionData.action === 'show_add_student_form') {
+                        renderAddStudentFormAI();
+                        responseText = `✅ Đã mở form thêm học sinh.`;
                     }
                 }
             } catch (e) {}
@@ -4499,6 +4503,71 @@ async function processAiMessage(message) {
     } catch (error) {
         document.getElementById('aiTyping').style.display = 'none';
         appendMessage('ai', `❌ Lỗi: ${error.message}`);
+    }
+}
+
+function renderAddStudentFormAI() {
+    const containerId = 'ai-add-st-' + Date.now();
+    
+    let html = `
+    <div class="ai-card" id="${containerId}">
+        <div class="ai-card-header bg-primary text-white"><i class="fas fa-user-plus mr-2"></i>Thêm Học sinh (Admin)</div>
+        <div class="ai-card-body">
+            <div class="form-group mb-2">
+                <label>Họ và Tên <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" id="ai_st_name_${containerId}" placeholder="Nhập tên...">
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group mb-2">
+                        <label>Nhóm</label>
+                        <input type="text" class="form-control form-control-sm" id="ai_st_group_${containerId}" placeholder="Mã nhóm...">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group mb-2">
+                        <label>Giới tính</label>
+                        <select class="form-control form-control-sm" id="ai_st_gender_${containerId}">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-primary btn-block font-weight-bold" onclick="submitAiAddStudent('${containerId}')">
+                <i class="fas fa-save mr-2"></i>Lưu Học sinh
+            </button>
+        </div>
+    </div>`;
+    
+    appendMessage('ai', html);
+    const history = document.getElementById('aiChatHistory'); history.scrollTop = history.scrollHeight;
+}
+
+async function submitAiAddStudent(containerId) {
+    const name = $(`#ai_st_name_${containerId}`).val().trim();
+    const group = $(`#ai_st_group_${containerId}`).val().trim();
+    const gender = $(`#ai_st_gender_${containerId}`).val();
+    
+    if (!name || !group) return toastr.warning("Vui lòng nhập tên và nhóm!");
+    
+    const id = 'ST' + Date.now();
+    const dataArr = [id, name, gender, "", "", "", "", "", group, "", "", ""];
+
+    $(`#${containerId} button`).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+    try {
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "ADD_DATA", payload: { type: 'students', data: dataArr } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            $(`#${containerId}`).html(`<div class="alert alert-success m-3"><i class="fas fa-check-circle mr-2"></i>Đã thêm học sinh <b>${name}</b> vào nhóm <b>${group}</b>!</div>`);
+            refreshAll();
+        } else {
+            toastr.error(res.message);
+            $(`#${containerId} button`).prop('disabled', false).html('<i class="fas fa-save mr-2"></i>Lưu Học sinh');
+        }
+    } catch (e) { 
+        toastr.error("Lỗi kết nối");
+        $(`#${containerId} button`).prop('disabled', false).html('<i class="fas fa-save mr-2"></i>Lưu Học sinh');
     }
 }
 
@@ -4555,7 +4624,7 @@ async function renderAIAnalysis(target, filters) {
         contentHtml += `<div class="chart-wrapper" style="height:200px"><canvas id="${chartId}"></canvas></div><button class="btn btn-xs btn-outline-secondary btn-block mt-1" onclick="downloadChartImage('${chartId}', 'Attendance_Chart.png')"><i class="fas fa-download"></i> Tải ảnh</button>`;
         chartConfigs.push({ id: chartId, type: 'doughnut', data: { labels: ['Có mặt', 'Vắng (P)', 'Vắng (K)'], datasets: [{ data: [statusCounts.present, statusCounts.absent_perm, statusCounts.absent], backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }] }, options: { maintainAspectRatio: false } });
         contentHtml += `<div class="table-responsive mt-3" style="max-height: 300px;"><table class="table table-sm table-bordered table-head-fixed text-nowrap"><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Nhóm</th><th>Trạng thái</th><th>Người ghi</th><th>Lý do</th></tr></thead><tbody>`;
-        data.slice(0, 100).forEach(h => contentHtml += `<tr><td>${h.timestamp}</td><td>${h.student_name}</td><td>${h.group_id}</td><td>${h.status}</td><td>${h.recorded_by}</td><td>${h.reason || ''}</td></tr>`);
+        data.forEach(h => contentHtml += `<tr><td>${h.timestamp}</td><td>${h.student_name}</td><td>${h.group_id}</td><td>${h.status}</td><td>${h.recorded_by}</td><td>${h.reason || ''}</td></tr>`);
         contentHtml += `</tbody></table></div>`;
 
     } else if (target === 'groups') {
@@ -4579,7 +4648,7 @@ async function renderAIAnalysis(target, filters) {
         
         contentHtml += `<h6 class="font-weight-bold text-secondary mb-3">Nhật ký Hệ thống (${data.length})</h6>`;
         contentHtml += `<div class="table-responsive mt-3" style="max-height: 300px;"><table class="table table-sm table-bordered table-head-fixed text-nowrap"><thead><tr><th>Thời gian</th><th>User</th><th>Hành động</th><th>Chi tiết</th></tr></thead><tbody>`;
-        data.slice(0, 100).forEach(l => contentHtml += `<tr><td>${l.timestamp}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
+        data.forEach(l => contentHtml += `<tr><td>${l.timestamp}</td><td>${l.username}</td><td>${l.action}</td><td>${l.details}</td></tr>`);
         contentHtml += `</tbody></table></div>`;
     }
 
