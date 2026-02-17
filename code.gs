@@ -93,6 +93,7 @@ function doPost(e) {
     if (action === 'LOGIN_GOOGLE') return handleLoginGoogle(payload);
     if (action === 'LINK_GOOGLE') return handleLinkGoogle(payload);
     if (action === 'UNLINK_GOOGLE') return handleUnlinkGoogle(payload);
+    if (action === 'UPDATE_USER_SETTINGS') return handleUpdateUserSettings(payload);
 
     return response({ status: 'error', message: 'Hành động không hợp lệ' });
   } catch (err) {
@@ -183,7 +184,8 @@ function handleLogin(payload) {
             is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
             honors: rows[i][9] || '', 
             phone: rows[i][10] || '', 
-            google_uid: rows[i][11] || '' 
+            google_uid: rows[i][11] || '',
+            groq_api_key: rows[i][12] || ''
           } 
         });
       } else {
@@ -1047,7 +1049,8 @@ function handleLogin(payload) {
             is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
             honors: rows[i][9] || '', // Cột J: Vinh danh (JSON)
             phone: rows[i][10] || '', // Cột K: SĐT
-            google_uid: rows[i][11] || '' // Cột L: Google UID
+            google_uid: rows[i][11] || '', // Cột L: Google UID
+            groq_api_key: rows[i][12] || '' // Cột M: Groq API Key
           } 
         });
       } else {
@@ -1594,7 +1597,8 @@ function handleLoginGoogle(payload) {
             is_default_pass: (rows[i][1].toString().trim() === 'Abc@123'),
             honors: rows[i][9] || '',
             phone: rows[i][10] || '',
-            google_uid: rows[i][11] || ''
+            google_uid: rows[i][11] || '',
+            groq_api_key: rows[i][12] || ''
           } 
         });
     }
@@ -1627,6 +1631,21 @@ function handleLinkGoogle(payload) {
 
         writeLog(username, "LINK_GOOGLE", "Liên kết Google UID và đồng bộ");
         return response({ status: 'success', message: 'Đã liên kết Google và đồng bộ thông tin thành công!' });
+      }
+    }
+    return response({ status: 'error', message: 'User not found' });
+  } catch (e) { return response({ status: 'error', message: e.toString() }); }
+}
+
+function handleUpdateUserSettings(payload) {
+  try {
+    const sheet = ss.getSheetByName('users');
+    const rows = sheet.getDataRange().getValues();
+    const username = String(payload.username).trim();
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0].toString().trim() === username) {
+        if (payload.groq_api_key !== undefined) sheet.getRange(i + 1, 13).setValue(payload.groq_api_key);
+        return response({ status: 'success', message: 'Đã cập nhật cài đặt người dùng!' });
       }
     }
     return response({ status: 'error', message: 'User not found' });
