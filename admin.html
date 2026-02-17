@@ -437,6 +437,7 @@
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title"><i class="fas fa-brain mr-2"></i>Trợ lý ảo Admin (Groq AI)</h3>
                         <div class="card-tools ml-auto">
+                            <button class="btn btn-tool" onclick="setGroqKey()" title="Cấu hình API Key"><i class="fas fa-key"></i></button>
                             <button class="btn btn-tool" onclick="clearChatHistory()"><i class="fas fa-trash"></i> Xóa chat</button>
                         </div>
                     </div>
@@ -4164,22 +4165,79 @@ window.addEventListener('load', initFpsMonitor);
 // --- ADMIN AI ASSISTANT LOGIC ---
 const DEFAULT_GROQ_KEY = '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'; // Key mặc định (nếu có)
 let groqApiKey = localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY;
+// Check session for synced key
+try { const u = JSON.parse(sessionStorage.getItem('user')); if(u && u.groq_api_key) groqApiKey = u.groq_api_key; } catch(e){}
 
 function setGroqKey() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const isLinked = user && (user.google_uid || user.email);
+
     Swal.fire({
         title: 'Cấu hình Groq AI',
-        input: 'text',
-        inputLabel: 'Nhập API Key (gsk_...)',
-        inputValue: groqApiKey,
+        html: `
+            <p class="text-muted small">Nhập API Key cá nhân để sử dụng ổn định hơn.</p>
+            <input id="swal-input-key" class="swal2-input" placeholder="gsk_..." value="${groqApiKey === DEFAULT_GROQ_KEY ? '' : groqApiKey}">
+            ${isLinked ? `
+            <div class="form-group mt-3 text-left px-4">
+                <label>Tùy chọn lưu trữ:</label>
+                <div class="custom-control custom-radio">
+                    <input type="radio" id="save_local" name="save_method" class="custom-control-input" value="local" checked>
+                    <label class="custom-control-label" for="save_local">Chỉ lưu trên trình duyệt này</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input type="radio" id="save_account" name="save_method" class="custom-control-input" value="account">
+                    <label class="custom-control-label" for="save_account">Lưu vào tài khoản (Đồng bộ)</label>
+                </div>
+            </div>` : ''}
+        `,
         showCancelButton: true,
-        confirmButtonText: 'Lưu'
+        confirmButtonText: 'Lưu Cấu hình',
+        footer: '<a href="https://console.groq.com/keys" target="_blank">Lấy API Key miễn phí tại đây</a>',
+        preConfirm: () => {
+            return {
+                key: document.getElementById('swal-input-key').value,
+                method: isLinked ? document.querySelector('input[name="save_method"]:checked').value : 'local'
+            }
+        }
     }).then((result) => {
         if (result.isConfirmed) {
-            groqApiKey = result.value;
-            localStorage.setItem('groq_api_key', groqApiKey);
-            toastr.success('Đã lưu API Key!');
+            const { key, method } = result.value;
+            if (key) {
+                groqApiKey = key;
+                localStorage.setItem('groq_api_key', key);
+                if (method === 'account') {
+                    saveApiKeyToAccount(key);
+                } else {
+                    toastr.success('Đã lưu API Key vào bộ nhớ máy!');
+                }
+            }
         }
     });
+}
+
+async function saveApiKeyToAccount(key) {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    Swal.fire({ title: 'Đang đồng bộ...', didOpen: () => Swal.showLoading() });
+    try {
+        const response = await fetch(API_URL, { 
+            method: "POST", 
+            redirect: "follow", 
+            body: JSON.stringify({ 
+                action: "UPDATE_USER_SETTINGS", 
+                payload: { username: user.username, groq_api_key: key } 
+            }) 
+        });
+        const res = await response.json();
+        if (res.status === 'success') {
+            user.groq_api_key = key;
+            sessionStorage.setItem('user', JSON.stringify(user));
+            Swal.fire('Thành công', 'Đã lưu API Key vào tài khoản!', 'success');
+        } else {
+            Swal.fire('Lỗi', 'Không thể lưu vào tài khoản: ' + res.message, 'error');
+        }
+    } catch (e) {
+        Swal.fire('Lỗi', 'Lỗi kết nối', 'error');
+    }
 }
 
 function initAdminAIChat() {
@@ -4448,7 +4506,15 @@ async function processAiMessage(message) {
             })
         });
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+            if (response.status === 401) {
+                document.getElementById('aiTyping').style.display = 'none';
+                appendMessage('ai', '⚠️ API Key đã hết hạn hoặc không hợp lệ. Vui lòng cập nhật lại.');
+                setGroqKey();
+                return;
+            }
+            throw new Error(`HTTP ${response.status}`);
+        }
         const data = await response.json();
         document.getElementById('aiTyping').style.display = 'none';
 
