@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Quản trị - Hệ thống Quản lý SHH</title>
+    <title>Quản trị viên</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="img/fav.ico" type="image/x-icon">
     
     <style>
         /* New styles for menu boxes */
@@ -233,7 +234,7 @@
     </style>
 </head>
 
-<body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed text-sm">
 <script>
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
@@ -271,7 +272,7 @@
 <!-- Welcome Screen -->
 <div id="welcome-screen">
     <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" class="welcome-logo">
-    <h3 class="font-weight-bold">Hệ thống Quản trị viên</h3>
+    <h3 class="font-weight-bold">Quản trị viên</h3>
     <div class="w-75 mt-4" style="max-width: 300px;">
         <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
             <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
@@ -298,8 +299,9 @@
 
 <div class="wrapper">
     <div class="guide-btn" onclick="$('#modalGuide').modal('show')" title="Hướng dẫn sử dụng"><i class="fas fa-question"></i></div>
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom-0">
         <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a></li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link font-weight-bold"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
             </li>
@@ -325,99 +327,91 @@
         </ul>
     </nav>
 
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <a href="javascript:void(0)" onclick="showMainMenu()" class="brand-link">
+            <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Admin Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+            <span class="brand-text font-weight-light">Quản trị viên</span>
+        </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link active">
+                            <i class="nav-icon fas fa-th"></i>
+                            <p>Trang chào mừng</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-dashboard')" class="nav-link">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>Thống kê & Logs</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-ai-admin'); initAdminAIChat();" class="nav-link">
+                            <i class="nav-icon fas fa-brain"></i>
+                            <p>Trợ lý Admin</p>
+                        </a>
+                    </li>
+                    <li class="nav-header">QUẢN LÝ DỮ LIỆU</li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-students-list')" class="nav-link">
+                            <i class="nav-icon fas fa-id-card"></i>
+                            <p>Học sinh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-managers-list')" class="nav-link">
+                            <i class="nav-icon fas fa-user-shield"></i>
+                            <p>Tài khoản</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-groups-list')" class="nav-link">
+                            <i class="nav-icon fas fa-users-cog"></i>
+                            <p>Nhóm</p>
+                        </a>
+                    </li>
+                    <li class="nav-header">CHỨC NĂNG</li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-upload')" class="nav-link">
+                            <i class="nav-icon fas fa-folder-open"></i>
+                            <p>Quản lý File</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-notifications')" class="nav-link">
+                            <i class="nav-icon fas fa-bell"></i>
+                            <p>Thông báo</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-feedbacks')" class="nav-link">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Phản ánh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-evaluations')" class="nav-link">
+                            <i class="nav-icon fas fa-star"></i>
+                            <p>Đánh giá</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
     <div class="content-wrapper">
         <!-- MAIN MENU GRID -->
         <div id="main-menu-section" class="content pt-4">
-            <div class="container">
-                <div class="text-center mb-4">
-                    <h2 class="font-weight-bold text-primary">HỆ THỐNG QUẢN TRỊ VIÊN</h2>
-                    <p class="text-muted">Chọn chức năng để bắt đầu làm việc</p>
-                </div>
-
-                <!-- Section 1: Tổng quan -->
-                <h5 class="dashboard-section-title"><i class="fas fa-tachometer-alt mr-2"></i>Tổng quan</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-info shadow" onclick="showTab('tab-dashboard')" style="cursor:pointer">
-                            <div class="inner"><h3>Dashboard</h3><p>Thống kê & Lịch sử</p></div>
-                            <div class="icon"><i class="fas fa-chart-pie"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-maroon shadow" onclick="showTab('tab-ai-admin'); initAdminAIChat();" style="cursor:pointer">
-                            <div class="inner"><h3>Trợ lý Admin</h3><p>AI Hỗ trợ & Báo cáo</p></div>
-                            <div class="icon"><i class="fas fa-brain"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 2: Quản lý Dữ liệu -->
-                <h5 class="dashboard-section-title"><i class="fas fa-database mr-2"></i>Quản lý Dữ liệu</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-primary shadow" onclick="showTab('tab-students-list')" style="cursor:pointer">
-                            <div class="inner"><h3>Học sinh</h3><p>Danh sách & Đăng ký</p></div>
-                            <div class="icon"><i class="fas fa-id-card"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-warning shadow" onclick="showTab('tab-managers-list')" style="cursor:pointer">
-                            <div class="inner text-white"><h3>Tài khoản</h3><p>Quản lý & Phân quyền</p></div>
-                            <div class="icon"><i class="fas fa-user-shield"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-success shadow" onclick="showTab('tab-groups-list')" style="cursor:pointer">
-                            <div class="inner"><h3>Nhóm </h3><p>Danh sách nhóm</p></div>
-                            <div class="icon"><i class="fas fa-users-cog"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 3: Chức năng -->
-                <h5 class="dashboard-section-title"><i class="fas fa-cubes mr-2"></i>Chức năng & Tiện ích</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-purple shadow" onclick="showTab('tab-upload')" style="cursor:pointer">
-                            <div class="inner"><h3>File</h3><p>Quản lý tài nguyên</p></div>
-                            <div class="icon"><i class="fas fa-folder-open"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-orange shadow" onclick="showTab('tab-notifications')" style="cursor:pointer">
-                            <div class="inner text-white"><h3>Thông báo</h3><p>Tạo thông báo & Poll</p></div>
-                            <div class="icon"><i class="fas fa-bell"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-teal shadow" onclick="showTab('tab-feedbacks')" style="cursor:pointer">
-                            <div class="inner"><h3>Phản ánh</h3><p>Kiến nghị từ User</p></div>
-                            <div class="icon"><i class="fas fa-comments"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-indigo shadow" onclick="showTab('tab-evaluations')" style="cursor:pointer">
-                            <div class="inner"><h3>Đánh giá</h3><p>Xếp loại học sinh</p></div>
-                            <div class="icon"><i class="fas fa-star"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 4: Hệ thống -->
-                <h5 class="dashboard-section-title"><i class="fas fa-cogs mr-2"></i>Hệ thống</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-secondary shadow" onclick="showTab('tab-system-logs')" style="cursor:pointer">
-                            <div class="inner"><h3>Logs</h3><p>Nhật ký hoạt động</p></div>
-                            <div class="icon"><i class="fas fa-history"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-light shadow" onclick="$('#modalGuide').modal('show')" style="cursor:pointer">
-                            <div class="inner"><h3>Hướng dẫn</h3><p>Tài liệu sử dụng</p></div>
-                            <div class="icon"><i class="fas fa-question-circle"></i></div>
-                        </div>
-                    </div>
+            <div class="container-fluid">
+                <div class="jumbotron bg-white shadow-sm text-center" style="border-radius: 15px;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Logo" style="width: 100px; margin-bottom: 20px;">
+                    <h1 class="display-4 text-primary font-weight-bold">Chào mừng đến với Hệ thống <br>quản lý sinh hoạt hè của Quản trị!</h1>
+                    <p class="lead">Xin chào, <b id="welcomeAdminName">Admin</b>. Chúc bạn một ngày làm việc hiệu quả.</p>
+                    <hr class="my-4">
+                    <a class="btn btn-primary btn-lg rounded-pill px-4" href="javascript:void(0)" onclick="showTab('tab-dashboard')" role="button"><i class="fas fa-chart-line mr-2"></i>Xem Thống kê ngay</a>
                 </div>
             </div>
         </div>
@@ -937,10 +931,6 @@
         </div>
         </div>
     </div>
-    <footer class="main-footer text-center text-sm">
-        <strong>Bản quyền và coding bởi Triết Võ.</strong><br>
-        <small>Sản phẩm có sự hỗ trợ từ AI Gemini.</small>
-    </footer>
 </div>
 
 <!-- Modal Student -->
@@ -1596,7 +1586,10 @@ function generateCaptcha(elementId) {
 
 $(document).ready(function() {
     const user = JSON.parse(sessionStorage.getItem('user'));
-    if(user) $('#adminNameDisplay').text(user.fullname);
+    if(user) {
+        $('#adminNameDisplay').text(user.fullname);
+        $('#welcomeAdminName').text(user.fullname);
+    }
     
     // Load Dark Mode setting
     if (localStorage.getItem('darkMode') === 'true') {
@@ -1636,6 +1629,7 @@ $(document).ready(function() {
     refreshAll();
     showMainMenu(); // Ensure main menu is shown on load
     initCardCollapseState();
+    initWeatherWidget();
 });
 
 // Helper: Render Chart
@@ -1682,11 +1676,19 @@ function showTab(tabId) {
     $('.tab-pane').removeClass('show active');
     $('#' + tabId).addClass('show active');
     window.scrollTo(0, 0);
+    
+    // Update Sidebar Active State
+    $('.nav-sidebar .nav-link').removeClass('active');
+    $(`.nav-sidebar .nav-link[onclick*="'${tabId}'"]`).addClass('active');
 }
 
 function showMainMenu() {
     $('#functional-section').hide();
     $('#main-menu-section').fadeIn();
+    
+    // Update Sidebar Active State
+    $('.nav-sidebar .nav-link').removeClass('active');
+    $(`.nav-sidebar .nav-link[onclick="showMainMenu()"]`).addClass('active');
 }
 
 async function loadStudents() {
@@ -4756,6 +4758,43 @@ function exportJsonToExcel(data, filename) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, filename + ".xlsx");
+}
+
+function initWeatherWidget() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            try {
+                // Reverse Geocoding (OpenStreetMap)
+                const locRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const locData = await locRes.json();
+                const city = locData.address.city || locData.address.town || locData.address.district || "Vị trí của bạn";
+                $('#weather-loc').text(city);
+
+                // Weather Data (Open-Meteo)
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const weatherData = await weatherRes.json();
+                const temp = weatherData.current_weather.temperature;
+                const code = weatherData.current_weather.weathercode;
+                
+                $('#weather-temp').text(`${temp}°C`);
+                const info = getWeatherInfo(code);
+                $('#weather-icon').attr('class', `fas ${info.icon} fa-2x mr-3 text-white`);
+                $('#weather-desc').text(info.desc);
+                $('#weather-widget').fadeIn();
+            } catch (e) { console.error("Weather error", e); }
+        }, () => { console.log("Geolocation denied"); });
+    }
+}
+function getWeatherInfo(code) {
+    if (code === 0) return {icon: 'fa-sun', desc: 'Trời quang'};
+    if (code >= 1 && code <= 3) return {icon: 'fa-cloud-sun', desc: 'Có mây'};
+    if (code >= 45 && code <= 48) return {icon: 'fa-smog', desc: 'Sương mù'};
+    if (code >= 51 && code <= 67) return {icon: 'fa-cloud-rain', desc: 'Mưa nhỏ'};
+    if (code >= 71 && code <= 77) return {icon: 'fa-snowflake', desc: 'Tuyết rơi'};
+    if (code >= 80 && code <= 99) return {icon: 'fa-bolt', desc: 'Mưa dông'};
+    return {icon: 'fa-cloud', desc: 'Nhiều mây'};
 }
 </script>
 </body>

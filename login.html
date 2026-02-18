@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Đăng nhập | Hệ thống Quản lý Sinh Hoạt Hè </title>
+  <title>Đăng nhập</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
   <meta name="theme-color" content="#007bff">
-  
+<link rel="icon" href="img/fav1.ico" type="image/x-icon">
   <!-- iOS PWA Support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -448,7 +448,7 @@
         </div>
 
         <button type="submit" id="submitBtn" class="btn btn-primary btn-block shadow-sm mt-3 btn-glow">
-            <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP NGAY
+            <i class="fas fa-sign-in-alt mr-2"></i> ĐĂNG NHẬP
         </button>
 
         <button type="button" class="btn btn-danger btn-block shadow-sm mt-2 rounded-pill" onclick="loginWithGoogle()">
@@ -970,6 +970,8 @@
 
     function closeSidePanel() {
         $('#loginContainer').removeClass('side-panel-active');
+        const audio = document.getElementById('maintenanceAudio');
+        if(audio) { audio.pause(); audio.currentTime = 0; }
     }
 
     function togglePassword() {
@@ -988,6 +990,7 @@
 
     // --- LOGIC ĐĂNG KÝ ---
     async function openRegisterModal() {
+        Swal.fire({ title: 'Đang tải...', didOpen: () => Swal.showLoading() });
         try {
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "GET_CONFIG" }) });
             const res = await response.json();
@@ -996,6 +999,8 @@
             let lockMessage = "Hệ thống hiện đang tạm ngưng tiếp nhận đăng ký mới.";
             let showTimer = false;
             let targetTime = null;
+
+            Swal.close();
 
             // Check Manual Lock
             if (res.status === "success" && String(res.data.registration_locked).toUpperCase() === 'TRUE') {
@@ -1027,26 +1032,25 @@
                     <p class="small text-muted">Vui lòng quay lại sau.</p>
                 </div>`;
 
-                if (isMobile()) {
-                    $('#mobileModalTitle').html('<i class="fas fa-exclamation-circle mr-2"></i> Thông báo');
-                    $('#mobileModalBody').html(msg);
-                    $('#modalMobileAction').modal('show');
-                } else {
-                    openSidePanel('<i class="fas fa-exclamation-circle mr-2"></i> Thông báo', msg);
-                }
+                $('#mobileModalTitle').html('<i class="fas fa-exclamation-circle mr-2"></i> Thông báo');
+                $('#mobileModalBody').html(msg);
+                $('#modalMobileAction').modal('show');
+                
                 if(showTimer) startRegCountdown(timerId, targetTime);
                 return;
             }
-        } catch(e) {}
-
-        if (isMobile()) {
-            $('#mobileModalTitle').html('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin');
-            $('#mobileModalBody').html(window.registerFormTemplate);
-            $('#modalMobileAction .modal-dialog').addClass('modal-fullscreen');
-            $('#modalMobileAction').modal('show');
-        } else {
-            openSidePanel('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin', window.registerFormTemplate);
+        } catch(e) {
+            Swal.close();
         }
+
+        $('#mobileModalTitle').html('<i class="fas fa-user-plus mr-2"></i> Đăng ký Thông tin');
+        $('#mobileModalBody').html(window.registerFormTemplate);
+        if (isMobile()) {
+            $('#modalMobileAction .modal-dialog').addClass('modal-fullscreen');
+        } else {
+            $('#modalMobileAction .modal-dialog').removeClass('modal-fullscreen');
+        }
+        $('#modalMobileAction').modal('show');
         await loadSchoolList();
         populateSchoolDropdown('reg_school_select');
         generateCaptcha('captcha_code_reg');
@@ -1083,8 +1087,7 @@
             const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "REGISTER_TEMP", payload: payload }) });
             const res = await response.json();
             if (res.status === "success") {
-                if(isMobile()) $('#modalMobileAction').modal('hide');
-                else closeSidePanel();
+                $('#modalMobileAction').modal('hide');
                 
                 const assignedGroup = res.data.group_name || 'Chưa phân nhóm';
                 const managerName = res.data.manager_name || 'Đang cập nhật';
@@ -1137,13 +1140,14 @@
 
     // --- LOGIC CẬP NHẬT / HOÀN TẤT ---
     function openUpdateInfoModal() {
+        $('#mobileModalTitle').html('<i class="fas fa-edit mr-2"></i> Hoàn tất Hồ sơ');
+        $('#mobileModalBody').html(window.updateInfoTemplate);
         if (isMobile()) {
-            $('#mobileModalTitle').html('<i class="fas fa-edit mr-2"></i> Hoàn tất Hồ sơ');
-            $('#mobileModalBody').html(window.updateInfoTemplate);
-            $('#modalMobileAction').modal('show');
+            $('#modalMobileAction .modal-dialog').addClass('modal-fullscreen');
         } else {
-            openSidePanel('<i class="fas fa-edit mr-2"></i> Hoàn tất Hồ sơ', window.updateInfoTemplate);
+            $('#modalMobileAction .modal-dialog').removeClass('modal-fullscreen');
         }
+        $('#modalMobileAction').modal('show');
         generateCaptcha('captcha_code_update'); // Generate for step 2
     }
 
@@ -1846,6 +1850,8 @@
 
     $('#modalMobileAction').on('hidden.bs.modal', function () {
         $(this).find('.modal-dialog').removeClass('modal-fullscreen');
+        const audio = document.getElementById('maintenanceAudio');
+        if(audio) { audio.pause(); audio.currentTime = 0; }
     });
 
     function startRegCountdown(elementId, targetDateStr) {

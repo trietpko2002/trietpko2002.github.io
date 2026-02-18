@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Sinh hoạt hè - Nhóm</title>
+    <title>Quản lý</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    
+    <link rel="icon" href="img/fav.ico" type="image/x-icon">
+
     <!-- iOS PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -95,7 +96,7 @@
         body.dark-mode .callout { background-color: #3f474e; border-color: #454d55; }
 
         /* Phone Notification Style */
-        #phone-notification { position: fixed; top: -150px; left: 0; width: 100%; background: rgba(255, 255, 255, 0.98); color: #333; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1060; transition: top 0.5s ease; border-bottom: 3px solid #007bff; display: flex; align-items: center; backdrop-filter: blur(10px); }
+        #phone-notification { position: fixed; top: -150px; left: 0; width: 100%; background: rgba(255, 255, 255, 0.98); color: #333; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999999; transition: top 0.5s ease; border-bottom: 3px solid #007bff; display: flex; align-items: center; backdrop-filter: blur(10px); }
         body.dark-mode #phone-notification { background: rgba(52, 58, 64, 0.98); color: #fff; border-bottom: 3px solid #17a2b8; }
         #phone-notification.show { top: 0; }
         #phone-notification img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; margin-right: 15px; }
@@ -325,7 +326,7 @@
         body.dark-mode .ai-card, body.dark-mode .product-card, body.dark-mode .fund-stat-box, body.dark-mode .ai-card-header { background: #3f474e; border-color: #56606a; color: white; }
     </style>
 </head>
-<body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed text-sm">
 
 <script>
     (function checkSecurity() {
@@ -373,7 +374,7 @@
 <!-- Welcome Screen -->
 <div id="welcome-screen">
     <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" class="welcome-logo">
-    <h3 class="font-weight-bold">Hệ thống Quản lý SHH</h3>
+    <h3 class="font-weight-bold">Quản lý sinh hoạt hè</h3>
     <div class="w-75 mt-4" style="max-width: 300px;">
         <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
             <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
@@ -447,7 +448,7 @@
         </div>
         <button class="close-btn" onclick="closePhoneNotification()">&times;</button>
     </div>
-    <nav class="main-header navbar navbar-expand navbar-primary navbar-dark border-bottom-0">
+    <nav class="main-header navbar navbar-expand-md navbar-light navbar-white border-bottom-0">
         <ul class="navbar-nav">
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link font-weight-bold"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
@@ -461,12 +462,12 @@
                 <a href="javascript:void(0)" class="nav-link" onclick="openNotificationModal()"><i class="fas fa-bell"></i><span class="badge badge-warning navbar-badge" id="notiBadge"></span></a>
             </li>
             <li class="nav-item d-flex align-items-center">
-                <a href="profile.html" class="user-panel d-flex align-items-center mr-3" style="text-decoration: none;" title="Hồ sơ cá nhân">
+                <a href="profile.html" class="user-panel d-flex align-items-center mr-3" style="text-decoration: none; padding-right: 0;" title="Hồ sơ cá nhân">
                     <div class="vip-frame-container mr-2">
                         <img src="" class="img-circle elevation-2" id="userAvatar" alt="User" style="width: 35px; height: 35px; object-fit: cover;">
                         <div id="vipCrownArea"></div>
                     </div>
-                    <span class="d-none d-md-inline font-weight-bold text-white" id="managerDisplayName">Quản lý</span>
+                    <span class="d-none d-md-inline font-weight-bold" id="managerDisplayName">Quản lý</span>
                 </a>
             </li>
             <li class="nav-item d-flex align-items-center">
@@ -1738,11 +1739,19 @@ function showTab(tabId) {
     $('.tab-pane').removeClass('show active');
     $('#' + tabId).addClass('show active');
     window.scrollTo(0, 0);
+    
+    // Update Sidebar Active State
+    $('.nav-sidebar .nav-link').removeClass('active');
+    $(`.nav-sidebar .nav-link[onclick*="'${tabId}'"]`).addClass('active');
 }
 
 function showMainMenu() {
     $('#functional-section').hide();
     $('#main-menu-section').fadeIn();
+    
+    // Update Sidebar Active State
+    $('.nav-sidebar .nav-link').removeClass('active');
+    $('.nav-sidebar .nav-link[onclick="showMainMenu()"]').addClass('active');
 }
 
 // --- PUSH NOTIFICATION LOGIC (POLLING) ---
