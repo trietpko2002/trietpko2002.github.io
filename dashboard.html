@@ -45,7 +45,7 @@
 <script>
     (function checkSecurity() {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        if (!user || (user.role !== 'admin' && user.role !== 'supervisor')) {
+        if (!user || user.role !== 'admin') {
             window.location.replace('login.html');
         }
     })();
@@ -279,7 +279,6 @@
     function goBack() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         if (user.role === 'admin') window.location.href = 'admin.html';
-        else if (user.role === 'supervisor') window.location.href = 'supervisor.html';
         else window.location.href = 'index.html';
     }
 

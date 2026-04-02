@@ -125,71 +125,7 @@
     .close-side-panel { position: absolute; top: 10px; right: 20px; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; z-index: 10; opacity: 0.7; }
     .close-side-panel:hover { opacity: 1; }
 
-    /* Welcome Screen Animation */
-    #welcome-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #1e88e5, #1565c0);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
-      text-align: center;
-      padding: 20px;
-      transition: background 1s ease, opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
-    }
-    #welcome-screen.hidden {
-      transform: translateY(-50px);
-      opacity: 0;
-      pointer-events: none;
-    }
-    #welcome-screen h1 {
-      font-size: 2.5rem;
-      font-weight: 300;
-      margin-bottom: 1rem;
-      animation: fadeInDown 1s ease-out;
-    }
-    #welcome-screen p {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      animation: fadeInUp 1s ease-out 0.3s;
-      animation-fill-mode: backwards;
-    }
-    .welcome-loading-box {
-        display: flex;
-        align-items: center;
-        background: rgba(255,255,255,0.2);
-        padding: 10px 25px;
-        border-radius: 50px;
-        margin-top: 20px;
-        animation: fadeInUp 1s ease-out 0.6s backwards;
-    }
-    .welcome-spinner { width: 1.5rem; height: 1.5rem; border-width: 0.2em; margin-right: 15px; }
-    .welcome-text { font-weight: bold; font-size: 1.1rem; }
 
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes zoomIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
-    }
 
     /* Intro Logo Animation */
     .intro-logo {
@@ -214,10 +150,6 @@
         transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    #welcome-screen.phase-2 { background: linear-gradient(135deg, #1e88e5, #1565c0); }
-    #welcome-screen.phase-2 .intro-logo { width: 100px; height: 100px; margin-bottom: 20px; animation: none; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); transform: scale(1); }
-    #welcome-screen.phase-2 #welcome-content { opacity: 1; max-height: 500px; transform: translateY(0); }
-
     /* Login Loading Styles */
     .login-loading-container {
         display: none;
@@ -370,30 +302,14 @@
         z-index: 10000 !important;
     }
 
+
   </style>
 </head>
 <body class="hold-transition login-page">
 <script>
     var API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
 </script>
-<!-- Welcome Screen -->
-<div id="welcome-screen">
-  <div id="welcome-content">
-      <h1>Chào mừng bạn!</h1>
-      <p>Đến với Hệ thống Quản lý Sinh hoạt hè</p>
-      <div class="w-75 mt-4 mx-auto" style="max-width: 300px;">
-          <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
-              <div id="welcome-progress-bar" class="progress-bar bg-white" role="progressbar" style="width: 0%"></div>
-          </div>
-          <div class="d-flex justify-content-between mt-2 text-white small">
-              <span id="welcome-status">Đang khởi động...</span>
-              <span id="welcome-percent">0%</span>
-          </div>
-      </div>
-  </div>
-</div>
-
-<div class="login-container" id="loginContainer">
+<div class="login-container" id="loginContainer" style="display: flex;">
   <div class="login-box">
   <div class="card-glass">
     <div class="text-center mb-4">
@@ -722,45 +638,8 @@
 
         sessionStorage.clear(); 
         
-        startLoadingProgress();
-
         generateCaptcha('captcha_code_login', 'alphanumeric');
 
-        function startLoadingProgress() {
-            const states = [
-                "Kết nối máy chủ...",
-                "Kiểm tra phiên bản...",
-                "Tải tài nguyên...",
-                "Thiết lập bảo mật...",
-                "Hoàn tất!"
-            ];
-            
-            const statusEl = document.getElementById('welcome-status');
-            const percentEl = document.getElementById('welcome-percent');
-            const barEl = document.getElementById('welcome-progress-bar');
-            
-            barEl.style.transition = 'width 0.05s linear';
-            let progress = 0;
-            
-            const interval = setInterval(() => {
-                progress += 1;
-                if (progress > 100) progress = 100;
-                
-                barEl.style.width = `${progress}%`;
-                percentEl.innerText = `${progress}%`;
-                
-                const step = Math.floor((progress / 100) * states.length);
-                if(states[step]) statusEl.innerText = states[step];
-
-                if (progress === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        document.getElementById('welcome-screen').classList.add('hidden');
-                    }, 500);
-                }
-            }, 15); 
-        }
-        
         // Real-time GitHub Update Detection
         let currentCommitSha = null;
         async function checkGitHubUpdate() {
@@ -901,7 +780,7 @@
             const res = await response.json();
 
             if (res.status === "success") {
-                if (res.user.role === 'admin' || res.user.role === 'supervisor') {
+                if (res.user.role === 'admin') {
                     toastr.error("Tài khoản quản trị viên không thể đăng nhập tại đây.");
                     Swal.fire({
                         title: 'Lỗi Đăng nhập',

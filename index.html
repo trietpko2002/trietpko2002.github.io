@@ -22,57 +22,122 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* New styles for menu boxes */
+        /* Simplified styles for better mobile experience */
         .small-box {
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
             cursor: pointer;
+            margin-bottom: 15px;
         }
         .small-box:hover {
-            transform: translateY(-7px);
-            box-shadow: 0 8px 25px rgba(0,123,255,0.15);
+            transform: translateY(-2px);
+        }
+        .small-box .inner {
+            padding: 15px;
+        }
+        .small-box .inner h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        .small-box .inner p {
+            font-size: 0.9rem;
+            margin: 0;
         }
         .small-box .icon {
-            transition: transform 0.3s ease;
+            font-size: 2rem;
+            opacity: 0.8;
         }
-        .small-box:hover .icon {
-            transform: scale(1.1) rotate(-5deg);
-        }
-        /* New styles for section titles */
+
+        /* Section titles */
         .dashboard-section-title {
-            font-size: 1.1rem; font-weight: 500; color: #495057;
-            border-bottom: 1px solid #e9ecef; padding-bottom: 0.5rem;
-            margin-top: 1.5rem; margin-bottom: 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 15px;
         }
-        .info-box-content { justify-content: center; }
-        .table thead th { background-color: #f4f6f9; color: #333; border-top: none; text-align: center; }
-        .table td, .table th { vertical-align: middle; padding: 12px 8px; }
-        .btn-group-toggle .btn { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
-        .card-title { font-weight: bold; }
-        .content-wrapper { background-color: #f4f6f9; }
-        /* Youth Union Theme - Blue & White */
-        .navbar-primary { background-color: #0069d9 !important; }
-        .brand-link.bg-primary { background-color: #0069d9 !important; border-bottom: 1px solid #0056b3; }
-        .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active { background-color: #0069d9; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .btn-primary { background-color: #0069d9; border-color: #0062cc; }
-        .btn-primary:hover { background-color: #0056b3; border-color: #004085; }
+
+        /* Responsive grid */
+        @media (max-width: 768px) {
+            .small-box .inner h3 {
+                font-size: 1rem;
+            }
+            .small-box .inner p {
+                font-size: 0.8rem;
+            }
+            .small-box .icon {
+                font-size: 1.5rem;
+            }
+            .col-6 {
+                padding: 5px;
+            }
+        }
+
+        /* Clean card styles */
+        .card {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 15px;
+        }
+        .card-body {
+            padding: 15px;
+        }
+
+        /* Button styles */
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        /* Table styles */
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+        }
+        .table td {
+            vertical-align: middle;
+            padding: 8px;
+        }
+
+        /* Content wrapper */
+        .content-wrapper {
+            background-color: #f8f9fa;
+        }
+
+        /* Navbar */
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Admin style sidebar and controls */
+        .main-sidebar { background: #343a40; }
+        .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active {
+            background-color: #1e88e5;
+            color: #fff;
+            border-radius: 0.5rem;
+        }
+        .sidebar-dark-primary .nav-sidebar .nav-link {
+            color: #c2c7d0;
+            border-radius: 0.4rem;
+        }
+        .sidebar-dark-primary .nav-sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
         /* Poll Styles */
         .student-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 5px; border-radius: 4px; margin-bottom: 10px; }
         /* Maintenance Overlay */
         #maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .swal2-container { z-index: 200000 !important; }
-        /* Waves Effect */
-        .waves-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 15vh; overflow: hidden; z-index: 1; pointer-events: none; }
-        .waves { position: relative; width: 100%; height: 100%; margin-bottom: -7px; }
-        .parallax > use { animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite; }
-        .parallax > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; fill: rgba(255,255,255,0.7); }
-        .parallax > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; fill: rgba(255,255,255,0.5); }
-        .parallax > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; fill: rgba(255,255,255,0.3); }
-        .parallax > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; fill: #fff; }
-        @keyframes move-forever { 0% { transform: translate3d(-90px,0,0); } 100% { transform: translate3d(85px,0,0); } }
         #topMarquee { background: #d81b60; color: #fff; padding: 5px; font-weight: bold; display: none; z-index: 1040; position: relative; }
         
         /* Dark Mode Full Coverage */
@@ -95,7 +160,29 @@
         body.dark-mode .list-group-item { background-color: #343a40; border-color: #454d55; }
         body.dark-mode .callout { background-color: #3f474e; border-color: #454d55; }
 
-        /* Phone Notification Style */
+        /* Dark Mode Premium Colors */
+        body.dark-mode .welcome-card-premium { background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); }
+        body.dark-mode .stat-card-premium { background: linear-gradient(135deg, #3f474e 0%, #2c3236 100%); color: #fff; border: 1px solid #495057; }
+        body.dark-mode .stat-card-premium .text-muted { color: #adb5bd !important; }
+        body.dark-mode .feature-card-premium { background-color: #343a40; border-color: #495057; }
+        body.dark-mode .feature-card-premium::after { background: linear-gradient(90deg, #667eea, #764ba2); }
+        body.dark-mode .feature-card-premium h6 { color: #fff; }
+        body.dark-mode .stat-icon-primary { color: #64b5f6 !important; }
+        body.dark-mode .stat-icon-success { color: #81c784 !important; }
+        body.dark-mode .stat-icon-danger { color: #e57373 !important; }
+        body.dark-mode .stat-icon-warning { color: #ffb74d !important; }
+
+        /* Pulsing Border Animation for VIP 10 */
+        @keyframes pulseBorder {
+            0%, 100% { box-shadow: 0 0 25px #ffd700, 0 0 10px #fff inset; }
+            50% { box-shadow: 0 0 40px #ffd700, 0 0 15px #fff inset; }
+        }
+
+        /* Floating Crown Animation for VIP 10 */
+        @keyframes floatCrown {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
         #phone-notification { position: fixed; top: -150px; left: 0; width: 100%; background: rgba(255, 255, 255, 0.98); color: #333; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999999; transition: top 0.5s ease; border-bottom: 3px solid #007bff; display: flex; align-items: center; backdrop-filter: blur(10px); }
         body.dark-mode #phone-notification { background: rgba(52, 58, 64, 0.98); color: #fff; border-bottom: 3px solid #17a2b8; }
         #phone-notification.show { top: 0; }
@@ -104,17 +191,6 @@
         #phone-notification .title { font-weight: bold; font-size: 1.1rem; margin-bottom: 2px; }
         #phone-notification .body { font-size: 0.95rem; opacity: 0.9; }
         #phone-notification .close-btn { background: none; border: none; font-size: 1.5rem; color: inherit; cursor: pointer; padding: 0 10px; }
-        
-        /* Hiệu ứng nút mới */
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); transform: scale(1); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); transform: scale(1.02); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); transform: scale(1); }
-        }
-        .btn-new-highlight {
-            animation: pulse-glow 2s infinite;
-            border: 2px solid #ffc107 !important;
-        }
 
         /* PRINT STYLES */
         @media print {
@@ -122,38 +198,26 @@
             .content-wrapper { margin-left: 0 !important; background: white !important; }
             .card { box-shadow: none !important; border: 1px solid #ddd !important; }
         }
-        
-        /* VIP Styles from Profile */
+
+        /* Simplified VIP Styles */
         .vip-frame-container { position: relative; display: inline-block; }
         .vip-crown {
-            position: absolute; top: -20px; right: -10px; 
-            font-size: 1.5rem; color: #ffd700; 
-            transform: rotate(15deg); 
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
-            animation: floatCrown 2s ease-in-out infinite;
+            position: absolute; top: -20px; right: -10px;
+            font-size: 1.5rem; color: #ffd700;
             z-index: 10;
         }
-        @keyframes floatCrown { 0%, 100% { transform: rotate(15deg) translateY(0); } 50% { transform: rotate(15deg) translateY(-3px); } }
-        
-        .vip-border-1 { border: 3px solid #c0c0c0 !important; box-shadow: 0 0 10px #c0c0c0; }
-        .vip-border-2 { border: 3px solid #ffd700 !important; box-shadow: 0 0 15px #ffd700; animation: shineBorder 3s infinite linear; }
-        @keyframes shineBorder { 0% { border-color: #ffd700; } 50% { border-color: #fff; } 100% { border-color: #ffd700; } }
-        
-        /* VIP 3 Styles */
-        .vip-border-3 { border: 3px solid #00ffff !important; box-shadow: 0 0 15px #00ffff, 0 0 5px #fff inset; animation: pulseBorder 2s infinite; }
-        @keyframes pulseBorder { 0% { border-color: #00ffff; box-shadow: 0 0 15px #00ffff; } 50% { border-color: #fff; box-shadow: 0 0 25px #00ffff; } 100% { border-color: #00ffff; box-shadow: 0 0 15px #00ffff; } }
-        
-        .vip-border-4 { border: 3px solid #e5e4e2 !important; box-shadow: 0 0 15px #e5e4e2; animation: shineBorder 3s infinite linear; }
-        .vip-border-5 { border: 3px solid #ffd700 !important; box-shadow: 0 0 20px #ffd700, 0 0 5px #fff inset; animation: pulseBorder 2s infinite; }
-        
+
+        .vip-border-1 { border: 2px solid #c0c0c0 !important; }
+        .vip-border-2 { border: 2px solid #ffd700 !important; }
+        .vip-border-3 { border: 2px solid #00ffff !important; }
+        .vip-border-4 { border: 2px solid #e5e4e2 !important; }
+        .vip-border-5 { border: 2px solid #ffd700 !important; }
+
         .vip-diamond {
-            position: absolute; top: -25px; right: -10px; 
-            font-size: 1.8rem; color: #00ffff; 
-            filter: drop-shadow(0 0 5px #00ffff);
-            animation: floatDiamond 3s ease-in-out infinite;
+            position: absolute; top: -25px; right: -10px;
+            font-size: 1.8rem; color: #00ffff;
             z-index: 10;
         }
-        @keyframes floatDiamond { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         
         /* VIP 10 Styles */
         .vip-border-10 { border: 4px solid #ffd700 !important; box-shadow: 0 0 25px #ffd700, 0 0 10px #fff inset; animation: pulseBorder 1s infinite; }
@@ -161,35 +225,6 @@
         .vip-wing-left { left: -25px; transform: rotate(-20deg); }
         .vip-wing-right { right: -25px; transform: rotate(20deg); }
         .vip-crown-10 { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); font-size: 2rem; color: #ffd700; filter: drop-shadow(0 0 10px #ffd700); animation: floatCrown 2s ease-in-out infinite; z-index: 11; }
-        
-        /* Hacker Title Effect */
-        .hacker-gold {
-            background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
-            background-size: 200% auto;
-            color: #000;
-            font-weight: bold;
-            border: 2px solid #ffd700;
-            box-shadow: 0 0 10px #ffd700;
-            animation: shineText 2s linear infinite;
-            padding: 5px 10px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            display: inline-block;
-            margin: 2px;
-        }
-        /* Default Theme Animation */
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        body.default-theme {
-            background: linear-gradient(-45deg, #007bff, #23a6d5, #23d5ab); background-size: 400% 400%; animation: gradientBG 15s ease infinite;
-        }
-        @keyframes shineText { to { background-position: 200% center; } }
-
-        /* Weather Effects */
-        .weather-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; }
         
         /* Youtube Banner Ratio */
         #img-cover {
@@ -199,79 +234,6 @@
             border-radius: 4px;
         }
 
-        /* Fireflies */
-        .firefly { position: fixed; width: 6px; height: 6px; background: #ffff00; border-radius: 50%; box-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; animation: fly 10s infinite alternate; pointer-events: none; z-index: 9998; }
-        @keyframes fly { 
-            0% { transform: translate(0, 0); opacity: 0; } 
-            10% { opacity: 1; } 
-            90% { opacity: 1; } 
-            100% { transform: translate(100vw, -50vh); opacity: 0; } 
-        }
-
-        
-        /* Settings Btn */
-        .settings-btn { position: fixed; bottom: 20px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #007bff; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
-        .settings-btn:hover { transform: rotate(90deg); background: #0056b3; }
-        /* Guide Btn */
-        .guide-btn { position: fixed; bottom: 80px; right: 20px; z-index: 9999; width: 50px; height: 50px; border-radius: 50%; background: #17a2b8; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: transform 0.3s; }
-        .guide-btn:hover { transform: scale(1.1); background: #138496; }
-
-        /* Jack J97 Troll Mode */
-        body.jack-mode {
-            background-color: #000 !important;
-            color: #fff !important;
-        }
-
-        /* Modern Rounded UI Overrides */
-        .card { border-radius: 20px; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.05); background: linear-gradient(135deg, #ffffff 0%, #f4f6f9 100%); }
-        .card-header { border-top-left-radius: 20px; border-top-right-radius: 20px; }
-        .btn { border-radius: 50px; }
-        .form-control { border-radius: 15px; }
-        .modal-content { border-radius: 25px; border: none; }
-        .nav-pills .nav-link { border-radius: 50px; }
-        .nav-sidebar .nav-link { border-radius: 10px; }
-        .custom-select { border-radius: 15px; }
-        .info-box { border-radius: 20px; }
-
-        /* Dark Mode Card Gradient */
-        body.dark-mode .card { background: linear-gradient(135deg, #343a40, #2b3035); color: #fff; }
-        
-        /* Table Row Hover Effect */
-        .table-hover tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .table-hover tbody tr:hover {
-            transform: scale(1.005);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 10;
-            position: relative;
-            background-color: #fff !important;
-        }
-        body.dark-mode .table-hover tbody tr:hover {
-            background-color: #3f474e !important;
-        }
-        
-        /* Matrix Theme */
-        body.theme-matrix #matrix-canvas { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
-        body.theme-matrix .content-wrapper { background: rgba(0, 0, 0, 0.85) !important; position: relative; z-index: 1; }
-        body.theme-matrix .main-header, body.theme-matrix .main-sidebar, body.theme-matrix .main-footer { background-color: #000 !important; border-color: #0f0 !important; }
-        body.theme-matrix .card { background: rgba(0, 20, 0, 0.8) !important; border: 1px solid #0f0 !important; box-shadow: 0 0 5px #0f0; }
-        body.theme-matrix, body.theme-matrix .nav-link, body.theme-matrix .card-title { color: #0f0 !important; }
-        body.theme-matrix .btn-primary { background: #000; border: 1px solid #0f0; color: #0f0; }
-        body.theme-matrix .btn-primary:hover { background: #0f0; color: #000; }
-        
-        /* Neon Theme */
-        body.theme-neon .content-wrapper { background: #050505 !important; }
-        body.theme-neon .main-header { background: #111 !important; border-bottom: 2px solid #ff00de !important; }
-        body.theme-neon .main-sidebar { background: #0a0a0a !important; border-right: 1px solid #00ffff !important; }
-        body.theme-neon .card { background: #111 !important; border: 1px solid transparent; box-shadow: 0 0 10px #ff00de, inset 0 0 5px #00ffff; }
-        body.theme-neon .btn-primary { background: linear-gradient(45deg, #ff00de, #00ffff); border: none; color: #fff; font-weight: bold; }
-        body.theme-neon .nav-pills .nav-link.active { background: #ff00de; box-shadow: 0 0 10px #ff00de; }
-
-        /* Music Visualizer */
-        .music-visualizer { display: flex; justify-content: center; align-items: flex-end; height: 60px; gap: 6px; margin: 20px 0; }
-        .music-bar { width: 8px; background: linear-gradient(to top, #ffc107, #ffeb3b); border-radius: 5px; animation: bounce 1s infinite ease-in-out; opacity: 0.9; box-shadow: 0 0 10px #ffc107; }
-        @keyframes bounce { 0%, 100% { height: 10%; } 50% { height: 100%; } }
-        .music-bar:nth-child(odd) { animation-duration: 0.8s; } .music-bar:nth-child(even) { animation-duration: 1.1s; } .music-bar:nth-child(3n) { animation-duration: 1.3s; } .music-bar:nth-child(4n) { animation-duration: 0.9s; } .music-bar:nth-child(5n) { animation-duration: 1.2s; }
-        
         /* Fix 1 Page Scroll */
         html, body { height: 100vh; overflow: hidden; }
         .content-wrapper { height: calc(100vh - 57px - 40px) !important; overflow-y: auto; }
@@ -286,9 +248,8 @@
             z-index: 99999; transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
         #welcome-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
-        .welcome-logo { width: 100px; height: 100px; margin-bottom: 20px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        
+        .welcome-logo { width: 100px; height: 100px; margin-bottom: 20px; }
+
         /* Connection Status */
         .connection-status {
             position: fixed; bottom: 10px; left: 10px; z-index: 10000;
@@ -300,33 +261,170 @@
         }
         .connection-status i { margin-right: 6px; }
 
-        /* AI Chat Styles */
-        .chat-container { height: 500px; display: flex; flex-direction: column; border: 1px solid #ddd; border-radius: 10px; background: #fff; overflow: hidden; }
-        .chat-history { flex-grow: 1; overflow-y: auto; padding: 15px; background: #f8f9fa; }
-        .chat-message { margin-bottom: 10px; max-width: 80%; padding: 10px 15px; border-radius: 15px; position: relative; word-wrap: break-word; }
-        .chat-message.user { align-self: flex-end; background: #007bff; color: white; margin-left: auto; border-bottom-right-radius: 2px; }
-        .chat-message.ai { align-self: flex-start; background: #e9ecef; color: #333; margin-right: auto; border-bottom-left-radius: 2px; border: 1px solid #dee2e6; }
-        .chat-input-area { padding: 10px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 10px; }
-        .chat-message a { color: #007bff; text-decoration: underline; }
-        .chat-message.user a { color: #fff; }
-        .typing-indicator { font-style: italic; color: #888; font-size: 0.8rem; margin-bottom: 5px; display: none; }
-        body.dark-mode .chat-container { border-color: #454d55; background: #343a40; }
-        body.dark-mode .chat-history { background: #2b3035; }
-        body.dark-mode .chat-message.ai { background: #3f474e; color: #fff; border-color: #56606a; }
-        body.dark-mode .chat-input-area { background: #343a40; border-top-color: #454d55; }
+        /* Welcome Card Stats */
+        .card { transition: all 0.2s ease; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .bg-gradient-primary { background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%) !important; }
 
-        /* AI Enhanced UI */
-        .ai-card { background: white; border-radius: 12px; overflow: hidden; margin-top: 10px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: 100%; }
-        .ai-card-header { padding: 10px 15px; background: #f8f9fa; font-weight: bold; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .ai-card-body { padding: 15px; }
-        .product-card { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; background: #fff; transition: transform 0.2s; cursor: pointer; }
-        .product-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: #f8f9fa; }
-        .product-icon { width: 40px; height: 40px; background: #e3f2fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #007bff; font-size: 1.2rem; }
-        .fund-stat-box { text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
-        body.dark-mode .ai-card, body.dark-mode .product-card, body.dark-mode .fund-stat-box, body.dark-mode .ai-card-header { background: #3f474e; border-color: #56606a; color: white; }
+        /* Responsive grid gap */
+        .g-2 { gap: 0.5rem; }
+        @media (max-width: 576px) {
+            .g-2 { gap: 0.25rem; }
+            .card-body { padding: 0.75rem !important; }
+            .container-fluid { padding-left: 0.5rem; padding-right: 0.5rem; }
+        }
+
+        /* Dark Mode Premium Colors */
+        body.dark-mode .welcome-card-premium { background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); }
+        body.dark-mode .stat-card-premium { background: linear-gradient(135deg, #3f474e 0%, #2c3236 100%); }
+        body.dark-mode .stat-card-premium { color: #fff; }
+        body.dark-mode .feature-card-premium { background-color: #343a40; border-color: #495057; }
+        body.dark-mode .feature-card-premium::after { background: linear-gradient(90deg, #667eea, #764ba2); }
+
+        /* Pulsing Border Animation for VIP 10 */
+        @keyframes pulseBorder {
+            0%, 100% { box-shadow: 0 0 25px #ffd700, 0 0 10px #fff inset; }
+            50% { box-shadow: 0 0 40px #ffd700, 0 0 15px #fff inset; }
+        }
+
+        /* Floating Crown Animation for VIP 10 */
+        @keyframes floatCrown {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* ===== NEW PREMIUM STYLING ===== */
+        
+        /* Welcome Card Enhanced */
+        .welcome-card-premium {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .welcome-card-premium::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGradient 15s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes moveGradient {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Stats Card Premium */
+        .stat-card-premium {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .stat-card-premium:hover::before {
+            left: 100%;
+        }
+        
+        .stat-card-premium:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        .stat-card-premium .text-dark { color: #1a1a1a !important; }
+        .stat-card-premium .text-muted { color: #666666 !important; }
+        .stat-card-premium .font-weight-bold { color: #000 !important; }
+
+        .stat-icon-primary { color: #1e88e5; }
+        .stat-icon-success { color: #4caf50; }
+        .stat-icon-danger { color: #f44336; }
+        .stat-icon-warning { color: #ff9800; }
+
+        /* Icon Animations */
+        .icon-bounce {
+            display: inline-block;
+            animation: iconBounce 2s infinite;
+        }
+        
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .welcome-card-premium { border-radius: 12px; padding: 15px !important; margin-bottom: 0.5rem !important; }
+            .welcome-card-premium h3 { font-size: 1.1rem; }
+            .welcome-card-premium p { margin-bottom: 0 !important; }
+            #userAvatarInner { width: 65px !important; height: 65px !important; }
+            .stat-card-premium, .feature-card-premium { border-radius: 8px; }
+            .card-body { padding: 0.5rem !important; }
+            .card h4, .card h6 { font-size: 0.85rem; }
+            .dashboard-section-title { font-size: 0.85rem; margin-top: 8px; margin-bottom: 6px; }
+            .stat-card-premium:hover { transform: translateY(-2px); }
+            .feature-card-premium:hover { transform: translateY(-1px); }
+            .container-fluid { padding-left: 0.35rem; padding-right: 0.35rem; }
+        }
+
+        @media (max-width: 576px) {
+            .g-2 { gap: 0.25rem; }
+            .card-body p { font-size: 0.7rem; }
+            .stat-card-premium { min-height: 85px; }
+            .feature-card-premium { min-height: 95px; }
+            .welcome-card-premium { padding: 12px !important; }
+            .welcome-card-premium h3 { font-size: 1rem; line-height: 1.2; margin-bottom: 0 !important; }
+            .badge { font-size: 0.65rem; padding: 0.3rem 0.5rem; }
+            .welcome-card-premium .row { margin: 0; }
+            .welcome-card-premium .col { padding: 0 0 0 8px !important; }
+            #userAvatarInner { width: 60px !important; height: 60px !important; }
+            .icon-bounce { font-size: 1.2rem; }
+            .container-fluid { padding-left: 0.3rem; padding-right: 0.3rem; }
+        }
+
+        @media (max-width: 480px) {
+            .g-2 { gap: 0.2rem; }
+            .card-body p { font-size: 0.65rem; }
+            .stat-card-premium { min-height: 80px; }
+            .feature-card-premium { min-height: 90px; }
+            .welcome-card-premium { padding: 10px !important; }
+            .welcome-card-premium h3 { font-size: 0.95rem; margin-bottom: 0 !important; }
+            .welcome-card-premium p { font-size: 0.75rem !important; }
+            #userAvatarInner { width: 55px !important; height: 55px !important; }
+            .dashboard-section-title { font-size: 0.8rem; margin-top: 6px; margin-bottom: 4px; }
+        }
     </style>
 </head>
-<body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed text-sm">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed text-sm">
 
 <script>
     (function checkSecurity() {
@@ -402,6 +500,75 @@
 <div class="wrapper">
     <div class="settings-btn" onclick="openUserSettings()" title="Cài đặt giao diện"><i class="fas fa-cog"></i></div>
     <div class="guide-btn" onclick="$('#modalGuide').modal('show')" title="Hướng dẫn sử dụng"><i class="fas fa-question"></i></div>
+
+    <!-- Sidebar for Admin Style -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <a href="javascript:void(0)" onclick="showMainMenu()" class="brand-link">
+            <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+            <span class="brand-text font-weight-light">Quản lý hè</span>
+        </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link active">
+                            <i class="nav-icon fas fa-home"></i>
+                            <p>Trang chủ</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-attendance')" class="nav-link">
+                            <i class="nav-icon fas fa-check-square"></i>
+                            <p>Điểm danh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-students')" class="nav-link">
+                            <i class="nav-icon fas fa-user-friends"></i>
+                            <p>Học sinh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-evaluation')" class="nav-link">
+                            <i class="nav-icon fas fa-star"></i>
+                            <p>Đánh giá</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-funds')" class="nav-link">
+                            <i class="nav-icon fas fa-wallet"></i>
+                            <p>Quỹ nhóm</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-feedback')" class="nav-link">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>Phản ánh</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="showTab('tab-upload')" class="nav-link">
+                            <i class="nav-icon fas fa-folder-open"></i>
+                            <p>Quản lý File</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="openNotificationModal()" class="nav-link">
+                            <i class="nav-icon fas fa-bell"></i>
+                            <p>Thông báo</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" onclick="openUserSettings()" class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>Cài đặt</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
     <button id="installPwaBtn" class="btn btn-success rounded-pill shadow-lg font-weight-bold" style="display: none; position: fixed; bottom: 20px; left: 20px; z-index: 9999; padding: 10px 20px;">
         <i class="fas fa-download mr-2"></i> Cài App
     </button>
@@ -450,6 +617,9 @@
     </div>
     <nav class="main-header navbar navbar-expand-md navbar-light navbar-white border-bottom-0">
         <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            </li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="javascript:void(0)" onclick="showMainMenu()" class="nav-link font-weight-bold"><i class="fas fa-home mr-1"></i> TRANG CHỦ</a>
             </li>
@@ -480,82 +650,90 @@
 
     <div class="content-wrapper text-sm">
         <div id="topMarquee"><marquee id="marqueeText" behavior="scroll" direction="left"></marquee></div>
-        <!-- MAIN MENU GRID -->
-        <div id="main-menu-section" class="content pt-4">
-            <div class="container">
-                <div class="text-center mb-4">
-                    <h2 class="font-weight-bold text-primary">BẢNG ĐIỀU KHIỂN</h2>
-                    <p class="text-muted">Xin chào, <b id="managerMenuDisplayName" class="text-primary"></b>! Chọn một chức năng để bắt đầu.</p>
-                </div>
-
-                <!-- Section 1: Chức năng chính -->
-                <h5 class="dashboard-section-title"><i class="fas fa-tasks mr-2"></i>Chức năng chính</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-primary shadow" onclick="showTab('tab-attendance')">
-                            <div class="inner"><h3>Điểm danh</h3><p>Quản lý có mặt/vắng</p></div>
-                            <div class="icon"><i class="fas fa-check-square"></i></div>
+        <!-- MAIN MENU SECTION -->
+        <div id="main-menu-section" class="content pt-3">
+            <div class="container-fluid px-2 px-md-4">
+                
+                <!-- Main Welcome + Thống kê set 1 -->
+                <div class="card bg-gradient-primary text-white mb-3 shadow-lg" style="border-radius: 20px;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap">
+                            <div>
+                                <h4 class="font-weight-bold mb-1">Chào mừng, <span id="managerMenuDisplayName">Quản lý</span>!</h4>
+                                <p class="mb-0" style="opacity:0.95;">Đây là báo cáo tổng quan đầu tiên của bạn. Chạm vào mục bất kỳ để đi tới chi tiết.</p>
+                            </div>
+                            <div class="mt-2 mt-md-0">
+                                <button class="btn btn-light btn-sm" onclick="showTab('tab-dashboard')"><i class="fas fa-chart-line mr-1"></i>Xem chi tiết</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-info shadow" onclick="showTab('tab-students')">
-                            <div class="inner"><h3>Học sinh</h3><p>Danh sách nhóm</p></div>
-                            <div class="icon"><i class="fas fa-user-friends"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-warning shadow" onclick="showTab('tab-ai-assistant'); initAIChat();">
-                            <div class="inner"><h3>Trợ lý AI</h3><p>Hỗ trợ quản lý & Chi tiêu</p></div>
-                            <div class="icon"><i class="fas fa-robot"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 2: Công cụ & Tiện ích -->
-                <h5 class="dashboard-section-title"><i class="fas fa-tools mr-2"></i>Công cụ & Tiện ích</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-success shadow" onclick="showTab('tab-funds'); loadFundTab();">
-                            <div class="inner"><h3>Quỹ nhóm</h3><p>Thu/chi & Báo cáo</p></div>
-                            <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-purple shadow" onclick="showTab('tab-evaluation')">
-                            <div class="inner"><h3>Đánh giá</h3><p>Xếp loại học sinh</p></div>
-                            <div class="icon"><i class="fas fa-star"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-teal shadow" onclick="showTab('tab-feedback')">
-                            <div class="inner"><h3>Phản ánh</h3><p>Gửi kiến nghị</p></div>
-                            <div class="icon"><i class="fas fa-comments"></i></div>
+                        <div class="row mt-3 text-dark">
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="small-box bg-white text-center p-2" style="border-radius: 10px;">
+                                    <h3 id="totalStudentsCount">0</h3>
+                                    <p>Học sinh</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="small-box bg-white text-center p-2" style="border-radius: 10px;">
+                                    <h3 id="attendanceTodayCount">0</h3>
+                                    <p>Có mặt hôm nay</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="small-box bg-white text-center p-2" style="border-radius: 10px;">
+                                    <h3 id="absentTodayCount">0</h3>
+                                    <p>Vắng hôm nay</p>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="small-box bg-white text-center p-2" style="border-radius: 10px;">
+                                    <h3 id="fundBalanceCount">0</h3>
+                                    <p>Quỹ nhóm</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 3: Tài nguyên & Hỗ trợ -->
-                <h5 class="dashboard-section-title"><i class="fas fa-archive mr-2"></i>Tài nguyên & Hỗ trợ</h5>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-secondary shadow" onclick="showTab('tab-upload')">
-                            <div class="inner"><h3>Tài liệu</h3><p>Tệp tin & Tài nguyên</p></div>
-                            <div class="icon"><i class="fas fa-folder-open"></i></div>
+                <!-- Welcome Card -->
+                <div class="welcome-card-premium text-white mb-2 shadow-lg" style="padding: 25px;">
+                    <div class="row align-items-center" style="position: relative; z-index: 2;">
+                        <div class="col-auto">
+                            <div class="vip-frame-container" style="position: relative; display: inline-block;">
+                                <img src="" id="userAvatarInner" class="img-circle shadow-lg" style="width: 75px; height: 75px; object-fit: cover; border: 3px solid rgba(255,255,255,0.8);">
+                                <div id="vipCrownAreaWelcome" style="position: absolute; top: -15px; right: -15px;"></div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-danger shadow" onclick="window.location.href='profile.html'">
-                            <div class="inner"><h3>Hồ sơ</h3><p>Thông tin cá nhân</p></div>
-                            <div class="icon"><i class="fas fa-id-card"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-light shadow" onclick="$('#modalGuide').modal('show')">
-                            <div class="inner"><h3>Hướng dẫn</h3><p>Tài liệu sử dụng</p></div>
-                            <div class="icon"><i class="fas fa-question-circle"></i></div>
+                        <div class="col">
+                            <h3 class="mb-0 font-weight-bold" style="font-size: 1.3rem;">Xin chào, <span id="managerMenuDisplayName">Quản lý</span>! 👋</h3>
+                            <p class="mb-0" style="font-size: 0.85rem; opacity: 0.95;">Nhóm: <span class="font-weight-bold badge badge-light" id="groupBadge">-</span></p>
+                            <p class="mb-0" style="font-size: 0.8rem; opacity: 0.85;" id="currentDateDisplay">-</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Quick Stats (giữ 2, đảo cuối lên đầu) -->
+                <div class="row mb-3 g-2">
+                    <div class="col-6 col-md-6">
+                        <div class="card stat-card-premium text-center shadow-sm" onclick="showTab('tab-attendance')" style="min-height: 90px; display: flex; flex-direction: column; justify-content: center;">
+                            <div class="card-body p-2">
+                                <i class="fas fa-times-circle stat-icon-danger icon-bounce" style="font-size: 1.5rem; display: block; margin-bottom: 3px;"></i>
+                                <h6 class="font-weight-bold text-dark mb-0" id="absentTodayCount">0</h6>
+                                <small class="text-muted font-weight-500" style="font-size: 0.7rem;">Vắng hôm nay</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-6">
+                        <div class="card stat-card-premium text-center shadow-sm" onclick="showTab('tab-students')" style="min-height: 90px; display: flex; flex-direction: column; justify-content: center;">
+                            <div class="card-body p-2">
+                                <i class="fas fa-users stat-icon-primary icon-bounce" style="font-size: 1.5rem; display: block; margin-bottom: 3px;"></i>
+                                <h6 class="font-weight-bold text-dark mb-0" id="totalStudentsCount">0</h6>
+                                <small class="text-muted font-weight-500" style="font-size: 0.7rem;">Học sinh</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -584,33 +762,6 @@
                 <button class="btn btn-success btn-block mt-4 shadow py-3" onclick="submitAttendance()">
                     <i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>
                 </button>
-            </div>
-
-            <div class="tab-pane fade" id="tab-ai-assistant">
-                <div class="card card-outline card-warning shadow">
-                    <div class="card-header d-flex align-items-center">
-                        <h3 class="card-title"><i class="fas fa-robot mr-2"></i>Trợ lý ảo Groq AI</h3>
-                        <div class="card-tools ml-auto">
-                            <button class="btn btn-tool" onclick="setGroqKey()" title="Cấu hình API Key"><i class="fas fa-key"></i></button>
-                            <button class="btn btn-tool" onclick="clearChatHistory()"><i class="fas fa-trash"></i> Xóa chat</button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="chat-container">
-                            <div id="aiChatHistory" class="chat-history">
-                                <div class="chat-message ai">Xin chào! Tôi là trợ lý ảo của nhóm. Tôi có thể giúp bạn:<br>- Ghi chép chi tiêu tự động (VD: "Chi 50k mua nước")<br>- Tra cứu thông tin học sinh (VD: "Thông tin đầy đủ của Nguyễn Văn A")<br>- Tìm kiếm món đồ mua sắm<br>Hãy nhập API Key của Groq để bắt đầu!</div>
-                            </div>
-                            <div class="typing-indicator ml-3" id="aiTyping">AI đang nhập...</div>
-                            <div class="chat-input-area">
-                                <input type="text" id="aiChatInput" class="form-control" placeholder="Nhập yêu cầu của bạn..." onkeypress="if(event.keyCode==13) sendToAI()">
-                                <button class="btn btn-warning" onclick="sendToAI()"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="callout callout-info mt-3">
-                    <small><i class="fas fa-info-circle"></i> AI có quyền truy cập danh sách học sinh và số dư quỹ để hỗ trợ bạn tốt nhất.</small>
-                </div>
             </div>
 
             <div class="tab-pane fade" id="tab-students">
@@ -993,6 +1144,36 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-primary" onclick="saveStudent()">Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Student Credentials -->
+<div class="modal fade" id="modalStudentCredentials" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Thông tin tài khoản học sinh</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p>Vui lòng chụp lại ảnh màn hình hoặc ghi lại thông tin sau:</p>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="cred_username" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="text" id="cred_password" class="form-control" readonly>
+                </div>
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-camera"></i> Nếu quên hoặc mất mật khẩu, quản lý/admin có thể tạo lại tại đây.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="copyStudentCredentials()">Sao chép vào clipboard</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đã sao lưu</button>
             </div>
         </div>
     </div>
@@ -1485,6 +1666,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     document.getElementById('managerDisplayName').innerText = user.fullname;
     document.getElementById('userAvatar').src = avatarUrl;
+    document.getElementById('userAvatarInner').src = avatarUrl; // Welcome card avatar
     
     const displayGroupName = user.group_name || user.group_id;
     if(document.getElementById('groupBadge')) document.getElementById('groupBadge').innerText = displayGroupName;
@@ -1524,29 +1706,36 @@ document.addEventListener("DOMContentLoaded", function() {
     // Render VIP Honors
     $('#managerMenuDisplayName').text(user.fullname);
     
-    // Render VIP Honors
+    // Render VIP Honors (Both navbar and welcome card)
     try {
         const honors = JSON.parse(user.honors || '{}');
         const avatarNav = $('#userAvatar');
+        const avatarWelcome = $('#userAvatarInner');
         
         if (honors.level === 'vip1') {
             avatarNav.addClass('vip-border-1');
+            avatarWelcome.addClass('vip-border-1');
         } else if (honors.level === 'vip2') {
             avatarNav.addClass('vip-border-2');
-            $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>');
+            avatarWelcome.addClass('vip-border-2');
+            $('#vipCrownArea, #vipCrownAreaWelcome').html('<i class="fas fa-crown vip-crown"></i>');
         } else if (honors.level === 'vip3') {
             avatarNav.addClass('vip-border-3');
-            $('#vipCrownArea').html('<i class="fas fa-gem vip-diamond"></i>');
+            avatarWelcome.addClass('vip-border-3');
+            $('#vipCrownArea, #vipCrownAreaWelcome').html('<i class="fas fa-gem vip-diamond"></i>');
         }
         else if (honors.level === 'vip4') {
             avatarNav.addClass('vip-border-4');
-            $('#vipCrownArea').html('<i class="fas fa-crown vip-crown" style="color: #e5e4e2;"></i>');
+            avatarWelcome.addClass('vip-border-4');
+            $('#vipCrownArea, #vipCrownAreaWelcome').html('<i class="fas fa-crown vip-crown" style="color: #e5e4e2;"></i>');
         } else if (honors.level === 'vip5') {
             avatarNav.addClass('vip-border-5');
-            $('#vipCrownArea').html('<i class="fas fa-crown vip-crown"></i>');
+            avatarWelcome.addClass('vip-border-5');
+            $('#vipCrownArea, #vipCrownAreaWelcome').html('<i class="fas fa-crown vip-crown"></i>');
         } else if (honors.level === 'vip10') {
             avatarNav.addClass('vip-border-10');
-            $('#vipCrownArea').html(`
+            avatarWelcome.addClass('vip-border-10');
+            $('#vipCrownArea, #vipCrownAreaWelcome').html(`
                 <i class="fas fa-crown vip-crown-10"></i>
                 <i class="fas fa-dove vip-wing vip-wing-left"></i>
                 <i class="fas fa-dove vip-wing vip-wing-right"></i>
@@ -1567,11 +1756,6 @@ document.addEventListener("DOMContentLoaded", function() {
         generateCaptcha('captcha_code_fb'); // Tạo captcha cho form feedback
     }, 800);
     initCardCollapseState();
-    
-    // Role specific UI
-    if (user.role === 'supervisor') {
-        $('#menu-registrations').removeClass('d-none');
-    }
     
     // Start Polling for Notifications (Push Simulation)
     setInterval(pollForNotifications, 60000); // Check every 60s
@@ -1734,6 +1918,12 @@ function applyUserSettings(settings) {
 
 // --- NEW NAVIGATION ---
 function showTab(tabId) {
+    const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
+    if (tabId === 'tab-attendance' && String(conf.maint_attendance).toUpperCase() === 'TRUE') {
+        toastr.warning('Điểm danh đang bị khóa bởi cài đặt quản trị.');
+        return;
+    }
+
     $('#main-menu-section').hide();
     $('#functional-section').fadeIn();
     $('.tab-pane').removeClass('show active');
@@ -2175,16 +2365,18 @@ async function fetchStudentsByGroup(groupId, retry = 0) {
                         <td class="text-center">
                             ${student.phone ? `<a href="tel:${student.phone}" class="btn btn-xs btn-link"><i class="fas fa-phone mr-1"></i>${student.phone}</a>` : '-'}
                         </td>
-                        <td class="text-center">${user.role !== 'supervisor' ? `
+                        <td class="text-center">
                             <button class="btn btn-xs btn-info" onclick="editStudent(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-xs btn-warning" onclick="regenerateStudentPass('${student.id}')" title="Tạo mật khẩu mới"><i class="fas fa-sync-alt"></i></button>
                             <button class="btn btn-xs btn-danger" onclick="deleteStudent('${student.id}')"><i class="fas fa-trash"></i></button>
-                        ` : '<span class="badge badge-secondary">Chỉ xem</span>'}</td>
+                        </td>
                     </tr>`;
             });
 
             attContainer.innerHTML = attHtml || '<div class="col-12 text-center">Không có dữ liệu.</div>';
             tableBody.innerHTML = tableHtml || '<tr><td colspan="6" class="text-center">Không có dữ liệu.</td></tr>';
             checkAttendanceLock(); // Kiểm tra khóa sau khi render xong
+            updateDashboardStats(); // Cập nhật thống kê dashboard
             loadEvaluationUI(); // Tải đánh giá sau khi đã có danh sách học sinh
         }
     } catch (error) {
@@ -2341,18 +2533,42 @@ async function loadNotifications() {
 }
 
 // --- HÀM KIỂM TRA KHÓA ĐIỂM DANH ---
+function updateDashboardStats() {
+    // Update total students
+    document.getElementById('totalStudentsCount').innerText = globalGroupStudents.length;
+    
+    // Calculate attendance stats for today (simple: count from current state)
+    let presentCount = 0, absentCount = 0;
+    const inputs = document.querySelectorAll('input[type="radio"]:checked');
+    inputs.forEach(input => {
+        const status = input.value;
+        if (status === 'present') presentCount++;
+        else if (status === 'absent' || status === 'absent_perm') absentCount++;
+    });
+    document.getElementById('attendanceTodayCount').innerText = presentCount;
+    document.getElementById('absentTodayCount').innerText = absentCount;
+    
+    // Placeholder for fund balance (replace with actual API call if available)
+    document.getElementById('fundBalanceCount').innerText = '0đ';
+}
+
 function checkAttendanceLock() {
     const now = new Date();
     const currentHour = now.getHours();
     const submitBtn = document.querySelector('button[onclick="submitAttendance()"]');
     const inputs = document.querySelectorAll('input[name^="st_"]');
     const conf = JSON.parse(sessionStorage.getItem('globalConfig') || '{}');
-    
+
+    let todayNoti = null;
+    if (Array.isArray(globalNotifications) && globalNotifications.length > 0) {
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        todayNoti = globalNotifications.find(n => String(n.datetime || '').startsWith(today));
+    }
+
     // VIP Member Bypass
     const user = JSON.parse(sessionStorage.getItem('user'));
     if (user && user.role === 'vip_member') {
-        // Explicitly enable to be sure
-        if(submitBtn) {
+        if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>`;
             submitBtn.classList.add('btn-success');
@@ -2360,38 +2576,33 @@ function checkAttendanceLock() {
         }
         inputs.forEach(inp => inp.disabled = false);
         $('.attendance-alert').remove();
-        return; 
+        $('.attendance-warning-timer').remove();
+        return;
     }
-    
-    // Xóa thông báo cũ nếu có
+
     $('.attendance-alert').remove();
-    
-    // Xóa cảnh báo sắp khóa cũ
     $('.attendance-warning-timer').remove();
 
     let isLocked = false;
     let message = "";
 
-    // 1. Check Manual Block (Chặn thủ công)
     if (String(conf.att_blocked).toUpperCase() === 'TRUE') {
         isLocked = true;
         message = "Điểm danh đang bị khóa bởi Quản trị viên.";
     }
 
-    // 2. Check Time Range (Giờ tự động)
     if (!isLocked) {
         if (conf.attendance_start_time && conf.attendance_end_time) {
             const [sH, sM] = conf.attendance_start_time.split(':').map(Number);
             const [eH, eM] = conf.attendance_end_time.split(':').map(Number);
             const start = new Date(now); start.setHours(sH, sM, 0, 0);
             const end = new Date(now); end.setHours(eH, eM, 0, 0);
-            
+
             if (now < start || now > end) {
                 isLocked = true;
                 message = `Ngoài khung giờ điểm danh (${conf.attendance_start_time} - ${conf.attendance_end_time}).`;
             }
         } else {
-            // Fallback default 20:00 if no config
             if (currentHour >= 20) {
                 isLocked = true;
                 message = "Đã quá thời gian điểm danh trong ngày (Sau 20:00).";
@@ -2399,34 +2610,21 @@ function checkAttendanceLock() {
         }
     }
 
-    // 3. Check Notification Override
-    // If locked (either manually or by time), check if we can unlock via notification
     if (isLocked) {
-        const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-        const todayNoti = globalNotifications.find(n => n.datetime.startsWith(todayStr));
-        
-        if (todayNoti) {
-            const meetingTime = new Date(todayNoti.datetime.replace(" ", "T"));
+        const canOverride = (String(conf.att_blocked).toUpperCase() !== 'TRUE') || (String(conf.noti_override).toUpperCase() === 'TRUE');
+        if (todayNoti && canOverride) {
+            const meetingTime = new Date(todayNoti.datetime.replace(' ', 'T'));
             const isEarlyAllowed = todayNoti.early === 'TRUE';
-            
-            // Override allowed if:
-            // 1. Config 'noti_override' is TRUE (overrides everything)
-            // 2. OR Lock is NOT manual (time range lock can always be overridden by meeting time)
-            const canOverride = (String(conf.att_blocked).toUpperCase() !== 'TRUE') || (String(conf.noti_override).toUpperCase() === 'TRUE');
-            
-            if (canOverride) {
-                if (now >= meetingTime || isEarlyAllowed) {
-                    isLocked = false; // Unlock
-                } else {
-                    // It is meeting day, but not time yet.
-                    message = `Chưa đến giờ điểm danh theo thông báo (${todayNoti.datetime.split(' ')[1]}).`;
-                }
+            if (now >= meetingTime || isEarlyAllowed) {
+                isLocked = false;
+            } else {
+                message = `Chưa đến giờ điểm danh theo thông báo (${todayNoti.datetime.split(' ')[1]}).`;
             }
         }
     }
 
     if (isLocked) {
-        if(submitBtn) {
+        if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fas fa-lock mr-2"></i> ${message}`;
             submitBtn.classList.remove('btn-success');
@@ -2435,41 +2633,24 @@ function checkAttendanceLock() {
         inputs.forEach(inp => inp.disabled = true);
         $('#attendanceList').prepend(`<div class="col-12 attendance-alert"><div class="alert alert-warning font-weight-bold"><i class="fas fa-exclamation-triangle mr-2"></i>${message}</div></div>`);
     } else {
-        // Logic cảnh báo sắp khóa (Trước 1 tiếng)
-        let closingTime = null;
-        // Xác định giờ đóng
-        if (String(conf.noti_override).toUpperCase() === 'TRUE' && todayNoti) {
-             const meetingTime = new Date(todayNoti.datetime.replace(" ", "T"));
-             
-             const closeHour = conf.attendance_end_time ? parseInt(conf.attendance_end_time.split(':')[0]) : 24;
-             const closeMinute = conf.attendance_end_time ? parseInt(conf.attendance_end_time.split(':')[1]) : 0;
-             const endOfDay = new Date(now);
-             endOfDay.setHours(closeHour, closeMinute, 0, 0);
-             if (closeHour === 24) endOfDay.setHours(23, 59, 59, 999);
-             
-             const finalEndTime = meetingTime > endOfDay ? new Date(now.setHours(23,59,59,999)) : endOfDay;
-             if (now <= finalEndTime) closingTime = finalEndTime;
-        }
-        if (!closingTime) {
-             const closeHour = conf.attendance_end_time ? parseInt(conf.attendance_end_time.split(':')[0]) : 20;
-             closingTime = new Date(); closingTime.setHours(closeHour, 0, 0, 0);
-        }
-
-        if (closingTime && closingTime > now) {
-            const diffMins = (closingTime - now) / 60000;
-            if (diffMins <= 60) {
-                $('#attendanceList').prepend(`<div class="col-12 attendance-warning-timer"><div class="alert alert-warning text-center font-weight-bold"><i class="fas fa-clock mr-2"></i>Hệ thống sẽ khóa điểm danh trong ${Math.ceil(diffMins)} phút nữa!</div></div>`);
-            }
-        }
-
-        // Mở khóa nếu hợp lệ
-        if(submitBtn) {
+        if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i><b>LƯU KẾT QUẢ ĐIỂM DANH</b>`;
             submitBtn.classList.add('btn-success');
             submitBtn.classList.remove('btn-secondary');
         }
         inputs.forEach(inp => inp.disabled = false);
+
+        const closingTime = (todayNoti && String(conf.noti_override).toUpperCase() === 'TRUE')
+            ? new Date(todayNoti.datetime.replace(' ', 'T'))
+            : (conf.attendance_end_time ? (() => { const [eH, eM] = conf.attendance_end_time.split(':').map(Number); const t = new Date(now); t.setHours(eH, eM, 0, 0); return t; })() : (() => { const t = new Date(now); t.setHours(20, 0, 0, 0); return t; })());
+
+        if (closingTime && closingTime > now) {
+            const diffMins = Math.ceil((closingTime - now) / 60000);
+            if (diffMins <= 60) {
+                $('#attendanceList').prepend(`<div class="col-12 attendance-warning-timer"><div class="alert alert-warning text-center font-weight-bold"><i class="fas fa-clock mr-2"></i>Hệ thống sẽ khóa điểm danh trong ${diffMins} phút nữa!</div></div>`);
+            }
+        }
     }
 }
 
@@ -2505,6 +2686,13 @@ async function openStudentModal() {
 
     const user = JSON.parse(sessionStorage.getItem('user'));
     $('#st_group_select').val(user.group_id);
+    if (user.role === 'student') {
+        $('#st_group_select').prop('disabled', true);
+        $('#st_group_select').closest('.form-group').find('label').text('Nhóm (không thể đổi)');
+    } else {
+        $('#st_group_select').prop('disabled', false);
+        $('#st_group_select').closest('.form-group').find('label').text('Chuyển Nhóm (Nếu cần)');
+    }
 }
 
 async function editStudent(index) {
@@ -2522,6 +2710,13 @@ async function editStudent(index) {
     
     const user = JSON.parse(sessionStorage.getItem('user'));
     $('#st_group_select').val(user.group_id);
+    if (user.role === 'student') {
+        $('#st_group_select').prop('disabled', true);
+        $('#st_group_select').closest('.form-group').find('label').text('Nhóm (không thể đổi)');
+    } else {
+        $('#st_group_select').prop('disabled', false);
+        $('#st_group_select').closest('.form-group').find('label').text('Chuyển Nhóm (Nếu cần)');
+    }
 
     await loadSchoolList();
     populateSchoolDropdown('st_school_select');
@@ -2542,8 +2737,11 @@ async function saveStudent() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const idOld = $('#student_id_old').val();
     const action = idOld ? 'UPDATE_DATA' : 'ADD_DATA';
-    const selectedGroup = $('#st_group_select').val();
-    
+    let selectedGroup = $('#st_group_select').val();
+    if (user.role === 'student') {
+        selectedGroup = user.group_id;
+    }
+
     if (!selectedGroup) return toastr.warning("Vui lòng chọn nhóm!");
 
     const schoolName = getSelectedSchool('st_school_select', 'st_school_other');
@@ -2564,20 +2762,28 @@ async function saveStudent() {
         "" // reg_act removed
     ];
     
+    let randomPass = null;
     if (!idOld) {
         // Generate password for new student
-        const randomPass = Math.floor(100000 + Math.random() * 900000).toString();
+        randomPass = Math.floor(100000 + Math.random() * 900000).toString();
         dataArr.push(randomPass); // Col 13: Password
         dataArr.push('TRUE');     // Col 14: AllowChange
     }
 
+    const payload = { type: 'students', id: idOld, data: dataArr };
+    if (user.role !== 'student') payload.admin_user = user.username;
+
     Swal.fire({ title: 'Đang xử lý...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: action, payload: { type: 'students', id: idOld, data: dataArr } }) });
+        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: action, payload: payload }) });
         const res = await response.json();
         if (res.status === 'success') {
             $('#modalStudent').modal('hide');
-            if (String(selectedGroup) !== String(user.group_id)) {
+            if (!idOld && randomPass) {
+                $('#cred_username').val($('#st_id').val());
+                $('#cred_password').val(randomPass);
+                $('#modalStudentCredentials').modal('show');
+            } else if (String(selectedGroup) !== String(user.group_id)) {
                 Swal.fire('Đã chuyển nhóm!', 'Học sinh đã được chuyển sang nhóm mới.', 'success');
             } else {
                 Swal.fire('Thành công!', res.message, 'success');
@@ -2585,6 +2791,17 @@ async function saveStudent() {
             fetchStudentsByGroup(user.group_id);
         } else Swal.fire('Lỗi', res.message, 'error');
     } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối Server', 'error'); }
+}
+
+function copyStudentCredentials() {
+    const username = $('#cred_username').val();
+    const password = $('#cred_password').val();
+    const text = `Username: ${username}\nPassword: ${password}`;
+    navigator.clipboard.writeText(text).then(() => {
+        toastr.success('Đã sao chép thông tin đăng nhập vào clipboard.');
+    }).catch(() => {
+        toastr.warning('Không thể sao chép. Vui lòng copy thủ công.');
+    });
 }
 
 function deleteStudent(id) {
@@ -2598,6 +2815,22 @@ function deleteStudent(id) {
             } catch (e) { toastr.error("Lỗi xóa dữ liệu"); }
         }
     });
+}
+
+async function regenerateStudentPass(studentId) {
+    if (!confirm('Xác nhận tạo mật khẩu mới cho học sinh này?')) return;
+    try {
+        const response = await fetch(API_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ action: 'REGENERATE_PASS', payload: { id: studentId, admin_user: JSON.parse(sessionStorage.getItem('user')).username } }) });
+        const res = await response.json();
+        if (res.status === 'success') {
+            toastr.success(`Mật khẩu mới cho ${studentId}: ${res.new_pass}. Vui lòng chụp màn hình lại!`);
+            fetchStudentsByGroup(JSON.parse(sessionStorage.getItem('user')).group_id);
+        } else {
+            toastr.error(res.message);
+        }
+    } catch (e) {
+        toastr.error('Lỗi kết nối Server');
+    }
 }
 
 // Giữ nguyên hàm submitAttendance...
@@ -2641,6 +2874,7 @@ async function exportExcel() {
     XLSX.writeFile(wb, `Danh_sach_HS_${groupName.replace(/\s+/g, '_')}.xlsx`);
     toastr.info("Đang tải file Excel...");
 }
+
 
 
 async function sendFeedback() {
@@ -3835,524 +4069,6 @@ async function runSpeedTest() {
         result.innerHTML = '<span class="text-danger">Lỗi đo tốc độ!</span>';
     }
     btn.disabled = false;
-}
-
-// --- AI ASSISTANT LOGIC ---
-const DEFAULT_GROQ_KEY = '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'; // Điền API Key của bạn vào đây (gsk_...) để tích hợp sẵn
-let groqApiKey = localStorage.getItem('groq_api_key') || DEFAULT_GROQ_KEY;
-// Check session for synced key
-try { const u = JSON.parse(sessionStorage.getItem('user')); if(u && u.groq_api_key) groqApiKey = u.groq_api_key; } catch(e){}
-
-function setGroqKey() {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const isLinked = user && user.google_uid;
-
-    Swal.fire({
-        title: 'Cấu hình Groq AI',
-        html: `
-            <p class="text-muted small">Nhập API Key cá nhân để sử dụng ổn định hơn.</p>
-            <input id="swal-input-key" class="swal2-input" placeholder="gsk_..." value="${groqApiKey === DEFAULT_GROQ_KEY ? '' : groqApiKey}">
-            ${isLinked ? `
-            <div class="form-group mt-3 text-left px-4">
-                <label>Tùy chọn lưu trữ:</label>
-                <div class="custom-control custom-radio">
-                    <input type="radio" id="save_local" name="save_method" class="custom-control-input" value="local" checked>
-                    <label class="custom-control-label" for="save_local">Chỉ lưu trên trình duyệt này</label>
-                </div>
-                <div class="custom-control custom-radio">
-                    <input type="radio" id="save_account" name="save_method" class="custom-control-input" value="account">
-                    <label class="custom-control-label" for="save_account">Lưu vào tài khoản (Đồng bộ)</label>
-                </div>
-            </div>` : ''}
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Lưu Cấu hình',
-        footer: '<a href="https://console.groq.com/keys" target="_blank">Lấy API Key miễn phí tại đây</a>',
-        preConfirm: () => {
-            return {
-                key: document.getElementById('swal-input-key').value,
-                method: isLinked ? document.querySelector('input[name="save_method"]:checked').value : 'local'
-            }
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const { key, method } = result.value;
-            if (key) {
-                groqApiKey = key;
-                localStorage.setItem('groq_api_key', key);
-                if (method === 'account') {
-                    saveApiKeyToAccount(key);
-                } else {
-                    toastr.success('Đã lưu API Key vào bộ nhớ máy!');
-                }
-            }
-        }
-    });
-}
-
-async function saveApiKeyToAccount(key) {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    Swal.fire({ title: 'Đang đồng bộ...', didOpen: () => Swal.showLoading() });
-    try {
-        const response = await fetch(API_URL, { 
-            method: "POST", 
-            redirect: "follow", 
-            body: JSON.stringify({ 
-                action: "UPDATE_USER_SETTINGS", 
-                payload: { username: user.username, groq_api_key: key } 
-            }) 
-        });
-        const res = await response.json();
-        if (res.status === 'success') {
-            user.groq_api_key = key;
-            sessionStorage.setItem('user', JSON.stringify(user));
-            Swal.fire('Thành công', 'Đã lưu API Key vào tài khoản!', 'success');
-        } else {
-            Swal.fire('Lỗi', 'Không thể lưu vào tài khoản: ' + res.message, 'error');
-        }
-    } catch (e) {
-        Swal.fire('Lỗi', 'Lỗi kết nối', 'error');
-    }
-}
-
-function initAIChat() {
-    if (!groqApiKey) {
-        setTimeout(setGroqKey, 500);
-    }
-}
-
-function appendMessage(role, text) {
-    const div = document.createElement('div');
-    div.className = `chat-message ${role}`;
-    // Convert markdown links text to html
-    const htmlText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>').replace(/\n/g, '<br>');
-    div.innerHTML = htmlText;
-    document.getElementById('aiChatHistory').appendChild(div);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-}
-
-function clearChatHistory() {
-    document.getElementById('aiChatHistory').innerHTML = '<div class="chat-message ai">Đã xóa lịch sử chat.</div>';
-}
-
-async function sendToAI() {
-    const input = document.getElementById('aiChatInput');
-    const message = input.value.trim();
-    if (!message) return;
-    if (!groqApiKey) return setGroqKey();
-
-    appendMessage('user', message);
-    input.value = '';
-    document.getElementById('aiTyping').style.display = 'block';
-
-    // Prepare Context
-    const fundBalance = $('#current_fund_balance').text();
-    const students = globalGroupStudents.map(s => `- ${s.fullname} (Giới tính: ${s.gender||'?'}, NS: ${s.dob||'?'}, Lớp: ${s.class_name||'?'}, Trường: ${s.school||'?'}, SĐT: ${s.phone || 'N/A'}, Đ/c: ${s.address || 'N/A'})`).join('\n');
-    
-    const systemPrompt = `Bạn là trợ lý ảo thông minh cho quản lý nhóm sinh hoạt hè.
-    Dữ liệu hiện tại:
-    - Số dư quỹ: ${fundBalance}
-    - Danh sách học sinh (Tên, Giới tính, Năm sinh, Lớp, Trường, SĐT, Địa chỉ):
-    ${students} (Hãy dùng dữ liệu này để trả lời chi tiết)
-
-    Nhiệm vụ của bạn:
-    1. XỬ LÝ YÊU CẦU VỀ HỌC SINH:
-       - Nếu người dùng hỏi thông tin về MỘT học sinh cụ thể (VD: "thông tin của Nguyễn Văn A"), hãy trả lời trực tiếp bằng TEXT, liệt kê đầy đủ thông tin bạn có.
-       - Nếu người dùng yêu cầu xem DANH SÁCH, trích xuất dữ liệu, thống kê (VD: "danh sách lớp 9A", "tất cả học sinh", "tìm tên Lan"), hãy trả về JSON: {"action": "analyze_data", "target": "students", "filter": "từ khóa lọc nếu có"}.
-    2. QUẢN LÝ QUỸ & CHI TIÊU:
-       - Nếu hỏi tình hình quỹ, báo cáo quỹ, ai đã đóng tiền, thống kê thu chi: Trả về JSON {"action": "fund_report"}.
-       - Nếu yêu cầu chi tiền (VD: "Chi 50k mua nước", "Ghi sổ chi 20000 mua giấy"), hãy trả về JSON:
-         {"action": "expense", "amount": 20000, "reason": "Mua giấy", "notes": "Ghi chú nếu có"}
-       - Nếu yêu cầu THU TIỀN/ĐÓNG QUỸ (VD: "Thu quỹ 20k", "A và B đóng tiền", "Thu tiền quỹ"): 
-         {"action": "income", "amount": 20000, "students": ["Tên HS 1", "Tên HS 2"]} (Nếu không rõ tên, để mảng rỗng).
-    3. TÌM KIẾM MUA SẮM:
-       - Nếu người dùng muốn tìm mua đồ, tham khảo giá (VD: "Tìm mua bóng bay", "Giá nước ngọt"), hãy trả về JSON: 
-         {"action": "search_product", "query": "tên món đồ", "items": [{"name": "Gợi ý tên sản phẩm 1", "price": "Giá ước lượng"}, {"name": "Gợi ý tên sản phẩm 2", "price": "Giá ước lượng"}]}
-    4. Nếu người dùng muốn xem biểu đồ/thống kê giới tính, hãy trả về JSON: {"action": "show_gender_chart"}.
-    5. Nếu người dùng muốn THÊM HỌC SINH (VD: "Thêm học sinh mới", "Thêm bạn A vào nhóm"), hãy trả về JSON: {"action": "show_add_student_form"}.
-    6. Trả lời ngắn gọn, thân thiện bằng tiếng Việt.`;
-
-    try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${groqApiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: message }
-                ],
-                model: 'llama-3.3-70b-versatile',
-                temperature: 0.5
-            })
-        });
-
-        if (!response.ok) {
-            if (response.status === 401) {
-                document.getElementById('aiTyping').style.display = 'none';
-                appendMessage('ai', '⚠️ API Key đã hết hạn hoặc không hợp lệ. Vui lòng cập nhật lại.');
-                setGroqKey();
-                return;
-            }
-            const errData = await response.json();
-            throw new Error(errData.error?.message || `Lỗi HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        document.getElementById('aiTyping').style.display = 'none';
-
-        if (data.choices && data.choices.length > 0) {
-            const content = data.choices[0].message.content;
-            
-            // Check for JSON action
-            try {
-                const jsonStart = content.indexOf('{');
-                const jsonEnd = content.lastIndexOf('}');
-                if (jsonStart !== -1 && jsonEnd !== -1) {
-                    const jsonStr = content.substring(jsonStart, jsonEnd + 1);
-                    const actionData = JSON.parse(jsonStr);
-                    if (actionData.action === 'expense') {
-                        saveExpenseLog(actionData.amount, actionData.reason, actionData.notes || 'AI Auto Add');
-                        appendMessage('ai', `✅ Đã tự động thêm khoản chi: ${parseInt(actionData.amount).toLocaleString()}đ cho "${actionData.reason}".`);
-                        return;
-                    } else if (actionData.action === 'income') {
-                        renderFundCollectionAI(actionData.students, actionData.amount);
-                        return;
-                    } else if (actionData.action === 'analyze_data' && actionData.target === 'students') {
-                        showAIStudentTable(actionData.filter);
-                        return;
-                    } else if (actionData.action === 'fund_report') {
-                        renderFundReportAI();
-                        return;
-                    } else if (actionData.action === 'search_product') {
-                        renderProductSearchAI(actionData.query, actionData.items);
-                        return;
-                    } else if (actionData.action === 'show_gender_chart') {
-                        showAIGenderChart();
-                        return;
-                    } else if (actionData.action === 'show_add_student_form') {
-                        renderAddStudentFormAI();
-                        return;
-                    }
-                }
-            } catch (e) { /* Not JSON or invalid */ }
-
-            appendMessage('ai', content);
-        }
-    } catch (error) {
-        document.getElementById('aiTyping').style.display = 'none';
-        appendMessage('ai', `❌ Lỗi kết nối Groq AI: ${error.message}`);
-        console.error(error);
-    }
-}
-
-function renderAddStudentFormAI() {
-    const containerId = 'ai-add-st-' + Date.now();
-    
-    let html = `
-    <div class="ai-card" id="${containerId}">
-        <div class="ai-card-header bg-primary text-white"><i class="fas fa-user-plus mr-2"></i>Thêm Học sinh Mới</div>
-        <div class="ai-card-body">
-            <div class="form-group mb-2">
-                <label>Họ và Tên <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" id="ai_st_name_${containerId}" placeholder="Nhập tên...">
-            </div>
-            <div class="row">
-                <div class="col-6">
-                    <div class="form-group mb-2">
-                        <label>Giới tính</label>
-                        <select class="form-control form-control-sm" id="ai_st_gender_${containerId}">
-                            <option value="Nam">Nam</option>
-                            <option value="Nữ">Nữ</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="form-group mb-2">
-                        <label>Năm sinh</label>
-                        <input type="number" class="form-control form-control-sm" id="ai_st_dob_${containerId}" placeholder="YYYY">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group mb-2">
-                <label>Trường học</label>
-                <input type="text" class="form-control form-control-sm" id="ai_st_school_${containerId}" placeholder="Tên trường...">
-            </div>
-            <button class="btn btn-sm btn-primary btn-block font-weight-bold" onclick="submitAiAddStudent('${containerId}')">
-                <i class="fas fa-save mr-2"></i>Lưu Học sinh
-            </button>
-        </div>
-    </div>`;
-    
-    appendMessage('ai', '✅ Đã mở form thêm học sinh:');
-    $('#aiChatHistory').append(html);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-}
-
-async function submitAiAddStudent(containerId) {
-    const name = $(`#ai_st_name_${containerId}`).val().trim();
-    const gender = $(`#ai_st_gender_${containerId}`).val();
-    const dob = $(`#ai_st_dob_${containerId}`).val();
-    const school = $(`#ai_st_school_${containerId}`).val();
-    
-    if (!name) return toastr.warning("Vui lòng nhập tên!");
-    
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const id = 'ST' + Date.now(); // Auto ID
-    const dataArr = [id, name, gender, dob, "", school, "", "", user.group_id, "", "", "", Math.floor(100000 + Math.random() * 900000).toString(), 'TRUE'];
-
-    $(`#${containerId} button`).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
-    try {
-        const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "ADD_DATA", payload: { type: 'students', data: dataArr } }) });
-        const res = await response.json();
-        if (res.status === 'success') {
-            $(`#${containerId}`).html(`<div class="alert alert-success m-3"><i class="fas fa-check-circle mr-2"></i>Đã thêm học sinh <b>${name}</b> thành công!</div>`);
-            fetchStudentsByGroup(user.group_id);
-        } else {
-            toastr.error(res.message);
-            $(`#${containerId} button`).prop('disabled', false).html('<i class="fas fa-save mr-2"></i>Lưu Học sinh');
-        }
-    } catch (e) { 
-        toastr.error("Lỗi kết nối");
-        $(`#${containerId} button`).prop('disabled', false).html('<i class="fas fa-save mr-2"></i>Lưu Học sinh');
-    }
-}
-
-function showAIStudentTable(filterText) {
-    loadLib('XLSX');
-    let data = globalGroupStudents;
-    let title = 'Danh sách học sinh (Trích xuất AI)';
-    
-    if (filterText) {
-        const lowerFilter = filterText.toLowerCase();
-        data = globalGroupStudents.filter(s => 
-            (s.fullname && s.fullname.toLowerCase().includes(lowerFilter)) ||
-            (s.class_name && s.class_name.toLowerCase().includes(lowerFilter)) ||
-            (s.school && s.school.toLowerCase().includes(lowerFilter))
-        );
-        title = `Kết quả tìm kiếm: "${filterText}"`;
-    }
-
-    let html = `<div class="ai-card"><div class="ai-card-header bg-primary text-white">${title}</div><div class="ai-card-body p-0 table-responsive" style="max-height:300px"><table class="table table-sm table-bordered table-head-fixed text-nowrap table-hover mb-0"><thead><tr><th>Tên</th><th>Giới tính</th><th>Năm sinh</th><th>Lớp</th><th>Trường</th><th>SĐT</th><th>Địa chỉ</th></tr></thead><tbody>`;
-    
-    if (data.length === 0) {
-        html += '<tr><td colspan="7" class="text-center">Không tìm thấy dữ liệu phù hợp</td></tr>';
-    } else {
-        data.forEach(s => {
-            html += `<tr><td>${s.fullname}</td><td>${s.gender}</td><td>${s.dob}</td><td>${s.class_name}</td><td>${s.school}</td><td>${s.phone}</td><td>${s.address}</td></tr>`;
-        });
-    }
-    
-    // Store data for export button
-    const exportData = JSON.stringify(data.map(s => ({ "Họ và Tên": s.fullname, "Giới tính": s.gender, "Ngày sinh": s.dob, "Lớp": s.class_name, "Trường": s.school, "SĐT": s.phone, "Địa chỉ": s.address })));
-    const exportName = filterText ? `DS_HocSinh_${filterText}` : 'DS_HocSinh_AI';
-    
-    html += `</tbody></table></div><div class="card-footer p-2 text-right bg-white border-top"><button class="btn btn-sm btn-success font-weight-bold" onclick='exportJsonToExcel(${exportData}, "${exportName}")'><i class="fas fa-file-excel mr-2"></i>Xuất Excel</button></div></div>`;
-    
-    appendMessage('ai', `✅ Đã trích xuất ${data.length} học sinh${filterText ? ` theo từ khóa "${filterText}"` : ''}:`);
-    $('#aiChatHistory').append(html);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-}
-
-function exportJsonToExcel(data, filename) {
-    if (!data || data.length === 0) return toastr.warning("Không có dữ liệu!");
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    XLSX.writeFile(wb, filename + ".xlsx");
-}
-
-function renderFundCollectionAI(preSelectedNames, amount) {
-    const amountVal = amount || parseInt($('#fund_amount').val()) || 0;
-    const containerId = 'ai-fund-collect-' + Date.now();
-    
-    let studentRows = '';
-    globalGroupStudents.forEach(st => {
-        let isChecked = false;
-        if (preSelectedNames && preSelectedNames.length > 0) {
-            isChecked = preSelectedNames.some(n => st.fullname.toLowerCase().includes(n.toLowerCase()));
-        }
-        
-        studentRows += `
-            <div class="custom-control custom-checkbox mb-1">
-                <input type="checkbox" class="custom-control-input ai-fund-check" id="ai_fund_${containerId}_${st.id}" value="${st.fullname}" ${isChecked ? 'checked' : ''}>
-                <label class="custom-control-label" for="ai_fund_${containerId}_${st.id}">${st.fullname}</label>
-            </div>
-        `;
-    });
-
-    let html = `
-    <div class="ai-card" id="${containerId}">
-        <div class="ai-card-header bg-success text-white"><i class="fas fa-hand-holding-usd mr-2"></i>Thu Quỹ Nhóm</div>
-        <div class="ai-card-body">
-            <div class="form-group mb-2">
-                <label>Số tiền / người</label>
-                <input type="number" class="form-control form-control-sm" id="ai_fund_amount_${containerId}" value="${amountVal}">
-            </div>
-            <div class="form-group mb-2">
-                <label>Danh sách đóng tiền:</label>
-                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 5px; border-radius: 5px;">
-                    ${studentRows}
-                </div>
-            </div>
-            <button class="btn btn-sm btn-success btn-block font-weight-bold" onclick="submitAiFundCollection('${containerId}')">
-                <i class="fas fa-save mr-2"></i>Xác nhận Thu
-            </button>
-        </div>
-    </div>`;
-
-    appendMessage('ai', '✅ Đã chuẩn bị phiếu thu. Vui lòng kiểm tra và xác nhận:');
-    $('#aiChatHistory').append(html);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-}
-
-function submitAiFundCollection(containerId) {
-    const amount = parseInt($(`#ai_fund_amount_${containerId}`).val()) || 0;
-    const checked = $(`#${containerId} .ai-fund-check:checked`);
-    
-    if (checked.length === 0) return toastr.warning("Chưa chọn học sinh nào!");
-    if (amount <= 0) return toastr.warning("Số tiền không hợp lệ!");
-
-    const names = [];
-    checked.each(function() { names.push($(this).val()); });
-    
-    saveFundLog(amount, names.join(', '), "AI Thu hộ");
-    
-    $(`#${containerId} button`).prop('disabled', true).html('<i class="fas fa-check mr-2"></i>Đã thu');
-}
-
-async function renderFundReportAI() {
-    await loadLib('XLSX');
-    // Ensure logs are loaded
-    if (globalFundLogs.length === 0) {
-        const user = JSON.parse(sessionStorage.getItem('user'));
-        try {
-            const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: "GET_FUND_LOGS", payload: { group_id: user.group_id } }) });
-            const res = await response.json();
-            if (res.status === 'success') globalFundLogs = res.data;
-        } catch(e){}
-    }
-
-    let totalThu = 0, totalChi = 0;
-    let contributors = new Set();
-    let recentLogsHtml = '';
-    
-    globalFundLogs.forEach((log, index) => {
-        const amount = parseInt(log.amount);
-        if (log.type === 'THU') {
-            totalThu += amount;
-            if (log.paid_list && log.paid_list !== "Quản lý đóng góp") {
-                log.paid_list.split(',').forEach(name => contributors.add(name.trim()));
-            }
-        } else {
-            totalChi += amount;
-        }
-
-        // Add to recent logs list (limit 10)
-        if (index < 10) {
-            const isThu = log.type === 'THU';
-            const colorClass = isThu ? 'text-success' : 'text-danger';
-            const sign = isThu ? '+' : '-';
-            const desc = isThu ? (log.paid_list === "Quản lý đóng góp" ? 'Quản lý đóng góp' : `Thu: ${log.paid_list}`) : log.reason;
-            
-            recentLogsHtml += `
-                <div class="d-flex justify-content-between border-bottom py-1">
-                    <div class="text-truncate" style="max-width: 65%;" title="${desc}">
-                        <small class="text-muted d-block">${log.timestamp}</small>
-                        <span>${desc}</span>
-                    </div>
-                    <div class="${colorClass} font-weight-bold">${sign}${amount.toLocaleString()}</div>
-                </div>
-            `;
-        }
-    });
-    
-    const balance = totalThu - totalChi;
-    const contributorList = Array.from(contributors).sort();
-    
-    let html = `
-    <div class="ai-card">
-        <div class="ai-card-header bg-success text-white"><i class="fas fa-wallet mr-2"></i>Báo cáo Quỹ Nhóm</div>
-        <div class="ai-card-body">
-            <div class="row">
-                <div class="col-4"><div class="fund-stat-box"><div class="fund-stat-value text-success">+${totalThu.toLocaleString()}</div><div class="fund-stat-label">Tổng thu</div></div></div>
-                <div class="col-4"><div class="fund-stat-box"><div class="fund-stat-value text-danger">-${totalChi.toLocaleString()}</div><div class="fund-stat-label">Tổng chi</div></div></div>
-                <div class="col-4"><div class="fund-stat-box"><div class="fund-stat-value text-primary">${balance.toLocaleString()}</div><div class="fund-stat-label">Còn lại</div></div></div>
-            </div>
-            
-            <h6 class="font-weight-bold mt-3 text-secondary"><i class="fas fa-history mr-2"></i>Giao dịch gần đây</h6>
-            <div style="max-height: 200px; overflow-y: auto; font-size: 0.9rem;" class="mb-3">
-                ${recentLogsHtml || '<div class="text-center text-muted">Chưa có giao dịch</div>'}
-            </div>
-
-            <h6 class="font-weight-bold mt-2 text-info"><i class="fas fa-users mr-2"></i>Danh sách đã đóng tiền (${contributorList.length})</h6>
-            <div style="max-height: 100px; overflow-y: auto; font-size: 0.85rem;" class="border rounded p-2 bg-light text-muted">
-                ${contributorList.length > 0 ? contributorList.join(', ') : 'Chưa có dữ liệu'}
-            </div>
-            <div class="mt-3 text-right">
-                <button class="btn btn-sm btn-success font-weight-bold" onclick="exportFundHistoryExcel()"><i class="fas fa-file-excel mr-2"></i>Xuất Excel Chi tiết</button>
-            </div>
-        </div>
-    </div>`;
-    
-    appendMessage('ai', '✅ Đây là báo cáo tình hình quỹ của nhóm:');
-    $('#aiChatHistory').append(html);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-}
-
-function renderProductSearchAI(query, items) {
-    let html = `<div class="ai-card"><div class="ai-card-header bg-warning text-dark"><i class="fas fa-shopping-cart mr-2"></i>Kết quả tìm kiếm: "${query}"</div><div class="ai-card-body p-2">`;
-    
-    if (items && items.length > 0) {
-        items.forEach(item => {
-            const searchUrl = `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(item.name)}`;
-            html += `
-            <div class="product-card" onclick="window.open('${searchUrl}', '_blank')">
-                <div class="product-icon"><i class="fas fa-search"></i></div>
-                <div class="flex-grow-1">
-                    <div class="font-weight-bold text-primary">${item.name}</div>
-                    <div class="small text-muted">Giá tham khảo: <span class="text-danger font-weight-bold">${item.price}</span></div>
-                </div>
-                <i class="fas fa-chevron-right text-muted"></i>
-            </div>`;
-        });
-    } else {
-        html += '<div class="text-center text-muted p-3">Không tìm thấy gợi ý phù hợp.</div>';
-    }
-    
-    html += `<div class="text-center mt-2"><a href="https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}" target="_blank" class="btn btn-sm btn-outline-primary btn-block">Xem thêm trên Google Shopping</a></div>`;
-    html += `</div></div>`;
-    
-    appendMessage('ai', `✅ Đã tìm thấy một số gợi ý cho "${query}":`);
-    $('#aiChatHistory').append(html);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-}
-
-async function showAIGenderChart() {
-    await loadLib('Chart');
-    const counts = { 'Nam': 0, 'Nữ': 0, 'Khác': 0 };
-    globalGroupStudents.forEach(s => {
-        const g = s.gender || 'Khác';
-        counts[g] = (counts[g] || 0) + 1;
-    });
-
-    const chartId = 'aiChart_' + new Date().getTime();
-    const html = `<div class="card mt-2 shadow-sm" style="max-width: 300px;"><div class="card-header bg-warning p-2"><h3 class="card-title text-sm">Thống kê Giới tính</h3></div><div class="card-body p-2"><canvas id="${chartId}" height="200"></canvas></div></div>`;
-    
-    appendMessage('ai', '✅ Đây là biểu đồ thống kê giới tính của nhóm:');
-    $('#aiChatHistory').append(html);
-    document.getElementById('aiChatHistory').scrollTop = document.getElementById('aiChatHistory').scrollHeight;
-
-    new Chart(document.getElementById(chartId), {
-        type: 'pie',
-        data: {
-            labels: Object.keys(counts),
-            datasets: [{ data: Object.values(counts), backgroundColor: ['#007bff', '#e83e8c', '#6c757d'] }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
 }
 
 function initFpsMonitor() {

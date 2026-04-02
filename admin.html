@@ -406,12 +406,13 @@
         <!-- MAIN MENU GRID -->
         <div id="main-menu-section" class="content pt-4">
             <div class="container-fluid">
-                <div class="jumbotron bg-white shadow-sm text-center" style="border-radius: 15px;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Logo" style="width: 100px; margin-bottom: 20px;">
+                <div class="hero-section text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Logo" style="width: 80px; margin-bottom: 20px; filter: drop-shadow(0 10px 15px rgba(30, 136, 229, 0.2));">
                     <h1 class="display-4 text-primary font-weight-bold">Chào mừng đến với Hệ thống <br>quản lý sinh hoạt hè của Quản trị!</h1>
-                    <p class="lead">Xin chào, <b id="welcomeAdminName">Admin</b>. Chúc bạn một ngày làm việc hiệu quả.</p>
-                    <hr class="my-4">
-                    <a class="btn btn-primary btn-lg rounded-pill px-4" href="javascript:void(0)" onclick="showTab('tab-dashboard')" role="button"><i class="fas fa-chart-line mr-2"></i>Xem Thống kê ngay</a>
+                    <p class="lead text-muted">Xin chào, <b id="welcomeAdminName" class="text-dark">Admin</b>. Chúc bạn một ngày làm việc hiệu quả.</p>
+                    <div class="mt-4">
+                        <a class="btn btn-primary btn-lg px-5" href="javascript:void(0)" onclick="showTab('tab-dashboard')" role="button"><i class="fas fa-chart-line mr-2"></i>Xem Thống kê ngay</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -472,58 +473,58 @@
                         <div class="row">
                             <!-- Students -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-info shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('students', 'Thống kê Học sinh', 'countHS')">
-                                    <span class="info-box-icon"><i class="fas fa-users"></i></span>
-                                    <div class="info-box-content"><span class="info-box-text">Học sinh</span><span class="info-box-number" id="countHS">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('students', 'Thống kê Học sinh', 'countHS')">
+                                    <div class="inner"><h3>0</h3><p id="countHS_label">Học sinh</p><span id="countHS" class="d-none">0</span></div>
+                                    <div class="icon"><i class="fas fa-users"></i></div>
                                 </div>
                             </div>
                             <!-- Present -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-success shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Có mặt', 'countPresent')">
-                                    <span class="info-box-icon"><i class="fas fa-check"></i></span>
-                                    <div class="info-box-content"><span class="info-box-text">Có mặt</span><span class="info-box-number" id="countPresent">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Có mặt', 'countPresent')">
+                                    <div class="inner"><h3 class="text-success">0</h3><p>Có mặt</p><span id="countPresent" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #28a745 !important;"><i class="fas fa-check"></i></div>
                                 </div>
                             </div>
                             <!-- Absent P -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-warning shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (P)', 'countAbsentP')">
-                                    <span class="info-box-icon text-white"><i class="fas fa-envelope"></i></span>
-                                    <div class="info-box-content text-white"><span class="info-box-text">Vắng (P)</span><span class="info-box-number" id="countAbsentP">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (P)', 'countAbsentP')">
+                                    <div class="inner"><h3 class="text-warning">0</h3><p>Vắng (P)</p><span id="countAbsentP" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #ffc107 !important;"><i class="fas fa-envelope"></i></div>
                                 </div>
                             </div>
                             <!-- Absent K -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-danger shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (K)', 'countAbsent')">
-                                    <span class="info-box-icon"><i class="fas fa-times"></i></span>
-                                    <div class="info-box-content"><span class="info-box-text">Vắng (K)</span><span class="info-box-number" id="countAbsent">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('attendance', 'Thống kê Vắng (K)', 'countAbsent')">
+                                    <div class="inner"><h3 class="text-danger">0</h3><p>Vắng (K)</p><span id="countAbsent" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #dc3545 !important;"><i class="fas fa-times"></i></div>
                                 </div>
                             </div>
                             <!-- Managers -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-purple shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('managers', 'Thống kê Quản lý', 'countManagers')">
-                                    <span class="info-box-icon"><i class="fas fa-user-shield"></i></span>
-                                    <div class="info-box-content"><span class="info-box-text">Quản lý</span><span class="info-box-number" id="countManagers">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('managers', 'Thống kê Quản lý', 'countManagers')">
+                                    <div class="inner"><h3 style="color: #6f42c1">0</h3><p>Quản lý</p><span id="countManagers" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #6f42c1 !important;"><i class="fas fa-user-shield"></i></div>
                                 </div>
                             </div>
                             <!-- Groups -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-indigo shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('groups', 'Thống kê Nhóm', 'countGroups')">
-                                    <span class="info-box-icon"><i class="fas fa-layer-group"></i></span>
-                                    <div class="info-box-content"><span class="info-box-text">Nhóm SHH</span><span class="info-box-number" id="countGroups">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('groups', 'Thống kê Nhóm', 'countGroups')">
+                                    <div class="inner"><h3 style="color: #6610f2">0</h3><p>Nhóm SHH</p><span id="countGroups" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #6610f2 !important;"><i class="fas fa-layer-group"></i></div>
                                 </div>
                             </div>
                             <!-- Notifications -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-orange shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('notifications', 'Thống kê Thông báo', 'countNotis')">
-                                    <span class="info-box-icon text-white"><i class="fas fa-bell"></i></span>
-                                    <div class="info-box-content text-white"><span class="info-box-text">Thông báo</span><span class="info-box-number" id="countNotis">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('notifications', 'Thống kê Thông báo', 'countNotis')">
+                                    <div class="inner"><h3 style="color: #fd7e14">0</h3><p>Thông báo</p><span id="countNotis" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #fd7e14 !important;"><i class="fas fa-bell"></i></div>
                                 </div>
                             </div>
                             <!-- Feedbacks -->
                             <div class="col-12 col-sm-6 col-md-3">
-                                <div class="info-box bg-teal shadow-sm mb-3" style="cursor: pointer;" onclick="showChartsFor('feedbacks', 'Thống kê Phản ánh', 'countFeedbacks')">
-                                    <span class="info-box-icon"><i class="fas fa-comments"></i></span>
-                                    <div class="info-box-content"><span class="info-box-text">Phản ánh</span><span class="info-box-number" id="countFeedbacks">0</span></div>
+                                <div class="small-box mb-3" style="cursor: pointer;" onclick="showChartsFor('feedbacks', 'Thống kê Phản ánh', 'countFeedbacks')">
+                                    <div class="inner"><h3 style="color: #20c997">0</h3><p>Phản ánh</p><span id="countFeedbacks" class="d-none">0</span></div>
+                                    <div class="icon" style="color: #20c997 !important;"><i class="fas fa-comments"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -1024,7 +1025,6 @@
                 <div class="form-group"><label>Phân quyền</label>
                     <select id="u_role" class="form-control">
                         <option value="manager">Quản lý (Manager)</option>
-                        <option value="supervisor">Cấp quản lý (Supervisor)</option>
                         <option value="admin">Quản trị (Admin)</option>
                     </select>
                 </div>
@@ -1471,9 +1471,9 @@
                         <p><b>Quản lý Dữ liệu:</b></p>
                         <ul>
                             <li><b>Học sinh:</b> Quản lý toàn bộ học sinh của tất cả các nhóm. Hỗ trợ nhập liệu từ Excel, xuất PDF, in ấn.</li>
-                            <li><b>Tài khoản:</b> Tạo và quản lý tài khoản cho Manager/Supervisor.
+                            <li><b>Tài khoản:</b> Tạo và quản lý tài khoản cho Manager.
                                 <ul>
-                                    <li><b>Cấp quyền:</b> Chọn vai trò (Manager/Supervisor/Admin) và nhóm phụ trách.</li>
+                                    <li><b>Cấp quyền:</b> Chọn vai trò (Manager/Admin) và nhóm phụ trách.</li>
                                     <li><b>Vinh danh:</b> Cấu hình khung Avatar VIP và các danh hiệu đặc biệt cho quản lý xuất sắc.</li>
                                 </ul>
                             </li>
@@ -1759,8 +1759,8 @@ function renderStudentTable(data) {
     $('#studentData').html(html);
     $('#studentTable').DataTable({ 
         "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
-        "pageLength": 10,
-        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tất cả"]]
+        "pageLength": -1,
+        "lengthMenu": [[-1, 10, 25, 50], ["Tất cả", 10, 25, 50]]
     });
 }
 
@@ -1857,7 +1857,6 @@ async function loadExtraData() {
                 
                 let roleBadge = `<span class="badge badge-secondary">${m.role}</span>`;
                 if (m.role === 'admin') roleBadge = `<span class="badge badge-danger">ADMIN</span>`;
-                if (m.role === 'supervisor') roleBadge = `<span class="badge badge-primary">SUPERVISOR</span>`;
 
                 mHtml += `<tr>
                     <td class="text-center"><img src="${m.avatar || 'https://via.placeholder.com/50'}" class="img-manager shadow-sm"></td>
@@ -1879,7 +1878,11 @@ async function loadExtraData() {
                 $('#managerTable').DataTable().destroy();
             }
             $('#managerData').html(mHtml);
-            $('#managerTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" }});
+            $('#managerTable').DataTable({ 
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json" },
+                "pageLength": -1,
+                "lengthMenu": [[-1, 10, 25, 50], ["Tất cả", 10, 25, 50]]
+            });
 
             // Manager Charts
             const roleCounts = {};
@@ -3090,8 +3093,13 @@ async function resetPassword(username) {
         try {
             const response = await fetch(API_URL, { method: "POST", redirect: "follow", body: JSON.stringify({ action: 'RESET_PASSWORD', payload: { username: username, admin_user: JSON.parse(sessionStorage.getItem('user')).username } }) });
             const res = await response.json();
-            if (res.status === 'success') Swal.fire('Thành công!', res.message, 'success');
-            else Swal.fire('Lỗi', res.message, 'error');
+            if (res.status === 'success') {
+                Swal.fire({
+                    title: 'Thành công!',
+                    html: `<p>Đã reset mật khẩu cho <b>${username}</b>.</p><p><b>Mật khẩu mới:</b> <span class="text-danger font-weight-bold">${res.new_pass}</span></p><p class="text-warning"><i class="fas fa-camera"></i> Vui lòng chụp lại hoặc ghi lại mật khẩu này.</p>`,
+                    icon: 'success'
+                });
+            } else Swal.fire('Lỗi', res.message, 'error');
         } catch (e) { Swal.fire('Lỗi', 'Lỗi kết nối', 'error'); }
     }
 }
@@ -3139,9 +3147,6 @@ async function saveData(type) {
         // Check VIP exclusivity
         const role = $('#u_role').val();
         const vip = $('#u_vip_level').val();
-        if ((vip === 'vip4' || vip === 'vip5') && role !== 'supervisor') {
-            return Swal.fire('Lỗi', 'VIP 4 và VIP 5 chỉ dành cho Cấp quản lý (Supervisor)!', 'error');
-        }
         
         // Auto add Title for VIP 10
         if (vip === 'vip10') {

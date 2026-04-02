@@ -78,14 +78,10 @@
             const res = await response.json();
 
             if (res.status === "success") {
-                if (res.user.role === 'admin' || res.user.role === 'supervisor') {
+                if (res.user.role === 'admin') {
                     sessionStorage.setItem('user', JSON.stringify(res.user));
                     toastr.success("Đăng nhập thành công!");
-                    if (res.user.role === 'admin') {
-                        window.location.replace('admin.html');
-                    } else { // supervisor
-                        window.location.replace('supervisor.html');
-                    }
+                    window.location.replace('admin.html');
                 } else {
                     toastr.error("Tài khoản của bạn không có quyền truy cập vào khu vực này.");
                     btn.disabled = false;

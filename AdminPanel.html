@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <title>SHH Admin Panel</title>
+    <style>
+      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
+      .card { background: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 18px; margin: 12px; }
+      h2 { margin: 0 0 12px; color: #1c3d5f; font-size: 1.3rem; }
+      .btn { font-weight: 700; border: none; cursor: pointer; border-radius: 8px; padding: 10px 16px; margin: 8px 0; }
+      .btn-primary { background: linear-gradient(135deg,#1e88e5,#1565c0); color: #fff; }
+      .btn-secondary { background: #e2e8f0; color: #243b5a; }
+      .info { margin-top: 14px; min-height: 42px; border-radius: 8px; padding: 9px; font-size: .95rem; }
+      .info-ok { background: #d3f9d8; color: #22543d; }
+      .info-error { background: #ffe5e5; color: #8b1a1a; }
+      .row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .col { flex: 1; min-width: 170px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Trung tâm quản lý SHH</h2>
+      <div class="row">
+        <div class="col">
+          <button class="btn btn-primary" onclick="runCheck()">Kiểm tra + tạo bảng</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-secondary" onclick="runSample()">Tạo dữ liệu mẫu nhanh</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-secondary" onclick="google.script.host.close()">Đóng</button>
+        </div>
+      </div>
+      <div id="message" class="info">Chọn hành động cần thực hiện.</div>
+    </div>
+    <script>
+      function setMessage(text, ok = true) {
+        const el = document.getElementById('message');
+        el.textContent = text;
+        el.className = 'info ' + (ok ? 'info-ok' : 'info-error');
+      }
+
+      function runCheck() {
+        setMessage('Đang kiểm tra...');
+        google.script.run.withSuccessHandler(function() {
+          setMessage('Đã kiểm tra và tạo bảng mẫu (nếu thiếu) xong.');
+        }).withFailureHandler(function(err) {
+          setMessage('Lỗi: ' + err.message, false);
+        }).checkAndCreateSheets();
+      }
+
+      function runSample() {
+        setMessage('Đang tạo dữ liệu mẫu...');
+        google.script.run.withSuccessHandler(function() {
+          setMessage('Đã tạo dữ liệu mẫu cơ bản.');
+        }).withFailureHandler(function(err) {
+          setMessage('Lỗi: ' + err.message, false);
+        }).createSampleData();
+      }
+    </script>
+  </body>
+</html>
