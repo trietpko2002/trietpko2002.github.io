@@ -1556,7 +1556,96 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+// --- GIẢ LẬP DATABASE (MOCK DATA) ---
+if (!window.MOCK_DB) {
+    window.MOCK_DB = {
+        students: [
+            { id: "ST001", fullname: "Nguyễn Văn A", gender: "Nam", dob: "15/05/2010", class_name: "8A1", school: "THCS Phan Rang", address: "123 Ngô Gia Tự", phone: "0912345678", group_id: "1", reg_time: "Sáng", reg_loc: "Sân trường" },
+            { id: "ST002", fullname: "Trần Thị B", gender: "Nữ", dob: "20/08/2011", class_name: "7A2", school: "THCS Trần Phú", address: "456 Thống Nhất", phone: "0987654321", group_id: "1", reg_time: "Sáng", reg_loc: "Sân trường" }
+        ],
+        history: [],
+        notifications: [
+            { id: "NOTI1", title: "Họp nhóm tuần 1", content: "Tất cả tập trung lúc 8h sáng thứ 2.", datetime: "2026-04-06 08:00", early: "TRUE", type: "normal" }
+        ],
+        funds: [],
+        config: { marquee_enabled: "TRUE", marquee_text: "Chào mừng các quản lý hè!", attendance_start_time: "06:00", attendance_end_time: "22:00" }
+    };
+}
+
+// --- HÀM GIẢ LẬP FETCH API ---
+async function fetch(url, options) {
+    const body = options ? JSON.parse(options.body) : {};
+    const { action, payload } = body;
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            let response = { status: "success", data: null };
+            const user = JSON.parse(sessionStorage.getItem('user'));
+
+            switch(action) {
+                case "GET_STUDENTS_BY_GROUP":
+                    response.data = window.MOCK_DB.students.filter(s => s.group_id === payload.group_id);
+                    break;
+                case "SAVE_ATTENDANCE":
+                    payload.attendance.forEach(att => {
+                        window.MOCK_DB.history.push({
+                            timestamp: new Date().toLocaleString('vi-VN'),
+                            student_id: att.student_id,
+                            student_name: window.MOCK_DB.students.find(s => s.id === att.student_id)?.fullname,
+                            status: att.status,
+                            recorded_by: payload.recorded_by,
+                            group_id: payload.group_id,
+                            reason: att.reason
+                        });
+                    });
+                    break;
+                case "GET_CONFIG":
+                    response.data = window.MOCK_DB.config;
+                    break;
+                case "GET_ADMIN_EXTRAS":
+                    response.data = { notifications: window.MOCK_DB.notifications, read_ids: [] };
+                    break;
+                case "GET_FUND_LOGS":
+                    response.data = window.MOCK_DB.funds.filter(f => f.group_id === payload.group_id);
+                    break;
+                case "SAVE_FUND_LOG":
+                    window.MOCK_DB.funds.push({
+                        type: "THU",
+                        amount: payload.total_collected,
+                        manager: payload.manager,
+                        timestamp: payload.timestamp,
+                        details: payload.notes,
+                        paid_list: payload.paid_students,
+                        group_id: payload.group_id
+                    });
+                    break;
+                case "SAVE_EXPENSE_LOG":
+                    window.MOCK_DB.funds.push({
+                        type: "CHI",
+                        amount: payload.amount,
+                        manager: payload.manager,
+                        timestamp: new Date().toLocaleString('vi-VN'),
+                        reason: payload.reason,
+                        notes: payload.notes,
+                        group_id: payload.group_id
+                    });
+                    break;
+                case "GET_UPLOADS":
+                    response.data = [];
+                    break;
+                default:
+                    response.data = [];
+            }
+
+            resolve({
+                json: () => Promise.resolve(response),
+                ok: true,
+                status: 200
+            });
+        }, 200);
+    });
+}
+
 let globalGroupStudents = [];
 let globalNotifications = [];
 let schoolList = [];

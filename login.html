@@ -307,7 +307,49 @@
 </head>
 <body class="hold-transition login-page">
 <script>
-    var API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+    // --- GIẢ LẬP HỆ THỐNG (MOCK SYSTEM) ---
+    window.API_URL = "mock-api-url";
+    const MOCK_USERS = [
+        { username: "admin", password: "123", fullname: "Quản trị viên", role: "admin", avatar: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png" },
+        { username: "manager", password: "123", fullname: "Trưởng nhóm 1", role: "manager", group_id: "1", avatar: "https://via.placeholder.com/50" }
+    ];
+
+    // Ghi đè hàm fetch toàn cục để giả lập gọi API
+    async function fetch(url, options) {
+        if (url !== window.API_URL && !url.includes('github')) return window.originalFetch ? window.originalFetch(url, options) : window.fetch(url, options);
+        
+        const body = options ? JSON.parse(options.body) : {};
+        const { action, payload } = body;
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                let response = { status: "error", message: "Lỗi kết nối giả lập" };
+
+                switch(action) {
+                    case "LOGIN":
+                        const user = MOCK_USERS.find(u => u.username === payload.username && u.password === payload.password);
+                        if (user) {
+                            response = { status: "success", user: { ...user } };
+                            delete response.user.password; // Bảo mật (giả lập)
+                        } else {
+                            response.message = "Sai tên đăng nhập hoặc mật khẩu! (Gợi ý: manager / 123)";
+                        }
+                        break;
+                    case "GET_SCHOOL_LIST":
+                        response = { status: "success", data: ["Trường TH Phan Rang", "Trường THCS Trần Phú", "Trường THCS Phan Đăng Lưu"] };
+                        break;
+                    default:
+                        response = { status: "success", data: [] };
+                }
+
+                resolve({
+                    json: () => Promise.resolve(response),
+                    ok: true,
+                    status: 200
+                });
+            }, 800); // Tạo độ trễ 0.8s cho giống thật
+        });
+    }
 </script>
 <div class="login-container" id="loginContainer" style="display: flex;">
   <div class="login-box">

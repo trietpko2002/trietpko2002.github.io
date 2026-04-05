@@ -48,7 +48,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+    // --- GIẢ LẬP LOGIN ADMIN ---
+    window.API_URL = "mock-admin-url";
+    const MOCK_ADMINS = [
+        { username: "admin", password: "123", fullname: "Quản trị viên", role: "admin" }
+    ];
+
+    async function fetch(url, options) {
+        const body = options ? JSON.parse(options.body) : {};
+        const { action, payload } = body;
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                let response = { status: "error", message: "Lỗi hệ thống giả lập" };
+
+                if (action === "LOGIN") {
+                    const user = MOCK_ADMINS.find(u => u.username === payload.username && u.password === payload.password);
+                    if (user) {
+                        response = { status: "success", user: { ...user } };
+                        delete response.user.password;
+                    } else {
+                        response.message = "Sai tài khoản Admin! (Thử: admin / 123)";
+                    }
+                }
+
+                resolve({
+                    json: () => Promise.resolve(response),
+                    ok: true,
+                    status: 200
+                });
+            }, 800);
+        });
+    }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();

@@ -1533,7 +1533,86 @@
 <audio id="startupAudio" preload="auto"><source src="music/startup.mp3" type="audio/mpeg"></audio>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzxtNKV1ZPvO3hRhgFTuMs49QeuD5ALRnA4aRYQy20MXGLMmgLLfjkmEy3B-XM500RisA/exec";
+// --- GIẢ LẬP DATABASE (MOCK DATA) ---
+const MOCK_DB = {
+    students: [
+        { id: "ST001", fullname: "Nguyễn Văn A", gender: "Nam", dob: "15/05/2010", class_name: "8A1", school: "THCS Phan Rang", address: "123 Ngô Gia Tự", phone: "0912345678", group_id: "1", group_display: "Nhóm 1", reg_time: "Sáng", reg_loc: "Sân trường" },
+        { id: "ST002", fullname: "Trần Thị B", gender: "Nữ", dob: "20/08/2011", class_name: "7A2", school: "THCS Trần Phú", address: "456 Thống Nhất", phone: "0987654321", group_id: "1", group_display: "Nhóm 1", reg_time: "Sáng", reg_loc: "Sân trường" },
+        { id: "ST003", fullname: "Lê Văn C", gender: "Nam", dob: "10/01/2010", class_name: "9A3", school: "THCS Phan Đăng Lưu", address: "789 Yên Ninh", phone: "0333444555", group_id: "2", group_display: "Nhóm 2", reg_time: "Sáng", reg_loc: "Phòng truyền thống" }
+    ],
+    users: [
+        { username: "admin", fullname: "Quản trị viên", role: "admin", group_id: "", avatar: "https://cdn-icons-png.flaticon.com/512/2921/2921222.png", honors: "{}" },
+        { username: "manager", fullname: "Trưởng nhóm 1", role: "manager", group_id: "1", avatar: "https://via.placeholder.com/50", honors: "{}" }
+    ],
+    groups: [
+        { group_id: "1", group_name: "Nhóm 1", count: 2, limit: 20 },
+        { group_id: "2", group_name: "Nhóm 2", count: 1, limit: 20 }
+    ],
+    history: [
+        { timestamp: "05/04/2026 08:00", student_name: "Nguyễn Văn A", group_id: "1", status: "present", recorded_by: "Trưởng nhóm 1", reason: "" }
+    ],
+    notifications: [
+        { id: "NOTI1", title: "Chào mừng hè 2026", content: "Chuẩn bị kế hoạch ra quân hè sắp tới.", datetime: "2026-04-10 08:00", early: "TRUE", type: "normal", read_by: "" }
+    ],
+    feedbacks: [],
+    evaluations: [],
+    logs: [
+        { timestamp: "05/04/2026 06:00", username: "admin", action: "LOGIN", details: "Đăng nhập hệ thống giả lập" }
+    ],
+    config: {
+        maintenance_mode: "FALSE", marquee_enabled: "TRUE", marquee_text: "Hệ thống đang chạy chế độ Demo Offline", theme_color: "#1e88e5"
+    }
+};
+
+// --- HÀM GIẢ LẬP FETCH API ---
+async function fetch(url, options) {
+    const body = options ? JSON.parse(options.body) : {};
+    const action = body.action;
+    const payload = body.payload;
+
+                    break;
+                case "GET_FEEDBACKS":
+                    response.data = MOCK_DB.feedbacks;
+                    break;
+                case "GET_EVALUATIONS":
+                    response.data = MOCK_DB.evaluations;
+                    break;
+                case "GET_CONFIG":
+                    response.data = MOCK_DB.config;
+                    break;
+                case "ADD_DATA":
+                case "UPDATE_DATA":
+                    if (payload.type === 'students') {
+                        const idx = MOCK_DB.students.findIndex(s => s.id === payload.id);
+                        const newObj = {
+                            id: payload.data[0], fullname: payload.data[1], gender: payload.data[2], dob: payload.data[3],
+                            class_name: payload.data[4], school: payload.data[5], address: payload.data[6],
+                            phone: payload.data[7], group_id: payload.data[8], group_display: "Nhóm " + payload.data[8]
+                        };
+                        if (idx > -1) MOCK_DB.students[idx] = newObj;
+                        else MOCK_DB.students.push(newObj);
+                    }
+                    response.message = "Đã lưu (Giả lập)";
+                    break;
+                case "DELETE_DATA":
+                    if (payload.type === 'students') {
+                        MOCK_DB.students = MOCK_DB.students.filter(s => s.id !== payload.id);
+                    }
+                    response.message = "Đã xóa (Giả lập)";
+                    break;
+                default:
+                    console.warn("Action chưa được giả lập:", action);
+            }
+
+            resolve({
+                json: () => Promise.resolve(response),
+                ok: true,
+                status: 200
+            });
+        }, 300); // Giả lập độ trễ mạng 300ms
+    });
+}
+
 let globalHistoryData = [], globalStudentsData = [], globalUsersData = [], globalGroupsData = [], globalNotisData = [], globalLogsData = [];
 let chartEval, chartStGroup, chartStTrend;
 let modalChart1, modalChart2, currentChartCategory = '';
