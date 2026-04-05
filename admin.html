@@ -1570,6 +1570,29 @@ async function fetch(url, options) {
     const action = body.action;
     const payload = body.payload;
 
+    console.log("%c [MOCK API] Calling:", "color: #007bff; font-weight: bold", action, payload);
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            let response = { status: "success", data: null };
+
+            switch(action) {
+                case "GET_USERS":
+                    response.data = { students: MOCK_DB.students, totalStudents: MOCK_DB.students.length };
+                    break;
+                case "GET_ADMIN_STATS":
+                    response.data = {
+                        present: MOCK_DB.history.filter(h => h.status === 'present').length,
+                        absent_perm: MOCK_DB.history.filter(h => h.status === 'absent_perm').length,
+                        absent: MOCK_DB.history.filter(h => h.status === 'absent').length,
+                        history: MOCK_DB.history
+                    };
+                    break;
+                case "GET_ADMIN_EXTRAS":
+                    response.data = { managers: MOCK_DB.users, groups: MOCK_DB.groups, notifications: MOCK_DB.notifications };
+                    break;
+                case "GET_LOGS":
+                    response.data = MOCK_DB.logs;
                     break;
                 case "GET_FEEDBACKS":
                     response.data = MOCK_DB.feedbacks;
